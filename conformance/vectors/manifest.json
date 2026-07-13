@@ -1,0 +1,17 @@
+{
+  "schema": "reallyme.cose.conformance.vector_manifest.v1",
+  "suites": [
+    {
+      "id": "cose-sign1",
+      "source": "ReallyMe deterministic fixture",
+      "path": "cose-sign1.json",
+      "case_count": 23
+    },
+    {
+      "id": "cose-key",
+      "source": "ReallyMe generated public-key fixture",
+      "path": "cose-key.json",
+      "case_count": 6
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
+#
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "reallyme-cose-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+rust-version = "1.96"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+reallyme-cose = { path = "..", default-features = false, features = ["native"] }
+
+[[bin]]
+name = "cose_sign1"
+path = "fuzz_targets/cose_sign1.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "cose_key"
+path = "fuzz_targets/cose_key.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "multikey_to_cose"
+path = "fuzz_targets/multikey_to_cose.rs"
+test = false
+doc = false
+bench = false
+
+[workspace]
+members = ["."]
