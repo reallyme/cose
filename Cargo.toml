@@ -4,7 +4,7 @@
 
 [package]
 name = "reallyme-cose"
-version = "0.1.1"
+version = "0.1.2"
 description = "Audit-facing COSE helpers for ReallyMe identity software."
 edition = "2021"
 rust-version = "1.96"
@@ -17,6 +17,8 @@ include = [
     "/src/**/*.rs",
     "/tests/**/*.rs",
     "/conformance/**/*.json",
+    "/proto/**/*.proto",
+    "/buf.yaml",
     "/Cargo.toml",
     "/README.md",
     "/LICENSE",
