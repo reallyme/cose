@@ -1,0 +1,89 @@
+// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
+//
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package reallyme.cose.v1;
+
+option go_package = "github.com/reallyme/cose/gen/go/reallyme/cose/v1;cosev1";
+option java_multiple_files = true;
+option java_outer_classname = "CoseProto";
+option java_package = "me.really.cose.v1";
+
+// CoseError is the public, non-PII error envelope for COSE boundary failures.
+// The oneof keeps COSE_Sign1, COSE_Key, and Multikey failures distinct while
+// the shared CoseErrorReason enum provides stable cross-language reason codes.
+message CoseError {
+  oneof error {
+    CoseSign1Error sign1 = 1;
+    CoseKeyError key = 2;
+    CoseMultikeyError multikey = 3;
+  }
+}
+
+// CoseSign1Error describes COSE_Sign1 structure, protected-header policy,
+// signing, and signature-verification failures.
+message CoseSign1Error {
+  // Reason must be one of the COSE_ERROR_REASON_COMMON_* or
+  // COSE_ERROR_REASON_SIGN1_* values.
+  CoseErrorReason reason = 1;
+}
+
+// CoseKeyError describes COSE_Key structure, algorithm/key binding, key
+// material extraction, and deterministic kid derivation failures.
+message CoseKeyError {
+  // Reason must be one of the COSE_ERROR_REASON_COMMON_* or
+  // COSE_ERROR_REASON_KEY_* values.
+  CoseErrorReason reason = 1;
+}
+
+// CoseMultikeyError describes Multikey decoding and COSE_Key conversion
+// failures.
+message CoseMultikeyError {
+  // Reason must be one of the COSE_ERROR_REASON_COMMON_*,
+  // COSE_ERROR_REASON_KEY_*, or COSE_ERROR_REASON_MULTIKEY_* values.
+  CoseErrorReason reason = 1;
+}
+
+// CoseErrorReason is the component-owned reason-code enum for reallyme/cose.
+// Values are stable public boundary codes; internal Rust errors must map into
+// one of these before crossing RPC, SDK, FFI, storage, audit, or telemetry
+// boundaries. Numeric ranges are intentionally split by COSE subpart:
+//   100-199: common COSE binary, CBOR, algorithm, and crypto failures
+//   200-299: COSE_Sign1
+//   300-399: COSE_Key and kid derivation
+//   400-499: Multikey interop
+enum CoseErrorReason {
+  COSE_ERROR_REASON_UNSPECIFIED = 0;
+
+  // Common COSE binary and CBOR boundary failures.
+  COSE_ERROR_REASON_COMMON_CBOR = 100;
+  COSE_ERROR_REASON_COMMON_INVALID_FORMAT = 101;
+  COSE_ERROR_REASON_COMMON_RESOURCE_LIMIT_EXCEEDED = 102;
+  COSE_ERROR_REASON_COMMON_NON_CANONICAL_CBOR = 103;
+  COSE_ERROR_REASON_COMMON_UNEXPECTED_CBOR_TAG = 104;
+  COSE_ERROR_REASON_COMMON_DUPLICATE_MAP_LABEL = 105;
+
+  // Common algorithm and cryptographic backend failures.
+  COSE_ERROR_REASON_COMMON_UNSUPPORTED_ALGORITHM = 120;
+  COSE_ERROR_REASON_COMMON_CRYPTO_FAILED = 121;
+
+  // COSE_Sign1 payload, policy, and key-resolution failures.
+  COSE_ERROR_REASON_SIGN1_MISSING_PAYLOAD = 200;
+  COSE_ERROR_REASON_SIGN1_MISSING_KID = 201;
+  COSE_ERROR_REASON_SIGN1_KEY_NOT_RESOLVED = 202;
+  COSE_ERROR_REASON_SIGN1_UNSUPPORTED_CRITICAL_HEADER = 203;
+  COSE_ERROR_REASON_SIGN1_UNPROTECTED_HEADER_NOT_ALLOWED = 204;
+
+  // COSE_Sign1 signature encoding, verification, and signing failures.
+  COSE_ERROR_REASON_SIGN1_INVALID_SIGNATURE = 220;
+  COSE_ERROR_REASON_SIGN1_MISSING_PRIVATE_KEY = 221;
+
+  // COSE_Key material and key-shape failures.
+  COSE_ERROR_REASON_KEY_MISSING_KEY_MATERIAL = 300;
+  COSE_ERROR_REASON_KEY_INVALID_KEY_MATERIAL = 301;
+
+  // Multikey decoding and COSE_Key conversion failures.
+  COSE_ERROR_REASON_MULTIKEY_INVALID_MULTIKEY = 400;
+}

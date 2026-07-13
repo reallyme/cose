@@ -10,7 +10,7 @@ import { spawnSync } from "node:child_process";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const expectedPackageName = "reallyme-cose";
-const expectedVersion = "0.1.1";
+const expectedVersion = "0.1.2";
 const packageListArgs =
   process.env.GITHUB_ACTIONS === "true"
     ? ["package", "--list", "-p", expectedPackageName]
@@ -64,6 +64,8 @@ assertContains("Cargo.toml", 'include = [');
 assertContains("Cargo.toml", '"/src/**/*.rs"');
 assertContains("Cargo.toml", '"/tests/**/*.rs"');
 assertContains("Cargo.toml", '"/conformance/**/*.json"');
+assertContains("Cargo.toml", '"/proto/**/*.proto"');
+assertContains("Cargo.toml", '"/buf.yaml"');
 assertContains("Cargo.toml", '"/README.md"');
 assertContains("Cargo.toml", '"/LICENSE"');
 assertContains("Cargo.toml", '"/NOTICE"');
@@ -74,6 +76,30 @@ assertContains("README.md", "Resource Limits");
 assertContains("README.md", "Independent Vector Audit");
 assertContains("conformance/vectors/manifest.json", "reallyme.cose.conformance.vector_manifest.v1");
 assertContains("tools/vector-audit/Cargo.toml", 'name = "reallyme-cose-vector-audit"');
+assertContains("buf.yaml", "modules:");
+assertContains("buf.yaml", "- path: proto");
+assertContains("proto/reallyme/cose/v1/cose.proto", "package reallyme.cose.v1;");
+assertContains("proto/reallyme/cose/v1/cose.proto", "message CoseError");
+assertContains("proto/reallyme/cose/v1/cose.proto", "message CoseSign1Error");
+assertContains("proto/reallyme/cose/v1/cose.proto", "message CoseKeyError");
+assertContains("proto/reallyme/cose/v1/cose.proto", "message CoseMultikeyError");
+assertContains("proto/reallyme/cose/v1/cose.proto", "enum CoseErrorReason");
+assertContains(
+  "proto/reallyme/cose/v1/cose.proto",
+  "COSE_ERROR_REASON_COMMON_CBOR = 100;",
+);
+assertContains(
+  "proto/reallyme/cose/v1/cose.proto",
+  "COSE_ERROR_REASON_SIGN1_MISSING_PAYLOAD = 200;",
+);
+assertContains(
+  "proto/reallyme/cose/v1/cose.proto",
+  "COSE_ERROR_REASON_KEY_MISSING_KEY_MATERIAL = 300;",
+);
+assertContains(
+  "proto/reallyme/cose/v1/cose.proto",
+  "COSE_ERROR_REASON_MULTIKEY_INVALID_MULTIKEY = 400;",
+);
 assertContains(".github/workflows/rust-ci.yml", "paths-ignore:");
 assertContains(".github/workflows/fuzz.yml", "paths-ignore:");
 assertContains(".github/workflows/crates-release.yml", "CARGO_REGISTRY_TOKEN");
