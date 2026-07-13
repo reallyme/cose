@@ -1,0 +1,48 @@
+{
+  "schema": "reallyme.cose.conformance.cose_key.v1",
+  "suite": "cose-key",
+  "cases": [
+    {
+      "id": "cose-key-ed25519-public",
+      "algorithm": "Ed25519",
+      "public_key_hex": "ea4a6c63e29c520abef5507b132ec5f9954776aebebe7b92421eea691446d22c",
+      "cose_key_hex": "a4010103272006215820ea4a6c63e29c520abef5507b132ec5f9954776aebebe7b92421eea691446d22c",
+      "multikey": "z6MkvDqGT54cXesYGvABpF1UapVNwjCqRcafi4Px6Thv5T3Z"
+    },
+    {
+      "id": "cose-key-p256-public",
+      "algorithm": "P256",
+      "public_key_hex": "037b78bfe0ed44cc7321059692848a3b0c35d04e1b82d6b1e1214ab87dbd789ce3",
+      "cose_key_hex": "a50102032620012158207b78bfe0ed44cc7321059692848a3b0c35d04e1b82d6b1e1214ab87dbd789ce322f5",
+      "multikey": "zDnaeqyGMYu4v1aQhn1xM4cTVnaSwBwVu6iNQL295ChCKc8Xc"
+    },
+    {
+      "id": "cose-key-p384-public",
+      "algorithm": "P384",
+      "public_key_hex": "0352de2820d3930225c8705258613331e8d899c856e0e4ab9d1a5304ed98dcbe9e430bafed7d77da8310c7d384cc57b4b3",
+      "cose_key_hex": "a50102033822200221583052de2820d3930225c8705258613331e8d899c856e0e4ab9d1a5304ed98dcbe9e430bafed7d77da8310c7d384cc57b4b322f5",
+      "multikey": "z82Lkxx6RdxCD74fDBzwctEaafBQHzbNZNkSpWAuMfy1VCZz3QgWnXnNU42E3oBUTSapDm4"
+    },
+    {
+      "id": "cose-key-p521-public",
+      "algorithm": "P521",
+      "public_key_hex": "0201cc5bfee5d5df62f5234b48706f56e44969229bc4f61c7e1b0e25ee7c74a62b6f0331a697fa1323e5248ad54ea3f5f5e5c95a0dde90c3f34e8496a125608074359e",
+      "cose_key_hex": "a50102033823200321584201cc5bfee5d5df62f5234b48706f56e44969229bc4f61c7e1b0e25ee7c74a62b6f0331a697fa1323e5248ad54ea3f5f5e5c95a0dde90c3f34e8496a125608074359e22f4",
+      "multikey": "z2J9gaZDcmFSVZQy5Dj47ai1f3rka7Xvgf9XYkuN2oSzy88YBhvFfrZKG3q6FQVuSiHfFxhGtFcDNRRaP2YhkhPQWamVKGpD"
+    },
+    {
+      "id": "cose-key-secp256k1-public",
+      "algorithm": "Secp256k1",
+      "public_key_hex": "022c0ddcba9e0487185d5634acc8c6879acc863b41a1156cf593fc13405382f9d2",
+      "cose_key_hex": "a5010203382e20082158202c0ddcba9e0487185d5634acc8c6879acc863b41a1156cf593fc13405382f9d222f4",
+      "multikey": "zQ3shQNkxMYtESaciQkoNuSUcFbbA8cdmVr8yDmwciamKinth"
+    },
+    {
+      "id": "cose-key-x25519-public",
+      "algorithm": "X25519",
+      "public_key_hex": "e65d78970cac55a8189d178de467e6b10147577979d2bf8c18e08a98964bc558",
+      "cose_key_hex": "a301012004215820e65d78970cac55a8189d178de467e6b10147577979d2bf8c18e08a98964bc558",
+      "multikey": "z6LSsBRbrZtdmqP2QCXKq54YvHzoYt4XnXbacA3pX9ohXraB"
+    }
+  ]
+}
