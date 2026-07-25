@@ -1,0 +1,92 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Protobuf Checks
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/protobuf-ci.yml"
+      - "buf.yaml"
+      - "buf.gen.yaml"
+      - "crates/proto/**"
+      - "scripts/check_release_readiness.mjs"
+      - "scripts/release-readiness/core.mjs"
+      - "scripts/harden-generated-cose-proto.mjs"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/protobuf-ci.yml"
+      - "buf.yaml"
+      - "buf.gen.yaml"
+      - "crates/proto/**"
+      - "scripts/check_release_readiness.mjs"
+      - "scripts/release-readiness/core.mjs"
+      - "scripts/harden-generated-cose-proto.mjs"
+
+permissions:
+  contents: read
+
+env:
+  BUFFA_VERSION: 0.9.0
+  BUF_VERSION: 1.71.0
+  BUF_LINUX_X86_64_SHA256: d3de2838c68a5759ca276884254bc70df4e4ad185d6ed5f65f327b6ce6363eab
+
+jobs:
+  protobuf:
+    name: lint, generated freshness
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@fa04a1451ff1842e2626ccb99004d0195b455a88 # master
+        with:
+          toolchain: 1.96.0
+          components: rustfmt
+
+      - name: Install Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc # v2.9.1
+
+      - name: Install buf
+        shell: bash
+        run: |
+          set -euo pipefail
+          install_dir="$RUNNER_TEMP/buf/bin"
+          mkdir -p "$install_dir"
+          curl --fail-with-body --location --proto '=https' --tlsv1.2 \
+            --retry 5 --retry-all-errors \
+            --output "$install_dir/buf" \
+            "https://github.com/bufbuild/buf/releases/download/v${BUF_VERSION}/buf-Linux-x86_64"
+          printf '%s  %s\n' "$BUF_LINUX_X86_64_SHA256" "$install_dir/buf" \
+            | sha256sum --check --strict
+          chmod 0755 "$install_dir/buf"
+          printf '%s\n' "$install_dir" >> "$GITHUB_PATH"
+          "$install_dir/buf" --version
+
+      - name: Install pinned Buffa generators
+        run: |
+          cargo install protoc-gen-buffa --version "$BUFFA_VERSION" --locked
+          cargo install protoc-gen-buffa-packaging --version "$BUFFA_VERSION" --locked
+
+      - name: Checkout release-readiness runner
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: reallyme/release-readiness
+          ref: f27973caf9d3a12847cac4032c361f5f553c97e9
+          path: .release-readiness
+          persist-credentials: false
+
+      - name: Check release readiness generated freshness
+        run: node .release-readiness/scripts/run-consumer-check.mjs --generated-freshness

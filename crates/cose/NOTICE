@@ -1,0 +1,20 @@
+SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
+
+SPDX-License-Identifier: Apache-2.0
+
+ReallyMe Crypto
+Copyright © 2026 ReallyMe LLC. All rights reserved.
+
+This product includes software developed by ReallyMe LLC and distributed under
+the Apache License, Version 2.0.
+
+ReallyMe Crypto wraps third-party cryptographic implementations and platform
+providers. Dependency license terms are recorded in the package manifests and
+enforced by the repository dependency policy. Current provider families include
+RustCrypto crates, ed25519-dalek, x25519-dalek, ml-kem, ml-dsa, BouncyCastle,
+Bitcoin Core libsecp256k1 through reallyme/CSecp256k1 (Swift) and ACINQ
+secp256k1-kmp (Kotlin/JVM), CryptoKit, JCA/JCE, @noble/curves, and
+@noble/hashes.
+
+This NOTICE file is informational and does not modify the license terms in
+LICENSE or any third-party dependency license.

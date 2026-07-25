@@ -1,0 +1,500 @@
+// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
+//
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package reallyme.cose.v1;
+
+option go_package = "github.com/reallyme/cose/gen/go/reallyme/cose/v1;cosev1";
+option java_multiple_files = true;
+option java_outer_classname = "CoseProto";
+option java_package = "me.really.cose.v1";
+option swift_prefix = "ReallyMeProto";
+
+// CoseError is the public, non-PII error envelope for COSE boundary failures.
+// The branch is part of the stable contract: primitive covers caller-controlled
+// input and COSE semantic failures, provider covers algorithm/provider
+// availability, and backend covers cryptographic backend, serialization, or
+// internal adapter failures.
+message CoseError {
+  oneof error {
+    CosePrimitiveError primitive = 1;
+    CoseProviderError provider = 2;
+    CoseBackendError backend = 3;
+  }
+}
+
+// CosePrimitiveError describes failures owned by COSE input validation,
+// byte-format parsing, key material handling, signing inputs, and signature
+// verification semantics.
+message CosePrimitiveError {
+  // Reason must be a caller-input, COSE semantic, Sign1, Key, or Multikey
+  // reason. Provider-only and backend-only reasons are rejected by the Rust
+  // wire adapter.
+  CoseErrorReason reason = 1;
+}
+
+// CoseProviderError describes provider selection and algorithm availability
+// failures. It intentionally contains no backend exception text.
+message CoseProviderError {
+  // Reason must be COSE_ERROR_REASON_COMMON_UNSUPPORTED_ALGORITHM or one of
+  // the COSE_ERROR_REASON_PROVIDER_* values.
+  CoseErrorReason reason = 1;
+}
+
+// CoseBackendError describes cryptographic backend, dispatch, and internal
+// failures that are unsafe to expose as raw backend exception text.
+message CoseBackendError {
+  // Reason must describe cryptographic backend failure, output serialization,
+  // dispatch failure, or an internal adapter invariant. Malformed or oversized
+  // caller input belongs to the primitive branch.
+  CoseErrorReason reason = 1;
+}
+
+// Family-scoped protobuf selectors intentionally match reallyme/crypto's
+// public algorithm numbers. They are not IANA or ReallyMe private-use COSE
+// algorithm identifiers.
+enum CoseSignatureAlgorithm {
+  COSE_SIGNATURE_ALGORITHM_UNSPECIFIED = 0;
+  reserved 1 to 14;
+  // EdDSA: 100-199; elliptic-curve signatures: 200-299;
+  // post-quantum signatures: 1000-1099.
+  COSE_SIGNATURE_ALGORITHM_ED25519 = 100;
+  COSE_SIGNATURE_ALGORITHM_ECDSA_P256_SHA256 = 200;
+  COSE_SIGNATURE_ALGORITHM_ECDSA_P384_SHA384 = 210;
+  COSE_SIGNATURE_ALGORITHM_ECDSA_P521_SHA512 = 220;
+  COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256 = 230;
+  COSE_SIGNATURE_ALGORITHM_ML_DSA_44 = 1000;
+  COSE_SIGNATURE_ALGORITHM_ML_DSA_65 = 1010;
+  COSE_SIGNATURE_ALGORITHM_ML_DSA_87 = 1020;
+}
+
+enum CoseKeyAgreementAlgorithm {
+  COSE_KEY_AGREEMENT_ALGORITHM_UNSPECIFIED = 0;
+  reserved 1 to 14;
+  // Montgomery-form curves: 100-199.
+  COSE_KEY_AGREEMENT_ALGORITHM_X25519 = 100;
+}
+
+enum CoseKemAlgorithm {
+  COSE_KEM_ALGORITHM_UNSPECIFIED = 0;
+  reserved 1 to 14;
+  // Post-quantum KEMs: 1000-1099; hybrid KEMs: 1100-1199.
+  COSE_KEM_ALGORITHM_ML_KEM_512 = 1000;
+  COSE_KEM_ALGORITHM_ML_KEM_768 = 1010;
+  COSE_KEM_ALGORITHM_ML_KEM_1024 = 1020;
+  COSE_KEM_ALGORITHM_X_WING_768 = 1100;
+}
+
+// CoseAlgorithmIdentifier is used only by COSE_Key operations that accept
+// more than one algorithm family. Operation-specific messages use the narrower
+// family enum directly so invalid combinations are unrepresentable.
+message CoseAlgorithmIdentifier {
+  oneof algorithm {
+    CoseSignatureAlgorithm signature = 1;
+    CoseKeyAgreementAlgorithm key_agreement = 2;
+    CoseKemAlgorithm kem = 3;
+  }
+}
+
+// CoseContentEncryptionAlgorithm identifies the protected COSE_Encrypt content
+// algorithm. These enum values are protobuf identifiers, not COSE algorithm
+// registry values.
+enum CoseContentEncryptionAlgorithm {
+  COSE_CONTENT_ENCRYPTION_ALGORITHM_UNSPECIFIED = 0;
+  reserved 1 to 3;
+  COSE_CONTENT_ENCRYPTION_ALGORITHM_AES_128_GCM = 100;
+  COSE_CONTENT_ENCRYPTION_ALGORITHM_AES_192_GCM = 110;
+  COSE_CONTENT_ENCRYPTION_ALGORITHM_AES_256_GCM = 120;
+}
+
+// CoseMlKemMode reports which COSE_Recipient construction was authenticated.
+enum CoseMlKemMode {
+  COSE_ML_KEM_MODE_UNSPECIFIED = 0;
+  COSE_ML_KEM_MODE_DIRECT = 1;
+  COSE_ML_KEM_MODE_KEY_WRAP = 2;
+}
+
+// CoseOperationRequest is the single executable protobuf entrypoint for
+// FFI and generated-SDK adapters. Native Rust SDKs
+// should keep using typed methods; adapters can use this generated oneof to
+// avoid hand-rolled operation routing and error-envelope plumbing.
+message CoseOperationRequest {
+  reserved 1 to 15;
+
+  oneof operation {
+    // COSE_Sign1 operations: 1000-1999.
+    CoseSign1CreateRequest sign1_create = 1000;
+    CoseSign1CreateDetachedRequest sign1_create_detached = 1001;
+    CoseSign1VerifyRequest sign1_verify = 1002;
+    CoseSign1VerifyDetachedRequest sign1_verify_detached = 1003;
+
+    // COSE_Key and Multikey conversion operations: 2000-2999.
+    CoseKeyFromPublicBytesRequest key_from_public_bytes = 2000;
+    CoseKeyFromPrivateBytesRequest key_from_private_bytes = 2001;
+    CoseKeyBytesRequest key_parse = 2002;
+    CoseKeyBytesRequest key_to_public_bytes = 2003;
+    CoseKeyBytesRequest key_to_private_bytes = 2004;
+    CoseKeyBytesRequest key_derive_public_kid = 2005;
+    CoseKeyBytesRequest key_to_multikey = 2006;
+    CoseMultikeyToCoseKeyRequest multikey_to_cose_key = 2007;
+
+    // COSE_Encrypt and COSE_Recipient operations: 3000-3999.
+    CoseMlKemEncryptRequest ml_kem_encrypt_direct = 3000;
+    CoseMlKemEncryptRequest ml_kem_encrypt_key_wrap = 3001;
+    CoseMlKemDecryptRequest ml_kem_decrypt = 3002;
+  }
+}
+
+// CoseOperationResponseV2 is the executable response contract. Its generated
+// oneof distinguishes success from failure without an out-of-band status or an
+// opaque operation-specific payload.
+message CoseOperationResponseV2 {
+  oneof outcome {
+    CoseOperationResult result = 1;
+    CoseError error = 2;
+  }
+}
+
+// CoseOperationResult identifies the exact operation that produced a
+// successful response. Field numbers mirror CoseOperationRequest so generated
+// clients can audit request/result pairing without a separate registry.
+message CoseOperationResult {
+  reserved 1 to 15;
+
+  oneof result {
+    // COSE_Sign1 results: 1000-1999.
+    CoseSign1CreateResult sign1_create = 1000;
+    CoseSign1CreateResult sign1_create_detached = 1001;
+    CoseSign1VerifyResult sign1_verify = 1002;
+    CoseSign1VerifyResult sign1_verify_detached = 1003;
+
+    // COSE_Key and Multikey conversion results: 2000-2999.
+    CoseKeyBytesResult key_from_public_bytes = 2000;
+    CoseKeyBytesResult key_from_private_bytes = 2001;
+    CoseKeyBytesResult key_parse = 2002;
+    CoseKeyBytesResult key_to_public_bytes = 2003;
+    CoseKeyBytesResult key_to_private_bytes = 2004;
+    CoseKeyBytesResult key_derive_public_kid = 2005;
+    CoseMultikeyResult key_to_multikey = 2006;
+    CoseKeyBytesResult multikey_to_cose_key = 2007;
+
+    // COSE_Encrypt and COSE_Recipient results: 3000-3999.
+    CoseMlKemEncryptResult ml_kem_encrypt_direct = 3000;
+    CoseMlKemEncryptResult ml_kem_encrypt_key_wrap = 3001;
+    CoseMlKemDecryptResult ml_kem_decrypt = 3002;
+  }
+}
+
+// CoseMlKemEncryptRequest creates one-recipient COSE_Encrypt using the
+// ReallyMe pre-IANA ML-KEM profile.
+message CoseMlKemEncryptRequest {
+  // ML-KEM-512, ML-KEM-768, or ML-KEM-1024.
+  CoseKemAlgorithm kem_algorithm = 1;
+  // Protected content-encryption algorithm.
+  CoseContentEncryptionAlgorithm content_algorithm = 2;
+  // Recipient FIPS 203 ML-KEM encapsulation public key.
+  bytes recipient_public_key = 3;
+  // SHA-256 thumbprint of the canonical public-only, algorithm-bound COSE_Key.
+  // The encrypt operation rejects any value that does not identify
+  // recipient_public_key exactly.
+  bytes recipient_kid = 4;
+  // SENSITIVE: plaintext encrypted into the COSE_Encrypt ciphertext.
+  bytes plaintext = 5;
+  // SENSITIVE: external AAD authenticated but not carried in COSE.
+  bytes external_aad = 6;
+  // SENSITIVE: mutually known private KDF context agreed out of band.
+  bytes supp_priv_info = 7;
+  // Distinguishes omitted SuppPrivInfo from an intentionally empty byte string.
+  bool has_supp_priv_info = 8;
+}
+
+message CoseMlKemEncryptResult {
+  // SENSITIVE: tagged COSE_Encrypt containing encrypted application content.
+  bytes cose_encrypt = 1;
+}
+
+// CoseMlKemDecryptRequest authenticates and decrypts the ReallyMe pre-IANA
+// ML-KEM COSE profile.
+message CoseMlKemDecryptRequest {
+  // SENSITIVE: tagged or untagged COSE_Encrypt bytes.
+  bytes cose_encrypt = 1;
+  // SENSITIVE: 64-octet FIPS 203 private seed d || z.
+  bytes recipient_private_key = 2;
+  // Expected SHA-256 canonical public COSE_Key thumbprint. Decryption derives
+  // the public key from recipient_private_key and rejects a protected kid
+  // bound to any other key before decapsulation.
+  bytes expected_recipient_kid = 3;
+  // SENSITIVE: external AAD authenticated but not carried in COSE.
+  bytes external_aad = 4;
+  // SENSITIVE: mutually known private KDF context agreed out of band.
+  bytes supp_priv_info = 5;
+  // Distinguishes omitted SuppPrivInfo from an intentionally empty byte string.
+  bool has_supp_priv_info = 6;
+}
+
+message CoseMlKemDecryptResult {
+  // SENSITIVE: authenticated plaintext.
+  bytes plaintext = 1;
+  CoseContentEncryptionAlgorithm content_algorithm = 2;
+  CoseKemAlgorithm kem_algorithm = 3;
+  CoseMlKemMode mode = 4;
+  // Authenticated canonical public COSE_Key thumbprint from the recipient.
+  bytes recipient_kid = 5;
+}
+
+message CoseSign1Options {
+  // Emit the registered COSE_Sign1 root tag (18). False emits the untagged
+  // COSE_Sign1 structure used by most byte-level SDK APIs.
+  bool tag = 1;
+  // Optional maximum encoded COSE_Sign1 size. A value of 0 uses the crate
+  // default.
+  uint64 max_cose_sign1_bytes = 2;
+}
+
+// CoseSign1CreateRequest signs an attached payload.
+message CoseSign1CreateRequest {
+  // Algorithm used for the protected header and signing backend.
+  CoseSignatureAlgorithm algorithm = 1;
+  // SENSITIVE: payload bytes to embed in the COSE_Sign1 message. Payloads can
+  // carry credential claims or PII and must not be logged.
+  bytes payload = 2;
+  // SENSITIVE: raw private key bytes for the selected algorithm. Callers must
+  // keep this in a sensitive-buffer owner outside this transient protobuf
+  // container.
+  bytes private_key = 3;
+  // Protected-header kid bytes. Ignored unless has_kid is true.
+  bytes kid = 4;
+  // Whether kid is present. This distinguishes an omitted kid from an
+  // intentionally empty kid byte string.
+  bool has_kid = 5;
+  // Optional encoding controls. If omitted, the Rust SDK defaults apply.
+  CoseSign1Options options = 6;
+  // SENSITIVE: application-supplied external AAD authenticated by the
+  // signature but not embedded in COSE_Sign1.
+  bytes external_aad = 7;
+}
+
+// CoseSign1CreateDetachedRequest signs a detached payload. The payload is
+// authenticated but not embedded in the resulting COSE_Sign1 message.
+message CoseSign1CreateDetachedRequest {
+  // Algorithm used for the protected header and signing backend.
+  CoseSignatureAlgorithm algorithm = 1;
+  // SENSITIVE: detached payload bytes authenticated by the signature. Payloads
+  // can carry credential claims or PII and must not be logged.
+  bytes payload = 2;
+  // SENSITIVE: raw private key bytes for the selected algorithm. Callers must
+  // keep this in a sensitive-buffer owner outside this transient protobuf
+  // container.
+  bytes private_key = 3;
+  // Protected-header kid bytes. Ignored unless has_kid is true.
+  bytes kid = 4;
+  // Whether kid is present. This distinguishes an omitted kid from an
+  // intentionally empty kid byte string.
+  bool has_kid = 5;
+  // Optional encoding controls. If omitted, the Rust SDK defaults apply.
+  CoseSign1Options options = 6;
+  // SENSITIVE: application-supplied external AAD authenticated by the
+  // signature but not embedded in COSE_Sign1.
+  bytes external_aad = 7;
+}
+
+// CoseSign1CreateResult contains the encoded COSE_Sign1 bytes produced by a
+// signing operation.
+message CoseSign1CreateResult {
+  // SENSITIVE: encoded COSE_Sign1 bytes, tagged or untagged according to
+  // request options. Attached COSE_Sign1 messages contain payload bytes.
+  bytes cose_sign1 = 1;
+}
+
+// CoseSign1VerifyRequest verifies a COSE_Sign1 with an attached payload. The
+// public_key field is the protobuf-boundary equivalent of the Rust SDK key
+// resolver output for the protected-header kid.
+message CoseSign1VerifyRequest {
+  // SENSITIVE: encoded COSE_Sign1 bytes to verify. Tagged and untagged inputs
+  // are accepted; attached messages contain payload bytes.
+  bytes cose_sign1 = 1;
+  // Raw public key bytes selected by the caller for the protected-header kid.
+  bytes public_key = 2;
+  // Optional maximum accepted encoded COSE_Sign1 size. A value of 0 uses the
+  // crate default.
+  uint64 max_cose_sign1_bytes = 3;
+  // Reserved for shape parity with detached verification. A value of 0 uses the
+  // crate default; attached verification does not consume a detached payload.
+  uint64 max_detached_payload_bytes = 4;
+  // Require a non-empty protected-header kid before verification.
+  bool require_kid = 5;
+  // Optional algorithm allow-list. Empty means any COSE algorithm supported by
+  // this crate and operation.
+  repeated CoseSignatureAlgorithm allowed_algorithms = 6;
+  // SENSITIVE: external AAD supplied by the application for verification.
+  bytes external_aad = 7;
+  // Optional trusted key-selection identifier. When non-empty, the
+  // protected-header kid must match this value before public_key can be
+  // returned by the adapter's resolver. Empty preserves resolver-style use
+  // where public_key was already selected outside this request.
+  // Selection of this value belongs to the caller's trust-store boundary.
+  bytes expected_kid = 8;
+}
+
+// CoseSign1VerifyDetachedRequest verifies a COSE_Sign1 whose payload is carried
+// out of band.
+message CoseSign1VerifyDetachedRequest {
+  // SENSITIVE: encoded COSE_Sign1 bytes to verify. Tagged and untagged inputs
+  // are accepted.
+  bytes cose_sign1 = 1;
+  // SENSITIVE: detached payload bytes that must match the signature. Payloads
+  // can carry credential claims or PII and must not be logged.
+  bytes payload = 2;
+  // Raw public key bytes selected by the caller for the protected-header kid.
+  bytes public_key = 3;
+  // Optional maximum accepted encoded COSE_Sign1 size. A value of 0 uses the
+  // crate default.
+  uint64 max_cose_sign1_bytes = 4;
+  // Optional maximum accepted detached payload size. A value of 0 uses the
+  // crate default.
+  uint64 max_detached_payload_bytes = 5;
+  // Require a non-empty protected-header kid before verification.
+  bool require_kid = 6;
+  // Optional algorithm allow-list. Empty means any COSE algorithm supported by
+  // this crate and operation.
+  repeated CoseSignatureAlgorithm allowed_algorithms = 7;
+  // SENSITIVE: external AAD supplied by the application for verification.
+  bytes external_aad = 8;
+  // Optional trusted key-selection identifier. When non-empty, the
+  // protected-header kid must match this value before public_key can be
+  // returned by the adapter's resolver. Empty preserves resolver-style use
+  // where public_key was already selected outside this request.
+  // Selection of this value belongs to the caller's trust-store boundary.
+  bytes expected_kid = 9;
+}
+
+// CoseSign1VerifyResult contains the verified attached payload and protected
+// header metadata. Detached verification returns an empty payload field.
+message CoseSign1VerifyResult {
+  // SENSITIVE: verified attached payload bytes, or empty for detached
+  // verification. Payloads can carry credential claims or PII and must not be
+  // logged.
+  bytes payload = 1;
+  // Verified protected-header algorithm.
+  CoseSignatureAlgorithm algorithm = 2;
+  // Verified protected-header kid bytes.
+  bytes kid = 3;
+}
+
+// CoseKeyFromPublicBytesRequest builds a public COSE_Key from raw public key
+// bytes and an explicit algorithm binding.
+message CoseKeyFromPublicBytesRequest {
+  // Algorithm that determines the COSE_Key kty/crv/alg profile.
+  CoseAlgorithmIdentifier algorithm = 1;
+  // Raw public key bytes for the selected algorithm.
+  bytes public_key = 2;
+}
+
+// CoseKeyFromPrivateBytesRequest builds a private COSE_Key from raw private key
+// bytes and matching public key bytes.
+message CoseKeyFromPrivateBytesRequest {
+  // Algorithm that determines the COSE_Key kty/crv/alg profile.
+  CoseAlgorithmIdentifier algorithm = 1;
+  // SENSITIVE: raw private key bytes. Callers must keep this in a
+  // sensitive-buffer owner outside this transient protobuf container.
+  bytes private_key = 2;
+  // Matching raw public key bytes. Ignored unless has_public_key is true;
+  // supported private-key constructions reject requests that omit it.
+  bytes public_key = 3;
+  // Whether public_key is present.
+  bool has_public_key = 4;
+}
+
+// CoseKeyBytesRequest carries encoded COSE_Key bytes for parse, extraction,
+// deterministic kid derivation, and Multikey conversion operations.
+message CoseKeyBytesRequest {
+  // SENSITIVE: encoded COSE_Key bytes. This may contain private key material
+  // for private extraction; wipe transient protobuf containers as soon as
+  // practical.
+  bytes cose_key = 1;
+}
+
+// CoseKeyBytesResult carries encoded COSE_Key bytes or raw key/kid bytes,
+// depending on the operation-specific result envelope.
+message CoseKeyBytesResult {
+  // SENSITIVE: operation-specific bytes. For private-key extraction this
+  // contains private key material and must be moved into a sensitive-buffer
+  // owner by receivers.
+  bytes key_bytes = 1;
+}
+
+// CoseMultikeyToCoseKeyRequest converts a Multikey string into a public
+// COSE_Key.
+message CoseMultikeyToCoseKeyRequest {
+  // Multikey string to parse.
+  string multikey = 1;
+}
+
+// CoseMultikeyResult contains a Multikey string produced from a public COSE_Key.
+message CoseMultikeyResult {
+  // Multikey string.
+  string multikey = 1;
+}
+
+// CoseErrorReason is the component-owned reason-code enum for reallyme/cose.
+// Values are stable public boundary codes; internal Rust errors must map into
+// one of these before crossing RPC, SDK, FFI, storage, audit, or telemetry
+// boundaries. Numeric bands keep evolving failure families adjacent without
+// forcing unrelated public wire values to move.
+enum CoseErrorReason {
+  COSE_ERROR_REASON_UNSPECIFIED = 0;
+  reserved 1 to 37;
+
+  // Common COSE binary and CBOR boundary failures: 100-199.
+  COSE_ERROR_REASON_COMMON_CBOR = 100;
+  COSE_ERROR_REASON_COMMON_INVALID_FORMAT = 101;
+  COSE_ERROR_REASON_COMMON_RESOURCE_LIMIT_EXCEEDED = 102;
+  COSE_ERROR_REASON_COMMON_NON_CANONICAL_CBOR = 103;
+  COSE_ERROR_REASON_COMMON_UNEXPECTED_CBOR_TAG = 104;
+  COSE_ERROR_REASON_COMMON_DUPLICATE_MAP_LABEL = 105;
+  COSE_ERROR_REASON_COMMON_MALFORMED_PROTOBUF = 120;
+  COSE_ERROR_REASON_COMMON_MALFORMED_JSON = 121;
+  COSE_ERROR_REASON_COMMON_INVALID_PARAMETER = 130;
+  COSE_ERROR_REASON_COMMON_INVALID_LENGTH = 131;
+  COSE_ERROR_REASON_COMMON_INVALID_ENCODING = 132;
+
+  // Provider failures: 200-299.
+  COSE_ERROR_REASON_COMMON_UNSUPPORTED_ALGORITHM = 200;
+  COSE_ERROR_REASON_PROVIDER_UNAVAILABLE = 201;
+
+  // Backend failures: 300-399.
+  COSE_ERROR_REASON_COMMON_CRYPTO_FAILED = 300;
+  COSE_ERROR_REASON_BACKEND_INTERNAL = 301;
+
+  // COSE_Sign1 failures: 400-499.
+  COSE_ERROR_REASON_SIGN1_KID_KEY_MISMATCH = 400;
+  COSE_ERROR_REASON_SIGN1_MISSING_PAYLOAD = 401;
+  COSE_ERROR_REASON_SIGN1_MISSING_KID = 402;
+  COSE_ERROR_REASON_SIGN1_KEY_NOT_RESOLVED = 403;
+  COSE_ERROR_REASON_SIGN1_UNSUPPORTED_CRITICAL_HEADER = 410;
+  COSE_ERROR_REASON_SIGN1_UNPROTECTED_HEADER_NOT_ALLOWED = 411;
+  COSE_ERROR_REASON_SIGN1_INVALID_SIGNATURE = 420;
+  COSE_ERROR_REASON_SIGN1_MISSING_PRIVATE_KEY = 421;
+  COSE_ERROR_REASON_SIGN1_INVALID_SIGNATURE_ENCODING = 422;
+
+  // COSE_Key material and key-shape failures: 500-599.
+  COSE_ERROR_REASON_KEY_MISSING_KEY_MATERIAL = 500;
+  COSE_ERROR_REASON_KEY_INVALID_KEY_MATERIAL = 501;
+
+  // Multikey decoding and COSE_Key conversion failures: 600-699.
+  COSE_ERROR_REASON_MULTIKEY_INVALID_MULTIKEY = 600;
+
+  // COSE_Encrypt and COSE_Recipient failures: 700-799.
+  COSE_ERROR_REASON_ENCRYPT_MISSING_CIPHERTEXT = 700;
+  COSE_ERROR_REASON_ENCRYPT_INVALID_IV = 701;
+  COSE_ERROR_REASON_ENCRYPT_INVALID_RECIPIENT = 702;
+  COSE_ERROR_REASON_ENCRYPT_MISSING_ENCAPSULATED_KEY = 703;
+  COSE_ERROR_REASON_ENCRYPT_INVALID_ENCAPSULATED_KEY = 704;
+  COSE_ERROR_REASON_ENCRYPT_AUTHENTICATION_FAILED = 720;
+  COSE_ERROR_REASON_ENCRYPT_KEY_UNWRAP_FAILED = 721;
+  COSE_ERROR_REASON_ENCRYPT_KID_MISMATCH = 730;
+  COSE_ERROR_REASON_ENCRYPT_MISSING_KID = 731;
+  COSE_ERROR_REASON_ENCRYPT_UNPROTECTED_HEADER_NOT_ALLOWED = 740;
+}

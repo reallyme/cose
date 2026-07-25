@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
+#
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "reallyme-cose-proto"
+version = "0.2.0"
+description = "Generated protobuf boundary types for ReallyMe COSE."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords = ["cose", "protobuf", "identity", "credentials"]
+categories = ["cryptography", "encoding"]
+publish = true
+include = [
+    "/proto/**/*.proto",
+    "/src/**/*.rs",
+    "/tests/**/*.rs",
+    "/Cargo.toml",
+    "/README.md",
+    "/LICENSE",
+    "/NOTICE",
+]
+
+[features]
+default = ["generated"]
+generated = ["dep:buffa", "buffa/json", "dep:serde", "dep:zeroize"]
+
+[dependencies]
+buffa = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
+zeroize = { workspace = true, optional = true }
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[lints]
+workspace = true

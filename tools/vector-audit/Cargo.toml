@@ -9,17 +9,41 @@ edition = "2021"
 rust-version = "1.96"
 publish = false
 
+[lints]
+workspace = true
+
 [dependencies]
+aes-gcm = "0.11"
+aes-kw = { version = "0.3.1", default-features = false, features = ["zeroize"] }
 bs58 = "0.5"
 ciborium = "0.2"
-ed25519-dalek = "2"
+ed25519-dalek = "3"
 hex = "0.4"
-k256 = { version = "0.13", features = ["ecdsa"] }
-p256 = { version = "0.13", features = ["ecdsa"] }
-p384 = { version = "0.13", features = ["ecdsa"] }
-p521 = { version = "0.13", features = ["ecdsa"] }
+k256 = { version = "0.14", features = ["ecdsa"] }
+ml-kem = { version = "0.3.2", features = ["zeroize"] }
+ml-dsa = "0.1.1"
+p256 = { version = "0.14", features = ["ecdsa"] }
+p384 = { version = "0.14", features = ["ecdsa"] }
+p521 = { version = "0.14", features = ["ecdsa"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+sha2 = "0.11"
+sha3-kmac = { version = "0.3.0", default-features = false }
 thiserror = "2.0"
+zeroize = "1.8"
 
 [workspace]
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+
+[workspace.lints.clippy]
+dbg_macro = "deny"
+expect_used = "deny"
+large_include_file = "deny"
+panic = "deny"
+todo = "deny"
+unimplemented = "deny"
+unreachable = "deny"
+unwrap_used = "deny"
+wildcard_imports = "deny"
