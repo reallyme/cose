@@ -54,22 +54,22 @@ jobs:
         uses: Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc # v2.9.1
 
       - name: Install nextest
-        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
+        uses: taiki-e/install-action@3d7d7cd5ac7f994c1892ae0c06165095b9139094 # v2.85.1
         with:
           tool: cargo-nextest@${{ env.CARGO_NEXTEST_VERSION }}
 
       - name: Install cargo-deny
-        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
+        uses: taiki-e/install-action@3d7d7cd5ac7f994c1892ae0c06165095b9139094 # v2.85.1
         with:
           tool: cargo-deny@${{ env.CARGO_DENY_VERSION }}
 
       - name: Install cargo-audit
-        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
+        uses: taiki-e/install-action@3d7d7cd5ac7f994c1892ae0c06165095b9139094 # v2.85.1
         with:
           tool: cargo-audit@${{ env.CARGO_AUDIT_VERSION }}
 
       - name: Install external-type checker
-        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
+        uses: taiki-e/install-action@3d7d7cd5ac7f994c1892ae0c06165095b9139094 # v2.85.1
         with:
           tool: cargo-check-external-types@${{ env.CARGO_CHECK_EXTERNAL_TYPES_VERSION }}
 
@@ -154,12 +154,12 @@ jobs:
           node-version: '24'
 
       - name: Install wasm-pack
-        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
+        uses: taiki-e/install-action@3d7d7cd5ac7f994c1892ae0c06165095b9139094 # v2.85.1
         with:
           tool: wasm-pack@${{ env.WASM_PACK_VERSION }}
 
       - name: Install wasm-bindgen CLI
-        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
+        uses: taiki-e/install-action@3d7d7cd5ac7f994c1892ae0c06165095b9139094 # v2.85.1
         with:
           tool: wasm-bindgen-cli@${{ env.WASM_BINDGEN_CLI_VERSION }}
 
