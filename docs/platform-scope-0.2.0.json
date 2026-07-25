@@ -1,0 +1,39 @@
+{
+  "schema": "reallyme.cose.platform_scope.v1",
+  "spdxCopyrightText": "Copyright © 2026 ReallyMe LLC. All rights reserved",
+  "spdxLicenseIdentifier": "Apache-2.0",
+  "release": "0.2.0",
+  "immediateScope": "rust_and_protobuf",
+  "publishableCrates": [
+    "reallyme-cose-proto",
+    "reallyme-cose"
+  ],
+  "rustRuntimeLanes": [
+    "native",
+    "wasm"
+  ],
+  "platformLanes": [
+    {
+      "lane": "swift",
+      "decision": "planned_later_release"
+    },
+    {
+      "lane": "android_kotlin",
+      "decision": "planned_later_release"
+    },
+    {
+      "lane": "kotlin_jvm",
+      "decision": "planned_later_release"
+    },
+    {
+      "lane": "native_abi",
+      "decision": "not_approved"
+    },
+    {
+      "lane": "typescript_wasm_npm",
+      "decision": "not_approved"
+    }
+  ],
+  "protobufSwiftMetadataIsPackagingApproval": false,
+  "wasmRuntimeIsNpmPackagingApproval": false
+}

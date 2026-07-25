@@ -18,10 +18,11 @@ third-party deployments.
 
 ## Supported Versions
 
-Only the latest published version of `reallyme-cose` receives security fixes.
+Only the latest published versions of `reallyme-cose` and
+`reallyme-cose-proto` receive security fixes.
 
 ## Scope
 
-This policy covers the `reallyme-cose` crate in this repository. Issues in
-`reallyme-crypto`, `reallyme-codec`, or other dependencies should be reported
-to their respective repositories.
+This policy covers the `reallyme-cose` and `reallyme-cose-proto` crates in this
+repository. Issues in `reallyme-crypto`, `reallyme-codec`, or other dependencies
+should be reported to their respective repositories.

@@ -2,12 +2,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-//! Independent audit for committed COSE conformance vectors.
+//! COSE-layer audit for committed conformance vectors.
 //!
 //! This binary intentionally does not depend on `reallyme-cose`,
-//! `reallyme-crypto`, or `reallyme-codec`. It verifies the committed JSON
-//! bytes with RustCrypto, `ciborium`, and `bs58` so vector regressions are not
-//! masked by bugs shared with the production implementation.
+//! `reallyme-crypto`, or `reallyme-codec`. Its CBOR parsing, COSE structure,
+//! KDF, key-wrap, and Multikey checks are independent from production. Direct
+//! RustCrypto dependencies provide the primitive oracle; primitive ACVP and
+//! adversarial conformance remain owned by `reallyme-crypto`.
 
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter, Write};
@@ -20,11 +21,16 @@ use ciborium::{de::from_reader, ser::into_writer};
 use serde::Deserialize;
 use thiserror::Error;
 
+mod ml_kem_encrypt;
+mod pq;
+mod verify_manifest;
+
 const CASE_ID_BYTES: usize = 96;
 const CASE_ID_BYTES_U8: u8 = 96;
-const SIGN1_FILE: &str = "conformance/vectors/cose-sign1.json";
-const KEY_FILE: &str = "conformance/vectors/cose-key.json";
-const MANIFEST_FILE: &str = "conformance/vectors/manifest.json";
+const SIGN1_FILE: &str = "vectors/cose-sign1.json";
+const KEY_FILE: &str = "vectors/cose-key.json";
+const ML_KEM_ENCRYPT_FILE: &str = "vectors/cose-encrypt-ml-kem.json";
+const MANIFEST_FILE: &str = "vectors/manifest.json";
 
 #[derive(Debug, Error)]
 #[error("{context}: {reason}")]
@@ -112,6 +118,8 @@ enum AuditReason {
     InvalidPublicKeyLength,
     #[error("private seed does not derive the stated public key")]
     SeedPublicMismatch,
+    #[error("external classical COSE_Sign1 vector is missing")]
+    ExternalSign1VectorMissing,
     #[error("COSE_Sign1 root is not an array")]
     Sign1RootNotArray,
     #[error("COSE_Sign1 array length is invalid")]
@@ -134,8 +142,10 @@ enum AuditReason {
     SignatureDidNotVerify,
     #[error("negative signature vector verified independently")]
     InvalidSignatureVerified,
-    #[error("signature width is not RFC 9053 fixed-width r||s")]
+    #[error("signature width does not match the selected algorithm")]
     SignatureWidth,
+    #[error("invalid-encoding vector unexpectedly has the valid signature width")]
+    InvalidSignatureEncodingWidth,
     #[error("protected algorithm label mismatch")]
     ProtectedAlgorithmMismatch,
     #[error("protected kid mismatch")]
@@ -188,14 +198,50 @@ enum AuditReason {
     MulticodecPrefix,
     #[error("multikey key bytes mismatch")]
     MultikeyBytes,
-    #[error("manifest references an unknown suite")]
-    UnknownManifestSuite,
     #[error("manifest case count mismatch")]
     ManifestCaseCount,
+    #[error("manifest suite set is incomplete or duplicated")]
+    ManifestSuiteSet,
+    #[error("manifest suite path mismatch")]
+    ManifestPath,
+    #[error("manifest suite digest encoding is invalid")]
+    ManifestDigestEncoding,
+    #[error("manifest suite digest mismatch")]
+    ManifestDigest,
     #[error("duplicate vector id")]
     DuplicateCaseId,
     #[error("integer conversion failed")]
     IntegerConversion,
+    #[error("COSE_Encrypt root tag or array shape is invalid")]
+    EncryptShape,
+    #[error("COSE_Encrypt protected header is invalid")]
+    EncryptProtectedHeader,
+    #[error("COSE_Encrypt unprotected header is invalid")]
+    EncryptUnprotectedHeader,
+    #[error("COSE_Recipient shape is invalid")]
+    RecipientShape,
+    #[error("COSE_Recipient protected header is invalid")]
+    RecipientProtectedHeader,
+    #[error("COSE_Recipient unprotected header is invalid")]
+    RecipientUnprotectedHeader,
+    #[error("ML-KEM vector mode is invalid")]
+    InvalidKemMode,
+    #[error("ML-KEM vector algorithm metadata is inconsistent")]
+    KemAlgorithmMismatch,
+    #[error("ML-KEM vector deterministic key or encapsulation mismatch")]
+    KemDeterministicMismatch,
+    #[error("ML-KEM vector decapsulation mismatch")]
+    KemDecapsulationMismatch,
+    #[error("ML-KEM vector kid does not bind the public COSE_Key")]
+    KemKidMismatch,
+    #[error("ML-KEM vector KDF failed")]
+    KemKdf,
+    #[error("ML-KEM vector AES-KW failed")]
+    KemKeyWrap,
+    #[error("ML-KEM vector content authentication failed")]
+    EncryptAuthentication,
+    #[error("ML-KEM vector plaintext mismatch")]
+    EncryptPlaintextMismatch,
 }
 
 type AuditResult<T> = Result<T, AuditError>;
@@ -216,6 +262,13 @@ struct Sign1Case {
     payload_hex: String,
     cose_sign1_hex: String,
     expected_error: Option<String>,
+    provenance: Option<Provenance>,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
+#[serde(rename_all = "snake_case")]
+enum Provenance {
+    NodeOpenSslRfc8032,
 }
 
 #[derive(Debug, Deserialize)]
@@ -230,17 +283,6 @@ struct KeyCase {
     public_key_hex: String,
     cose_key_hex: String,
     multikey: String,
-}
-
-#[derive(Debug, Deserialize)]
-struct Manifest {
-    suites: Vec<ManifestSuite>,
-}
-
-#[derive(Debug, Deserialize)]
-struct ManifestSuite {
-    id: String,
-    case_count: usize,
 }
 
 #[derive(Clone, Copy)]
@@ -268,10 +310,10 @@ impl Algorithm {
 
     fn cose_alg(self) -> AuditResult<i64> {
         match self {
-            Self::Ed25519 => Ok(-8),
-            Self::P256 => Ok(-7),
-            Self::P384 => Ok(-35),
-            Self::P521 => Ok(-36),
+            Self::Ed25519 => Ok(-19),
+            Self::P256 => Ok(-9),
+            Self::P384 => Ok(-51),
+            Self::P521 => Ok(-52),
             Self::Secp256k1 => Ok(-47),
             Self::X25519 => Err(general(AuditReason::UnsupportedAlgorithm)),
         }
@@ -306,8 +348,12 @@ fn main() -> ExitCode {
     match run() {
         Ok(summary) => {
             println!(
-                "vector audit passed: {} COSE_Sign1 cases, {} COSE_Key cases",
-                summary.sign1_cases, summary.key_cases
+                "vector audit passed: {} classical COSE_Sign1 cases, {} PQ COSE_Sign1 cases, {} classical COSE_Key cases, {} PQ COSE_Key cases, {} ML-KEM COSE_Encrypt cases",
+                summary.sign1_cases,
+                summary.pq_sign1_cases,
+                summary.key_cases,
+                summary.pq_key_cases,
+                summary.ml_kem_encrypt_cases
             );
             ExitCode::SUCCESS
         }
@@ -321,17 +367,40 @@ fn main() -> ExitCode {
 struct AuditSummary {
     sign1_cases: usize,
     key_cases: usize,
+    pq_sign1_cases: usize,
+    pq_key_cases: usize,
+    ml_kem_encrypt_cases: usize,
 }
 
 fn run() -> AuditResult<AuditSummary> {
     let repo_root = repo_root()?;
     let sign1: Sign1Suite = read_json(&repo_root, SIGN1_FILE, AuditContext::General)?;
     let keys: KeySuite = read_json(&repo_root, KEY_FILE, AuditContext::General)?;
-    let manifest: Manifest = read_json(&repo_root, MANIFEST_FILE, AuditContext::Manifest)?;
-
-    audit_manifest(&manifest, sign1.cases.len(), keys.cases.len())?;
+    let ml_kem_encrypt: ml_kem_encrypt::Suite =
+        read_json(&repo_root, ML_KEM_ENCRYPT_FILE, AuditContext::General)?;
+    let manifest: verify_manifest::Manifest =
+        read_json(&repo_root, MANIFEST_FILE, AuditContext::Manifest)?;
 
     let mut ids = HashSet::new();
+    let pq_summary = pq::audit_suites(&repo_root, &mut ids)?;
+
+    verify_manifest::verify(
+        &repo_root,
+        &manifest,
+        sign1.cases.len(),
+        keys.cases.len(),
+        pq_summary.sign1_cases,
+        pq_summary.key_cases,
+        ml_kem_encrypt.cases.len(),
+    )?;
+
+    ensure(
+        sign1.cases.iter().any(|case| {
+            case.provenance == Some(Provenance::NodeOpenSslRfc8032) && case.expected_error.is_none()
+        }),
+        AuditReason::ExternalSign1VectorMissing,
+    )?;
+
     for case in &sign1.cases {
         audit_unique_id(&mut ids, &case.id)?;
         audit_sign1(case).map_err(|error| attach_case(error, &case.id))?;
@@ -340,10 +409,14 @@ fn run() -> AuditResult<AuditSummary> {
         audit_unique_id(&mut ids, &case.id)?;
         audit_key(case).map_err(|error| attach_case(error, &case.id))?;
     }
+    ml_kem_encrypt::audit_suite(&ml_kem_encrypt, &mut ids)?;
 
     Ok(AuditSummary {
         sign1_cases: sign1.cases.len(),
         key_cases: keys.cases.len(),
+        pq_sign1_cases: pq_summary.sign1_cases,
+        pq_key_cases: pq_summary.key_cases,
+        ml_kem_encrypt_cases: ml_kem_encrypt.cases.len(),
     })
 }
 
@@ -368,23 +441,6 @@ fn read_json<T: for<'de> Deserialize<'de>>(
         context,
         reason: AuditReason::Json,
     })
-}
-
-fn audit_manifest(manifest: &Manifest, sign1_cases: usize, key_cases: usize) -> AuditResult<()> {
-    for suite in &manifest.suites {
-        let actual = match suite.id.as_str() {
-            "cose-sign1" => sign1_cases,
-            "cose-key" => key_cases,
-            _ => return Err(manifest_error(AuditReason::UnknownManifestSuite)),
-        };
-        ensure(suite.case_count == actual, AuditReason::ManifestCaseCount).map_err(|error| {
-            AuditError {
-                context: AuditContext::Manifest,
-                reason: error.reason,
-            }
-        })?;
-    }
-    Ok(())
 }
 
 fn audit_unique_id(ids: &mut HashSet<String>, id: &str) -> AuditResult<()> {
@@ -430,7 +486,7 @@ fn audit_sign1(case: &Sign1Case) -> AuditResult<()> {
 
     match case.expected_error.as_deref() {
         None => audit_happy_sign1(case, algorithm, &kid, &parsed, declared_signature_ok),
-        Some("InvalidSignature") => ensure(
+        Some("InvalidSignature" | "InvalidSignatureEncoding") => ensure(
             !declared_signature_ok,
             AuditReason::InvalidSignatureVerified,
         ),
@@ -531,7 +587,7 @@ fn audit_key_resolution_negative(
 }
 
 fn audit_unsupported_algorithm_negative(parsed: &ParsedSign1) -> AuditResult<()> {
-    let supported = [-8_i64, -7, -35, -36, -47];
+    let supported = [-19_i64, -9, -51, -52, -47, -48, -49, -50];
     let alg = map_get(&parsed.protected_map, 1);
     let is_supported = matches!(
         alg,
@@ -712,7 +768,7 @@ fn derived_public(algorithm: Algorithm, seed: &[u8]) -> AuditResult<Vec<u8>> {
                 .map_err(|_| general(AuditReason::InvalidSeedLength))?;
             Ok(signing_key
                 .verifying_key()
-                .to_encoded_point(true)
+                .to_sec1_point(true)
                 .as_bytes()
                 .to_vec())
         }
@@ -722,17 +778,17 @@ fn derived_public(algorithm: Algorithm, seed: &[u8]) -> AuditResult<Vec<u8>> {
                 .map_err(|_| general(AuditReason::InvalidSeedLength))?;
             Ok(signing_key
                 .verifying_key()
-                .to_encoded_point(true)
+                .to_sec1_point(true)
                 .as_bytes()
                 .to_vec())
         }
         Algorithm::P521 => {
-            use p521::elliptic_curve::sec1::ToEncodedPoint;
+            use p521::elliptic_curve::sec1::ToSec1Point;
             let secret_key = p521::SecretKey::from_slice(seed)
                 .map_err(|_| general(AuditReason::InvalidSeedLength))?;
             Ok(secret_key
                 .public_key()
-                .to_encoded_point(true)
+                .to_sec1_point(true)
                 .as_bytes()
                 .to_vec())
         }
@@ -742,7 +798,7 @@ fn derived_public(algorithm: Algorithm, seed: &[u8]) -> AuditResult<Vec<u8>> {
                 .map_err(|_| general(AuditReason::InvalidSeedLength))?;
             Ok(signing_key
                 .verifying_key()
-                .to_encoded_point(true)
+                .to_sec1_point(true)
                 .as_bytes()
                 .to_vec())
         }
@@ -826,7 +882,7 @@ fn cose_key_profile(algorithm: Algorithm) -> AuditResult<CoseKeyProfile> {
         Algorithm::Ed25519 => Ok(CoseKeyProfile {
             kty: 1,
             crv: 6,
-            alg: Some(-8),
+            alg: Some(-19),
             multicodec: 0xed,
         }),
         Algorithm::X25519 => Ok(CoseKeyProfile {
@@ -838,19 +894,19 @@ fn cose_key_profile(algorithm: Algorithm) -> AuditResult<CoseKeyProfile> {
         Algorithm::P256 => Ok(CoseKeyProfile {
             kty: 2,
             crv: 1,
-            alg: Some(-7),
+            alg: Some(-9),
             multicodec: 0x1200,
         }),
         Algorithm::P384 => Ok(CoseKeyProfile {
             kty: 2,
             crv: 2,
-            alg: Some(-35),
+            alg: Some(-51),
             multicodec: 0x1201,
         }),
         Algorithm::P521 => Ok(CoseKeyProfile {
             kty: 2,
             crv: 3,
-            alg: Some(-36),
+            alg: Some(-52),
             multicodec: 0x1202,
         }),
         Algorithm::Secp256k1 => Ok(CoseKeyProfile {
