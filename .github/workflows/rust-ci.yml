@@ -12,7 +12,7 @@ on:
       - "docs/**"
       - "LICENSE"
       - "NOTICE"
-      - ".github/renovate.json"
+      - ".github/dependabot.yml"
   push:
     branches:
       - main
@@ -21,10 +21,19 @@ on:
       - "docs/**"
       - "LICENSE"
       - "NOTICE"
-      - ".github/renovate.json"
+      - ".github/dependabot.yml"
 
 permissions:
   contents: read
+
+env:
+  CARGO_AUDIT_VERSION: 0.22.2
+  CARGO_CHECK_EXTERNAL_TYPES_VERSION: 0.5.0
+  CARGO_DENY_VERSION: 0.20.2
+  CARGO_NEXTEST_VERSION: 0.9.140
+  EXTERNAL_TYPES_NIGHTLY: nightly-2026-03-20
+  WASM_BINDGEN_CLI_VERSION: 0.2.126
+  WASM_PACK_VERSION: 0.15.0
 
 jobs:
   rust:
@@ -32,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@fa04a1451ff1842e2626ccb99004d0195b455a88 # master
@@ -42,71 +51,128 @@ jobs:
           targets: wasm32-unknown-unknown
 
       - name: Cache Cargo
-        uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
+        uses: Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc # v2.9.1
 
       - name: Install nextest
-        uses: taiki-e/install-action@c61310c7f42caf5b425e349b6742d93ca197327c # nextest
+        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
+        with:
+          tool: cargo-nextest@${{ env.CARGO_NEXTEST_VERSION }}
 
       - name: Install cargo-deny
-        uses: taiki-e/install-action@c61310c7f42caf5b425e349b6742d93ca197327c # cargo-deny
+        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
         with:
-          tool: cargo-deny
+          tool: cargo-deny@${{ env.CARGO_DENY_VERSION }}
 
       - name: Install cargo-audit
-        uses: taiki-e/install-action@c61310c7f42caf5b425e349b6742d93ca197327c # cargo-audit
+        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
         with:
-          tool: cargo-audit
+          tool: cargo-audit@${{ env.CARGO_AUDIT_VERSION }}
+
+      - name: Install external-type checker
+        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
+        with:
+          tool: cargo-check-external-types@${{ env.CARGO_CHECK_EXTERNAL_TYPES_VERSION }}
+
+      - name: Install external-type checker toolchain
+        run: rustup toolchain install "$EXTERNAL_TYPES_NIGHTLY" --profile minimal
 
       - name: Format
         run: cargo fmt --check
 
       - name: Check all features
-        run: cargo check --workspace --all-features
+        run: cargo check --locked --workspace --all-features
 
       - name: Check warnings as errors
-        run: cargo check --workspace --all-features
+        run: cargo check --locked --workspace --all-features
         env:
           RUSTFLAGS: -Dwarnings
 
       - name: Check structure-only lane
-        run: cargo check --workspace --no-default-features
+        run: cargo check --locked --workspace --no-default-features
         env:
           RUSTFLAGS: -Dwarnings
 
       - name: Clippy
-        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+        run: cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
+
+      - name: Check public external-type provenance
+        run: cargo +"${EXTERNAL_TYPES_NIGHTLY}" check-external-types --manifest-path crates/cose/Cargo.toml --all-features
 
       - name: Format vector audit tool
         run: cargo fmt --manifest-path tools/vector-audit/Cargo.toml --check
 
       - name: Clippy vector audit tool
-        run: cargo clippy --manifest-path tools/vector-audit/Cargo.toml --all-targets -- -D warnings
+        run: cargo clippy --locked --manifest-path tools/vector-audit/Cargo.toml --all-targets -- -D warnings
+
+      - name: Format vector golden generator
+        run: cargo fmt --manifest-path tools/vector-goldens/Cargo.toml --check
+
+      - name: Clippy vector golden generator
+        run: cargo clippy --locked --manifest-path tools/vector-goldens/Cargo.toml --all-targets -- -D warnings
 
       - name: Test native lane
-        run: cargo nextest run --workspace --no-default-features --features native
+        run: cargo nextest run --locked --workspace --no-default-features --features native
 
       - name: Test all features
-        run: cargo nextest run --workspace --all-features
+        run: cargo nextest run --locked --workspace --all-features
+
+      - name: Test release profile
+        run: cargo nextest run --release --locked --workspace --all-features
 
       - name: Independent vector audit
-        run: cargo run --manifest-path tools/vector-audit/Cargo.toml -- .
+        run: cargo run --locked --manifest-path tools/vector-audit/Cargo.toml --bin reallyme-cose-vector-audit -- .
 
       - name: Doc build
-        run: cargo doc --workspace --no-deps --all-features
+        run: cargo doc --locked --workspace --no-deps --all-features
         env:
           RUSTDOCFLAGS: -D warnings
 
       - name: Doctests
-        run: cargo test --workspace --all-features --doc
+        run: cargo test --locked --workspace --all-features --doc
 
       - name: Check native lane
-        run: cargo check --workspace --no-default-features --features native
+        run: cargo check --locked --workspace --no-default-features --features native
+
+      - name: Check native wire lane
+        run: cargo check --locked --workspace --no-default-features --features native,wire
 
       - name: Check wasm32 lane
-        run: cargo check --workspace --no-default-features --features wasm --target wasm32-unknown-unknown
+        run: cargo check --locked --workspace --no-default-features --features wasm --target wasm32-unknown-unknown
+
+      - name: Check wasm32 wire lane
+        run: cargo check --locked --workspace --no-default-features --features wasm,wire --target wasm32-unknown-unknown
 
       - name: Dependency policy
         run: cargo deny check
 
       - name: Security advisory audit
         run: cargo audit
+
+      - name: Install Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
+        with:
+          tool: wasm-pack@${{ env.WASM_PACK_VERSION }}
+
+      - name: Install wasm-bindgen CLI
+        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
+        with:
+          tool: wasm-bindgen-cli@${{ env.WASM_BINDGEN_CLI_VERSION }}
+
+      - name: Test COSE_Sign1 in the wasm runtime
+        run: wasm-pack test --node crates/cose --no-default-features --features wasm --test test_wasm_sign1
+
+      - name: Checkout release-readiness runner
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: reallyme/release-readiness
+          ref: f27973caf9d3a12847cac4032c361f5f553c97e9
+          path: .release-readiness
+          persist-credentials: false
+
+      - name: Release readiness
+        run: node .release-readiness/scripts/run-consumer-check.mjs --policy-only

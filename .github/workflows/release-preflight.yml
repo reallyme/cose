@@ -6,17 +6,81 @@ name: Release Preflight
 
 on:
   workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Exact current main commit SHA to certify
+        required: true
+        type: string
+      version:
+        description: Exact crate version to certify
+        required: true
+        type: string
+
+concurrency:
+  group: crates-preflight-${{ inputs.version }}-${{ inputs.release_sha }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
 
+env:
+  BUFFA_VERSION: 0.9.0
+  BUF_VERSION: 1.71.0
+  CARGO_AUDIT_VERSION: 0.22.2
+  CARGO_CHECK_EXTERNAL_TYPES_VERSION: 0.5.0
+  CARGO_DENY_VERSION: 0.20.2
+  CARGO_NEXTEST_VERSION: 0.9.140
+  EXTERNAL_TYPES_NIGHTLY: nightly-2026-03-20
+  WASM_BINDGEN_CLI_VERSION: 0.2.126
+  WASM_PACK_VERSION: 0.15.0
+  BUF_LINUX_X86_64_SHA256: d3de2838c68a5759ca276884254bc70df4e4ad185d6ed5f65f327b6ce6363eab
+
 jobs:
   rust-crate:
     name: rust crate metadata
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ inputs.release_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify release identity
+        shell: bash
+        env:
+          RELEASE_SHA: ${{ inputs.release_sha }}
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "release_sha must be a lowercase 40-character Git SHA" >&2
+            exit 1
+          fi
+          if [[ ! "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "version must be a stable semantic version" >&2
+            exit 1
+          fi
+          if [[ "$GITHUB_SHA" != "$RELEASE_SHA" ]]; then
+            echo "release_sha does not match the workflow head" >&2
+            exit 1
+          fi
+          if [[ "$(git rev-parse HEAD)" != "$RELEASE_SHA" ]]; then
+            echo "release_sha does not match the checked-out commit" >&2
+            exit 1
+          fi
+          git fetch --force --no-tags origin main:refs/remotes/origin/main
+          if [[ "$(git rev-parse refs/remotes/origin/main)" != "$RELEASE_SHA" ]]; then
+            echo "release_sha is not the current origin/main commit" >&2
+            exit 1
+          fi
+          cose_version="$(sed -nE 's/^version = "([^"]+)"$/\1/p' crates/cose/Cargo.toml)"
+          proto_version="$(sed -nE 's/^version = "([^"]+)"$/\1/p' crates/proto/Cargo.toml)"
+          if [[ "$cose_version" != "$RELEASE_VERSION" || "$proto_version" != "$RELEASE_VERSION" ]]; then
+            echo "version does not match both publishable crate manifests" >&2
+            exit 1
+          fi
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@fa04a1451ff1842e2626ccb99004d0195b455a88 # master
@@ -26,23 +90,111 @@ jobs:
           targets: wasm32-unknown-unknown
 
       - name: Cache Cargo
-        uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
+        uses: Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc # v2.9.1
+
+      - name: Install buf
+        shell: bash
+        run: |
+          set -euo pipefail
+          install_dir="$RUNNER_TEMP/buf/bin"
+          mkdir -p "$install_dir"
+          curl --fail-with-body --location --proto '=https' --tlsv1.2 \
+            --retry 5 --retry-all-errors \
+            --output "$install_dir/buf" \
+            "https://github.com/bufbuild/buf/releases/download/v${BUF_VERSION}/buf-Linux-x86_64"
+          printf '%s  %s\n' "$BUF_LINUX_X86_64_SHA256" "$install_dir/buf" \
+            | sha256sum --check --strict
+          chmod 0755 "$install_dir/buf"
+          printf '%s\n' "$install_dir" >> "$GITHUB_PATH"
+          "$install_dir/buf" --version
+
+      - name: Install pinned Buffa generators
+        run: |
+          cargo install protoc-gen-buffa --version "$BUFFA_VERSION" --locked
+          cargo install protoc-gen-buffa-packaging --version "$BUFFA_VERSION" --locked
 
       - name: Install Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '24'
 
       - name: Install nextest
-        uses: taiki-e/install-action@c61310c7f42caf5b425e349b6742d93ca197327c # nextest
+        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
+        with:
+          tool: cargo-nextest@${{ env.CARGO_NEXTEST_VERSION }}
+
+      - name: Install external-type checker
+        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
+        with:
+          tool: cargo-check-external-types@${{ env.CARGO_CHECK_EXTERNAL_TYPES_VERSION }}
+
+      - name: Install external-type checker toolchain
+        run: rustup toolchain install "$EXTERNAL_TYPES_NIGHTLY" --profile minimal
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
+        with:
+          tool: wasm-pack@${{ env.WASM_PACK_VERSION }}
+
+      - name: Install wasm-bindgen CLI
+        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
+        with:
+          tool: wasm-bindgen-cli@${{ env.WASM_BINDGEN_CLI_VERSION }}
 
       - name: Install cargo-deny
-        uses: taiki-e/install-action@c61310c7f42caf5b425e349b6742d93ca197327c # cargo-deny
+        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
         with:
-          tool: cargo-deny
+          tool: cargo-deny@${{ env.CARGO_DENY_VERSION }}
+
+      - name: Install cargo-audit
+        uses: taiki-e/install-action@43aecc8d72668fbcfe75c31400bc4f890f1c5853 # v2.83.2
+        with:
+          tool: cargo-audit@${{ env.CARGO_AUDIT_VERSION }}
+
+      - name: Checkout release-readiness runner
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: reallyme/release-readiness
+          ref: f27973caf9d3a12847cac4032c361f5f553c97e9
+          path: .release-readiness
+          persist-credentials: false
 
       - name: Check release readiness contract
-        run: node scripts/check_release_readiness.mjs
+        run: node .release-readiness/scripts/run-consumer-check.mjs
 
       - name: Inspect crate tarball and dry-run publish
         run: node scripts/publish_crates_in_order.mjs inspect
+
+      - name: Write reviewed preflight attestation
+        shell: bash
+        env:
+          RELEASE_SHA: ${{ inputs.release_sha }}
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          mkdir -p release-attestation
+          jq --null-input \
+            --arg schema "reallyme.cose.crates_preflight.v1" \
+            --arg repository "$GITHUB_REPOSITORY" \
+            --arg workflow "release-preflight.yml" \
+            --argjson run_id "$GITHUB_RUN_ID" \
+            --argjson run_attempt "$GITHUB_RUN_ATTEMPT" \
+            --arg release_sha "$RELEASE_SHA" \
+            --arg version "$RELEASE_VERSION" \
+            '{
+              schema: $schema,
+              repository: $repository,
+              workflow: $workflow,
+              run_id: $run_id,
+              run_attempt: $run_attempt,
+              release_sha: $release_sha,
+              version: $version
+            }' > release-attestation/crates-preflight.json
+
+      - name: Upload reviewed preflight attestation
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: reallyme-cose-crates-preflight-${{ inputs.version }}-${{ inputs.release_sha }}
+          path: release-attestation/crates-preflight.json
+          if-no-files-found: error
+          retention-days: 30
