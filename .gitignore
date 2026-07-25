@@ -38,6 +38,7 @@ target/
 /tarpaulin-report.html
 /crypto-lane-logs/
 /.cargo-release/
+/.release-readiness/
 proptest-regressions/
 
 # Generated Rust/source artifacts
@@ -45,10 +46,8 @@ proptest-regressions/
 **/generated/**
 **/src/generated
 **/src/generated/**
-!crates/proto/crypto/src/generated/
-!crates/proto/crypto/src/generated/**
-!packages/ts/src/proto/generated/
-!packages/ts/src/proto/generated/**
+!crates/proto/src/generated/
+!crates/proto/src/generated/**
 **/src/pb
 **/src/pb/**
 **/src/prost

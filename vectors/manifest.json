@@ -1,0 +1,40 @@
+{
+  "schema": "reallyme.cose.conformance.vector_manifest.v1",
+  "suites": [
+    {
+      "id": "cose-sign1",
+      "source": "ReallyMe deterministic fixture",
+      "path": "cose-sign1.json",
+      "case_count": 24,
+      "sha256": "62ec6a86f7d6e99d5f48614a96d707ad2649855d870613fd3418b80daca008e9"
+    },
+    {
+      "id": "cose-key",
+      "source": "ReallyMe generated public-key fixture",
+      "path": "cose-key.json",
+      "case_count": 6,
+      "sha256": "0187a4a9f7cc8d64fe69b8259ac692c03d43b8582fa79a5d505e8d7c1b10e7a1"
+    },
+    {
+      "id": "cose-sign1-pq",
+      "source": "ReallyMe deterministic ML-DSA fixture with independent COSE-layer audit",
+      "path": "cose-sign1-pq.json",
+      "case_count": 7,
+      "sha256": "ce057de89c273a6bb86541d5cc790f09837aabf3d75071d7e40e3536644ecee2"
+    },
+    {
+      "id": "cose-key-pq",
+      "source": "ReallyMe generated PQ AKP fixture with independent COSE-layer audit",
+      "path": "cose-key-pq.json",
+      "case_count": 6,
+      "sha256": "fb64a87cac7ceeeefb4f2fff94fedfe0720a6d59db94ef3917f321265609d434"
+    },
+    {
+      "id": "cose-encrypt-ml-kem",
+      "source": "ReallyMe deterministic ML-KEM COSE_Encrypt fixture",
+      "path": "cose-encrypt-ml-kem.json",
+      "case_count": 6,
+      "sha256": "beaf3b1e2099f59b94d4c8f27dab5728a0e2ec91e6b4ae87fa7fc6a864e9a331"
+    }
+  ]
+}

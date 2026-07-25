@@ -9,12 +9,19 @@ publish = false
 edition = "2021"
 rust-version = "1.96"
 
+[lints]
+workspace = true
+
 [package.metadata]
 cargo-fuzz = true
 
 [dependencies]
+buffa = { version = "0.9.0", features = ["json"] }
 libfuzzer-sys = "0.4"
-reallyme-cose = { path = "..", default-features = false, features = ["native"] }
+reallyme-cose = { path = "../crates/cose", default-features = false, features = ["native", "wire"] }
+reallyme-crypto = { version = "0.3.0", default-features = false, features = ["native", "ml-kem-512", "ml-kem-768", "ml-kem-1024"] }
+serde_json = "1.0"
+zeroize = "1.8"
 
 [[bin]]
 name = "cose_sign1"
@@ -37,5 +44,33 @@ test = false
 doc = false
 bench = false
 
+[[bin]]
+name = "wire"
+path = "fuzz_targets/wire.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "cose_encrypt"
+path = "fuzz_targets/cose_encrypt.rs"
+test = false
+doc = false
+bench = false
+
 [workspace]
 members = ["."]
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+
+[workspace.lints.clippy]
+dbg_macro = "deny"
+expect_used = "deny"
+large_include_file = "deny"
+panic = "deny"
+todo = "deny"
+unimplemented = "deny"
+unreachable = "deny"
+unwrap_used = "deny"
+wildcard_imports = "deny"
