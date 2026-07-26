@@ -1002,7 +1002,7 @@ assertContains(
   "group: crates-release-${{ needs.verify-preflight.outputs.release_version }}-${{ needs.verify-preflight.outputs.release_sha }}",
 );
 assertContains(".github/workflows/crates-release.yml", "if: github.ref == 'refs/heads/main'");
-assertContains(".github/workflows/crates-release.yml", "environment: crates-io-release");
+assertNotContains(".github/workflows/crates-release.yml", "environment:");
 assertContains(".github/workflows/crates-release.yml", "workflow_dispatch:");
 assertNotContains(".github/workflows/crates-release.yml", "${{ inputs.");
 assertContains(".github/workflows/crates-release.yml", "verify-preflight:");
@@ -1075,6 +1075,14 @@ for (const releaseReadinessWorkflow of [
 }
 assertContains(".github/workflows/crates-release.yml", "node scripts/publish_crates_in_order.mjs publish");
 assertContains(".github/workflows/crates-release.yml", 'tag="reallyme-cose-v${RELEASE_VERSION}"');
+assertContains(
+  ".github/workflows/crates-release.yml",
+  'if resolved_commit="$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq \'.sha\' 2>/dev/null)"; then',
+);
+assertNotContains(
+  ".github/workflows/crates-release.yml",
+  '2>/dev/null || true)',
+);
 assertContains(".github/workflows/crates-release.yml", 'gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs"');
 assertNotContains(".github/workflows/crates-release.yml", "git push");
 assertContains(".github/workflows/crates-release.yml", "gh release create");
