@@ -33,7 +33,7 @@ crypto-backed signing or verification APIs.
 Enable the `wire` feature only for protobuf operation adapters:
 
 ```toml
-reallyme-cose = { version = "0.2.0", features = ["wire"] }
+reallyme-cose = { version = "0.2.1", features = ["wire"] }
 ```
 
 When default features are disabled, pair `wire` with an explicit runtime lane,
@@ -454,20 +454,20 @@ messages and caller-supplied per-operation COSE/payload limits. Native Rust APIs
 may opt into larger local limits directly; protobuf callers cannot raise their
 parse policy beyond the message envelope cap.
 
-## 0.2.0 Platform Scope
+## 0.2.1 Platform Scope
 
-The `0.2.0` release is intentionally Rust and protobuf only. Its publishable
+The `0.2.1` release is intentionally Rust and protobuf only. Its publishable
 artifacts are `reallyme-cose-proto` and `reallyme-cose`; the `native` and `wasm`
 features are Rust runtime lanes, not platform SDK packages.
 
-The `0.2.0` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
+The `0.2.1` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
 native C/JNI, or TypeScript/WASM npm packages. Those package formats are not
 part of this release's compatibility or support contract.
 
 The protobuf `swift_prefix` option is generation metadata, not a published
 Swift package. Likewise, `wasm32-unknown-unknown` is a Rust compilation target,
 not an npm package. The exact artifact scope is recorded in
-[`docs/platform-scope-0.2.0.json`](docs/platform-scope-0.2.0.json).
+[`docs/platform-scope-0.2.1.json`](docs/platform-scope-0.2.1.json).
 
 ## Development Checks
 
@@ -513,7 +513,7 @@ It also caps hand-written Rust modules at 500 lines, rejects substantive inline
 test modules, and enforces provider, ownership, concurrency, and performance
 controls. The benchmark asserts named peak-allocation ceilings; the host
 measurements are recorded in
-[`docs/performance-baseline-0.2.0.md`](docs/performance-baseline-0.2.0.md).
+[`docs/performance-baseline-0.2.1.md`](docs/performance-baseline-0.2.1.md).
 
 The wasm lane must be checked against `wasm32-unknown-unknown`. A host-target
 `cargo check --workspace --no-default-features --features wasm` is intentionally

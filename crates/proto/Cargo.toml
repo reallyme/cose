@@ -4,7 +4,7 @@
 
 [package]
 name = "reallyme-cose-proto"
-version = "0.2.0"
+version = "0.2.1"
 description = "Generated protobuf boundary types for ReallyMe COSE."
 edition.workspace = true
 rust-version.workspace = true

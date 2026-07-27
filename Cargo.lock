@@ -1602,7 +1602,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-cose"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "allocation-counter",
  "buffa",
@@ -1621,7 +1621,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-cose-proto"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "buffa",
  "serde",
