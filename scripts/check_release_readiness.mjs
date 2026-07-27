@@ -197,7 +197,7 @@ assertContains("crates/cose/Cargo.toml", '"dep:serde"');
 assertContains("crates/cose/Cargo.toml", '"dep:serde_json"');
 assertContains(
   "Cargo.toml",
-  'reallyme-codec = { version = "0.2.0", default-features = false, features = ["base64url", "cbor", "multikey"] }',
+  'reallyme-codec = { version = "0.2.1", default-features = false, features = ["base64url", "cbor", "multikey"] }',
 );
 assertNotContains("Cargo.toml", 'path = "../codec');
 assertContains("crates/proto/Cargo.toml", '"buffa/json"');
@@ -1217,13 +1217,13 @@ assertCargoMetadataPolicy({
       dependencies: [
         {
           name: "reallyme-codec",
-          requirement: "^0.2.0",
+          requirement: "^0.2.1",
           source: "registry",
           defaultFeatures: false,
         },
         {
           name: "reallyme-crypto",
-          requirement: "^0.3.0",
+          requirement: "^0.3.4",
           source: "registry",
           defaultFeatures: false,
         },
