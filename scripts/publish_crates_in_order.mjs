@@ -41,7 +41,7 @@ if (mode === MODE_PUBLISH && releaseVersion.length === 0) {
 }
 
 if (releaseVersion.length !== 0 && !/^[0-9]+[.][0-9]+[.][0-9]+$/u.test(releaseVersion)) {
-  console.error("RELEASE_VERSION must be an exact semver release such as 0.2.0.");
+  console.error("RELEASE_VERSION must be an exact semver release such as 0.2.1.");
   process.exit(2);
 }
 

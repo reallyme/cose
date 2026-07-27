@@ -18,7 +18,7 @@ const expected = Object.freeze({
   repository: "reallyme/cose",
   runId: 123,
   releaseSha,
-  releaseVersion: "0.2.0",
+  releaseVersion: "0.2.1",
 });
 const attestation = (overrides = {}) => ({
   schema: "reallyme.cose.crates_preflight.v1",
@@ -69,7 +69,7 @@ test("reviewed attestation accepts the exact run, SHA, and version", () => {
 
 test("attestation rejects mismatched inputs and unreviewed fields", () => {
   for (const candidate of [
-    attestation({ version: "0.2.1" }),
+    attestation({ version: "0.2.2" }),
     attestation({ release_sha: "b".repeat(40) }),
     attestation({ run_id: 124 }),
     attestation({ extra: true }),
@@ -125,7 +125,7 @@ test("newer failed, running, wrong-version, and rerun preflights fail closed", (
     listedWorkflowRun({ id: 124, conclusion: null, status: "in_progress" }),
     listedWorkflowRun({
       id: 124,
-      display_title: `Crates package preflight 0.2.1 @ ${releaseSha}`,
+      display_title: `Crates package preflight 0.2.2 @ ${releaseSha}`,
     }),
     listedWorkflowRun({ id: 124, run_attempt: 2 }),
   ];

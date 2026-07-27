@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-//! Wire-identifier freeze tests for the public COSE 0.2.0 protobuf contract.
+//! Wire-identifier freeze tests for the public COSE 0.2 protobuf contract.
 
 #![cfg(feature = "generated")]
 #![allow(clippy::panic)]
