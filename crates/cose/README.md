@@ -500,7 +500,7 @@ node scripts/check_release_readiness.mjs
 ```
 
 Release readiness requires crates.io dependencies for the published ReallyMe
-foundational crates: `reallyme-crypto` `^0.3.0` and `reallyme-codec` `^0.2.0`.
+foundational crates: `reallyme-crypto` `^0.3.4` and `reallyme-codec` `^0.2.1`.
 Local `../crypto` or `../codec` path dependencies are not accepted for release.
 
 Release readiness structurally inspects all 15 executable operation routes.

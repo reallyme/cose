@@ -19,7 +19,7 @@ cargo-fuzz = true
 buffa = { version = "0.9.0", features = ["json"] }
 libfuzzer-sys = "0.4"
 reallyme-cose = { path = "../crates/cose", default-features = false, features = ["native", "wire"] }
-reallyme-crypto = { version = "0.3.0", default-features = false, features = ["native", "ml-kem-512", "ml-kem-768", "ml-kem-1024"] }
+reallyme-crypto = { version = "0.3.4", default-features = false, features = ["native", "ml-kem-512", "ml-kem-768", "ml-kem-1024"] }
 serde_json = "1.0"
 zeroize = "1.8"
 
