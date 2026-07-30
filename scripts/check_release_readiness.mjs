@@ -1069,7 +1069,7 @@ for (const releaseReadinessWorkflow of [
   assertContains(releaseReadinessWorkflow, "repository: reallyme/release-readiness");
   assertContains(
     releaseReadinessWorkflow,
-    "ref: f27973caf9d3a12847cac4032c361f5f553c97e9",
+    "ref: 44065b7488a8d3c77f66f530dff770fb39be9707",
   );
   assertContains(releaseReadinessWorkflow, "persist-credentials: false");
 }
@@ -1183,8 +1183,8 @@ assertContains(cratesPackagePreflightWorkflow, "uses: taiki-e/install-action@");
 assertContains(cratesPackagePreflightWorkflow, 'protoc-gen-buffa --version "$BUFFA_VERSION"');
 assertContains(cratesPackagePreflightWorkflow, 'protoc-gen-buffa-packaging --version "$BUFFA_VERSION"');
 assertContains(cratesPackagePreflightWorkflow, 'cargo install cargo-fuzz --version "$CARGO_FUZZ_VERSION" --locked');
-assertContains("scripts/run_pinned_release_readiness.mjs", "f27973caf9d3a12847cac4032c361f5f553c97e9");
-assertContains("scripts/run_pinned_release_readiness.mjs", "70cc78721738cf352024938e8fc86e73380e71b2cdf7a9a733687543167cbaae");
+assertContains("scripts/run_pinned_release_readiness.mjs", "44065b7488a8d3c77f66f530dff770fb39be9707");
+assertContains("scripts/run_pinned_release_readiness.mjs", "fcc0b725a85784617568c29f1aa3382a206faaddc3a22012e46f0e35303e4e6d");
 assertContains("scripts/verify_release_source.mjs", "main:refs/remotes/origin/main");
 assertContains("scripts/verify_release_source.mjs", "manifest-version-mismatch");
 assertContains("scripts/verify_release_attestation.mjs", 'value.conclusion !== "success"');
