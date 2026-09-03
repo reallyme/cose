@@ -196,7 +196,7 @@ fn signature_identifier(
 }
 
 fn signature_algorithm(data: &[u8]) -> CoseSignatureAlgorithm {
-    match data.first().copied().unwrap_or_default() % 8 {
+    match data.first().copied().unwrap_or_default() % 12 {
         0 => CoseSignatureAlgorithm::Ed25519,
         1 => CoseSignatureAlgorithm::EcdsaP256Sha256,
         2 => CoseSignatureAlgorithm::EcdsaP384Sha384,
@@ -204,7 +204,11 @@ fn signature_algorithm(data: &[u8]) -> CoseSignatureAlgorithm {
         4 => CoseSignatureAlgorithm::EcdsaSecp256k1Sha256,
         5 => CoseSignatureAlgorithm::MlDsa44,
         6 => CoseSignatureAlgorithm::MlDsa65,
-        _ => CoseSignatureAlgorithm::MlDsa87,
+        7 => CoseSignatureAlgorithm::MlDsa87,
+        8 => CoseSignatureAlgorithm::Es256,
+        9 => CoseSignatureAlgorithm::Esp256,
+        10 => CoseSignatureAlgorithm::Esp384,
+        _ => CoseSignatureAlgorithm::Esp512,
     }
 }
 

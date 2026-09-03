@@ -49,6 +49,7 @@ pub use reallyme_crypto::core::Algorithm;
 
 /// COSE algorithm mapping helpers.
 pub mod algorithm;
+pub use algorithm::CoseSignatureAlgorithm;
 /// Typed COSE errors.
 pub mod error;
 pub use error::CoseError;
@@ -84,8 +85,11 @@ pub mod sign1;
 #[cfg(feature = "cose-crypto")]
 pub use sign1::{
     cose_sign1, cose_sign1_detached, cose_sign1_detached_tagged, cose_sign1_detached_with_options,
-    cose_sign1_detached_with_options_and_external_aad, cose_sign1_detached_with_signer,
+    cose_sign1_detached_with_options_and_external_aad,
+    cose_sign1_detached_with_signature_algorithm,
+    cose_sign1_detached_with_signature_algorithm_and_external_aad, cose_sign1_detached_with_signer,
     cose_sign1_tagged, cose_sign1_with_options, cose_sign1_with_options_and_external_aad,
+    cose_sign1_with_signature_algorithm, cose_sign1_with_signature_algorithm_and_external_aad,
     cose_sign1_with_signer, cose_verify1, cose_verify1_detached,
     cose_verify1_detached_with_metadata, cose_verify1_detached_with_policy,
     cose_verify1_detached_with_policy_and_external_aad, cose_verify1_with_metadata,
@@ -100,7 +104,8 @@ pub use policy::CosePolicy;
 // --- COSE_Key ---
 pub mod key;
 pub use key::{
-    cose_key_from_private_bytes, cose_key_from_public_bytes, cose_key_from_slice,
+    cose_key_from_private_bytes, cose_key_from_public_bytes, cose_key_from_signature_private_bytes,
+    cose_key_from_signature_public_bytes, cose_key_from_slice, cose_key_signature_algorithm,
     cose_key_to_private_bytes, cose_key_to_public_bytes, cose_key_to_vec,
     derive_kid_from_cose_key_public, CoseKey,
 };

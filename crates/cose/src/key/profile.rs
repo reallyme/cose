@@ -8,6 +8,7 @@ use ciborium::value::Value;
 use coset::{iana, Label, RegisteredLabel, RegisteredLabelWithPrivate};
 use reallyme_crypto::core::Algorithm;
 
+use crate::algorithm::CoseSignatureAlgorithm;
 use crate::{CoseError, CoseKey};
 
 use super::akp::{akp_profile_from_cose_algorithm, algorithm_for_akp_profile, AkpProfile};
@@ -61,6 +62,40 @@ pub(crate) fn algorithm_for_cose_key(key: &CoseKey) -> Result<Algorithm, CoseErr
     }
 }
 
+/// Return the exact signature algorithm bound to a validated COSE_Key.
+///
+/// `None` identifies a supported non-signature key profile or a signature-key
+/// profile whose optional `alg` parameter was omitted. The latter distinction
+/// matters to protocol consumers such as WebAuthn, which require `alg` to be
+/// present and can reject `None` at their own boundary.
+///
+/// # Errors
+///
+/// Returns [`CoseError`] when the key no longer satisfies a supported profile.
+pub fn cose_key_signature_algorithm(
+    key: &CoseKey,
+) -> Result<Option<CoseSignatureAlgorithm>, CoseError> {
+    match validate_cose_key_profile(key)? {
+        KeyProfile::Okp(profile) => match profile.alg {
+            Some(algorithm) => CoseSignatureAlgorithm::from_iana(algorithm).map(Some),
+            None => Ok(None),
+        },
+        KeyProfile::Ec2(_) => key
+            .inner()
+            .alg
+            .as_ref()
+            .map(CoseSignatureAlgorithm::from_registered)
+            .transpose(),
+        KeyProfile::Akp(profile) if profile.is_signature => key
+            .inner()
+            .alg
+            .as_ref()
+            .map(CoseSignatureAlgorithm::from_registered)
+            .transpose(),
+        KeyProfile::Akp(_) => Ok(None),
+    }
+}
+
 fn validate_okp_profile(key: &coset::CoseKey) -> Result<KeyProfile, CoseError> {
     let curve =
         get_param_i64(key, iana::OkpKeyParameter::Crv as i64).ok_or(CoseError::InvalidFormat)?;
@@ -107,7 +142,7 @@ fn validate_ec2_profile(key: &coset::CoseKey) -> Result<KeyProfile, CoseError> {
     let curve =
         get_param_i64(key, iana::Ec2KeyParameter::Crv as i64).ok_or(CoseError::InvalidFormat)?;
     let profile = ec2_profile_from_curve(curve)?;
-    validate_key_algorithm(key, Some(profile.alg))?;
+    validate_ec2_key_algorithm(key, profile)?;
     validate_optional_param_len(key, iana::Ec2KeyParameter::X as i64, profile.coordinate_len)?;
     validate_optional_param_len(key, iana::Ec2KeyParameter::D as i64, profile.coordinate_len)?;
 
@@ -143,6 +178,18 @@ fn validate_ec2_profile(key: &coset::CoseKey) -> Result<KeyProfile, CoseError> {
     }
 
     Ok(KeyProfile::Ec2(profile))
+}
+
+fn validate_ec2_key_algorithm(key: &coset::CoseKey, profile: Ec2Profile) -> Result<(), CoseError> {
+    let Some(algorithm) = key.alg.as_ref() else {
+        return Ok(());
+    };
+    let signature_algorithm = CoseSignatureAlgorithm::from_registered(algorithm)?;
+    let expected_crypto_algorithm = algorithm_for_ec2_profile(profile)?;
+    if signature_algorithm.crypto_algorithm() != expected_crypto_algorithm {
+        return Err(CoseError::UnsupportedAlgorithm);
+    }
+    Ok(())
 }
 
 fn validate_akp_profile(key: &coset::CoseKey) -> Result<KeyProfile, CoseError> {

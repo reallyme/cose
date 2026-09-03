@@ -8865,7 +8865,8 @@ pub struct CoseSign1VerifyResultView<'a> {
     ///
     /// Field 1: `payload`
     pub payload: &'a [u8],
-    /// Verified protected-header algorithm.
+    /// Compatibility primitive selector. Existing numeric values remain stable;
+    /// new consumers should use exact_signature_algorithm.
     ///
     /// Field 2: `algorithm`
     pub algorithm: ::buffa::EnumValue<super::super::CoseSignatureAlgorithm>,
@@ -8873,6 +8874,14 @@ pub struct CoseSign1VerifyResultView<'a> {
     ///
     /// Field 3: `kid`
     pub kid: &'a [u8],
+    /// Exact signature registration authenticated by the protected header.
+    ///
+    /// Field 4: `exact_signature_algorithm`
+    pub exact_signature_algorithm: ::buffa::EnumValue<
+        super::super::CoseSignatureAlgorithm,
+    >,
+    /// Field 5: `has_exact_signature_algorithm`
+    pub has_exact_signature_algorithm: bool,
     pub __buffa_unknown_fields: ::buffa::UnknownFieldsView<'a>,
 }
 impl ::core::fmt::Debug for CoseSign1VerifyResultView<'_> {
@@ -8931,6 +8940,24 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1VerifyResultView<'a> {
                 )?;
                 view.kid = ::buffa::types::borrow_bytes(&mut cur)?;
             }
+            4u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::Varint,
+                )?;
+                view.exact_signature_algorithm = ::buffa::EnumValue::from(
+                    ::buffa::types::decode_int32(&mut cur)?,
+                );
+            }
+            5u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::Varint,
+                )?;
+                view.has_exact_signature_algorithm = ::buffa::types::decode_bool(
+                    &mut cur,
+                )?;
+            }
             _ => {
                 ::buffa::encoding::skip_field_depth(tag, &mut cur, ctx.depth())?;
                 let span_len = before_tag.len() - cur.len();
@@ -8962,6 +8989,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1VerifyResultView<'a> {
             payload: (self.payload).to_vec(),
             algorithm: self.algorithm,
             kid: (self.kid).to_vec(),
+            exact_signature_algorithm: self.exact_signature_algorithm,
+            has_exact_signature_algorithm: self.has_exact_signature_algorithm,
             __buffa_unknown_fields: self.__buffa_unknown_fields.to_owned()?.into(),
             ..::core::default::Default::default()
         })
@@ -8985,6 +9014,15 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseSign1VerifyResultView<'a> {
         if !self.kid.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.kid) as u64;
         }
+        {
+            let val = self.exact_signature_algorithm.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        if self.has_exact_signature_algorithm {
+            size += 1u64 + ::buffa::types::BOOL_ENCODED_LEN as u64;
+        }
         size += self.__buffa_unknown_fields.encoded_len() as u64;
         ::buffa::saturate_size(size)
     }
@@ -9007,6 +9045,19 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseSign1VerifyResultView<'a> {
         }
         if !self.kid.is_empty() {
             ::buffa::types::put_shared_bytes_field(3u32, &self.kid, buf);
+        }
+        {
+            let val = self.exact_signature_algorithm.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(4u32, val, buf);
+            }
+        }
+        if self.has_exact_signature_algorithm {
+            ::buffa::types::put_bool_field(
+                5u32,
+                self.has_exact_signature_algorithm,
+                buf,
+            );
         }
         self.__buffa_unknown_fields.write_to(buf);
     }
@@ -9041,6 +9092,22 @@ impl<'__a> ::serde::Serialize for CoseSign1VerifyResultView<'__a> {
         }
         if !::buffa::json_helpers::skip_if::is_empty_bytes(self.kid) {
             __map.serialize_entry("kid", &::buffa::json_helpers::BytesJson(self.kid))?;
+        }
+        if !::buffa::json_helpers::skip_if::is_default_enum_value(
+            &self.exact_signature_algorithm,
+        ) {
+            __map
+                .serialize_entry(
+                    "exactSignatureAlgorithm",
+                    &self.exact_signature_algorithm,
+                )?;
+        }
+        if self.has_exact_signature_algorithm {
+            __map
+                .serialize_entry(
+                    "hasExactSignatureAlgorithm",
+                    &self.has_exact_signature_algorithm,
+                )?;
         }
         __map.end()
     }
@@ -9151,7 +9218,8 @@ impl CoseSign1VerifyResultOwnedView {
     pub fn payload(&self) -> &'_ [u8] {
         self.0.reborrow().payload
     }
-    /// Verified protected-header algorithm.
+    /// Compatibility primitive selector. Existing numeric values remain stable;
+    /// new consumers should use exact_signature_algorithm.
     ///
     /// Field 2: `algorithm`
     #[must_use]
@@ -9164,6 +9232,20 @@ impl CoseSign1VerifyResultOwnedView {
     #[must_use]
     pub fn kid(&self) -> &'_ [u8] {
         self.0.reborrow().kid
+    }
+    /// Exact signature registration authenticated by the protected header.
+    ///
+    /// Field 4: `exact_signature_algorithm`
+    #[must_use]
+    pub fn exact_signature_algorithm(
+        &self,
+    ) -> ::buffa::EnumValue<super::super::CoseSignatureAlgorithm> {
+        self.0.reborrow().exact_signature_algorithm
+    }
+    /// Field 5: `has_exact_signature_algorithm`
+    #[must_use]
+    pub fn has_exact_signature_algorithm(&self) -> bool {
+        self.0.reborrow().has_exact_signature_algorithm
     }
 }
 impl ::core::convert::From<::buffa::OwnedView<CoseSign1VerifyResultView<'static>>>
@@ -10239,6 +10321,14 @@ pub struct CoseKeyBytesResultView<'a> {
     ///
     /// Field 1: `key_bytes`
     pub key_bytes: &'a [u8],
+    /// Exact signature registration validated from or encoded into the COSE_Key.
+    /// Absent for supported non-signature keys and for signature keys whose
+    /// optional COSE_Key alg parameter was omitted.
+    ///
+    /// Field 2: `signature_algorithm`
+    pub signature_algorithm: ::buffa::EnumValue<super::super::CoseSignatureAlgorithm>,
+    /// Field 3: `has_signature_algorithm`
+    pub has_signature_algorithm: bool,
     pub __buffa_unknown_fields: ::buffa::UnknownFieldsView<'a>,
 }
 impl ::core::fmt::Debug for CoseKeyBytesResultView<'_> {
@@ -10281,6 +10371,22 @@ impl<'a> ::buffa::MessageView<'a> for CoseKeyBytesResultView<'a> {
                 )?;
                 view.key_bytes = ::buffa::types::borrow_bytes(&mut cur)?;
             }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::Varint,
+                )?;
+                view.signature_algorithm = ::buffa::EnumValue::from(
+                    ::buffa::types::decode_int32(&mut cur)?,
+                );
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::Varint,
+                )?;
+                view.has_signature_algorithm = ::buffa::types::decode_bool(&mut cur)?;
+            }
             _ => {
                 ::buffa::encoding::skip_field_depth(tag, &mut cur, ctx.depth())?;
                 let span_len = before_tag.len() - cur.len();
@@ -10304,6 +10410,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseKeyBytesResultView<'a> {
         let _ = __buffa_src;
         ::core::result::Result::Ok(super::super::CoseKeyBytesResult {
             key_bytes: (self.key_bytes).to_vec(),
+            signature_algorithm: self.signature_algorithm,
+            has_signature_algorithm: self.has_signature_algorithm,
             __buffa_unknown_fields: self.__buffa_unknown_fields.to_owned()?.into(),
             ..::core::default::Default::default()
         })
@@ -10318,6 +10426,15 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseKeyBytesResultView<'a> {
         if !self.key_bytes.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.key_bytes) as u64;
         }
+        {
+            let val = self.signature_algorithm.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        if self.has_signature_algorithm {
+            size += 1u64 + ::buffa::types::BOOL_ENCODED_LEN as u64;
+        }
         size += self.__buffa_unknown_fields.encoded_len() as u64;
         ::buffa::saturate_size(size)
     }
@@ -10331,6 +10448,15 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseKeyBytesResultView<'a> {
         use ::buffa::Enumeration as _;
         if !self.key_bytes.is_empty() {
             ::buffa::types::put_shared_bytes_field(1u32, &self.key_bytes, buf);
+        }
+        {
+            let val = self.signature_algorithm.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(2u32, val, buf);
+            }
+        }
+        if self.has_signature_algorithm {
+            ::buffa::types::put_bool_field(3u32, self.has_signature_algorithm, buf);
         }
         self.__buffa_unknown_fields.write_to(buf);
     }
@@ -10358,6 +10484,18 @@ impl<'__a> ::serde::Serialize for CoseKeyBytesResultView<'__a> {
                 .serialize_entry(
                     "keyBytes",
                     &::buffa::json_helpers::BytesJson(self.key_bytes),
+                )?;
+        }
+        if !::buffa::json_helpers::skip_if::is_default_enum_value(
+            &self.signature_algorithm,
+        ) {
+            __map.serialize_entry("signatureAlgorithm", &self.signature_algorithm)?;
+        }
+        if self.has_signature_algorithm {
+            __map
+                .serialize_entry(
+                    "hasSignatureAlgorithm",
+                    &self.has_signature_algorithm,
                 )?;
         }
         __map.end()
@@ -10468,6 +10606,22 @@ impl CoseKeyBytesResultOwnedView {
     #[must_use]
     pub fn key_bytes(&self) -> &'_ [u8] {
         self.0.reborrow().key_bytes
+    }
+    /// Exact signature registration validated from or encoded into the COSE_Key.
+    /// Absent for supported non-signature keys and for signature keys whose
+    /// optional COSE_Key alg parameter was omitted.
+    ///
+    /// Field 2: `signature_algorithm`
+    #[must_use]
+    pub fn signature_algorithm(
+        &self,
+    ) -> ::buffa::EnumValue<super::super::CoseSignatureAlgorithm> {
+        self.0.reborrow().signature_algorithm
+    }
+    /// Field 3: `has_signature_algorithm`
+    #[must_use]
+    pub fn has_signature_algorithm(&self) -> bool {
+        self.0.reborrow().has_signature_algorithm
     }
 }
 impl ::core::convert::From<::buffa::OwnedView<CoseKeyBytesResultView<'static>>>

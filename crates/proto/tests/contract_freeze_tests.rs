@@ -206,6 +206,22 @@ fn algorithm_identifier_oneof_field_numbers_are_frozen() {
 }
 
 #[test]
+fn sign1_exact_algorithm_result_fields_are_frozen() {
+    let result = CoseSign1VerifyResult {
+        payload: Vec::new(),
+        algorithm: EnumValue::from(CoseSignatureAlgorithm::EcdsaP256Sha256),
+        kid: Vec::new(),
+        exact_signature_algorithm: EnumValue::from(CoseSignatureAlgorithm::Es256),
+        has_exact_signature_algorithm: true,
+        __buffa_unknown_fields: Default::default(),
+    };
+    assert_eq!(
+        result.encode_to_vec(),
+        [0x10, 0xc8, 0x01, 0x20, 0xc9, 0x01, 0x28, 0x01],
+    );
+}
+
+#[test]
 fn operation_request_type_name_is_frozen() {
     assert_eq!(
         CoseOperationRequest::TYPE_URL,
@@ -219,8 +235,12 @@ fn algorithm_and_mode_numbers_are_frozen() {
         (CoseSignatureAlgorithm::Unspecified as i32, 0),
         (CoseSignatureAlgorithm::Ed25519 as i32, 100),
         (CoseSignatureAlgorithm::EcdsaP256Sha256 as i32, 200),
+        (CoseSignatureAlgorithm::Es256 as i32, 201),
+        (CoseSignatureAlgorithm::Esp256 as i32, 202),
         (CoseSignatureAlgorithm::EcdsaP384Sha384 as i32, 210),
+        (CoseSignatureAlgorithm::Esp384 as i32, 211),
         (CoseSignatureAlgorithm::EcdsaP521Sha512 as i32, 220),
+        (CoseSignatureAlgorithm::Esp512 as i32, 221),
         (CoseSignatureAlgorithm::EcdsaSecp256k1Sha256 as i32, 230),
         (CoseSignatureAlgorithm::MlDsa44 as i32, 1000),
         (CoseSignatureAlgorithm::MlDsa65 as i32, 1010),

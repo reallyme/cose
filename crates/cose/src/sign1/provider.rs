@@ -8,6 +8,7 @@ use reallyme_crypto::core::Algorithm;
 use thiserror::Error;
 use zeroize::Zeroizing;
 
+use crate::algorithm::CoseSignatureAlgorithm;
 use crate::CoseError;
 
 /// Stable failures returned by an application or platform signing provider.
@@ -52,6 +53,21 @@ impl From<CoseSignerError> for CoseError {
 pub trait CoseSigner {
     /// Algorithm bound to the provider's key handle.
     fn algorithm(&self) -> Algorithm;
+
+    /// Exact COSE registration emitted for signatures from this provider.
+    ///
+    /// The default preserves the historical fully specified mappings. A
+    /// provider that represents a WebAuthn-compatible P-256 key can override
+    /// this method to return [`CoseSignatureAlgorithm::Es256`].
+    ///
+    /// # Errors
+    ///
+    /// Returns [`CoseSignerError::UnsupportedAlgorithm`] when the provider's
+    /// crypto selector has no supported COSE signature registration.
+    fn cose_algorithm(&self) -> Result<CoseSignatureAlgorithm, CoseSignerError> {
+        CoseSignatureAlgorithm::from_crypto_algorithm(self.algorithm())
+            .map_err(|_| CoseSignerError::UnsupportedAlgorithm)
+    }
 
     /// Sign an exact COSE `Sig_structure` without exporting private key bytes.
     ///

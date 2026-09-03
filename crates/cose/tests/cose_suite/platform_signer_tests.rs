@@ -4,8 +4,8 @@
 
 use reallyme_cose::{
     cose_sign1_detached_with_signer, cose_sign1_with_signer, cose_verify1_detached_with_policy,
-    cose_verify1_with_policy, Algorithm, CoseError, CosePolicy, CoseSign1EncodeOptions, CoseSigner,
-    CoseSignerError,
+    cose_verify1_with_policy, Algorithm, CoseError, CosePolicy, CoseSign1EncodeOptions,
+    CoseSignatureAlgorithm, CoseSigner, CoseSignerError,
 };
 use reallyme_crypto::dispatch::{generate_keypair, sign};
 use zeroize::Zeroizing;
@@ -41,6 +41,28 @@ impl CoseSigner for FailingPlatformSigner {
 
     fn sign(&self, _sig_structure: &[u8]) -> Result<Zeroizing<Vec<u8>>, CoseSignerError> {
         Err(self.error)
+    }
+}
+
+struct ExactPlatformSigner {
+    algorithm: Algorithm,
+    cose_algorithm: CoseSignatureAlgorithm,
+    private_key: Zeroizing<Vec<u8>>,
+}
+
+impl CoseSigner for ExactPlatformSigner {
+    fn algorithm(&self) -> Algorithm {
+        self.algorithm
+    }
+
+    fn cose_algorithm(&self) -> Result<CoseSignatureAlgorithm, CoseSignerError> {
+        Ok(self.cose_algorithm)
+    }
+
+    fn sign(&self, sig_structure: &[u8]) -> Result<Zeroizing<Vec<u8>>, CoseSignerError> {
+        sign(self.algorithm, &self.private_key, sig_structure)
+            .map(Zeroizing::new)
+            .map_err(|_| CoseSignerError::Backend)
     }
 }
 
@@ -107,4 +129,45 @@ fn provider_failures_map_to_stable_native_errors() {
         );
         assert_eq!(result, Err(expected));
     }
+}
+
+#[test]
+fn provider_exact_registration_must_match_its_crypto_primitive() {
+    let (public_key, private_key) =
+        generate_keypair(Algorithm::P256).expect("P-256 fixture generation must succeed");
+    let signer = ExactPlatformSigner {
+        algorithm: Algorithm::P256,
+        cose_algorithm: CoseSignatureAlgorithm::Es256,
+        private_key,
+    };
+    let encoded = cose_sign1_with_signer(
+        &signer,
+        PAYLOAD,
+        Some(KID),
+        &[],
+        CoseSign1EncodeOptions::default(),
+    )
+    .expect("provider-backed ES256 signing must succeed");
+    let policy = CosePolicy::new().allow_cose_algorithm(CoseSignatureAlgorithm::Es256);
+    let verified = cose_verify1_with_policy(&encoded, &policy, |_, _| Some(public_key.clone()))
+        .expect("provider-backed ES256 signature must verify");
+    assert_eq!(verified.cose_algorithm, CoseSignatureAlgorithm::Es256);
+
+    let (_, private_key) =
+        generate_keypair(Algorithm::P256).expect("P-256 fixture generation must succeed");
+    let mismatched = ExactPlatformSigner {
+        algorithm: Algorithm::P256,
+        cose_algorithm: CoseSignatureAlgorithm::Ed25519,
+        private_key,
+    };
+    assert_eq!(
+        cose_sign1_with_signer(
+            &mismatched,
+            PAYLOAD,
+            Some(KID),
+            &[],
+            CoseSign1EncodeOptions::default(),
+        ),
+        Err(CoseError::UnsupportedAlgorithm),
+    );
 }

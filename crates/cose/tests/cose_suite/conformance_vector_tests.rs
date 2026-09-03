@@ -4,11 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use reallyme_cose::{
-    cose_decrypt_ml_kem_with_external_aad, cose_key_from_public_bytes, cose_key_from_slice,
-    cose_key_to_multikey, cose_key_to_public_bytes, cose_key_to_vec, cose_verify1,
-    cose_verify1_detached, derive_kid_from_cose_key_public, multikey_to_cose_key, Algorithm,
+    cose_decrypt_ml_kem_with_external_aad, cose_key_from_public_bytes,
+    cose_key_from_signature_public_bytes, cose_key_from_slice, cose_key_to_multikey,
+    cose_key_to_public_bytes, cose_key_to_vec, cose_verify1, cose_verify1_detached,
+    derive_kid_from_cose_key_public, multikey_to_cose_key, Algorithm,
     CoseContentEncryptionAlgorithm, CoseError, CoseMlKemAlgorithm, CoseMlKemDecryptRequest,
-    CoseMlKemMode,
+    CoseMlKemMode, CoseSignatureAlgorithm,
 };
 use serde::Deserialize;
 
@@ -216,8 +217,12 @@ fn portable_cose_key_vectors_roundtrip() {
             case.id
         );
 
-        let rebuilt_key =
-            cose_key_from_public_bytes(algorithm, &public_key).expect("COSE_Key must rebuild");
+        let rebuilt_key = if case.algorithm == "ES256" {
+            cose_key_from_signature_public_bytes(CoseSignatureAlgorithm::Es256, &public_key)
+        } else {
+            cose_key_from_public_bytes(algorithm, &public_key)
+        }
+        .expect("COSE_Key must rebuild");
         assert_eq!(
             cose_key_to_vec(&rebuilt_key)
                 .expect("rebuilt COSE_Key must encode")
@@ -353,7 +358,7 @@ fn multikey_codec_name(algorithm: &str) -> &'static str {
     match algorithm {
         "Ed25519" => "ed25519-pub",
         "X25519" => "x25519-pub",
-        "P256" => "p256-pub",
+        "ES256" | "P256" => "p256-pub",
         "P384" => "p384-pub",
         "P521" => "p521-pub",
         "Secp256k1" => "secp256k1-pub",
@@ -434,7 +439,7 @@ fn cose_error_from_name(id: &str, name: &str) -> CoseError {
 fn algorithm_from_name(name: &str) -> Algorithm {
     match name {
         "Ed25519" => Algorithm::Ed25519,
-        "P256" => Algorithm::P256,
+        "ES256" | "P256" => Algorithm::P256,
         "P384" => Algorithm::P384,
         "P521" => Algorithm::P521,
         "Secp256k1" => Algorithm::Secp256k1,

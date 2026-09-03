@@ -10,7 +10,6 @@ use crate::failure::CoseFailure;
 use crate::{
     encode_cbor::{encode_cbor_value, encode_protected_header},
     error::sign_error_from_algorithm_error,
-    key::map_algorithm::alg_to_cose,
     CoseError,
 };
 
@@ -23,6 +22,7 @@ use zeroize::Zeroizing;
 
 use super::provider::CoseSigner;
 use super::types::{CoseSign1CreateInput, CoseSign1SigningSource};
+use crate::algorithm::CoseSignatureAlgorithm;
 
 #[must_use]
 pub(crate) struct CoseSign1CreateOutput {
@@ -180,7 +180,7 @@ pub fn cose_sign1_with_options_and_external_aad(
         kid,
         external_aad,
         options,
-    ))
+    )?)
     .map(CoseSign1CreateOutput::into_zeroizing)
     .map_err(CoseFailure::into_native_error)
 }
@@ -264,7 +264,7 @@ pub fn cose_sign1_detached_with_options_and_external_aad(
         kid,
         external_aad,
         options,
-    ))
+    )?)
     .map(CoseSign1CreateOutput::into_zeroizing)
     .map_err(CoseFailure::into_native_error)
 }
@@ -288,7 +288,7 @@ pub fn cose_sign1_with_signer(
         kid,
         external_aad,
         options,
-    ))
+    )?)
     .map(CoseSign1CreateOutput::into_zeroizing)
     .map_err(CoseFailure::into_native_error)
 }
@@ -312,7 +312,7 @@ pub fn cose_sign1_detached_with_signer(
         kid,
         external_aad,
         options,
-    ))
+    )?)
     .map(CoseSign1CreateOutput::into_zeroizing)
     .map_err(CoseFailure::into_native_error)
 }
@@ -339,7 +339,7 @@ fn create_cose_sign1_impl(
 ) -> Result<Zeroizing<Vec<u8>>, CoseError> {
     validate_detached_payload(input.payload)?;
     validate_detached_payload(input.external_aad)?;
-    let protected = build_protected_header(input.algorithm, input.kid)?;
+    let protected = build_protected_header(input.cose_algorithm, input.kid)?;
     let signature = sign_payload(
         input.algorithm,
         input.signing_source,
@@ -363,10 +363,10 @@ fn create_cose_sign1_impl(
 }
 
 fn build_protected_header(
-    alg: Algorithm,
+    alg: CoseSignatureAlgorithm,
     kid: Option<&[u8]>,
 ) -> Result<ProtectedHeader, CoseError> {
-    let cose_alg = alg_to_cose(alg)?;
+    let cose_alg = alg.to_iana();
     let header = Header {
         alg: Some(RegisteredLabelWithPrivate::Assigned(cose_alg)),
         key_id: kid.map(<[u8]>::to_vec).unwrap_or_default(),

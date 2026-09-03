@@ -12,8 +12,8 @@
       "id": "cose-key",
       "source": "ReallyMe generated public-key fixture",
       "path": "cose-key.json",
-      "case_count": 6,
-      "sha256": "0187a4a9f7cc8d64fe69b8259ac692c03d43b8582fa79a5d505e8d7c1b10e7a1"
+      "case_count": 7,
+      "sha256": "0cb5d5c9750d7c27345907ab7f39203afaf33a5c85e01580194ecbbfac8fbc48"
     },
     {
       "id": "cose-sign1-pq",

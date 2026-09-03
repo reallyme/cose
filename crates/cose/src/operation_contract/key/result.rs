@@ -4,8 +4,10 @@
 
 //! Generated-result conversion for COSE_Key and Multikey operations.
 
+use buffa::EnumValue;
 use zeroize::Zeroizing;
 
+use crate::algorithm::CoseSignatureAlgorithm;
 use crate::key::convert::{
     encode_cose_key, CoseKeyBytesOutput, CoseKeyOwnerOutput, CoseKeyRefInput,
 };
@@ -39,21 +41,24 @@ pub(crate) fn parsed_key(output: CoseKeyParseOutput) -> CoseWireResult<CoseOpera
     ))))
 }
 
-pub(crate) fn public_key_bytes(output: CoseKeyBytesOutput) -> CoseOperationResult {
-    operation_result(OperationResultBranch::KeyToPublicBytes(Box::new(
-        key_bytes_message(output.into_zeroizing()),
+pub(crate) fn public_key_bytes(output: CoseKeyBytesOutput) -> CoseWireResult<CoseOperationResult> {
+    let (bytes, algorithm) = output.into_parts();
+    Ok(operation_result(OperationResultBranch::KeyToPublicBytes(
+        Box::new(key_bytes_message_with_algorithm(bytes, algorithm)?),
     )))
 }
 
-pub(crate) fn private_key_bytes(output: CoseKeyBytesOutput) -> CoseOperationResult {
-    operation_result(OperationResultBranch::KeyToPrivateBytes(Box::new(
-        key_bytes_message(output.into_zeroizing()),
+pub(crate) fn private_key_bytes(output: CoseKeyBytesOutput) -> CoseWireResult<CoseOperationResult> {
+    let (bytes, algorithm) = output.into_parts();
+    Ok(operation_result(OperationResultBranch::KeyToPrivateBytes(
+        Box::new(key_bytes_message_with_algorithm(bytes, algorithm)?),
     )))
 }
 
-pub(crate) fn key_identifier(output: CoseKeyKidOutput) -> CoseOperationResult {
-    operation_result(OperationResultBranch::KeyDerivePublicKid(Box::new(
-        key_bytes_message(output.into_zeroizing()),
+pub(crate) fn key_identifier(output: CoseKeyKidOutput) -> CoseWireResult<CoseOperationResult> {
+    let (kid, algorithm) = output.into_parts();
+    Ok(operation_result(OperationResultBranch::KeyDerivePublicKid(
+        Box::new(key_bytes_message_with_algorithm(kid, algorithm)?),
     )))
 }
 
@@ -77,14 +82,32 @@ pub(crate) fn from_multikey_key(output: CoseKeyOwnerOutput) -> CoseWireResult<Co
 fn encode_key(key: crate::CoseKey) -> CoseWireResult<CoseKeyBytesResult> {
     let output =
         encode_cose_key(CoseKeyRefInput::new(&key)).map_err(boundary_error_from_failure)?;
-    Ok(key_bytes_message(output.into_zeroizing()))
+    let (bytes, signature_algorithm) = output.into_parts();
+    key_bytes_message_with_algorithm(bytes, signature_algorithm)
 }
 
 fn key_bytes_message(mut bytes: Zeroizing<Vec<u8>>) -> CoseKeyBytesResult {
     CoseKeyBytesResult {
         key_bytes: core::mem::take(&mut *bytes),
+        signature_algorithm: EnumValue::from(0),
+        has_signature_algorithm: false,
         __buffa_unknown_fields: Default::default(),
     }
+}
+
+fn key_bytes_message_with_algorithm(
+    bytes: Zeroizing<Vec<u8>>,
+    algorithm: Option<CoseSignatureAlgorithm>,
+) -> CoseWireResult<CoseKeyBytesResult> {
+    let Some(algorithm) = algorithm else {
+        return Ok(key_bytes_message(bytes));
+    };
+    let mut message = key_bytes_message(bytes);
+    message.signature_algorithm = EnumValue::from(
+        crate::operation_contract::sign1::result::signature_algorithm_to_proto(algorithm)?,
+    );
+    message.has_signature_algorithm = true;
+    Ok(message)
 }
 
 fn operation_result(result: OperationResultBranch) -> CoseOperationResult {

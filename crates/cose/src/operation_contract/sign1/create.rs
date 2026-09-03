@@ -25,7 +25,7 @@ pub(crate) fn attached_result(
     let algorithm = signature_algorithm_from_proto(request.algorithm)?;
     let options = encode_options_from_proto(request.options.as_option())?;
     let kid = request.has_kid.then_some(kid.as_slice());
-    let result = create_cose_sign1(CoseSign1CreateInput::new(
+    let result = create_cose_sign1(CoseSign1CreateInput::with_signature_algorithm(
         algorithm,
         &payload,
         &private_key,
@@ -47,7 +47,7 @@ pub(crate) fn detached_result(
     let algorithm = signature_algorithm_from_proto(request.algorithm)?;
     let options = encode_options_from_proto(request.options.as_option())?;
     let kid = request.has_kid.then_some(kid.as_slice());
-    let result = create_detached_cose_sign1(CoseSign1CreateInput::new(
+    let result = create_detached_cose_sign1(CoseSign1CreateInput::with_signature_algorithm(
         algorithm,
         &payload,
         &private_key,

@@ -8,7 +8,7 @@ use crate::failure::{CoseFailureBranch, CoseFailureOrigin, CoseFailureReason};
 use crate::limits::MAX_COSE_KEY_BYTES;
 use crate::{Algorithm, CoseError};
 
-use super::convert::{cose_key_from_public_bytes, cose_key_to_vec};
+use super::facade::{cose_key_from_public_bytes, cose_key_to_vec};
 use super::parse::{parse_cose_key, CoseKeyParseInput, CoseKeyParseOutput};
 
 const RFC_8032_ED25519_PUBLIC_KEY: [u8; 32] = [

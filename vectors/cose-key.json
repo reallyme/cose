@@ -17,6 +17,13 @@
       "multikey": "zDnaeqyGMYu4v1aQhn1xM4cTVnaSwBwVu6iNQL295ChCKc8Xc"
     },
     {
+      "id": "cose-key-es256-public",
+      "algorithm": "ES256",
+      "public_key_hex": "037b78bfe0ed44cc7321059692848a3b0c35d04e1b82d6b1e1214ab87dbd789ce3",
+      "cose_key_hex": "a50102032620012158207b78bfe0ed44cc7321059692848a3b0c35d04e1b82d6b1e1214ab87dbd789ce322f5",
+      "multikey": "zDnaeqyGMYu4v1aQhn1xM4cTVnaSwBwVu6iNQL295ChCKc8Xc"
+    },
+    {
       "id": "cose-key-p384-public",
       "algorithm": "P384",
       "public_key_hex": "0352de2820d3930225c8705258613331e8d899c856e0e4ab9d1a5304ed98dcbe9e430bafed7d77da8310c7d384cc57b4b3",

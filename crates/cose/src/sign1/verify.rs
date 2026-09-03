@@ -10,7 +10,7 @@ use crate::encode_cbor::encode_protected_header;
 use crate::error::verify_error_from_algorithm_error;
 use crate::failure::CoseFailure;
 use crate::policy::{validate_cose_sign1_policy, CosePolicy};
-use crate::{key::map_algorithm::cose_to_alg, CoseError};
+use crate::CoseError;
 
 use super::build_sig_structure::build_sig_structure;
 use super::convert_signature::backend_signature_from_cose;
@@ -19,6 +19,7 @@ use super::types::{CoseSign1DetachedVerifyInput, CoseSign1KeyResolution, CoseSig
 use crate::limits::validate_detached_payload_with_limit;
 use zeroize::Zeroizing;
 
+use crate::algorithm::CoseSignatureAlgorithm;
 /// Verified COSE_Sign1 attached payload and protected-header metadata.
 #[must_use]
 #[non_exhaustive]
@@ -28,6 +29,9 @@ pub struct VerifiedCoseSign1 {
 
     /// Verified protected-header algorithm.
     pub alg: Algorithm,
+
+    /// Exact verified COSE signature-algorithm registration.
+    pub cose_algorithm: CoseSignatureAlgorithm,
 
     /// Verified protected-header key identifier.
     pub kid: Zeroizing<Vec<u8>>,
@@ -39,6 +43,9 @@ pub struct VerifiedCoseSign1 {
 pub struct VerifiedDetachedCoseSign1 {
     /// Verified protected-header algorithm.
     pub alg: Algorithm,
+
+    /// Exact verified COSE signature-algorithm registration.
+    pub cose_algorithm: CoseSignatureAlgorithm,
 
     /// Verified protected-header key identifier.
     pub kid: Zeroizing<Vec<u8>>,
@@ -221,6 +228,7 @@ pub(crate) fn verify_cose_sign1(
     Ok(VerifiedCoseSign1 {
         payload: Zeroizing::new(payload),
         alg: metadata.alg,
+        cose_algorithm: metadata.cose_algorithm,
         kid: metadata.kid,
     })
 }
@@ -264,7 +272,8 @@ fn verify_cose_signature(
         .alg
         .as_ref()
         .ok_or(CoseError::UnsupportedAlgorithm)?;
-    let alg = cose_to_alg(cose_alg)?;
+    let cose_algorithm = crate::key::map_algorithm::cose_to_signature_algorithm(cose_alg)?;
+    let alg = cose_algorithm.crypto_algorithm();
 
     let kid: &[u8] = &cose.protected.header.key_id;
     // Key stores must resolve the algorithm and identifier as one tuple. This
@@ -292,6 +301,7 @@ fn verify_cose_signature(
 
     Ok(VerifiedDetachedCoseSign1 {
         alg,
+        cose_algorithm,
         kid: Zeroizing::new(kid.to_vec()),
     })
 }

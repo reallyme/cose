@@ -232,12 +232,45 @@ fn version_two_decoder_rejects_mismatched_and_hostile_responses_as_backend_failu
             payload: Vec::new(),
             algorithm: EnumValue::from(42_424_242),
             kid: Vec::new(),
+            exact_signature_algorithm: EnumValue::from(42_424_242),
+            has_exact_signature_algorithm: true,
             __buffa_unknown_fields: Default::default(),
         },
     )));
     assert_backend_error(
         decode_operation_response_for_request(&verify_request, &invalid_metadata.encode_to_vec()),
         CoseErrorReason::BackendInternal,
+    );
+
+    let mismatched_exact = response_with_result(ResultBranch::Sign1Verify(Box::new(
+        reallyme_cose::wire::CoseSign1VerifyResult {
+            payload: Vec::new(),
+            algorithm: EnumValue::from(CoseSignatureAlgorithm::EcdsaP256Sha256),
+            kid: Vec::new(),
+            exact_signature_algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
+            has_exact_signature_algorithm: true,
+            __buffa_unknown_fields: Default::default(),
+        },
+    )));
+    assert_backend_error(
+        decode_operation_response_for_request(&verify_request, &mismatched_exact.encode_to_vec()),
+        CoseErrorReason::BackendInternal,
+    );
+
+    let legacy_metadata = response_with_result(ResultBranch::Sign1Verify(Box::new(
+        reallyme_cose::wire::CoseSign1VerifyResult {
+            payload: Vec::new(),
+            algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
+            kid: Vec::new(),
+            exact_signature_algorithm: EnumValue::from(0),
+            has_exact_signature_algorithm: false,
+            __buffa_unknown_fields: Default::default(),
+        },
+    )));
+    assert!(
+        decode_operation_response_for_request(&verify_request, &legacy_metadata.encode_to_vec())
+            .is_ok(),
+        "pre-0.2.2 verification results must remain decodable",
     );
 
     let mut unknown_field = mismatched.encode_to_vec();

@@ -8,11 +8,13 @@ use buffa::EnumValue;
 use reallyme_cose_proto::generated::proto::reallyme::cose::v1::__buffa::oneof::cose_algorithm_identifier::Algorithm as CoseAlgorithmIdentifierBranch;
 use reallyme_crypto::core::Algorithm;
 
+use crate::algorithm::CoseSignatureAlgorithm as NativeCoseSignatureAlgorithm;
 use crate::limits::{MAX_COSE_SIGN1_BYTES, MAX_DETACHED_PAYLOAD_BYTES};
 use crate::wire::{
     CoseAlgorithmIdentifier, CoseContentEncryptionAlgorithm, CoseErrorReason, CoseKemAlgorithm,
-    CoseKeyAgreementAlgorithm, CoseSign1Options, CoseSignatureAlgorithm, CoseWireError,
-    CoseWireResult, MAX_COSE_PROTO_MESSAGE_BYTES,
+    CoseKeyAgreementAlgorithm, CoseSign1Options,
+    CoseSignatureAlgorithm as WireCoseSignatureAlgorithm, CoseWireError, CoseWireResult,
+    MAX_COSE_PROTO_MESSAGE_BYTES,
 };
 use crate::{
     CoseContentEncryptionAlgorithm as NativeCoseContentEncryptionAlgorithm,
@@ -37,7 +39,7 @@ pub(crate) fn policy_from_parts(
     max_cose_sign1_bytes: u64,
     max_detached_payload_bytes: u64,
     require_kid: bool,
-    allowed_algorithms: &[EnumValue<CoseSignatureAlgorithm>],
+    allowed_algorithms: &[EnumValue<WireCoseSignatureAlgorithm>],
 ) -> CoseWireResult<CosePolicy> {
     let mut allowed = Vec::with_capacity(allowed_algorithms.len());
     for candidate in allowed_algorithms {
@@ -45,7 +47,7 @@ pub(crate) fn policy_from_parts(
     }
     Ok(CosePolicy::new()
         .with_require_kid(require_kid)
-        .with_allowed_algorithms(allowed)
+        .with_allowed_cose_algorithms(allowed)
         .with_max_cose_sign1_bytes(optional_limit_to_usize(
             max_cose_sign1_bytes,
             MAX_COSE_SIGN1_BYTES,
@@ -71,40 +73,56 @@ fn optional_limit_to_usize(value: u64, default: usize) -> CoseWireResult<usize> 
 }
 
 pub(crate) fn signature_algorithm_from_proto(
-    value: EnumValue<CoseSignatureAlgorithm>,
-) -> CoseWireResult<Algorithm> {
+    value: EnumValue<WireCoseSignatureAlgorithm>,
+) -> CoseWireResult<NativeCoseSignatureAlgorithm> {
     let algorithm = value.as_known().ok_or(CoseWireError::primitive_internal(
         CoseErrorReason::CommonInvalidParameter,
     ))?;
     match algorithm {
-        CoseSignatureAlgorithm::Ed25519 => Ok(Algorithm::Ed25519),
-        CoseSignatureAlgorithm::EcdsaP256Sha256 => Ok(Algorithm::P256),
-        CoseSignatureAlgorithm::EcdsaP384Sha384 => Ok(Algorithm::P384),
-        CoseSignatureAlgorithm::EcdsaP521Sha512 => Ok(Algorithm::P521),
-        CoseSignatureAlgorithm::EcdsaSecp256k1Sha256 => Ok(Algorithm::Secp256k1),
-        CoseSignatureAlgorithm::MlDsa44 => Ok(Algorithm::MlDsa44),
-        CoseSignatureAlgorithm::MlDsa65 => Ok(Algorithm::MlDsa65),
-        CoseSignatureAlgorithm::MlDsa87 => Ok(Algorithm::MlDsa87),
-        CoseSignatureAlgorithm::Unspecified => Err(CoseWireError::primitive_internal(
+        WireCoseSignatureAlgorithm::Ed25519 => Ok(NativeCoseSignatureAlgorithm::Ed25519),
+        WireCoseSignatureAlgorithm::EcdsaP256Sha256 | WireCoseSignatureAlgorithm::Esp256 => {
+            Ok(NativeCoseSignatureAlgorithm::Esp256)
+        }
+        WireCoseSignatureAlgorithm::Es256 => Ok(NativeCoseSignatureAlgorithm::Es256),
+        WireCoseSignatureAlgorithm::EcdsaP384Sha384 | WireCoseSignatureAlgorithm::Esp384 => {
+            Ok(NativeCoseSignatureAlgorithm::Esp384)
+        }
+        WireCoseSignatureAlgorithm::EcdsaP521Sha512 | WireCoseSignatureAlgorithm::Esp512 => {
+            Ok(NativeCoseSignatureAlgorithm::Esp512)
+        }
+        WireCoseSignatureAlgorithm::EcdsaSecp256k1Sha256 => {
+            Ok(NativeCoseSignatureAlgorithm::Es256K)
+        }
+        WireCoseSignatureAlgorithm::MlDsa44 => Ok(NativeCoseSignatureAlgorithm::MlDsa44),
+        WireCoseSignatureAlgorithm::MlDsa65 => Ok(NativeCoseSignatureAlgorithm::MlDsa65),
+        WireCoseSignatureAlgorithm::MlDsa87 => Ok(NativeCoseSignatureAlgorithm::MlDsa87),
+        WireCoseSignatureAlgorithm::Unspecified => Err(CoseWireError::primitive_internal(
             CoseErrorReason::CommonInvalidParameter,
         )),
     }
 }
 
-pub(crate) fn algorithm_identifier_from_proto(
+pub(crate) enum KeyAlgorithmInput {
+    Signature(NativeCoseSignatureAlgorithm),
+    Crypto(Algorithm),
+}
+
+pub(crate) fn key_algorithm_identifier_from_proto(
     identifier: Option<&CoseAlgorithmIdentifier>,
-) -> CoseWireResult<Algorithm> {
+) -> CoseWireResult<KeyAlgorithmInput> {
     let identifier = identifier.ok_or(CoseWireError::primitive_internal(
         CoseErrorReason::CommonInvalidParameter,
     ))?;
     match identifier.algorithm.as_ref() {
         Some(CoseAlgorithmIdentifierBranch::Signature(value)) => {
-            signature_algorithm_from_proto(*value)
+            signature_algorithm_from_proto(*value).map(KeyAlgorithmInput::Signature)
         }
         Some(CoseAlgorithmIdentifierBranch::KeyAgreement(value)) => {
-            key_agreement_algorithm_from_proto(*value)
+            key_agreement_algorithm_from_proto(*value).map(KeyAlgorithmInput::Crypto)
         }
-        Some(CoseAlgorithmIdentifierBranch::Kem(value)) => kem_algorithm_from_proto(*value),
+        Some(CoseAlgorithmIdentifierBranch::Kem(value)) => {
+            kem_algorithm_from_proto(*value).map(KeyAlgorithmInput::Crypto)
+        }
         None => Err(CoseWireError::primitive_internal(
             CoseErrorReason::CommonInvalidParameter,
         )),

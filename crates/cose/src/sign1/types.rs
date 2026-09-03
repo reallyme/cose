@@ -7,7 +7,9 @@
 use reallyme_crypto::core::Algorithm;
 use zeroize::Zeroizing;
 
+use crate::algorithm::CoseSignatureAlgorithm;
 use crate::policy::CosePolicy;
+use crate::CoseError;
 
 use super::provider::CoseSigner;
 use super::sign::CoseSign1EncodeOptions;
@@ -19,6 +21,7 @@ pub(super) enum CoseSign1SigningSource<'a> {
 
 pub(crate) struct CoseSign1CreateInput<'a> {
     pub(super) algorithm: Algorithm,
+    pub(super) cose_algorithm: CoseSignatureAlgorithm,
     pub(super) payload: &'a [u8],
     pub(super) signing_source: CoseSign1SigningSource<'a>,
     pub(super) kid: Option<&'a [u8]>,
@@ -27,8 +30,28 @@ pub(crate) struct CoseSign1CreateInput<'a> {
 }
 
 impl<'a> CoseSign1CreateInput<'a> {
-    pub(crate) const fn new(
+    pub(crate) fn new(
         algorithm: Algorithm,
+        payload: &'a [u8],
+        private_key: &'a [u8],
+        kid: Option<&'a [u8]>,
+        external_aad: &'a [u8],
+        options: CoseSign1EncodeOptions,
+    ) -> Result<Self, CoseError> {
+        let cose_algorithm = CoseSignatureAlgorithm::from_crypto_algorithm(algorithm)?;
+        Ok(Self {
+            algorithm,
+            cose_algorithm,
+            payload,
+            signing_source: CoseSign1SigningSource::PrivateKey(private_key),
+            kid,
+            external_aad,
+            options,
+        })
+    }
+
+    pub(crate) const fn with_signature_algorithm(
+        algorithm: CoseSignatureAlgorithm,
         payload: &'a [u8],
         private_key: &'a [u8],
         kid: Option<&'a [u8]>,
@@ -36,7 +59,8 @@ impl<'a> CoseSign1CreateInput<'a> {
         options: CoseSign1EncodeOptions,
     ) -> Self {
         Self {
-            algorithm,
+            algorithm: algorithm.crypto_algorithm(),
+            cose_algorithm: algorithm,
             payload,
             signing_source: CoseSign1SigningSource::PrivateKey(private_key),
             kid,
@@ -51,15 +75,21 @@ impl<'a> CoseSign1CreateInput<'a> {
         kid: Option<&'a [u8]>,
         external_aad: &'a [u8],
         options: CoseSign1EncodeOptions,
-    ) -> Self {
-        Self {
-            algorithm: signer.algorithm(),
+    ) -> Result<Self, CoseError> {
+        let cose_algorithm = signer.cose_algorithm().map_err(CoseError::from)?;
+        let algorithm = signer.algorithm();
+        if cose_algorithm.crypto_algorithm() != algorithm {
+            return Err(CoseError::UnsupportedAlgorithm);
+        }
+        Ok(Self {
+            algorithm,
+            cose_algorithm,
             payload,
             signing_source: CoseSign1SigningSource::Provider(signer),
             kid,
             external_aad,
             options,
-        }
+        })
     }
 }
 

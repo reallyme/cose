@@ -7,6 +7,7 @@ use crate::algorithm::algorithm_from_cose_alg;
 use coset::CoseSign1;
 use reallyme_crypto::core::Algorithm;
 
+use crate::algorithm::CoseSignatureAlgorithm;
 use crate::limits::{MAX_COSE_SIGN1_BYTES, MAX_DETACHED_PAYLOAD_BYTES};
 #[cfg(feature = "cose-crypto")]
 use crate::CoseError;
@@ -21,6 +22,9 @@ pub struct CosePolicy {
     /// Allowed algorithms. Empty means any algorithm supported by this crate.
     allowed_algs: Vec<Algorithm>,
 
+    /// Exact COSE registrations accepted by verification.
+    allowed_cose_algs: Vec<CoseSignatureAlgorithm>,
+
     /// Maximum accepted encoded COSE_Sign1 bytes at public verification APIs.
     max_cose_sign1_bytes: usize,
 
@@ -33,6 +37,7 @@ impl Default for CosePolicy {
         Self {
             require_kid: false,
             allowed_algs: Vec::new(),
+            allowed_cose_algs: Vec::new(),
             max_cose_sign1_bytes: MAX_COSE_SIGN1_BYTES,
             max_detached_payload_bytes: MAX_DETACHED_PAYLOAD_BYTES,
         }
@@ -57,6 +62,14 @@ impl CosePolicy {
     #[must_use]
     pub fn allowed_algorithms(&self) -> &[Algorithm] {
         &self.allowed_algs
+    }
+
+    /// Return the exact COSE registration allow-list.
+    ///
+    /// An empty list means no additional registration-specific restriction.
+    #[must_use]
+    pub fn allowed_cose_algorithms(&self) -> &[CoseSignatureAlgorithm] {
+        &self.allowed_cose_algs
     }
 
     /// Return the maximum accepted encoded COSE_Sign1 size.
@@ -91,6 +104,21 @@ impl CosePolicy {
     /// Add one algorithm to the allow-list.
     pub fn allow_algorithm(mut self, algorithm: Algorithm) -> Self {
         self.allowed_algs.push(algorithm);
+        self
+    }
+
+    /// Replace the exact COSE registration allow-list.
+    pub fn with_allowed_cose_algorithms(
+        mut self,
+        allowed_algorithms: impl IntoIterator<Item = CoseSignatureAlgorithm>,
+    ) -> Self {
+        self.allowed_cose_algs = allowed_algorithms.into_iter().collect();
+        self
+    }
+
+    /// Add one exact COSE signature registration to the allow-list.
+    pub fn allow_cose_algorithm(mut self, algorithm: CoseSignatureAlgorithm) -> Self {
+        self.allowed_cose_algs.push(algorithm);
         self
     }
 
@@ -135,6 +163,19 @@ pub(crate) fn validate_cose_sign1_policy(
         let alg = algorithm_from_cose_alg(cose_alg)?;
 
         if !policy.allowed_algorithms().contains(&alg) {
+            return Err(CoseError::UnsupportedAlgorithm);
+        }
+    }
+
+    if !policy.allowed_cose_algorithms().is_empty() {
+        let cose_alg = cose
+            .protected
+            .header
+            .alg
+            .as_ref()
+            .ok_or(CoseError::UnsupportedAlgorithm)?;
+        let algorithm = CoseSignatureAlgorithm::from_registered(cose_alg)?;
+        if !policy.allowed_cose_algorithms().contains(&algorithm) {
             return Err(CoseError::UnsupportedAlgorithm);
         }
     }

@@ -21,9 +21,10 @@ fn __reallyme_zeroize_unknown_field_data(data: &mut ::buffa::UnknownFieldData) {
     }
 }
 
-/// Family-scoped protobuf selectors intentionally match reallyme/crypto's
-/// public algorithm numbers. They are not IANA or ReallyMe private-use COSE
-/// algorithm identifiers.
+/// Family-scoped protobuf selectors identify exact COSE registrations. Their
+/// positive protobuf values are stable contract identifiers, not the signed
+/// integers carried in COSE. Names such as ES256 and ESP256 preserve that exact
+/// protocol distinction even though both use the same P-256 crypto backend.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 #[repr(i32)]
 pub enum CoseSignatureAlgorithm {
@@ -31,9 +32,15 @@ pub enum CoseSignatureAlgorithm {
     /// EdDSA: 100-199; elliptic-curve signatures: 200-299;
     /// post-quantum signatures: 1000-1099.
     COSE_SIGNATURE_ALGORITHM_ED25519 = 100i32,
+    /// Historical primitive selectors remain accepted for wire compatibility
+    /// and map to the fully specified registrations used before 0.2.2.
     COSE_SIGNATURE_ALGORITHM_ECDSA_P256_SHA256 = 200i32,
+    COSE_SIGNATURE_ALGORITHM_ES256 = 201i32,
+    COSE_SIGNATURE_ALGORITHM_ESP256 = 202i32,
     COSE_SIGNATURE_ALGORITHM_ECDSA_P384_SHA384 = 210i32,
+    COSE_SIGNATURE_ALGORITHM_ESP384 = 211i32,
     COSE_SIGNATURE_ALGORITHM_ECDSA_P521_SHA512 = 220i32,
+    COSE_SIGNATURE_ALGORITHM_ESP512 = 221i32,
     COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256 = 230i32,
     COSE_SIGNATURE_ALGORITHM_ML_DSA_44 = 1000i32,
     COSE_SIGNATURE_ALGORITHM_ML_DSA_65 = 1010i32,
@@ -49,12 +56,24 @@ impl CoseSignatureAlgorithm {
     ///Idiomatic alias for [`Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P256_SHA256`]; `Debug` prints the variant name.
     #[allow(non_upper_case_globals)]
     pub const EcdsaP256Sha256: Self = Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P256_SHA256;
+    ///Idiomatic alias for [`Self::COSE_SIGNATURE_ALGORITHM_ES256`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Es256: Self = Self::COSE_SIGNATURE_ALGORITHM_ES256;
+    ///Idiomatic alias for [`Self::COSE_SIGNATURE_ALGORITHM_ESP256`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Esp256: Self = Self::COSE_SIGNATURE_ALGORITHM_ESP256;
     ///Idiomatic alias for [`Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P384_SHA384`]; `Debug` prints the variant name.
     #[allow(non_upper_case_globals)]
     pub const EcdsaP384Sha384: Self = Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P384_SHA384;
+    ///Idiomatic alias for [`Self::COSE_SIGNATURE_ALGORITHM_ESP384`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Esp384: Self = Self::COSE_SIGNATURE_ALGORITHM_ESP384;
     ///Idiomatic alias for [`Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P521_SHA512`]; `Debug` prints the variant name.
     #[allow(non_upper_case_globals)]
     pub const EcdsaP521Sha512: Self = Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P521_SHA512;
+    ///Idiomatic alias for [`Self::COSE_SIGNATURE_ALGORITHM_ESP512`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Esp512: Self = Self::COSE_SIGNATURE_ALGORITHM_ESP512;
     ///Idiomatic alias for [`Self::COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256`]; `Debug` prints the variant name.
     #[allow(non_upper_case_globals)]
     pub const EcdsaSecp256k1Sha256: Self = Self::COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256;
@@ -168,16 +187,20 @@ impl ::buffa::Enumeration for CoseSignatureAlgorithm {
                     Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P256_SHA256,
                 )
             }
+            201i32 => ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_ES256),
+            202i32 => ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_ESP256),
             210i32 => {
                 ::core::option::Option::Some(
                     Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P384_SHA384,
                 )
             }
+            211i32 => ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_ESP384),
             220i32 => {
                 ::core::option::Option::Some(
                     Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P521_SHA512,
                 )
             }
+            221i32 => ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_ESP512),
             230i32 => {
                 ::core::option::Option::Some(
                     Self::COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256,
@@ -207,12 +230,16 @@ impl ::buffa::Enumeration for CoseSignatureAlgorithm {
             Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P256_SHA256 => {
                 "COSE_SIGNATURE_ALGORITHM_ECDSA_P256_SHA256"
             }
+            Self::COSE_SIGNATURE_ALGORITHM_ES256 => "COSE_SIGNATURE_ALGORITHM_ES256",
+            Self::COSE_SIGNATURE_ALGORITHM_ESP256 => "COSE_SIGNATURE_ALGORITHM_ESP256",
             Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P384_SHA384 => {
                 "COSE_SIGNATURE_ALGORITHM_ECDSA_P384_SHA384"
             }
+            Self::COSE_SIGNATURE_ALGORITHM_ESP384 => "COSE_SIGNATURE_ALGORITHM_ESP384",
             Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P521_SHA512 => {
                 "COSE_SIGNATURE_ALGORITHM_ECDSA_P521_SHA512"
             }
+            Self::COSE_SIGNATURE_ALGORITHM_ESP512 => "COSE_SIGNATURE_ALGORITHM_ESP512",
             Self::COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256 => {
                 "COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256"
             }
@@ -240,15 +267,27 @@ impl ::buffa::Enumeration for CoseSignatureAlgorithm {
                     Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P256_SHA256,
                 )
             }
+            "COSE_SIGNATURE_ALGORITHM_ES256" => {
+                ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_ES256)
+            }
+            "COSE_SIGNATURE_ALGORITHM_ESP256" => {
+                ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_ESP256)
+            }
             "COSE_SIGNATURE_ALGORITHM_ECDSA_P384_SHA384" => {
                 ::core::option::Option::Some(
                     Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P384_SHA384,
                 )
             }
+            "COSE_SIGNATURE_ALGORITHM_ESP384" => {
+                ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_ESP384)
+            }
             "COSE_SIGNATURE_ALGORITHM_ECDSA_P521_SHA512" => {
                 ::core::option::Option::Some(
                     Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P521_SHA512,
                 )
+            }
+            "COSE_SIGNATURE_ALGORITHM_ESP512" => {
+                ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_ESP512)
             }
             "COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256" => {
                 ::core::option::Option::Some(
@@ -272,8 +311,12 @@ impl ::buffa::Enumeration for CoseSignatureAlgorithm {
             Self::COSE_SIGNATURE_ALGORITHM_UNSPECIFIED,
             Self::COSE_SIGNATURE_ALGORITHM_ED25519,
             Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P256_SHA256,
+            Self::COSE_SIGNATURE_ALGORITHM_ES256,
+            Self::COSE_SIGNATURE_ALGORITHM_ESP256,
             Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P384_SHA384,
+            Self::COSE_SIGNATURE_ALGORITHM_ESP384,
             Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P521_SHA512,
+            Self::COSE_SIGNATURE_ALGORITHM_ESP512,
             Self::COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256,
             Self::COSE_SIGNATURE_ALGORITHM_ML_DSA_44,
             Self::COSE_SIGNATURE_ALGORITHM_ML_DSA_65,
@@ -8451,7 +8494,8 @@ pub struct CoseSign1VerifyResult {
         skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_bytes"
     )]
     pub payload: ::buffa::alloc::vec::Vec<u8>,
-    /// Verified protected-header algorithm.
+    /// Compatibility primitive selector. Existing numeric values remain stable;
+    /// new consumers should use exact_signature_algorithm.
     ///
     /// Field 2: `algorithm`
     #[serde(
@@ -8469,6 +8513,24 @@ pub struct CoseSign1VerifyResult {
         skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_bytes"
     )]
     pub kid: ::buffa::alloc::vec::Vec<u8>,
+    /// Exact signature registration authenticated by the protected header.
+    ///
+    /// Field 4: `exact_signature_algorithm`
+    #[serde(
+        rename = "exactSignatureAlgorithm",
+        alias = "exact_signature_algorithm",
+        with = "::buffa::json_helpers::proto_enum",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_default_enum_value"
+    )]
+    pub exact_signature_algorithm: ::buffa::EnumValue<CoseSignatureAlgorithm>,
+    /// Field 5: `has_exact_signature_algorithm`
+    #[serde(
+        rename = "hasExactSignatureAlgorithm",
+        alias = "has_exact_signature_algorithm",
+        with = "::buffa::json_helpers::proto_bool",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_false"
+    )]
+    pub has_exact_signature_algorithm: bool,
     #[serde(skip)]
     #[doc(hidden)]
     pub __buffa_unknown_fields: ::buffa::UnknownFields,
@@ -8479,6 +8541,8 @@ impl ::core::fmt::Debug for CoseSign1VerifyResult {
             .field("payload", &"<redacted>")
             .field("algorithm", &self.algorithm)
             .field("kid", &"<redacted>")
+            .field("exact_signature_algorithm", &self.exact_signature_algorithm)
+            .field("has_exact_signature_algorithm", &self.has_exact_signature_algorithm)
             .finish()
     }
 }
@@ -8507,6 +8571,10 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyResult {
             algorithm: ::buffa::EnumValue<CoseSignatureAlgorithm>,
             #[serde(rename = "kid", deserialize_with = "deserialize_secret_bytes")]
             kid: ::zeroize::Zeroizing<::buffa::alloc::vec::Vec<u8>>,
+            #[serde(rename = "exactSignatureAlgorithm", alias = "exact_signature_algorithm", with = "::buffa::json_helpers::proto_enum")]
+            exact_signature_algorithm: ::buffa::EnumValue<CoseSignatureAlgorithm>,
+            #[serde(rename = "hasExactSignatureAlgorithm", alias = "has_exact_signature_algorithm", with = "::buffa::json_helpers::proto_bool")]
+            has_exact_signature_algorithm: bool,
         }
 
         let mut wire = Wire::deserialize(deserializer)?;
@@ -8514,6 +8582,8 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyResult {
             payload: ::core::mem::take(&mut *wire.payload),
             algorithm: wire.algorithm,
             kid: ::core::mem::take(&mut *wire.kid),
+            exact_signature_algorithm: wire.exact_signature_algorithm,
+            has_exact_signature_algorithm: wire.has_exact_signature_algorithm,
             __buffa_unknown_fields: Default::default(),
         })
     }
@@ -8564,6 +8634,15 @@ impl ::buffa::Message for CoseSign1VerifyResult {
         if !self.kid.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.kid) as u64;
         }
+        {
+            let val = self.exact_signature_algorithm.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        if self.has_exact_signature_algorithm {
+            size += 1u64 + ::buffa::types::BOOL_ENCODED_LEN as u64;
+        }
         size += self.__buffa_unknown_fields.encoded_len() as u64;
         ::buffa::saturate_size(size)
     }
@@ -8585,6 +8664,19 @@ impl ::buffa::Message for CoseSign1VerifyResult {
         }
         if !self.kid.is_empty() {
             ::buffa::types::put_shared_bytes_field(3u32, &self.kid, buf);
+        }
+        {
+            let val = self.exact_signature_algorithm.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(4u32, val, buf);
+            }
+        }
+        if self.has_exact_signature_algorithm {
+            ::buffa::types::put_bool_field(
+                5u32,
+                self.has_exact_signature_algorithm,
+                buf,
+            );
         }
         self.__buffa_unknown_fields.write_to(buf);
     }
@@ -8622,6 +8714,22 @@ impl ::buffa::Message for CoseSign1VerifyResult {
                 )?;
                 ::buffa::types::merge_bytes(&mut self.kid, buf)?;
             }
+            4u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::Varint,
+                )?;
+                self.exact_signature_algorithm = ::buffa::EnumValue::from(
+                    ::buffa::types::decode_int32(buf)?,
+                );
+            }
+            5u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::Varint,
+                )?;
+                self.has_exact_signature_algorithm = ::buffa::types::decode_bool(buf)?;
+            }
             _ => {
                 self.__buffa_unknown_fields
                     .push(::buffa::encoding::decode_unknown_field(tag, buf, ctx)?);
@@ -8633,6 +8741,8 @@ impl ::buffa::Message for CoseSign1VerifyResult {
         ::zeroize::Zeroize::zeroize(&mut self.payload);
         self.algorithm = ::buffa::EnumValue::from(0);
         ::zeroize::Zeroize::zeroize(&mut self.kid);
+        self.exact_signature_algorithm = ::buffa::EnumValue::from(0);
+        self.has_exact_signature_algorithm = false;
         __reallyme_zeroize_unknown_fields(&mut self.__buffa_unknown_fields);
     }
 }
@@ -9340,13 +9450,37 @@ pub struct CoseKeyBytesResult {
         skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_bytes"
     )]
     pub key_bytes: ::buffa::alloc::vec::Vec<u8>,
+    /// Exact signature registration validated from or encoded into the COSE_Key.
+    /// Absent for supported non-signature keys and for signature keys whose
+    /// optional COSE_Key alg parameter was omitted.
+    ///
+    /// Field 2: `signature_algorithm`
+    #[serde(
+        rename = "signatureAlgorithm",
+        alias = "signature_algorithm",
+        with = "::buffa::json_helpers::proto_enum",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_default_enum_value"
+    )]
+    pub signature_algorithm: ::buffa::EnumValue<CoseSignatureAlgorithm>,
+    /// Field 3: `has_signature_algorithm`
+    #[serde(
+        rename = "hasSignatureAlgorithm",
+        alias = "has_signature_algorithm",
+        with = "::buffa::json_helpers::proto_bool",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_false"
+    )]
+    pub has_signature_algorithm: bool,
     #[serde(skip)]
     #[doc(hidden)]
     pub __buffa_unknown_fields: ::buffa::UnknownFields,
 }
 impl ::core::fmt::Debug for CoseKeyBytesResult {
     fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
-        f.debug_struct("CoseKeyBytesResult").field("key_bytes", &"<redacted>").finish()
+        f.debug_struct("CoseKeyBytesResult")
+            .field("key_bytes", &"<redacted>")
+            .field("signature_algorithm", &self.signature_algorithm)
+            .field("has_signature_algorithm", &self.has_signature_algorithm)
+            .finish()
     }
 }
 impl<'de> ::serde::Deserialize<'de> for CoseKeyBytesResult {
@@ -9370,11 +9504,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyBytesResult {
         struct Wire {
             #[serde(rename = "keyBytes", alias = "key_bytes", deserialize_with = "deserialize_secret_bytes")]
             key_bytes: ::zeroize::Zeroizing<::buffa::alloc::vec::Vec<u8>>,
+            #[serde(rename = "signatureAlgorithm", alias = "signature_algorithm", with = "::buffa::json_helpers::proto_enum")]
+            signature_algorithm: ::buffa::EnumValue<CoseSignatureAlgorithm>,
+            #[serde(rename = "hasSignatureAlgorithm", alias = "has_signature_algorithm", with = "::buffa::json_helpers::proto_bool")]
+            has_signature_algorithm: bool,
         }
 
         let mut wire = Wire::deserialize(deserializer)?;
         Ok(Self {
             key_bytes: ::core::mem::take(&mut *wire.key_bytes),
+            signature_algorithm: wire.signature_algorithm,
+            has_signature_algorithm: wire.has_signature_algorithm,
             __buffa_unknown_fields: Default::default(),
         })
     }
@@ -9415,6 +9555,15 @@ impl ::buffa::Message for CoseKeyBytesResult {
         if !self.key_bytes.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.key_bytes) as u64;
         }
+        {
+            let val = self.signature_algorithm.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        if self.has_signature_algorithm {
+            size += 1u64 + ::buffa::types::BOOL_ENCODED_LEN as u64;
+        }
         size += self.__buffa_unknown_fields.encoded_len() as u64;
         ::buffa::saturate_size(size)
     }
@@ -9427,6 +9576,15 @@ impl ::buffa::Message for CoseKeyBytesResult {
         use ::buffa::Enumeration as _;
         if !self.key_bytes.is_empty() {
             ::buffa::types::put_shared_bytes_field(1u32, &self.key_bytes, buf);
+        }
+        {
+            let val = self.signature_algorithm.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(2u32, val, buf);
+            }
+        }
+        if self.has_signature_algorithm {
+            ::buffa::types::put_bool_field(3u32, self.has_signature_algorithm, buf);
         }
         self.__buffa_unknown_fields.write_to(buf);
     }
@@ -9448,6 +9606,22 @@ impl ::buffa::Message for CoseKeyBytesResult {
                 )?;
                 ::buffa::types::merge_bytes(&mut self.key_bytes, buf)?;
             }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::Varint,
+                )?;
+                self.signature_algorithm = ::buffa::EnumValue::from(
+                    ::buffa::types::decode_int32(buf)?,
+                );
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::Varint,
+                )?;
+                self.has_signature_algorithm = ::buffa::types::decode_bool(buf)?;
+            }
             _ => {
                 self.__buffa_unknown_fields
                     .push(::buffa::encoding::decode_unknown_field(tag, buf, ctx)?);
@@ -9457,6 +9631,8 @@ impl ::buffa::Message for CoseKeyBytesResult {
     }
     fn clear(&mut self) {
         ::zeroize::Zeroize::zeroize(&mut self.key_bytes);
+        self.signature_algorithm = ::buffa::EnumValue::from(0);
+        self.has_signature_algorithm = false;
         __reallyme_zeroize_unknown_fields(&mut self.__buffa_unknown_fields);
     }
 }

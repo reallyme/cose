@@ -22,6 +22,8 @@ mod detached_roundtrip_tests;
 #[cfg(all(feature = "cose-crypto", feature = "wire"))]
 #[path = "cose_suite/encrypt_semantic_tests.rs"]
 mod encrypt_semantic_tests;
+#[path = "cose_suite/es256_tests.rs"]
+mod es256_tests;
 #[path = "cose_suite/external_aad_tests.rs"]
 mod external_aad_tests;
 #[path = "cose_suite/interop_verify_tests.rs"]

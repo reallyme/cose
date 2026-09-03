@@ -47,7 +47,7 @@ assertContains(".github/dependabot.yml", "github-actions:");
 
 const expectedPackageName = "reallyme-cose";
 const expectedProtoPackageName = "reallyme-cose-proto";
-const expectedVersion = "0.2.1";
+const expectedVersion = "0.2.2";
 const generatedFreshnessMode = process.argv.includes("--generated-freshness");
 const policyOnlyMode = process.argv.includes("--policy-only");
 const releasePackagesMode = process.argv.includes("--release-packages");
@@ -94,10 +94,10 @@ const expectedPlatformScope = {
   protobufSwiftMetadataIsPackagingApproval: false,
   wasmRuntimeIsNpmPackagingApproval: false,
 };
-const platformScopePath = "docs/platform-scope-0.2.1.json";
+const platformScopePath = "docs/platform-scope-0.2.2.json";
 const platformScope = readJson(platformScopePath);
 if (!isDeepStrictEqual(platformScope, expectedPlatformScope)) {
-  fail(`${platformScopePath} must exactly match the approved 0.2.1 platform scope`);
+  fail(`${platformScopePath} must exactly match the approved 0.2.2 platform scope`);
 }
 
 const forbiddenPlatformPathPrefixes = [
@@ -128,7 +128,7 @@ for (const trackedFile of loadTrackedFiles()) {
     forbiddenPlatformPaths.has(trackedFile) ||
     forbiddenPlatformManifestNames.has(manifestName)
   ) {
-    fail(`${trackedFile} is outside the approved Rust/protobuf-only 0.2.1 scope`);
+    fail(`${trackedFile} is outside the approved Rust/protobuf-only 0.2.2 scope`);
   }
 }
 
@@ -170,10 +170,10 @@ assertNotMatches(
   /\bcrate-type\s*=\s*\[[^\]]*"(?:cdylib|staticlib)"/su,
   "a platform-native Rust library artifact",
 );
-assertContains("README.md", "## 0.2.1 Platform Scope");
+assertContains("README.md", "## 0.2.2 Platform Scope");
 assertContains(
   "README.md",
-  "The `0.2.1` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
+  "The `0.2.2` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
 );
 
 assertNodeWorkflowJobsPinNode({ nodeVersion: "24" });
@@ -329,7 +329,7 @@ assertContains(
   "crates/cose/src/key/validate_material.rs",
   "SECP256K1_VALIDATION_SIGNATURE_BYTES",
 );
-assertContains("crates/cose/src/key/convert.rs", "Result<Zeroizing<Vec<u8>>, CoseError>");
+assertContains("crates/cose/src/key/facade.rs", "Result<Zeroizing<Vec<u8>>, CoseError>");
 assertContains("crates/cose/src/key/parse.rs", "pub(crate) fn parse_cose_key(");
 assertContains("crates/cose/src/key/parse.rs", "fn decode_owned_cose_key(");
 assertContains(
@@ -353,7 +353,7 @@ for (const semanticRoute of [
   "extract_cose_key_public(CoseKeyRefInput::new(",
   "extract_cose_key_private(CoseKeyRefInput::new(",
 ]) {
-  assertContains("crates/cose/src/key/convert.rs", semanticRoute);
+  assertContains("crates/cose/src/key/facade.rs", semanticRoute);
 }
 assertContains(
   "crates/cose/src/key/derive_kid.rs",
@@ -838,7 +838,12 @@ assertContains("crates/proto/proto/reallyme/cose/v1/cose.proto", "enum CoseKeyAg
 assertContains("crates/proto/proto/reallyme/cose/v1/cose.proto", "enum CoseKemAlgorithm");
 assertContains("crates/proto/proto/reallyme/cose/v1/cose.proto", "message CoseAlgorithmIdentifier");
 assertContains("crates/proto/proto/reallyme/cose/v1/cose.proto", "COSE_SIGNATURE_ALGORITHM_ED25519 = 100;");
-assertContains("crates/proto/proto/reallyme/cose/v1/cose.proto", "COSE_SIGNATURE_ALGORITHM_ECDSA_P256_SHA256 = 200;");
+assertContains(
+  "crates/proto/proto/reallyme/cose/v1/cose.proto",
+  "COSE_SIGNATURE_ALGORITHM_ECDSA_P256_SHA256 = 200 [deprecated = true];",
+);
+assertContains("crates/proto/proto/reallyme/cose/v1/cose.proto", "COSE_SIGNATURE_ALGORITHM_ES256 = 201;");
+assertContains("crates/proto/proto/reallyme/cose/v1/cose.proto", "COSE_SIGNATURE_ALGORITHM_ESP256 = 202;");
 assertContains("crates/proto/proto/reallyme/cose/v1/cose.proto", "COSE_SIGNATURE_ALGORITHM_ML_DSA_44 = 1000;");
 assertContains("crates/proto/proto/reallyme/cose/v1/cose.proto", "COSE_KEY_AGREEMENT_ALGORITHM_X25519 = 100;");
 assertContains("crates/proto/proto/reallyme/cose/v1/cose.proto", "COSE_KEM_ALGORITHM_ML_KEM_512 = 1000;");
@@ -849,6 +854,10 @@ assertContains("crates/proto/proto/reallyme/cose/v1/cose.proto", "CoseKemAlgorit
 assertContains("crates/proto/proto/reallyme/cose/v1/cose.proto", "CoseAlgorithmIdentifier algorithm = 1;");
 assertContains("crates/proto/proto/reallyme/cose/v1/cose.proto", "message CoseSign1CreateRequest");
 assertContains("crates/proto/proto/reallyme/cose/v1/cose.proto", "message CoseSign1VerifyResult");
+assertContains(
+  "crates/proto/proto/reallyme/cose/v1/cose.proto",
+  "CoseSignatureAlgorithm exact_signature_algorithm = 4;",
+);
 assertContains("crates/proto/proto/reallyme/cose/v1/cose.proto", "message CoseKeyBytesResult");
 assertContains("crates/proto/proto/reallyme/cose/v1/cose.proto", "SENSITIVE: raw private key bytes");
 assertContains("crates/proto/proto/reallyme/cose/v1/cose.proto", "SENSITIVE: payload bytes");
@@ -1151,6 +1160,7 @@ assertContains(cratesPackagePreflightWorkflow, "FUZZ_NIGHTLY: nightly-2026-07-01
 assertContains(cratesPackagePreflightWorkflow, "WASM_PACK_VERSION: 0.15.0");
 assertContains(cratesPackagePreflightWorkflow, "WASM_BINDGEN_CLI_VERSION: 0.2.126");
 assertContains(cratesPackagePreflightWorkflow, "version:");
+assertContains(cratesPackagePreflightWorkflow, `default: ${expectedVersion}`);
 assertContains(
   cratesPackagePreflightWorkflow,
   "group: crates-package-preflight-${{ inputs.version }}-${{ github.sha }}",
@@ -1223,7 +1233,7 @@ assertCargoMetadataPolicy({
         },
         {
           name: "reallyme-crypto",
-          requirement: "^0.3.4",
+          requirement: "^0.3.5",
           source: "registry",
           defaultFeatures: false,
         },
