@@ -9,7 +9,7 @@ use zeroize::Zeroizing;
 
 use crate::Algorithm;
 
-use super::convert::{cose_key_from_private_bytes, cose_key_from_public_bytes, cose_key_to_vec};
+use super::facade::{cose_key_from_private_bytes, cose_key_from_public_bytes, cose_key_to_vec};
 use super::parse::{cose_key_from_slice, parse_cose_key, CoseKeyParseInput};
 
 #[test]

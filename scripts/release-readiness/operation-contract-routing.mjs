@@ -257,9 +257,9 @@ export function collectOperationContractRoutingViolations(readText) {
       );
     }
 
-    const nativeSource = readText(routePolicy.nativePath);
+    const semanticSource = readText(routePolicy.semanticPath);
     const semanticDefinitions = countMatches(
-      maskRustNonCode(nativeSource),
+      maskRustNonCode(semanticSource),
       new RegExp(
         `\\bpub\\s*\\(\\s*crate\\s*\\)\\s+fn\\s+${escapeRegExp(routePolicy.semanticFunction)}\\s*\\(`,
         "gu",
@@ -267,7 +267,7 @@ export function collectOperationContractRoutingViolations(readText) {
     );
     if (semanticDefinitions !== 1) {
       violations.push(
-        `${routePolicy.nativePath} must define ${routePolicy.semanticFunction} exactly once as pub(crate); found ${semanticDefinitions}`,
+        `${routePolicy.semanticPath} must define ${routePolicy.semanticFunction} exactly once as pub(crate); found ${semanticDefinitions}`,
       );
     }
     const nativeBody = requireFunction(

@@ -9,6 +9,7 @@ use coset::{iana, AsCborValue, CoseKeyBuilder};
 use reallyme_crypto::core::Algorithm;
 use zeroize::Zeroizing;
 
+use crate::algorithm::CoseSignatureAlgorithm;
 use crate::encode_cbor::encode_cbor_value;
 use crate::failure::CoseFailure;
 use crate::limits::validate_cose_key_bytes;
@@ -16,9 +17,11 @@ use crate::{CoseError, CoseKey};
 
 use super::akp::{akp_key, akp_profile, algorithm_for_akp_profile};
 use super::ec::{
-    algorithm_for_ec2_profile, canonical_ec_public_key, ec2_profile, ec2_public_bytes_from_key,
-    ec2_public_key_builder,
+    algorithm_for_ec2_profile, canonical_ec_public_key, ec2_profile,
+    ec2_profile_for_signature_algorithm, ec2_public_bytes_from_key, ec2_public_key_builder,
 };
+#[cfg(feature = "wire")]
+use super::profile::cose_key_signature_algorithm;
 use super::profile::{
     get_param_bytes, validate_cose_key_profile, KeyProfile, ED25519_PUBLIC_KEY_BYTES,
     ED25519_SECRET_KEY_BYTES, X25519_PUBLIC_KEY_BYTES,
@@ -87,11 +90,18 @@ impl<'a> CoseKeyRefInput<'a> {
 #[must_use]
 pub(crate) struct CoseKeyBytesOutput {
     bytes: Zeroizing<Vec<u8>>,
+    #[cfg(feature = "wire")]
+    signature_algorithm: Option<CoseSignatureAlgorithm>,
 }
 
 impl CoseKeyBytesOutput {
     pub(crate) fn into_zeroizing(self) -> Zeroizing<Vec<u8>> {
         self.bytes
+    }
+
+    #[cfg(feature = "wire")]
+    pub(crate) fn into_parts(self) -> (Zeroizing<Vec<u8>>, Option<CoseSignatureAlgorithm>) {
+        (self.bytes, self.signature_algorithm)
     }
 
     pub(crate) fn into_vec(mut self) -> Vec<u8> {
@@ -105,7 +115,16 @@ impl CoseKeyBytesOutput {
 pub(crate) fn construct_cose_key_from_public(
     input: CoseKeyFromPublicBytesInput<'_>,
 ) -> Result<CoseKeyOwnerOutput, CoseFailure> {
-    construct_cose_key_from_public_impl(input.algorithm, input.public_key)
+    construct_cose_key_from_public_impl(input.algorithm, None, input.public_key)
+        .map(|key| CoseKeyOwnerOutput { key })
+        .map_err(CoseFailure::from)
+}
+
+pub(crate) fn construct_cose_key_from_signature_public(
+    algorithm: CoseSignatureAlgorithm,
+    public_key: &[u8],
+) -> Result<CoseKeyOwnerOutput, CoseFailure> {
+    construct_cose_key_from_public_impl(algorithm.crypto_algorithm(), Some(algorithm), public_key)
         .map(|key| CoseKeyOwnerOutput { key })
         .map_err(CoseFailure::from)
 }
@@ -113,49 +132,67 @@ pub(crate) fn construct_cose_key_from_public(
 pub(crate) fn construct_cose_key_from_private(
     input: CoseKeyFromPrivateBytesInput<'_>,
 ) -> Result<CoseKeyOwnerOutput, CoseFailure> {
-    construct_cose_key_from_private_impl(input.algorithm, input.private_key, input.public_key)
+    construct_cose_key_from_private_impl(input.algorithm, None, input.private_key, input.public_key)
         .map(|key| CoseKeyOwnerOutput { key })
         .map_err(CoseFailure::from)
+}
+
+pub(crate) fn construct_cose_key_from_signature_private(
+    algorithm: CoseSignatureAlgorithm,
+    private_key: &[u8],
+    public_key: Option<&[u8]>,
+) -> Result<CoseKeyOwnerOutput, CoseFailure> {
+    construct_cose_key_from_private_impl(
+        algorithm.crypto_algorithm(),
+        Some(algorithm),
+        private_key,
+        public_key,
+    )
+    .map(|key| CoseKeyOwnerOutput { key })
+    .map_err(CoseFailure::from)
 }
 
 pub(crate) fn encode_cose_key(
     input: CoseKeyRefInput<'_>,
 ) -> Result<CoseKeyBytesOutput, CoseFailure> {
+    #[cfg(feature = "wire")]
+    let signature_algorithm = cose_key_signature_algorithm(input.key).map_err(CoseFailure::from)?;
     encode_cose_key_impl(input.key)
-        .map(|bytes| CoseKeyBytesOutput { bytes })
+        .map(|bytes| CoseKeyBytesOutput {
+            bytes,
+            #[cfg(feature = "wire")]
+            signature_algorithm,
+        })
         .map_err(CoseFailure::from)
 }
 
 pub(crate) fn extract_cose_key_public(
     input: CoseKeyRefInput<'_>,
 ) -> Result<CoseKeyBytesOutput, CoseFailure> {
+    #[cfg(feature = "wire")]
+    let signature_algorithm = cose_key_signature_algorithm(input.key).map_err(CoseFailure::from)?;
     extract_cose_key_public_impl(input.key)
         .map(Zeroizing::new)
-        .map(|bytes| CoseKeyBytesOutput { bytes })
+        .map(|bytes| CoseKeyBytesOutput {
+            bytes,
+            #[cfg(feature = "wire")]
+            signature_algorithm,
+        })
         .map_err(CoseFailure::from)
 }
 
 pub(crate) fn extract_cose_key_private(
     input: CoseKeyRefInput<'_>,
 ) -> Result<CoseKeyBytesOutput, CoseFailure> {
+    #[cfg(feature = "wire")]
+    let signature_algorithm = cose_key_signature_algorithm(input.key).map_err(CoseFailure::from)?;
     extract_cose_key_private_impl(input.key)
-        .map(|bytes| CoseKeyBytesOutput { bytes })
+        .map(|bytes| CoseKeyBytesOutput {
+            bytes,
+            #[cfg(feature = "wire")]
+            signature_algorithm,
+        })
         .map_err(CoseFailure::from)
-}
-
-/// Encode a COSE_Key to canonical CBOR bytes.
-///
-/// The returned buffer zeroizes on drop because a validated [`CoseKey`] may
-/// contain private parameters.
-///
-/// # Errors
-///
-/// Returns [`CoseError`] when the key profile or material is invalid, or when
-/// canonical CBOR serialization or post-serialization validation fails.
-pub fn cose_key_to_vec(key: &CoseKey) -> Result<Zeroizing<Vec<u8>>, CoseError> {
-    encode_cose_key(CoseKeyRefInput::new(key))
-        .map(CoseKeyBytesOutput::into_zeroizing)
-        .map_err(CoseFailure::into_native_error)
 }
 
 fn encode_cose_key_impl(key: &CoseKey) -> Result<Zeroizing<Vec<u8>>, CoseError> {
@@ -188,23 +225,9 @@ fn encode_cose_key_value(key: &CoseKey) -> Result<Zeroizing<Vec<u8>>, CoseError>
     Ok(encoded)
 }
 
-/// Build a COSE_Key from raw public key bytes.
-///
-/// # Errors
-///
-/// Returns [`CoseError`] when the algorithm lacks a supported COSE_Key mapping
-/// or the public key has an invalid length, encoding, point, or backend shape.
-pub fn cose_key_from_public_bytes(
-    algorithm: Algorithm,
-    public_key: &[u8],
-) -> Result<CoseKey, CoseError> {
-    construct_cose_key_from_public(CoseKeyFromPublicBytesInput::new(algorithm, public_key))
-        .map(CoseKeyOwnerOutput::into_key)
-        .map_err(CoseFailure::into_native_error)
-}
-
 fn construct_cose_key_from_public_impl(
     algorithm: Algorithm,
+    signature_algorithm: Option<CoseSignatureAlgorithm>,
     public_key: &[u8],
 ) -> Result<CoseKey, CoseError> {
     match algorithm {
@@ -246,7 +269,15 @@ fn construct_cose_key_from_public_impl(
             ))
         }
         Algorithm::P256 | Algorithm::P384 | Algorithm::P521 | Algorithm::Secp256k1 => {
-            let profile = ec2_profile(algorithm)?;
+            let profile = match signature_algorithm {
+                Some(signature_algorithm) => {
+                    ec2_profile_for_signature_algorithm(signature_algorithm)?
+                }
+                None => ec2_profile(algorithm)?,
+            };
+            if signature_algorithm.is_some_and(|value| value.crypto_algorithm() != algorithm) {
+                return Err(CoseError::UnsupportedAlgorithm);
+            }
             let canonical = canonical_ec_public_key(profile, public_key)?;
             Ok(CoseKey::new(
                 ec2_public_key_builder(profile, &canonical)?
@@ -269,18 +300,6 @@ fn construct_cose_key_from_public_impl(
         }
         _ => Err(CoseError::UnsupportedAlgorithm),
     }
-}
-
-/// Extract raw public key bytes from a COSE_Key.
-///
-/// # Errors
-///
-/// Returns [`CoseError`] when the key profile, algorithm, parameters, lengths,
-/// curve point, or public key material is missing or invalid.
-pub fn cose_key_to_public_bytes(key: &CoseKey) -> Result<Vec<u8>, CoseError> {
-    extract_cose_key_public(CoseKeyRefInput::new(key))
-        .map(CoseKeyBytesOutput::into_vec)
-        .map_err(CoseFailure::into_native_error)
 }
 
 fn extract_cose_key_public_impl(key: &CoseKey) -> Result<Vec<u8>, CoseError> {
@@ -316,28 +335,9 @@ fn extract_cose_key_public_impl(key: &CoseKey) -> Result<Vec<u8>, CoseError> {
     }
 }
 
-/// Build a COSE_Key from raw private key bytes and its public binding.
-///
-/// # Errors
-///
-/// Returns [`CoseError`] when private or public material is missing, malformed,
-/// unsupported, or not bound to the supplied private key.
-pub fn cose_key_from_private_bytes(
-    algorithm: Algorithm,
-    private_key: &[u8],
-    public_key: Option<&[u8]>,
-) -> Result<CoseKey, CoseError> {
-    construct_cose_key_from_private(CoseKeyFromPrivateBytesInput::new(
-        algorithm,
-        private_key,
-        public_key,
-    ))
-    .map(CoseKeyOwnerOutput::into_key)
-    .map_err(CoseFailure::into_native_error)
-}
-
 fn construct_cose_key_from_private_impl(
     algorithm: Algorithm,
+    signature_algorithm: Option<CoseSignatureAlgorithm>,
     private_key: &[u8],
     public_key: Option<&[u8]>,
 ) -> Result<CoseKey, CoseError> {
@@ -377,7 +377,15 @@ fn construct_cose_key_from_private_impl(
             Ok(CoseKey::new(key))
         }
         Algorithm::P256 | Algorithm::P384 | Algorithm::P521 | Algorithm::Secp256k1 => {
-            let profile = ec2_profile(algorithm)?;
+            let profile = match signature_algorithm {
+                Some(signature_algorithm) => {
+                    ec2_profile_for_signature_algorithm(signature_algorithm)?
+                }
+                None => ec2_profile(algorithm)?,
+            };
+            if signature_algorithm.is_some_and(|value| value.crypto_algorithm() != algorithm) {
+                return Err(CoseError::UnsupportedAlgorithm);
+            }
             if private_key.len() != profile.coordinate_len {
                 return Err(CoseError::InvalidKeyMaterial);
             }
@@ -415,18 +423,6 @@ fn construct_cose_key_from_private_impl(
         }
         _ => Err(CoseError::UnsupportedAlgorithm),
     }
-}
-
-/// Extract raw private key bytes from a COSE_Key.
-///
-/// # Errors
-///
-/// Returns [`CoseError`] when the profile is invalid or private material is
-/// absent.
-pub fn cose_key_to_private_bytes(key: &CoseKey) -> Result<Zeroizing<Vec<u8>>, CoseError> {
-    extract_cose_key_private(CoseKeyRefInput::new(key))
-        .map(CoseKeyBytesOutput::into_zeroizing)
-        .map_err(CoseFailure::into_native_error)
 }
 
 fn extract_cose_key_private_impl(key: &CoseKey) -> Result<Zeroizing<Vec<u8>>, CoseError> {

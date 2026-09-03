@@ -11,6 +11,8 @@ mod convert_signature;
 #[cfg(feature = "cose-crypto")]
 mod decode;
 #[cfg(feature = "cose-crypto")]
+mod exact;
+#[cfg(feature = "cose-crypto")]
 mod provider;
 #[cfg(feature = "cose-crypto")]
 pub(crate) mod sign;
@@ -19,6 +21,12 @@ pub(crate) mod types;
 #[cfg(feature = "cose-crypto")]
 pub(crate) mod verify;
 
+#[cfg(feature = "cose-crypto")]
+pub use exact::{
+    cose_sign1_detached_with_signature_algorithm,
+    cose_sign1_detached_with_signature_algorithm_and_external_aad,
+    cose_sign1_with_signature_algorithm, cose_sign1_with_signature_algorithm_and_external_aad,
+};
 #[cfg(feature = "cose-crypto")]
 pub use provider::{CoseSigner, CoseSignerError};
 #[cfg(feature = "cose-crypto")]

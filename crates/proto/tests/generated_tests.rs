@@ -35,8 +35,12 @@ fn ed25519_identifier(
 fn family_scoped_algorithm_numbers_match_the_crypto_boundary() {
     assert_eq!(CoseSignatureAlgorithm::Ed25519 as i32, 100);
     assert_eq!(CoseSignatureAlgorithm::EcdsaP256Sha256 as i32, 200);
+    assert_eq!(CoseSignatureAlgorithm::Es256 as i32, 201);
+    assert_eq!(CoseSignatureAlgorithm::Esp256 as i32, 202);
     assert_eq!(CoseSignatureAlgorithm::EcdsaP384Sha384 as i32, 210);
+    assert_eq!(CoseSignatureAlgorithm::Esp384 as i32, 211);
     assert_eq!(CoseSignatureAlgorithm::EcdsaP521Sha512 as i32, 220);
+    assert_eq!(CoseSignatureAlgorithm::Esp512 as i32, 221);
     assert_eq!(CoseSignatureAlgorithm::EcdsaSecp256k1Sha256 as i32, 230);
     assert_eq!(CoseSignatureAlgorithm::MlDsa44 as i32, 1000);
     assert_eq!(CoseSignatureAlgorithm::MlDsa65 as i32, 1010);
@@ -95,16 +99,26 @@ fn key_bytes_result_uses_unambiguous_proto_json_and_view_accessors(
 ) -> Result<(), buffa::DecodeError> {
     let result = CoseKeyBytesResult {
         key_bytes: vec![241, 242, 243, 244],
+        signature_algorithm: EnumValue::from(CoseSignatureAlgorithm::Es256),
+        has_signature_algorithm: true,
         __buffa_unknown_fields: Default::default(),
     };
 
     let json = serde_json::to_string(&result).unwrap_or_else(|error| {
         panic!("generated key-bytes result JSON encoding failed: {error}");
     });
-    assert_eq!(json, r#"{"keyBytes":"8fLz9A=="}"#);
+    assert_eq!(
+        json,
+        r#"{"keyBytes":"8fLz9A==","signatureAlgorithm":"COSE_SIGNATURE_ALGORITHM_ES256","hasSignatureAlgorithm":true}"#,
+    );
 
     let view = CoseKeyBytesResultOwnedView::from_owned(&result)?;
     assert_eq!(view.key_bytes(), result.key_bytes.as_slice());
+    assert_eq!(
+        view.signature_algorithm().as_known(),
+        Some(CoseSignatureAlgorithm::Es256),
+    );
+    assert!(view.has_signature_algorithm());
     Ok(())
 }
 
@@ -214,11 +228,26 @@ fn generated_byte_fields_redact_debug_output() {
         payload: vec![241, 242, 243, 244],
         algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
         kid: vec![245, 246, 247, 248],
+        exact_signature_algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
+        has_exact_signature_algorithm: true,
         __buffa_unknown_fields: Default::default(),
     };
     let verified_debug = format!("{verified:?}");
     assert_redacts_bytes(verified_debug.clone(), "payload");
     assert_redacts_bytes(verified_debug, "kid");
+    let verified_json = serde_json::to_string(&verified)
+        .unwrap_or_else(|error| panic!("verified result must serialize: {error}"));
+    assert!(
+        verified_json.contains("\"exactSignatureAlgorithm\":\"COSE_SIGNATURE_ALGORITHM_ED25519\"")
+    );
+    assert!(verified_json.contains("\"hasExactSignatureAlgorithm\":true"));
+    let verified_roundtrip: CoseSign1VerifyResult = serde_json::from_str(&verified_json)
+        .unwrap_or_else(|error| panic!("verified result must deserialize: {error}"));
+    assert_eq!(
+        verified_roundtrip.exact_signature_algorithm.as_known(),
+        Some(CoseSignatureAlgorithm::Ed25519),
+    );
+    assert!(verified_roundtrip.has_exact_signature_algorithm);
 
     let key_request = CoseKeyBytesRequest {
         cose_key: vec![241, 242, 243, 244],
@@ -228,6 +257,8 @@ fn generated_byte_fields_redact_debug_output() {
 
     let key_result = CoseKeyBytesResult {
         key_bytes: vec![241, 242, 243, 244],
+        signature_algorithm: EnumValue::from(0),
+        has_signature_algorithm: false,
         __buffa_unknown_fields: Default::default(),
     };
     assert_redacts_bytes(format!("{key_result:?}"), "key_bytes");

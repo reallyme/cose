@@ -48,8 +48,9 @@ export const OPERATION_CONTRACT_ROUTES = Object.freeze([
     "from_public_bytes_result",
     "construct_cose_key_from_public",
     "from_public_key",
-    "key/convert.rs",
+    "key/facade.rs",
     "cose_key_from_public_bytes",
+    "key/convert.rs",
   ),
   route(
     "KeyFromPrivateBytes",
@@ -57,8 +58,9 @@ export const OPERATION_CONTRACT_ROUTES = Object.freeze([
     "from_private_bytes_result",
     "construct_cose_key_from_private",
     "from_private_key",
-    "key/convert.rs",
+    "key/facade.rs",
     "cose_key_from_private_bytes",
+    "key/convert.rs",
   ),
   route(
     "KeyParse",
@@ -75,8 +77,9 @@ export const OPERATION_CONTRACT_ROUTES = Object.freeze([
     "to_public_bytes_result",
     "extract_cose_key_public",
     "public_key_bytes",
-    "key/convert.rs",
+    "key/facade.rs",
     "cose_key_to_public_bytes",
+    "key/convert.rs",
   ),
   route(
     "KeyToPrivateBytes",
@@ -84,8 +87,9 @@ export const OPERATION_CONTRACT_ROUTES = Object.freeze([
     "to_private_bytes_result",
     "extract_cose_key_private",
     "private_key_bytes",
-    "key/convert.rs",
+    "key/facade.rs",
     "cose_key_to_private_bytes",
+    "key/convert.rs",
   ),
   route(
     "KeyDerivePublicKid",
@@ -147,6 +151,7 @@ function route(
   resultFunction,
   nativeRelativePath,
   nativeFunction,
+  semanticRelativePath = nativeRelativePath,
 ) {
   return Object.freeze({
     variant,
@@ -154,6 +159,7 @@ function route(
     adapterFunction,
     semanticFunction,
     resultFunction,
+    semanticPath: `${NATIVE_ROOT}${semanticRelativePath}`,
     nativePath: `${NATIVE_ROOT}${nativeRelativePath}`,
     nativeFunction,
     indirect: false,
@@ -173,6 +179,7 @@ function indirectEncryptRoute(
     adapterFunction,
     semanticFunction,
     resultFunction,
+    semanticPath: `${NATIVE_ROOT}encrypt/create.rs`,
     nativePath: `${NATIVE_ROOT}encrypt/create.rs`,
     nativeFunction,
     indirect: true,

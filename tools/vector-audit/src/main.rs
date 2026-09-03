@@ -288,6 +288,7 @@ struct KeyCase {
 #[derive(Clone, Copy)]
 enum Algorithm {
     Ed25519,
+    Es256,
     P256,
     P384,
     P521,
@@ -299,6 +300,7 @@ impl Algorithm {
     fn parse(name: &str) -> AuditResult<Self> {
         match name {
             "Ed25519" => Ok(Self::Ed25519),
+            "ES256" => Ok(Self::Es256),
             "P256" => Ok(Self::P256),
             "P384" => Ok(Self::P384),
             "P521" => Ok(Self::P521),
@@ -311,6 +313,7 @@ impl Algorithm {
     fn cose_alg(self) -> AuditResult<i64> {
         match self {
             Self::Ed25519 => Ok(-19),
+            Self::Es256 => Ok(-7),
             Self::P256 => Ok(-9),
             Self::P384 => Ok(-51),
             Self::P521 => Ok(-52),
@@ -321,7 +324,7 @@ impl Algorithm {
 
     fn signature_width(self) -> AuditResult<usize> {
         match self {
-            Self::Ed25519 | Self::P256 | Self::Secp256k1 => Ok(64),
+            Self::Ed25519 | Self::Es256 | Self::P256 | Self::Secp256k1 => Ok(64),
             Self::P384 => Ok(96),
             Self::P521 => Ok(132),
             Self::X25519 => Err(general(AuditReason::UnsupportedAlgorithm)),
@@ -587,7 +590,7 @@ fn audit_key_resolution_negative(
 }
 
 fn audit_unsupported_algorithm_negative(parsed: &ParsedSign1) -> AuditResult<()> {
-    let supported = [-19_i64, -9, -51, -52, -47, -48, -49, -50];
+    let supported = [-19_i64, -7, -9, -51, -52, -47, -48, -49, -50];
     let alg = map_get(&parsed.protected_map, 1);
     let is_supported = matches!(
         alg,
@@ -762,7 +765,7 @@ fn derived_public(algorithm: Algorithm, seed: &[u8]) -> AuditResult<Vec<u8>> {
             let signing_key = SigningKey::from_bytes(&seed_bytes);
             Ok(signing_key.verifying_key().to_bytes().to_vec())
         }
-        Algorithm::P256 => {
+        Algorithm::Es256 | Algorithm::P256 => {
             use p256::ecdsa::SigningKey;
             let signing_key = SigningKey::from_slice(seed)
                 .map_err(|_| general(AuditReason::InvalidSeedLength))?;
@@ -823,7 +826,7 @@ fn independent_verify(
             };
             Ok(public_key.verify(message, &sig).is_ok())
         }
-        Algorithm::P256 => {
+        Algorithm::Es256 | Algorithm::P256 => {
             use p256::ecdsa::{signature::Verifier, Signature, VerifyingKey};
             let Ok(public_key) = VerifyingKey::from_sec1_bytes(public) else {
                 return Ok(false);
@@ -869,7 +872,9 @@ fn independent_verify(
 
 fn ec2_point_is_valid(algorithm: Algorithm, sec1: &[u8]) -> bool {
     match algorithm {
-        Algorithm::P256 => p256::ecdsa::VerifyingKey::from_sec1_bytes(sec1).is_ok(),
+        Algorithm::Es256 | Algorithm::P256 => {
+            p256::ecdsa::VerifyingKey::from_sec1_bytes(sec1).is_ok()
+        }
         Algorithm::P384 => p384::ecdsa::VerifyingKey::from_sec1_bytes(sec1).is_ok(),
         Algorithm::P521 => p521::ecdsa::VerifyingKey::from_sec1_bytes(sec1).is_ok(),
         Algorithm::Secp256k1 => k256::ecdsa::VerifyingKey::from_sec1_bytes(sec1).is_ok(),
@@ -895,6 +900,12 @@ fn cose_key_profile(algorithm: Algorithm) -> AuditResult<CoseKeyProfile> {
             kty: 2,
             crv: 1,
             alg: Some(-9),
+            multicodec: 0x1200,
+        }),
+        Algorithm::Es256 => Ok(CoseKeyProfile {
+            kty: 2,
+            crv: 1,
+            alg: Some(-7),
             multicodec: 0x1200,
         }),
         Algorithm::P384 => Ok(CoseKeyProfile {

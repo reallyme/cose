@@ -52,18 +52,25 @@ message CoseBackendError {
   CoseErrorReason reason = 1;
 }
 
-// Family-scoped protobuf selectors intentionally match reallyme/crypto's
-// public algorithm numbers. They are not IANA or ReallyMe private-use COSE
-// algorithm identifiers.
+// Family-scoped protobuf selectors identify exact COSE registrations. Their
+// positive protobuf values are stable contract identifiers, not the signed
+// integers carried in COSE. Names such as ES256 and ESP256 preserve that exact
+// protocol distinction even though both use the same P-256 crypto backend.
 enum CoseSignatureAlgorithm {
   COSE_SIGNATURE_ALGORITHM_UNSPECIFIED = 0;
   reserved 1 to 14;
   // EdDSA: 100-199; elliptic-curve signatures: 200-299;
   // post-quantum signatures: 1000-1099.
   COSE_SIGNATURE_ALGORITHM_ED25519 = 100;
-  COSE_SIGNATURE_ALGORITHM_ECDSA_P256_SHA256 = 200;
-  COSE_SIGNATURE_ALGORITHM_ECDSA_P384_SHA384 = 210;
-  COSE_SIGNATURE_ALGORITHM_ECDSA_P521_SHA512 = 220;
+  // Historical primitive selectors remain accepted for wire compatibility
+  // and map to the fully specified registrations used before 0.2.2.
+  COSE_SIGNATURE_ALGORITHM_ECDSA_P256_SHA256 = 200 [deprecated = true];
+  COSE_SIGNATURE_ALGORITHM_ES256 = 201;
+  COSE_SIGNATURE_ALGORITHM_ESP256 = 202;
+  COSE_SIGNATURE_ALGORITHM_ECDSA_P384_SHA384 = 210 [deprecated = true];
+  COSE_SIGNATURE_ALGORITHM_ESP384 = 211;
+  COSE_SIGNATURE_ALGORITHM_ECDSA_P521_SHA512 = 220 [deprecated = true];
+  COSE_SIGNATURE_ALGORITHM_ESP512 = 221;
   COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256 = 230;
   COSE_SIGNATURE_ALGORITHM_ML_DSA_44 = 1000;
   COSE_SIGNATURE_ALGORITHM_ML_DSA_65 = 1010;
@@ -377,10 +384,14 @@ message CoseSign1VerifyResult {
   // verification. Payloads can carry credential claims or PII and must not be
   // logged.
   bytes payload = 1;
-  // Verified protected-header algorithm.
+  // Compatibility primitive selector. Existing numeric values remain stable;
+  // new consumers should use exact_signature_algorithm.
   CoseSignatureAlgorithm algorithm = 2;
   // Verified protected-header kid bytes.
   bytes kid = 3;
+  // Exact signature registration authenticated by the protected header.
+  CoseSignatureAlgorithm exact_signature_algorithm = 4;
+  bool has_exact_signature_algorithm = 5;
 }
 
 // CoseKeyFromPublicBytesRequest builds a public COSE_Key from raw public key
@@ -423,6 +434,11 @@ message CoseKeyBytesResult {
   // contains private key material and must be moved into a sensitive-buffer
   // owner by receivers.
   bytes key_bytes = 1;
+  // Exact signature registration validated from or encoded into the COSE_Key.
+  // Absent for supported non-signature keys and for signature keys whose
+  // optional COSE_Key alg parameter was omitted.
+  CoseSignatureAlgorithm signature_algorithm = 2;
+  bool has_signature_algorithm = 3;
 }
 
 // CoseMultikeyToCoseKeyRequest converts a Multikey string into a public

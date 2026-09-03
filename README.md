@@ -33,7 +33,7 @@ crypto-backed signing or verification APIs.
 Enable the `wire` feature only for protobuf operation adapters:
 
 ```toml
-reallyme-cose = { version = "0.2.1", features = ["wire"] }
+reallyme-cose = { version = "0.2.2", features = ["wire"] }
 ```
 
 When default features are disabled, pair `wire` with an explicit runtime lane,
@@ -75,6 +75,20 @@ alg/kty/crv mapping, key identifier policy, deterministic CBOR boundary checks,
 and the structural COSE_Sign1 parsing needed by mdoc, attestation, credential,
 and wallet code. Signing, verification, hashing, and key generation remain in
 `reallyme-crypto`.
+
+The exact COSE signature registration is represented by
+`CoseSignatureAlgorithm`, independently of the cryptographic primitive selector
+`Algorithm`. This distinction preserves ES256 (`-7`) and ESP256 (`-9`) as
+different protocol identities even though both execute with P-256 and SHA-256.
+WebAuthn ceremony, authenticator-data, client-data, origin, challenge, and
+relying-party validation remain the responsibility of a WebAuthn implementation;
+this crate supplies the strict COSE key and algorithm boundary it can consume.
+The protobuf contract exposes `ES256` and `ESP256` as separate stable enum
+values. COSE_Key result messages report the exact validated signature
+registration, and Sign1 verification results add `exact_signature_algorithm`
+while retaining the existing `algorithm` field and its numeric behavior for
+older clients. Generated SDKs therefore do not need to reparse CBOR or infer
+an algorithm from the curve.
 
 COSE_Key bytes used for deterministic `kid` derivation follow RFC 8949 core
 deterministic map ordering. Verification intentionally also accepts other map
@@ -157,7 +171,9 @@ receives the exact, bounded COSE `Sig_structure`; private key bytes never enter
 the COSE API. Provider failures use the fixed `CoseSignerError` enum, and the
 COSE layer validates and normalizes the returned signature before encoding it.
 
-The provider declares one algorithm through `CoseSigner::algorithm`. ECDSA
+The provider declares its primitive through `CoseSigner::algorithm` and can
+override `CoseSigner::cose_algorithm` when the exact registration differs from
+the legacy fully specified default. ECDSA
 providers return their native DER signature; providers for Ed25519 and ML-DSA
 return fixed-width signature bytes. Providers must return signatures in a
 `Zeroizing<Vec<u8>>` owner and must not include key handles, platform exception
@@ -186,8 +202,9 @@ are deliberately not public struct-literal surface. Use
 - COSE_Sign1 signing can emit either untagged messages or messages carrying the
   registered COSE_Sign1 root tag (18) through `cose_sign1_tagged`,
   `cose_sign1_detached_tagged`, or `CoseSign1EncodeOptions`.
-- Ed25519, P-256, P-384, P-521, secp256k1, ML-DSA-44, ML-DSA-65, and
-  ML-DSA-87 signing using their current IANA COSE registrations.
+- Ed25519, ES256 (`-7`), ESP256 (`-9`), ESP384 (`-51`), ESP512 (`-52`),
+  ES256K (`-47`), ML-DSA-44, ML-DSA-65, and ML-DSA-87 signing using their
+  current IANA COSE registrations.
 - ECDSA signatures use the fixed-width `r || s` encoding required by
   RFC 9053; DER-encoded ECDSA signatures are rejected.
 - Verification accepts untagged COSE_Sign1 input and input carrying the
@@ -454,20 +471,20 @@ messages and caller-supplied per-operation COSE/payload limits. Native Rust APIs
 may opt into larger local limits directly; protobuf callers cannot raise their
 parse policy beyond the message envelope cap.
 
-## 0.2.1 Platform Scope
+## 0.2.2 Platform Scope
 
-The `0.2.1` release is intentionally Rust and protobuf only. Its publishable
+The `0.2.2` release is intentionally Rust and protobuf only. Its publishable
 artifacts are `reallyme-cose-proto` and `reallyme-cose`; the `native` and `wasm`
 features are Rust runtime lanes, not platform SDK packages.
 
-The `0.2.1` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
+The `0.2.2` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
 native C/JNI, or TypeScript/WASM npm packages. Those package formats are not
 part of this release's compatibility or support contract.
 
 The protobuf `swift_prefix` option is generation metadata, not a published
 Swift package. Likewise, `wasm32-unknown-unknown` is a Rust compilation target,
 not an npm package. The exact artifact scope is recorded in
-[`docs/platform-scope-0.2.1.json`](docs/platform-scope-0.2.1.json).
+[`docs/platform-scope-0.2.2.json`](docs/platform-scope-0.2.2.json).
 
 ## Development Checks
 
@@ -500,7 +517,7 @@ node scripts/check_release_readiness.mjs
 ```
 
 Release readiness requires crates.io dependencies for the published ReallyMe
-foundational crates: `reallyme-crypto` `^0.3.4` and `reallyme-codec` `^0.2.1`.
+foundational crates: `reallyme-crypto` `^0.3.5` and `reallyme-codec` `^0.2.1`.
 Local `../crypto` or `../codec` path dependencies are not accepted for release.
 
 Release readiness structurally inspects all 15 executable operation routes.
@@ -513,7 +530,7 @@ It also caps hand-written Rust modules at 500 lines, rejects substantive inline
 test modules, and enforces provider, ownership, concurrency, and performance
 controls. The benchmark asserts named peak-allocation ceilings; the host
 measurements are recorded in
-[`docs/performance-baseline-0.2.1.md`](docs/performance-baseline-0.2.1.md).
+[`docs/performance-baseline-0.2.2.md`](docs/performance-baseline-0.2.2.md).
 
 The wasm lane must be checked against `wasm32-unknown-unknown`. A host-target
 `cargo check --workspace --no-default-features --features wasm` is intentionally

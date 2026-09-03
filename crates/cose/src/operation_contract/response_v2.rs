@@ -115,7 +115,7 @@ fn validate_result(result: &CoseOperationResult) -> CoseWireResult<()> {
         Some(
             CoseOperationResultBranch::Sign1Verify(message)
             | CoseOperationResultBranch::Sign1VerifyDetached(message),
-        ) => signature_algorithm_is_valid(message.algorithm),
+        ) => sign1_metadata_is_valid(message),
         Some(CoseOperationResultBranch::MlKemDecrypt(message)) => {
             decrypt_metadata_is_valid(message)
         }
@@ -186,12 +186,82 @@ fn signature_algorithm_is_valid(value: EnumValue<CoseSignatureAlgorithm>) -> boo
         Some(
             CoseSignatureAlgorithm::Ed25519
                 | CoseSignatureAlgorithm::EcdsaP256Sha256
+                | CoseSignatureAlgorithm::Es256
+                | CoseSignatureAlgorithm::Esp256
                 | CoseSignatureAlgorithm::EcdsaP384Sha384
+                | CoseSignatureAlgorithm::Esp384
                 | CoseSignatureAlgorithm::EcdsaP521Sha512
+                | CoseSignatureAlgorithm::Esp512
                 | CoseSignatureAlgorithm::EcdsaSecp256k1Sha256
                 | CoseSignatureAlgorithm::MlDsa44
                 | CoseSignatureAlgorithm::MlDsa65
                 | CoseSignatureAlgorithm::MlDsa87
+        )
+    )
+}
+
+fn sign1_metadata_is_valid(result: &crate::wire::CoseSign1VerifyResult) -> bool {
+    let Some(compatibility) = result.algorithm.as_known() else {
+        return false;
+    };
+    if !result.has_exact_signature_algorithm {
+        return result.exact_signature_algorithm.to_i32() == 0;
+    }
+    let Some(exact) = result.exact_signature_algorithm.as_known() else {
+        return false;
+    };
+    signature_algorithm_is_valid(result.algorithm)
+        && exact_signature_algorithm_is_valid(exact)
+        && signature_algorithms_share_primitive(compatibility, exact)
+}
+
+const fn exact_signature_algorithm_is_valid(algorithm: CoseSignatureAlgorithm) -> bool {
+    matches!(
+        algorithm,
+        CoseSignatureAlgorithm::Ed25519
+            | CoseSignatureAlgorithm::Es256
+            | CoseSignatureAlgorithm::Esp256
+            | CoseSignatureAlgorithm::Esp384
+            | CoseSignatureAlgorithm::Esp512
+            | CoseSignatureAlgorithm::EcdsaSecp256k1Sha256
+            | CoseSignatureAlgorithm::MlDsa44
+            | CoseSignatureAlgorithm::MlDsa65
+            | CoseSignatureAlgorithm::MlDsa87
+    )
+}
+
+const fn signature_algorithms_share_primitive(
+    compatibility: CoseSignatureAlgorithm,
+    exact: CoseSignatureAlgorithm,
+) -> bool {
+    matches!(
+        (compatibility, exact),
+        (
+            CoseSignatureAlgorithm::Ed25519,
+            CoseSignatureAlgorithm::Ed25519,
+        ) | (
+            CoseSignatureAlgorithm::EcdsaP256Sha256
+                | CoseSignatureAlgorithm::Es256
+                | CoseSignatureAlgorithm::Esp256,
+            CoseSignatureAlgorithm::Es256 | CoseSignatureAlgorithm::Esp256,
+        ) | (
+            CoseSignatureAlgorithm::EcdsaP384Sha384 | CoseSignatureAlgorithm::Esp384,
+            CoseSignatureAlgorithm::Esp384,
+        ) | (
+            CoseSignatureAlgorithm::EcdsaP521Sha512 | CoseSignatureAlgorithm::Esp512,
+            CoseSignatureAlgorithm::Esp512,
+        ) | (
+            CoseSignatureAlgorithm::EcdsaSecp256k1Sha256,
+            CoseSignatureAlgorithm::EcdsaSecp256k1Sha256,
+        ) | (
+            CoseSignatureAlgorithm::MlDsa44,
+            CoseSignatureAlgorithm::MlDsa44,
+        ) | (
+            CoseSignatureAlgorithm::MlDsa65,
+            CoseSignatureAlgorithm::MlDsa65,
+        ) | (
+            CoseSignatureAlgorithm::MlDsa87,
+            CoseSignatureAlgorithm::MlDsa87,
         )
     )
 }

@@ -13,11 +13,12 @@ use reallyme_cose::wire::{
     cose_operation_response_v2, cose_operation_result, decode_cose_error, execute_operation_proto,
     execute_operation_proto_json, CoseBackendError, CoseErrorProto, CoseErrorReason,
     CoseKeyBytesRequest, CoseKeyBytesResult, CoseOperationRequest, CoseOperationResponseV2,
-    CoseOperationResult, CosePrimitiveError, CoseProviderError, MAX_COSE_PROTO_MESSAGE_BYTES,
+    CoseOperationResult, CosePrimitiveError, CoseProviderError,
+    CoseSignatureAlgorithm as WireCoseSignatureAlgorithm, MAX_COSE_PROTO_MESSAGE_BYTES,
 };
 use reallyme_cose::{
-    cose_key_from_private_bytes, cose_key_from_public_bytes, cose_key_from_slice, cose_key_to_vec,
-    Algorithm, CoseError,
+    cose_key_from_private_bytes, cose_key_from_public_bytes, cose_key_from_slice,
+    cose_key_signature_algorithm, cose_key_to_vec, Algorithm, CoseError, CoseSignatureAlgorithm,
 };
 use reallyme_crypto::dispatch::generate_keypair;
 use zeroize::Zeroizing;
@@ -371,8 +372,16 @@ fn operation_request(input: &[u8]) -> CoseOperationRequest {
 }
 
 fn expected_result_envelope(key_bytes: &[u8]) -> Zeroizing<Vec<u8>> {
+    let key = cose_key_from_slice(key_bytes).expect("successful differential fixture must parse");
+    let signature_algorithm = cose_key_signature_algorithm(&key)
+        .expect("successful differential fixture algorithm must inspect");
+    let wire_algorithm = signature_algorithm.and_then(signature_algorithm_to_wire);
     let result = CoseKeyBytesResult {
         key_bytes: key_bytes.to_vec(),
+        signature_algorithm: wire_algorithm
+            .map(EnumValue::from)
+            .unwrap_or_else(|| EnumValue::from(0)),
+        has_signature_algorithm: wire_algorithm.is_some(),
         __buffa_unknown_fields: Default::default(),
     };
     Zeroizing::new(
@@ -387,6 +396,23 @@ fn expected_result_envelope(key_bytes: &[u8]) -> Zeroizing<Vec<u8>> {
         }
         .encode_to_vec(),
     )
+}
+
+fn signature_algorithm_to_wire(
+    algorithm: CoseSignatureAlgorithm,
+) -> Option<WireCoseSignatureAlgorithm> {
+    match algorithm {
+        CoseSignatureAlgorithm::Ed25519 => Some(WireCoseSignatureAlgorithm::Ed25519),
+        CoseSignatureAlgorithm::Es256 => Some(WireCoseSignatureAlgorithm::Es256),
+        CoseSignatureAlgorithm::Esp256 => Some(WireCoseSignatureAlgorithm::Esp256),
+        CoseSignatureAlgorithm::Esp384 => Some(WireCoseSignatureAlgorithm::Esp384),
+        CoseSignatureAlgorithm::Esp512 => Some(WireCoseSignatureAlgorithm::Esp512),
+        CoseSignatureAlgorithm::Es256K => Some(WireCoseSignatureAlgorithm::EcdsaSecp256k1Sha256),
+        CoseSignatureAlgorithm::MlDsa44 => Some(WireCoseSignatureAlgorithm::MlDsa44),
+        CoseSignatureAlgorithm::MlDsa65 => Some(WireCoseSignatureAlgorithm::MlDsa65),
+        CoseSignatureAlgorithm::MlDsa87 => Some(WireCoseSignatureAlgorithm::MlDsa87),
+        _ => None,
+    }
 }
 
 fn expected_error_envelope(expected: ExpectedFailure) -> Zeroizing<Vec<u8>> {

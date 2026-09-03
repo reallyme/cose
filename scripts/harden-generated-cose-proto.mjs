@@ -577,6 +577,17 @@ for (const [name, fields] of [
       { name: "payload", jsonName: "payload", kind: "bytes" },
       { name: "algorithm", jsonName: "algorithm", kind: "enum", enumName: "CoseSignatureAlgorithm" },
       { name: "kid", jsonName: "kid", kind: "bytes" },
+      {
+        name: "exact_signature_algorithm",
+        jsonName: "exactSignatureAlgorithm",
+        kind: "enum",
+        enumName: "CoseSignatureAlgorithm",
+      },
+      {
+        name: "has_exact_signature_algorithm",
+        jsonName: "hasExactSignatureAlgorithm",
+        kind: "bool",
+      },
     ],
   ],
   [
@@ -587,7 +598,23 @@ for (const [name, fields] of [
     ],
   ],
   ["CoseKeyBytesRequest", [{ name: "cose_key", jsonName: "coseKey", kind: "bytes" }]],
-  ["CoseKeyBytesResult", [{ name: "key_bytes", jsonName: "keyBytes", kind: "bytes" }]],
+  [
+    "CoseKeyBytesResult",
+    [
+      { name: "key_bytes", jsonName: "keyBytes", kind: "bytes" },
+      {
+        name: "signature_algorithm",
+        jsonName: "signatureAlgorithm",
+        kind: "enum",
+        enumName: "CoseSignatureAlgorithm",
+      },
+      {
+        name: "has_signature_algorithm",
+        jsonName: "hasSignatureAlgorithm",
+        kind: "bool",
+      },
+    ],
+  ],
   [
     "CoseMultikeyToCoseKeyRequest",
     [{ name: "multikey", jsonName: "multikey", kind: "string" }],

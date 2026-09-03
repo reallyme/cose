@@ -7,16 +7,17 @@
 use zeroize::{Zeroize, Zeroizing};
 
 use crate::key::convert::{
-    construct_cose_key_from_private, construct_cose_key_from_public, extract_cose_key_private,
-    extract_cose_key_public, CoseKeyFromPrivateBytesInput, CoseKeyFromPublicBytesInput,
-    CoseKeyRefInput,
+    construct_cose_key_from_private, construct_cose_key_from_public,
+    construct_cose_key_from_signature_private, construct_cose_key_from_signature_public,
+    extract_cose_key_private, extract_cose_key_public, CoseKeyFromPrivateBytesInput,
+    CoseKeyFromPublicBytesInput, CoseKeyRefInput,
 };
 use crate::key::derive_kid::derive_cose_key_public_kid;
 use crate::key::{parse_cose_key, CoseKeyParseInput, CoseKeyParseOutput};
 use crate::multikey::convert::{
     convert_cose_key_to_multikey, convert_multikey_to_cose_key, MultikeyInput,
 };
-use crate::operation_contract::input::algorithm_identifier_from_proto;
+use crate::operation_contract::input::{key_algorithm_identifier_from_proto, KeyAlgorithmInput};
 use crate::operation_contract::key::result;
 use crate::operation_contract::map_failure::boundary_error_from_failure;
 use crate::wire::{
@@ -27,18 +28,24 @@ use crate::wire::{
 pub(crate) fn from_public_bytes_result(
     mut request: CoseKeyFromPublicBytesRequest,
 ) -> CoseWireResult<CoseOperationResult> {
-    let algorithm = algorithm_identifier_from_proto(request.algorithm.as_option())?;
+    let algorithm = key_algorithm_identifier_from_proto(request.algorithm.as_option())?;
     let public_key = Zeroizing::new(core::mem::take(&mut request.public_key));
-    let output =
-        construct_cose_key_from_public(CoseKeyFromPublicBytesInput::new(algorithm, &public_key))
-            .map_err(boundary_error_from_failure)?;
+    let output = match algorithm {
+        KeyAlgorithmInput::Signature(algorithm) => {
+            construct_cose_key_from_signature_public(algorithm, &public_key)
+        }
+        KeyAlgorithmInput::Crypto(algorithm) => {
+            construct_cose_key_from_public(CoseKeyFromPublicBytesInput::new(algorithm, &public_key))
+        }
+    }
+    .map_err(boundary_error_from_failure)?;
     result::from_public_key(output)
 }
 
 pub(crate) fn from_private_bytes_result(
     mut request: CoseKeyFromPrivateBytesRequest,
 ) -> CoseWireResult<CoseOperationResult> {
-    let algorithm = match algorithm_identifier_from_proto(request.algorithm.as_option()) {
+    let algorithm = match key_algorithm_identifier_from_proto(request.algorithm.as_option()) {
         Ok(algorithm) => algorithm,
         Err(error) => {
             request.private_key.zeroize();
@@ -49,11 +56,14 @@ pub(crate) fn from_private_bytes_result(
     let private_key = Zeroizing::new(core::mem::take(&mut request.private_key));
     let public_key = Zeroizing::new(core::mem::take(&mut request.public_key));
     let public_key = request.has_public_key.then_some(public_key.as_slice());
-    let output = construct_cose_key_from_private(CoseKeyFromPrivateBytesInput::new(
-        algorithm,
-        &private_key,
-        public_key,
-    ))
+    let output = match algorithm {
+        KeyAlgorithmInput::Signature(algorithm) => {
+            construct_cose_key_from_signature_private(algorithm, &private_key, public_key)
+        }
+        KeyAlgorithmInput::Crypto(algorithm) => construct_cose_key_from_private(
+            CoseKeyFromPrivateBytesInput::new(algorithm, &private_key, public_key),
+        ),
+    }
     .map_err(boundary_error_from_failure)?;
     result::from_private_key(output)
 }
@@ -64,7 +74,7 @@ pub(crate) fn to_public_bytes_result(
     let key = parse_request_key(request)?;
     let output =
         extract_cose_key_public(CoseKeyRefInput::new(&key)).map_err(boundary_error_from_failure)?;
-    Ok(result::public_key_bytes(output))
+    result::public_key_bytes(output)
 }
 
 pub(crate) fn to_private_bytes_result(
@@ -73,7 +83,7 @@ pub(crate) fn to_private_bytes_result(
     let key = parse_request_key(request)?;
     let output = extract_cose_key_private(CoseKeyRefInput::new(&key))
         .map_err(boundary_error_from_failure)?;
-    Ok(result::private_key_bytes(output))
+    result::private_key_bytes(output)
 }
 
 pub(crate) fn derive_public_kid_result(
@@ -82,7 +92,7 @@ pub(crate) fn derive_public_kid_result(
     let key = parse_request_key(request)?;
     let output = derive_cose_key_public_kid(CoseKeyRefInput::new(&key))
         .map_err(boundary_error_from_failure)?;
-    Ok(result::key_identifier(output))
+    result::key_identifier(output)
 }
 
 pub(crate) fn to_multikey_result(

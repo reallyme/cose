@@ -7,6 +7,7 @@
 use coset::{iana, CoseKeyBuilder};
 use reallyme_crypto::core::Algorithm;
 
+use crate::algorithm::CoseSignatureAlgorithm;
 use crate::CoseError;
 
 use super::profile::{get_param_bytes, get_param_value};
@@ -29,28 +30,38 @@ pub(crate) struct Ec2Profile {
 }
 
 pub(crate) fn ec2_profile(algorithm: Algorithm) -> Result<Ec2Profile, CoseError> {
+    let signature_algorithm = CoseSignatureAlgorithm::from_crypto_algorithm(algorithm)?;
+    ec2_profile_for_signature_algorithm(signature_algorithm)
+}
+
+pub(crate) fn ec2_profile_for_signature_algorithm(
+    algorithm: CoseSignatureAlgorithm,
+) -> Result<Ec2Profile, CoseError> {
     match algorithm {
-        Algorithm::P256 => Ok(Ec2Profile {
+        CoseSignatureAlgorithm::Es256 | CoseSignatureAlgorithm::Esp256 => Ok(Ec2Profile {
             curve: iana::EllipticCurve::P_256,
-            alg: iana::Algorithm::ESP256,
+            alg: algorithm.to_iana(),
             coordinate_len: P256_COORDINATE_BYTES,
         }),
-        Algorithm::P384 => Ok(Ec2Profile {
+        CoseSignatureAlgorithm::Esp384 => Ok(Ec2Profile {
             curve: iana::EllipticCurve::P_384,
-            alg: iana::Algorithm::ESP384,
+            alg: algorithm.to_iana(),
             coordinate_len: P384_COORDINATE_BYTES,
         }),
-        Algorithm::P521 => Ok(Ec2Profile {
+        CoseSignatureAlgorithm::Esp512 => Ok(Ec2Profile {
             curve: iana::EllipticCurve::P_521,
-            alg: iana::Algorithm::ESP512,
+            alg: algorithm.to_iana(),
             coordinate_len: P521_COORDINATE_BYTES,
         }),
-        Algorithm::Secp256k1 => Ok(Ec2Profile {
+        CoseSignatureAlgorithm::Es256K => Ok(Ec2Profile {
             curve: iana::EllipticCurve::Secp256k1,
-            alg: iana::Algorithm::ES256K,
+            alg: algorithm.to_iana(),
             coordinate_len: P256_COORDINATE_BYTES,
         }),
-        _ => Err(CoseError::UnsupportedAlgorithm),
+        CoseSignatureAlgorithm::Ed25519
+        | CoseSignatureAlgorithm::MlDsa44
+        | CoseSignatureAlgorithm::MlDsa65
+        | CoseSignatureAlgorithm::MlDsa87 => Err(CoseError::UnsupportedAlgorithm),
     }
 }
 
