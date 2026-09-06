@@ -25,6 +25,7 @@ fn __reallyme_zeroize_unknown_field_data(data: &mut ::buffa::UnknownFieldData) {
 /// positive protobuf values are stable contract identifiers, not the signed
 /// integers carried in COSE. Names such as ES256 and ESP256 preserve that exact
 /// protocol distinction even though both use the same P-256 crypto backend.
+#[allow(non_camel_case_types)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 #[repr(i32)]
 pub enum CoseSignatureAlgorithm {
@@ -324,6 +325,7 @@ impl ::buffa::Enumeration for CoseSignatureAlgorithm {
         ]
     }
 }
+#[allow(non_camel_case_types)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 #[repr(i32)]
 pub enum CoseKeyAgreementAlgorithm {
@@ -472,6 +474,7 @@ impl ::buffa::Enumeration for CoseKeyAgreementAlgorithm {
         ]
     }
 }
+#[allow(non_camel_case_types)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 #[repr(i32)]
 pub enum CoseKemAlgorithm {
@@ -640,6 +643,7 @@ impl ::buffa::Enumeration for CoseKemAlgorithm {
 /// CoseContentEncryptionAlgorithm identifies the protected COSE_Encrypt content
 /// algorithm. These enum values are protobuf identifiers, not COSE algorithm
 /// registry values.
+#[allow(non_camel_case_types)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 #[repr(i32)]
 pub enum CoseContentEncryptionAlgorithm {
@@ -830,6 +834,7 @@ impl ::buffa::Enumeration for CoseContentEncryptionAlgorithm {
     }
 }
 /// CoseMlKemMode reports which COSE_Recipient construction was authenticated.
+#[allow(non_camel_case_types)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 #[repr(i32)]
 pub enum CoseMlKemMode {
@@ -977,6 +982,7 @@ impl ::buffa::Enumeration for CoseMlKemMode {
 /// one of these before crossing RPC, SDK, FFI, storage, audit, or telemetry
 /// boundaries. Numeric bands keep evolving failure families adjacent without
 /// forcing unrelated public wire values to move.
+#[allow(non_camel_case_types)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 #[repr(i32)]
 pub enum CoseErrorReason {
@@ -1957,18 +1963,21 @@ impl ::buffa::ExtensionSet for CoseError {
         &mut self.__buffa_unknown_fields
     }
 }
-impl<'de> serde::Deserialize<'de> for CoseError {
-    fn deserialize<D: serde::Deserializer<'de>>(
+impl<'de> ::serde::Deserialize<'de> for CoseError {
+    fn deserialize<D: ::serde::Deserializer<'de>>(
         d: D,
     ) -> ::core::result::Result<Self, D::Error> {
         struct _V;
-        impl<'de> serde::de::Visitor<'de> for _V {
+        impl<'de> ::serde::de::Visitor<'de> for _V {
             type Value = CoseError;
-            fn expecting(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+            fn expecting(
+                &self,
+                f: &mut ::core::fmt::Formatter<'_>,
+            ) -> ::core::fmt::Result {
                 f.write_str("struct CoseError")
             }
             #[allow(clippy::field_reassign_with_default)]
-            fn visit_map<A: serde::de::MapAccess<'de>>(
+            fn visit_map<A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: A,
             ) -> ::core::result::Result<CoseError, A::Error> {
@@ -1989,7 +1998,7 @@ impl<'de> serde::Deserialize<'de> for CoseError {
                             if let Some(v) = v {
                                 if __oneof_error.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'error'",
                                         ),
                                     );
@@ -2013,7 +2022,7 @@ impl<'de> serde::Deserialize<'de> for CoseError {
                             if let Some(v) = v {
                                 if __oneof_error.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'error'",
                                         ),
                                     );
@@ -2037,7 +2046,7 @@ impl<'de> serde::Deserialize<'de> for CoseError {
                             if let Some(v) = v {
                                 if __oneof_error.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'error'",
                                         ),
                                     );
@@ -2050,7 +2059,7 @@ impl<'de> serde::Deserialize<'de> for CoseError {
                             }
                         }
                         _ => {
-                            return Err(serde::de::Error::custom("unknown field"));
+                            return Err(::serde::de::Error::custom("unknown field"));
                         }
                     }
                 }
@@ -2660,18 +2669,21 @@ impl ::buffa::ExtensionSet for CoseAlgorithmIdentifier {
         &mut self.__buffa_unknown_fields
     }
 }
-impl<'de> serde::Deserialize<'de> for CoseAlgorithmIdentifier {
-    fn deserialize<D: serde::Deserializer<'de>>(
+impl<'de> ::serde::Deserialize<'de> for CoseAlgorithmIdentifier {
+    fn deserialize<D: ::serde::Deserializer<'de>>(
         d: D,
     ) -> ::core::result::Result<Self, D::Error> {
         struct _V;
-        impl<'de> serde::de::Visitor<'de> for _V {
+        impl<'de> ::serde::de::Visitor<'de> for _V {
             type Value = CoseAlgorithmIdentifier;
-            fn expecting(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+            fn expecting(
+                &self,
+                f: &mut ::core::fmt::Formatter<'_>,
+            ) -> ::core::fmt::Result {
                 f.write_str("struct CoseAlgorithmIdentifier")
             }
             #[allow(clippy::field_reassign_with_default)]
-            fn visit_map<A: serde::de::MapAccess<'de>>(
+            fn visit_map<A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: A,
             ) -> ::core::result::Result<CoseAlgorithmIdentifier, A::Error> {
@@ -2694,7 +2706,7 @@ impl<'de> serde::Deserialize<'de> for CoseAlgorithmIdentifier {
                             if let Some(v) = v {
                                 if __oneof_algorithm.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'algorithm'",
                                         ),
                                     );
@@ -2720,7 +2732,7 @@ impl<'de> serde::Deserialize<'de> for CoseAlgorithmIdentifier {
                             if let Some(v) = v {
                                 if __oneof_algorithm.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'algorithm'",
                                         ),
                                     );
@@ -2746,7 +2758,7 @@ impl<'de> serde::Deserialize<'de> for CoseAlgorithmIdentifier {
                             if let Some(v) = v {
                                 if __oneof_algorithm.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'algorithm'",
                                         ),
                                     );
@@ -2757,7 +2769,7 @@ impl<'de> serde::Deserialize<'de> for CoseAlgorithmIdentifier {
                             }
                         }
                         _ => {
-                            return Err(serde::de::Error::custom("unknown field"));
+                            return Err(::serde::de::Error::custom("unknown field"));
                         }
                     }
                 }
@@ -3514,18 +3526,21 @@ impl ::buffa::ExtensionSet for CoseOperationRequest {
         &mut self.__buffa_unknown_fields
     }
 }
-impl<'de> serde::Deserialize<'de> for CoseOperationRequest {
-    fn deserialize<D: serde::Deserializer<'de>>(
+impl<'de> ::serde::Deserialize<'de> for CoseOperationRequest {
+    fn deserialize<D: ::serde::Deserializer<'de>>(
         d: D,
     ) -> ::core::result::Result<Self, D::Error> {
         struct _V;
-        impl<'de> serde::de::Visitor<'de> for _V {
+        impl<'de> ::serde::de::Visitor<'de> for _V {
             type Value = CoseOperationRequest;
-            fn expecting(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+            fn expecting(
+                &self,
+                f: &mut ::core::fmt::Formatter<'_>,
+            ) -> ::core::fmt::Result {
                 f.write_str("struct CoseOperationRequest")
             }
             #[allow(clippy::field_reassign_with_default)]
-            fn visit_map<A: serde::de::MapAccess<'de>>(
+            fn visit_map<A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: A,
             ) -> ::core::result::Result<CoseOperationRequest, A::Error> {
@@ -3546,7 +3561,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationRequest {
                             if let Some(v) = v {
                                 if __oneof_operation.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'operation'",
                                         ),
                                     );
@@ -3572,7 +3587,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationRequest {
                             if let Some(v) = v {
                                 if __oneof_operation.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'operation'",
                                         ),
                                     );
@@ -3596,7 +3611,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationRequest {
                             if let Some(v) = v {
                                 if __oneof_operation.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'operation'",
                                         ),
                                     );
@@ -3622,7 +3637,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationRequest {
                             if let Some(v) = v {
                                 if __oneof_operation.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'operation'",
                                         ),
                                     );
@@ -3648,7 +3663,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationRequest {
                             if let Some(v) = v {
                                 if __oneof_operation.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'operation'",
                                         ),
                                     );
@@ -3674,7 +3689,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationRequest {
                             if let Some(v) = v {
                                 if __oneof_operation.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'operation'",
                                         ),
                                     );
@@ -3698,7 +3713,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationRequest {
                             if let Some(v) = v {
                                 if __oneof_operation.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'operation'",
                                         ),
                                     );
@@ -3722,7 +3737,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationRequest {
                             if let Some(v) = v {
                                 if __oneof_operation.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'operation'",
                                         ),
                                     );
@@ -3746,7 +3761,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationRequest {
                             if let Some(v) = v {
                                 if __oneof_operation.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'operation'",
                                         ),
                                     );
@@ -3770,7 +3785,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationRequest {
                             if let Some(v) = v {
                                 if __oneof_operation.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'operation'",
                                         ),
                                     );
@@ -3794,7 +3809,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationRequest {
                             if let Some(v) = v {
                                 if __oneof_operation.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'operation'",
                                         ),
                                     );
@@ -3820,7 +3835,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationRequest {
                             if let Some(v) = v {
                                 if __oneof_operation.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'operation'",
                                         ),
                                     );
@@ -3844,7 +3859,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationRequest {
                             if let Some(v) = v {
                                 if __oneof_operation.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'operation'",
                                         ),
                                     );
@@ -3868,7 +3883,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationRequest {
                             if let Some(v) = v {
                                 if __oneof_operation.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'operation'",
                                         ),
                                     );
@@ -3892,7 +3907,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationRequest {
                             if let Some(v) = v {
                                 if __oneof_operation.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'operation'",
                                         ),
                                     );
@@ -3905,7 +3920,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationRequest {
                             }
                         }
                         _ => {
-                            return Err(serde::de::Error::custom("unknown field"));
+                            return Err(::serde::de::Error::custom("unknown field"));
                         }
                     }
                 }
@@ -4127,18 +4142,21 @@ impl ::buffa::ExtensionSet for CoseOperationResponseV2 {
         &mut self.__buffa_unknown_fields
     }
 }
-impl<'de> serde::Deserialize<'de> for CoseOperationResponseV2 {
-    fn deserialize<D: serde::Deserializer<'de>>(
+impl<'de> ::serde::Deserialize<'de> for CoseOperationResponseV2 {
+    fn deserialize<D: ::serde::Deserializer<'de>>(
         d: D,
     ) -> ::core::result::Result<Self, D::Error> {
         struct _V;
-        impl<'de> serde::de::Visitor<'de> for _V {
+        impl<'de> ::serde::de::Visitor<'de> for _V {
             type Value = CoseOperationResponseV2;
-            fn expecting(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+            fn expecting(
+                &self,
+                f: &mut ::core::fmt::Formatter<'_>,
+            ) -> ::core::fmt::Result {
                 f.write_str("struct CoseOperationResponseV2")
             }
             #[allow(clippy::field_reassign_with_default)]
-            fn visit_map<A: serde::de::MapAccess<'de>>(
+            fn visit_map<A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: A,
             ) -> ::core::result::Result<CoseOperationResponseV2, A::Error> {
@@ -4159,7 +4177,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResponseV2 {
                             if let Some(v) = v {
                                 if __oneof_outcome.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'outcome'",
                                         ),
                                     );
@@ -4183,7 +4201,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResponseV2 {
                             if let Some(v) = v {
                                 if __oneof_outcome.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'outcome'",
                                         ),
                                     );
@@ -4196,7 +4214,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResponseV2 {
                             }
                         }
                         _ => {
-                            return Err(serde::de::Error::custom("unknown field"));
+                            return Err(::serde::de::Error::custom("unknown field"));
                         }
                     }
                 }
@@ -4924,18 +4942,21 @@ impl ::buffa::ExtensionSet for CoseOperationResult {
         &mut self.__buffa_unknown_fields
     }
 }
-impl<'de> serde::Deserialize<'de> for CoseOperationResult {
-    fn deserialize<D: serde::Deserializer<'de>>(
+impl<'de> ::serde::Deserialize<'de> for CoseOperationResult {
+    fn deserialize<D: ::serde::Deserializer<'de>>(
         d: D,
     ) -> ::core::result::Result<Self, D::Error> {
         struct _V;
-        impl<'de> serde::de::Visitor<'de> for _V {
+        impl<'de> ::serde::de::Visitor<'de> for _V {
             type Value = CoseOperationResult;
-            fn expecting(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+            fn expecting(
+                &self,
+                f: &mut ::core::fmt::Formatter<'_>,
+            ) -> ::core::fmt::Result {
                 f.write_str("struct CoseOperationResult")
             }
             #[allow(clippy::field_reassign_with_default)]
-            fn visit_map<A: serde::de::MapAccess<'de>>(
+            fn visit_map<A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: A,
             ) -> ::core::result::Result<CoseOperationResult, A::Error> {
@@ -4956,7 +4977,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResult {
                             if let Some(v) = v {
                                 if __oneof_result.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'result'",
                                         ),
                                     );
@@ -4980,7 +5001,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResult {
                             if let Some(v) = v {
                                 if __oneof_result.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'result'",
                                         ),
                                     );
@@ -5004,7 +5025,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResult {
                             if let Some(v) = v {
                                 if __oneof_result.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'result'",
                                         ),
                                     );
@@ -5028,7 +5049,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResult {
                             if let Some(v) = v {
                                 if __oneof_result.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'result'",
                                         ),
                                     );
@@ -5052,7 +5073,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResult {
                             if let Some(v) = v {
                                 if __oneof_result.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'result'",
                                         ),
                                     );
@@ -5076,7 +5097,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResult {
                             if let Some(v) = v {
                                 if __oneof_result.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'result'",
                                         ),
                                     );
@@ -5100,7 +5121,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResult {
                             if let Some(v) = v {
                                 if __oneof_result.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'result'",
                                         ),
                                     );
@@ -5124,7 +5145,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResult {
                             if let Some(v) = v {
                                 if __oneof_result.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'result'",
                                         ),
                                     );
@@ -5148,7 +5169,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResult {
                             if let Some(v) = v {
                                 if __oneof_result.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'result'",
                                         ),
                                     );
@@ -5172,7 +5193,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResult {
                             if let Some(v) = v {
                                 if __oneof_result.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'result'",
                                         ),
                                     );
@@ -5196,7 +5217,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResult {
                             if let Some(v) = v {
                                 if __oneof_result.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'result'",
                                         ),
                                     );
@@ -5220,7 +5241,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResult {
                             if let Some(v) = v {
                                 if __oneof_result.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'result'",
                                         ),
                                     );
@@ -5244,7 +5265,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResult {
                             if let Some(v) = v {
                                 if __oneof_result.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'result'",
                                         ),
                                     );
@@ -5268,7 +5289,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResult {
                             if let Some(v) = v {
                                 if __oneof_result.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'result'",
                                         ),
                                     );
@@ -5292,7 +5313,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResult {
                             if let Some(v) = v {
                                 if __oneof_result.is_some() {
                                     return Err(
-                                        serde::de::Error::custom(
+                                        ::serde::de::Error::custom(
                                             "multiple oneof fields set for 'result'",
                                         ),
                                     );
@@ -5305,7 +5326,7 @@ impl<'de> serde::Deserialize<'de> for CoseOperationResult {
                             }
                         }
                         _ => {
-                            return Err(serde::de::Error::custom("unknown field"));
+                            return Err(::serde::de::Error::custom("unknown field"));
                         }
                     }
                 }
@@ -5652,35 +5673,35 @@ impl ::buffa::Message for CoseMlKemEncryptRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.recipient_public_key, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.recipient_public_key, buf)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.recipient_kid, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.recipient_kid, buf)?;
             }
             5u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.plaintext, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.plaintext, buf)?;
             }
             6u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.external_aad, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.external_aad, buf)?;
             }
             7u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.supp_priv_info, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.supp_priv_info, buf)?;
             }
             8u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -5859,7 +5880,7 @@ impl ::buffa::Message for CoseMlKemEncryptResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.cose_encrypt, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.cose_encrypt, buf)?;
             }
             _ => {
                 self.__buffa_unknown_fields
@@ -6147,35 +6168,35 @@ impl ::buffa::Message for CoseMlKemDecryptRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.cose_encrypt, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.cose_encrypt, buf)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.recipient_private_key, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.recipient_private_key, buf)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.expected_recipient_kid, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.expected_recipient_kid, buf)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.external_aad, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.external_aad, buf)?;
             }
             5u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.supp_priv_info, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.supp_priv_info, buf)?;
             }
             6u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -6443,7 +6464,7 @@ impl ::buffa::Message for CoseMlKemDecryptResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.plaintext, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.plaintext, buf)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -6475,7 +6496,7 @@ impl ::buffa::Message for CoseMlKemDecryptResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.recipient_kid, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.recipient_kid, buf)?;
             }
             _ => {
                 self.__buffa_unknown_fields
@@ -6965,21 +6986,21 @@ impl ::buffa::Message for CoseSign1CreateRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.payload, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.payload, buf)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.private_key, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.private_key, buf)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.kid, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.kid, buf)?;
             }
             5u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -7004,7 +7025,7 @@ impl ::buffa::Message for CoseSign1CreateRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.external_aad, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.external_aad, buf)?;
             }
             _ => {
                 self.__buffa_unknown_fields
@@ -7339,21 +7360,21 @@ impl ::buffa::Message for CoseSign1CreateDetachedRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.payload, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.payload, buf)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.private_key, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.private_key, buf)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.kid, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.kid, buf)?;
             }
             5u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -7378,7 +7399,7 @@ impl ::buffa::Message for CoseSign1CreateDetachedRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.external_aad, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.external_aad, buf)?;
             }
             _ => {
                 self.__buffa_unknown_fields
@@ -7552,7 +7573,7 @@ impl ::buffa::Message for CoseSign1CreateResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.cose_sign1, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.cose_sign1, buf)?;
             }
             _ => {
                 self.__buffa_unknown_fields
@@ -7892,14 +7913,14 @@ impl ::buffa::Message for CoseSign1VerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.cose_sign1, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.cose_sign1, buf)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.public_key, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.public_key, buf)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -7965,14 +7986,14 @@ impl ::buffa::Message for CoseSign1VerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.external_aad, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.external_aad, buf)?;
             }
             8u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.expected_kid, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.expected_kid, buf)?;
             }
             _ => {
                 self.__buffa_unknown_fields
@@ -8339,21 +8360,21 @@ impl ::buffa::Message for CoseSign1VerifyDetachedRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.cose_sign1, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.cose_sign1, buf)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.payload, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.payload, buf)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.public_key, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.public_key, buf)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -8419,14 +8440,14 @@ impl ::buffa::Message for CoseSign1VerifyDetachedRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.external_aad, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.external_aad, buf)?;
             }
             9u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.expected_kid, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.expected_kid, buf)?;
             }
             _ => {
                 self.__buffa_unknown_fields
@@ -8696,7 +8717,7 @@ impl ::buffa::Message for CoseSign1VerifyResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.payload, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.payload, buf)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -8712,7 +8733,7 @@ impl ::buffa::Message for CoseSign1VerifyResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.kid, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.kid, buf)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -8941,7 +8962,7 @@ impl ::buffa::Message for CoseKeyFromPublicBytesRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.public_key, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.public_key, buf)?;
             }
             _ => {
                 self.__buffa_unknown_fields
@@ -9205,14 +9226,14 @@ impl ::buffa::Message for CoseKeyFromPrivateBytesRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.private_key, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.private_key, buf)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.public_key, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.public_key, buf)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -9389,7 +9410,7 @@ impl ::buffa::Message for CoseKeyBytesRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.cose_key, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.cose_key, buf)?;
             }
             _ => {
                 self.__buffa_unknown_fields
@@ -9604,7 +9625,7 @@ impl ::buffa::Message for CoseKeyBytesResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_bytes(&mut self.key_bytes, buf)?;
+                crate::merge_sensitive::merge_bytes(&mut self.key_bytes, buf)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -9788,7 +9809,7 @@ impl ::buffa::Message for CoseMultikeyToCoseKeyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_string(&mut self.multikey, buf)?;
+                crate::merge_sensitive::merge_string(&mut self.multikey, buf)?;
             }
             _ => {
                 self.__buffa_unknown_fields
@@ -9951,7 +9972,7 @@ impl ::buffa::Message for CoseMultikeyResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                ::buffa::types::merge_string(&mut self.multikey, buf)?;
+                crate::merge_sensitive::merge_string(&mut self.multikey, buf)?;
             }
             _ => {
                 self.__buffa_unknown_fields

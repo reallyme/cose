@@ -42,22 +42,22 @@ pub mod cose_error {
             Self::Some(Error::from(v))
         }
     }
-    impl serde::Serialize for Error {
-        fn serialize<S: serde::Serializer>(
+    impl ::serde::Serialize for Error {
+        fn serialize<S: ::serde::Serializer>(
             &self,
             s: S,
         ) -> ::core::result::Result<S::Ok, S::Error> {
-            use serde::ser::SerializeMap;
+            use ::serde::ser::SerializeMap;
             let mut map = s.serialize_map(Some(1))?;
             match self {
                 Self::Primitive(v) => {
-                    map.serialize_entry("primitive", v)?;
+                    map.serialize_entry("primitive", &**v)?;
                 }
                 Self::Provider(v) => {
-                    map.serialize_entry("provider", v)?;
+                    map.serialize_entry("provider", &**v)?;
                 }
                 Self::Backend(v) => {
-                    map.serialize_entry("backend", v)?;
+                    map.serialize_entry("backend", &**v)?;
                 }
             }
             map.end()
@@ -74,12 +74,12 @@ pub mod cose_algorithm_identifier {
         Kem(::buffa::EnumValue<super::super::super::CoseKemAlgorithm>),
     }
     impl ::buffa::Oneof for Algorithm {}
-    impl serde::Serialize for Algorithm {
-        fn serialize<S: serde::Serializer>(
+    impl ::serde::Serialize for Algorithm {
+        fn serialize<S: ::serde::Serializer>(
             &self,
             s: S,
         ) -> ::core::result::Result<S::Ok, S::Error> {
-            use serde::ser::SerializeMap;
+            use ::serde::ser::SerializeMap;
             let mut map = s.serialize_map(Some(1))?;
             match self {
                 Self::Signature(v) => {
@@ -242,58 +242,58 @@ pub mod cose_operation_request {
             Self::Some(Operation::from(v))
         }
     }
-    impl serde::Serialize for Operation {
-        fn serialize<S: serde::Serializer>(
+    impl ::serde::Serialize for Operation {
+        fn serialize<S: ::serde::Serializer>(
             &self,
             s: S,
         ) -> ::core::result::Result<S::Ok, S::Error> {
-            use serde::ser::SerializeMap;
+            use ::serde::ser::SerializeMap;
             let mut map = s.serialize_map(Some(1))?;
             match self {
                 Self::Sign1Create(v) => {
-                    map.serialize_entry("sign1Create", v)?;
+                    map.serialize_entry("sign1Create", &**v)?;
                 }
                 Self::Sign1CreateDetached(v) => {
-                    map.serialize_entry("sign1CreateDetached", v)?;
+                    map.serialize_entry("sign1CreateDetached", &**v)?;
                 }
                 Self::Sign1Verify(v) => {
-                    map.serialize_entry("sign1Verify", v)?;
+                    map.serialize_entry("sign1Verify", &**v)?;
                 }
                 Self::Sign1VerifyDetached(v) => {
-                    map.serialize_entry("sign1VerifyDetached", v)?;
+                    map.serialize_entry("sign1VerifyDetached", &**v)?;
                 }
                 Self::KeyFromPublicBytes(v) => {
-                    map.serialize_entry("keyFromPublicBytes", v)?;
+                    map.serialize_entry("keyFromPublicBytes", &**v)?;
                 }
                 Self::KeyFromPrivateBytes(v) => {
-                    map.serialize_entry("keyFromPrivateBytes", v)?;
+                    map.serialize_entry("keyFromPrivateBytes", &**v)?;
                 }
                 Self::KeyParse(v) => {
-                    map.serialize_entry("keyParse", v)?;
+                    map.serialize_entry("keyParse", &**v)?;
                 }
                 Self::KeyToPublicBytes(v) => {
-                    map.serialize_entry("keyToPublicBytes", v)?;
+                    map.serialize_entry("keyToPublicBytes", &**v)?;
                 }
                 Self::KeyToPrivateBytes(v) => {
-                    map.serialize_entry("keyToPrivateBytes", v)?;
+                    map.serialize_entry("keyToPrivateBytes", &**v)?;
                 }
                 Self::KeyDerivePublicKid(v) => {
-                    map.serialize_entry("keyDerivePublicKid", v)?;
+                    map.serialize_entry("keyDerivePublicKid", &**v)?;
                 }
                 Self::KeyToMultikey(v) => {
-                    map.serialize_entry("keyToMultikey", v)?;
+                    map.serialize_entry("keyToMultikey", &**v)?;
                 }
                 Self::MultikeyToCoseKey(v) => {
-                    map.serialize_entry("multikeyToCoseKey", v)?;
+                    map.serialize_entry("multikeyToCoseKey", &**v)?;
                 }
                 Self::MlKemEncryptDirect(v) => {
-                    map.serialize_entry("mlKemEncryptDirect", v)?;
+                    map.serialize_entry("mlKemEncryptDirect", &**v)?;
                 }
                 Self::MlKemEncryptKeyWrap(v) => {
-                    map.serialize_entry("mlKemEncryptKeyWrap", v)?;
+                    map.serialize_entry("mlKemEncryptKeyWrap", &**v)?;
                 }
                 Self::MlKemDecrypt(v) => {
-                    map.serialize_entry("mlKemDecrypt", v)?;
+                    map.serialize_entry("mlKemDecrypt", &**v)?;
                 }
             }
             map.end()
@@ -330,19 +330,19 @@ pub mod cose_operation_response_v2 {
             Self::Some(Outcome::from(v))
         }
     }
-    impl serde::Serialize for Outcome {
-        fn serialize<S: serde::Serializer>(
+    impl ::serde::Serialize for Outcome {
+        fn serialize<S: ::serde::Serializer>(
             &self,
             s: S,
         ) -> ::core::result::Result<S::Ok, S::Error> {
-            use serde::ser::SerializeMap;
+            use ::serde::ser::SerializeMap;
             let mut map = s.serialize_map(Some(1))?;
             match self {
                 Self::Result(v) => {
-                    map.serialize_entry("result", v)?;
+                    map.serialize_entry("result", &**v)?;
                 }
                 Self::Error(v) => {
-                    map.serialize_entry("error", v)?;
+                    map.serialize_entry("error", &**v)?;
                 }
             }
             map.end()
@@ -421,58 +421,58 @@ pub mod cose_operation_result {
             Self::Some(Result::from(v))
         }
     }
-    impl serde::Serialize for Result {
-        fn serialize<S: serde::Serializer>(
+    impl ::serde::Serialize for Result {
+        fn serialize<S: ::serde::Serializer>(
             &self,
             s: S,
         ) -> ::core::result::Result<S::Ok, S::Error> {
-            use serde::ser::SerializeMap;
+            use ::serde::ser::SerializeMap;
             let mut map = s.serialize_map(Some(1))?;
             match self {
                 Self::Sign1Create(v) => {
-                    map.serialize_entry("sign1Create", v)?;
+                    map.serialize_entry("sign1Create", &**v)?;
                 }
                 Self::Sign1CreateDetached(v) => {
-                    map.serialize_entry("sign1CreateDetached", v)?;
+                    map.serialize_entry("sign1CreateDetached", &**v)?;
                 }
                 Self::Sign1Verify(v) => {
-                    map.serialize_entry("sign1Verify", v)?;
+                    map.serialize_entry("sign1Verify", &**v)?;
                 }
                 Self::Sign1VerifyDetached(v) => {
-                    map.serialize_entry("sign1VerifyDetached", v)?;
+                    map.serialize_entry("sign1VerifyDetached", &**v)?;
                 }
                 Self::KeyFromPublicBytes(v) => {
-                    map.serialize_entry("keyFromPublicBytes", v)?;
+                    map.serialize_entry("keyFromPublicBytes", &**v)?;
                 }
                 Self::KeyFromPrivateBytes(v) => {
-                    map.serialize_entry("keyFromPrivateBytes", v)?;
+                    map.serialize_entry("keyFromPrivateBytes", &**v)?;
                 }
                 Self::KeyParse(v) => {
-                    map.serialize_entry("keyParse", v)?;
+                    map.serialize_entry("keyParse", &**v)?;
                 }
                 Self::KeyToPublicBytes(v) => {
-                    map.serialize_entry("keyToPublicBytes", v)?;
+                    map.serialize_entry("keyToPublicBytes", &**v)?;
                 }
                 Self::KeyToPrivateBytes(v) => {
-                    map.serialize_entry("keyToPrivateBytes", v)?;
+                    map.serialize_entry("keyToPrivateBytes", &**v)?;
                 }
                 Self::KeyDerivePublicKid(v) => {
-                    map.serialize_entry("keyDerivePublicKid", v)?;
+                    map.serialize_entry("keyDerivePublicKid", &**v)?;
                 }
                 Self::KeyToMultikey(v) => {
-                    map.serialize_entry("keyToMultikey", v)?;
+                    map.serialize_entry("keyToMultikey", &**v)?;
                 }
                 Self::MultikeyToCoseKey(v) => {
-                    map.serialize_entry("multikeyToCoseKey", v)?;
+                    map.serialize_entry("multikeyToCoseKey", &**v)?;
                 }
                 Self::MlKemEncryptDirect(v) => {
-                    map.serialize_entry("mlKemEncryptDirect", v)?;
+                    map.serialize_entry("mlKemEncryptDirect", &**v)?;
                 }
                 Self::MlKemEncryptKeyWrap(v) => {
-                    map.serialize_entry("mlKemEncryptKeyWrap", v)?;
+                    map.serialize_entry("mlKemEncryptKeyWrap", &**v)?;
                 }
                 Self::MlKemDecrypt(v) => {
-                    map.serialize_entry("mlKemDecrypt", v)?;
+                    map.serialize_entry("mlKemDecrypt", &**v)?;
                 }
             }
             map.end()
