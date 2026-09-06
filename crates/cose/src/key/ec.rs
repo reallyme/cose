@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 //! Elliptic-curve COSE_Key profile and point conversion helpers.
 
@@ -248,6 +248,19 @@ pub(crate) fn ec2_public_bytes_from_key(
     }
 
     let y = y.as_bytes().ok_or(CoseError::InvalidFormat)?;
+    // Validate both submitted coordinates before discarding Y. Checking only
+    // the compressed point would silently repair an off-curve Y coordinate.
+    let uncompressed_len = raw_point_len(profile)?
+        .checked_add(COMPRESSED_POINT_PREFIX_BYTES)
+        .ok_or(CoseError::ResourceLimitExceeded)?;
+    let mut supplied = Vec::new();
+    supplied
+        .try_reserve_exact(uncompressed_len)
+        .map_err(|_| CoseError::ResourceLimitExceeded)?;
+    supplied.push(UNCOMPRESSED_POINT_PREFIX);
+    supplied.extend_from_slice(x);
+    supplied.extend_from_slice(y);
+    validate_public_key(algorithm_for_ec2_profile(profile)?, &supplied)?;
     let y_last = y.last().copied().ok_or(CoseError::InvalidKeyMaterial)?;
     public_key.push(if y_last & 1 == 1 {
         COMPRESSED_POINT_ODD_PREFIX

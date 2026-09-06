@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 import { OPERATION_CONTRACT_ROUTES } from "./operation-contract-routes.mjs";
 
@@ -22,7 +22,9 @@ function blankRange(output, source, start, end) {
 // name in documentation, a diagnostic, or dead string data from satisfying an
 // executable-call invariant.
 export function maskRustNonCode(source) {
-  const output = Array.from(source);
+  // String offsets use UTF-16 code units; code-point iteration shifts every
+  // offset after a non-BMP character and can mask executable Rust by mistake.
+  const output = source.split("");
   let index = 0;
   while (index < source.length) {
     if (source.startsWith("//", index)) {

@@ -1,12 +1,13 @@
-<!--
-SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 # COSE 0.2.2 Performance And Allocation Baseline
 
 Date: 2026-09-03
+
+Historical release measurements; see the [0.2.3 record](performance-baseline-0.2.3.md)
+for the current baseline.
+
+These are reference measurements from the environment below, before the current
+`reallyme-crypto` 0.3.6 dependency update. Rerun the command for current timings;
+the allocation ceilings remain enforced by the benchmark.
 
 Command: `cargo bench --bench operation_performance --all-features`
 
@@ -44,16 +45,3 @@ and obtain review instead of silently replacing the baseline.
 The maximum detached signing fixture proves that the documented
 1,048,576-byte payload boundary is reachable through the dedicated checked
 canonical encoder.
-
-Every native Sign1 key resolver receives `(expected_algorithm, protected_kid)`.
-Resolvers must use that tuple as the key-store lookup identity and return only
-a public key registered for both values; resolving by `kid` alone discards the
-algorithm-binding guarantee. `VerifiedCoseSign1::cose_algorithm` retains the
-exact COSE registration, including the distinction between ES256 (`-7`) and
-ESP256 (`-9`). The protobuf lane expresses the same restriction through its
-exact algorithm allow-list and trusted `expected_kid` input.
-
-The protobuf operation lane is capped independently at 2 MiB for request
-messages and caller-supplied per-operation COSE/payload limits. Native Rust APIs
-may opt into larger local limits directly; protobuf callers cannot raise their
-parse policy beyond the message envelope cap.

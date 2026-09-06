@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 #![allow(clippy::unwrap_used)]
 
@@ -115,11 +115,12 @@ fn direct_signature_encodings_pass_through_unchanged() {
 fn direct_signature_encodings_reject_wrong_widths() {
     for (alg, expected_len) in [
         (Algorithm::Ed25519, 64_usize),
+        (Algorithm::Secp256k1, 64),
         (Algorithm::MlDsa44, 2_420),
         (Algorithm::MlDsa65, 3_309),
         (Algorithm::MlDsa87, 4_627),
     ] {
-        for invalid_len in [expected_len - 1, expected_len + 1] {
+        for invalid_len in [0, expected_len - 1, expected_len + 1] {
             let signature = vec![1_u8; invalid_len];
             assert_eq!(
                 backend_signature_from_cose(alg, &signature),
@@ -134,7 +135,7 @@ fn direct_signature_encodings_reject_wrong_widths() {
 }
 
 #[test]
-fn secp256k1_backend_encoding_remains_opaque() {
+fn secp256k1_compact_encoding_passes_through_unchanged() {
     let signature = sample_fixed(64);
     assert_eq!(
         cose_signature_from_backend(Algorithm::Secp256k1, signature.clone()).unwrap(),

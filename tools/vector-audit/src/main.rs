@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 //! COSE-layer audit for committed conformance vectors.
 //!
@@ -817,14 +817,16 @@ fn independent_verify(
 ) -> AuditResult<bool> {
     match algorithm {
         Algorithm::Ed25519 => {
-            use ed25519_dalek::{Signature, Verifier, VerifyingKey};
+            use ed25519_dalek::{Signature, VerifyingKey};
             let public_key =
                 VerifyingKey::from_bytes(&fixed_32(public, AuditReason::InvalidPublicKeyLength)?)
                     .map_err(|_| general(AuditReason::InvalidPublicKeyLength))?;
             let Ok(sig) = Signature::from_slice(signature) else {
                 return Ok(false);
             };
-            Ok(public_key.verify(message, &sig).is_ok())
+            // The COSE profile rejects low-order points and malleable
+            // signatures; the independent oracle must enforce that profile too.
+            Ok(public_key.verify_strict(message, &sig).is_ok())
         }
         Algorithm::Es256 | Algorithm::P256 => {
             use p256::ecdsa::{signature::Verifier, Signature, VerifyingKey};
@@ -1016,3 +1018,6 @@ fn attach_case(error: AuditError, id: &str) -> AuditError {
         reason: error.reason,
     }
 }
+
+#[cfg(test)]
+mod verify_signature_tests;

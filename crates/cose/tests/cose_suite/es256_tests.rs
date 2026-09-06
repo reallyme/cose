@@ -1,7 +1,7 @@
 #![allow(missing_docs, clippy::expect_used, clippy::unwrap_used)]
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 use reallyme_cose::{
     cose_key_from_public_bytes, cose_key_from_signature_private_bytes,
@@ -138,4 +138,16 @@ fn es256_sign1_roundtrip_reports_exact_registration_and_policy_distinguishes_it(
         .err(),
         Some(CoseError::UnsupportedAlgorithm),
     );
+}
+
+#[test]
+fn parsed_ec2_key_rejects_modified_y_with_unchanged_parity() {
+    let mut malformed = WEBAUTHN_ES256_COSE_KEY;
+    // Change a high Y byte, retaining X and Y parity. Compression used to
+    // discard this corruption and validate the original point instead.
+    malformed[45] ^= 0x01;
+    assert!(matches!(
+        cose_key_from_slice(&malformed),
+        Err(CoseError::InvalidKeyMaterial)
+    ));
 }

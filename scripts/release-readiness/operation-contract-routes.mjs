@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 const ADAPTER_ROOT = "crates/cose/src/operation_contract/";
 const NATIVE_ROOT = "crates/cose/src/";

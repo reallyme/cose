@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -120,7 +120,7 @@ function isPublishOrderingDependency(dep) {
 
 function parseVersion(version) {
   const parts = version.split(".");
-  if (parts.length !== 3) {
+  if (!/^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/u.test(version)) {
     return null;
   }
 
@@ -152,6 +152,11 @@ function isCaretReqSatisfied(req, version) {
   }
 
   if (minimum.major === 0 && actual.minor !== minimum.minor) {
+    return false;
+  }
+
+  // Cargo keeps ^0.0.x within that exact patch release.
+  if (minimum.major === 0 && minimum.minor === 0 && actual.patch !== minimum.patch) {
     return false;
   }
 
@@ -450,6 +455,11 @@ function publishPackage(pkg) {
       lowerCombined.includes("rate-limited") ||
       lowerCombined.includes("rate limited")
     ) {
+      // Exhaustion must fail the release before attempting dependent crates.
+      if (attempt === MAX_PUBLISH_ATTEMPTS) {
+        console.error(`publication retry limit reached for ${pkg.name}`);
+        process.exit(result.status ?? 1);
+      }
       const delayMs = rateLimitDelayMs ?? CRATES_IO_DEFAULT_RATE_LIMIT_RETRY_MS;
       console.log(
         `crates.io rate-limited new crate uploads; retrying ${pkg.name} in ${Math.ceil(delayMs / 1000)}s...`,

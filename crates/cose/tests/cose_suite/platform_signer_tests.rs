@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 use reallyme_cose::{
     cose_sign1_detached_with_signer, cose_sign1_with_signer, cose_verify1_detached_with_policy,
@@ -169,5 +169,23 @@ fn provider_exact_registration_must_match_its_crypto_primitive() {
             CoseSign1EncodeOptions::default(),
         ),
         Err(CoseError::UnsupportedAlgorithm),
+    );
+}
+
+#[test]
+fn oversized_signing_identifier_is_rejected_before_provider_execution() {
+    let signer = FailingPlatformSigner {
+        error: CoseSignerError::Unavailable,
+    };
+    let kid = vec![0x55; 65_537];
+    assert_eq!(
+        cose_sign1_with_signer(
+            &signer,
+            PAYLOAD,
+            Some(&kid),
+            &[],
+            CoseSign1EncodeOptions::default()
+        ),
+        Err(CoseError::ResourceLimitExceeded)
     );
 }

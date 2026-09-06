@@ -1,12 +1,9 @@
-<!--
-SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 # COSE 0.2.0 Performance And Allocation Baseline
 
 Date: 2026-07-22
+
+Historical release measurements; see the [0.2.3 record](performance-baseline-0.2.3.md)
+for the latest baseline and the [package README](../README.md) for current behavior.
 
 Command: `cargo bench --bench operation_performance --all-features`
 

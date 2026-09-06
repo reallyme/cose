@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -787,15 +787,29 @@ generatedText = generatedText.replaceAll(
   "#[serde(default)]",
   "#[serde(default, deny_unknown_fields)]",
 );
-const ignoredUnknownField = `                        _ => {
+const ignoredUnknownFieldVariants = [
+  `                        _ => {
                             map.next_value::<serde::de::IgnoredAny>()?;
-                        }`;
-const strictUnknownField = `                        _ => {
+                        }`,
+  `                        _ => {
+                            map.next_value::<::serde::de::IgnoredAny>()?;
+                        }`,
+];
+const strictUnknownFieldVariants = [
+  `                        _ => {
                             return Err(serde::de::Error::custom("unknown field"));
-                        }`;
-const ignoredUnknownFieldCount =
-  generatedText.split(ignoredUnknownField).length - 1;
-const strictUnknownFieldCount = generatedText.split(strictUnknownField).length - 1;
+                        }`,
+  `                        _ => {
+                            return Err(::serde::de::Error::custom("unknown field"));
+                        }`,
+];
+const strictUnknownField = strictUnknownFieldVariants[1];
+const ignoredUnknownFieldCount = ignoredUnknownFieldVariants
+  .map((fragment) => generatedText.split(fragment).length - 1)
+  .reduce((sum, count) => sum + count, 0);
+const strictUnknownFieldCount = strictUnknownFieldVariants
+  .map((fragment) => generatedText.split(fragment).length - 1)
+  .reduce((sum, count) => sum + count, 0);
 if (
   ignoredUnknownFieldCount !== oneofCount &&
   !(ignoredUnknownFieldCount === 0 && strictUnknownFieldCount === oneofCount)
@@ -804,10 +818,12 @@ if (
     `${generated} expected ${oneofCount} generated oneof unknown-field branches, found ${ignoredUnknownFieldCount}`,
   );
 }
-generatedText = generatedText.replaceAll(
-  ignoredUnknownField,
-  strictUnknownField,
-);
+for (const ignoredUnknownField of ignoredUnknownFieldVariants) {
+  generatedText = generatedText.replaceAll(
+    ignoredUnknownField,
+    strictUnknownField,
+  );
+}
 // Buffa's enum visitors otherwise reflect attacker-controlled numeric values
 // into allocated error strings. Fixed diagnostics keep boundary failures
 // deterministic and avoid carrying untrusted input into logs.
@@ -827,27 +843,39 @@ if (generatedText.includes("::buffa::alloc::format!(")) {
   fail(`${generated} still contains formatted ProtoJSON errors`);
 }
 
-const generatedPaths = [generated, generatedView, oneof];
-const idempotencyBefore = checkIdempotent
-  ? new Map(generatedPaths.map((path) => [path, readFileSync(path)]))
-  : null;
-writeFileSync(generated, generatedText);
+// Singular byte and string fields can occur repeatedly. Wipe the previous
+// value before Buffa clears its length and potentially reallocates its buffer.
+for (const kind of ["bytes", "string"]) {
+  generatedText = generatedText.replaceAll(
+    `::buffa::types::merge_${kind}(`,
+    `crate::merge_sensitive::merge_${kind}(`,
+  );
+}
 
 let generatedViewText = readFileSync(generatedView, "utf8");
 for (const messageName of sensitiveScalarMessageNames) {
   generatedViewText = hardenBorrowedViewDebug(generatedViewText, messageName);
 }
-writeFileSync(generatedView, generatedViewText);
 
 const oneofText = readFileSync(oneof, "utf8");
 if (!oneofText.includes("    #[derive(Clone, PartialEq, Debug)]\n    pub enum Operation {")) {
   fail(`${oneof} is missing the Buffa-required Clone derive for Operation`);
 }
 
-if (idempotencyBefore !== null) {
-  for (const [path, before] of idempotencyBefore) {
-    if (!before.equals(readFileSync(path))) {
+// Finish validating every generated file before writing any of them. Check
+// mode compares in memory so a failed check cannot repair its own evidence.
+const hardenedFiles = new Map([
+  [generated, generatedText],
+  [generatedView, generatedViewText],
+]);
+if (checkIdempotent) {
+  for (const [path, hardened] of hardenedFiles) {
+    if (readFileSync(path, "utf8") !== hardened) {
       fail("generated COSE protobuf hardening is not idempotent");
     }
+  }
+} else {
+  for (const [path, hardened] of hardenedFiles) {
+    writeFileSync(path, hardened);
   }
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -11,6 +11,7 @@ import {
   selectLatestPreflightRun,
   verifyAttestationDocument,
   verifyWorkflowRun,
+  verifyReleaseAttestation,
 } from "./verify_release_attestation.mjs";
 
 const releaseSha = "a".repeat(40);
@@ -157,4 +158,16 @@ test("automatic resolution rejects missing and malformed workflow results", () =
       ReleaseAttestationError,
     );
   }
+});
+
+test("waiting rejects zero polling intervals before querying GitHub", () => {
+  assert.throws(() => verifyReleaseAttestation({ env: {
+    GITHUB_REPOSITORY: expected.repository,
+    RELEASE_SHA: releaseSha,
+    RELEASE_VERSION: expected.releaseVersion,
+    GITHUB_SHA: releaseSha,
+    GH_TOKEN: "test-placeholder",
+    RELEASE_ATTESTATION_WAIT_SECONDS: "60",
+    RELEASE_ATTESTATION_POLL_SECONDS: "0",
+  } }), { name: "ReleaseAttestationError", code: "invalid-release-attestation-poll-seconds" });
 });

@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 //! Protobuf-ready COSE operation request and response adapters.
 //!
@@ -43,12 +43,7 @@ pub use reallyme_cose_proto::generated::proto::reallyme::cose::v1::{
 /// decode so hostile length-delimited fields cannot force unbounded allocation.
 pub const MAX_COSE_PROTO_MESSAGE_BYTES: usize = 2_097_152;
 
-/// Maximum caller-supplied COSE byte limit accepted by protobuf operations.
-///
-/// Native Rust APIs can opt into larger local policies directly. The protobuf
-/// lane is intentionally capped to its message envelope so untrusted service,
-/// FFI, and generated-SDK callers cannot widen boundary parsing beyond the
-/// bytes this adapter already agreed to decode.
+// Bound nested protobuf messages independently of their total encoded size.
 const COSE_PROTO_RECURSION_LIMIT: u32 = 64;
 const COSE_PROTO_UNKNOWN_FIELD_LIMIT: usize = 0;
 

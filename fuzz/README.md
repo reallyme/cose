@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 # Fuzzing
 
 This directory contains libFuzzer targets for the public byte boundaries that
@@ -16,11 +10,10 @@ SDKs and applications pass untrusted input to.
 - `cose_key`: COSE_Key decode, canonical re-encode, public/private extraction,
   `kid` derivation, and Multikey conversion.
 - `multikey_to_cose`: UTF-8 Multikey parsing and COSE_Key conversion.
-- `wire`: malformed protobuf bytes, operation-id dispatch, discriminated response and
-  version-two discriminated-response decode, JSON adapter rejection paths, and guaranteed binary/ProtoJSON
-  execution of every migrated key, Multikey, and attached/detached Sign1
-  operation plus ML-KEM direct encryption, key-wrap encryption, and decryption
-  for each fuzz input.
+- `wire`: malformed protobuf and ProtoJSON requests, operation-oneof dispatch,
+  and `CoseOperationResponseV2` decoding. Each input also exercises structured
+  key, attached/detached Sign1, and ML-KEM requests through binary and ProtoJSON
+  adapters; UTF-8 inputs additionally exercise Multikey-to-COSE conversion.
 - `cose_encrypt`: valid ML-KEM direct/AES-KW construction followed by
   structured mutation of headers, recipients, KDF-bound bytes, ciphertext,
   and tags, plus fully arbitrary decrypt input.
@@ -28,7 +21,8 @@ SDKs and applications pass untrusted input to.
 ## Running
 
 ```sh
-cargo install cargo-fuzz --locked
+cargo install cargo-fuzz --version 0.13.2 --locked
+rustup toolchain install nightly-2026-07-01 --profile minimal
 cargo +nightly-2026-07-01 fuzz build
 cargo +nightly-2026-07-01 fuzz run cose_sign1 -- -max_total_time=900 -rss_limit_mb=4096
 cargo +nightly-2026-07-01 fuzz run cose_key -- -max_total_time=900 -rss_limit_mb=4096

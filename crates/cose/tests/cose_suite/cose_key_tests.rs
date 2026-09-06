@@ -1,7 +1,7 @@
 #![allow(missing_docs, clippy::expect_used, clippy::unwrap_used)]
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 use reallyme_cose::{cose_key_from_public_bytes, cose_key_to_public_bytes, Algorithm, CoseError};
 
@@ -136,6 +136,60 @@ fn uncompressed_public_key(key: &super::support::TestKey) -> Option<Vec<u8>> {
 }
 
 #[test]
+fn parsed_ec2_coordinates_are_validated_without_changing_compressed_key_identity() {
+    use ciborium::value::Value;
+    use coset::{iana, CborSerializable, CoseKey, Label};
+    use reallyme_cose::{cose_key_from_slice, cose_key_to_vec, derive_kid_from_cose_key_public};
+
+    for fixture in [gen_p256(), gen_p384(), gen_p521(), gen_secp256k1()] {
+        let key = cose_key_from_public_bytes(fixture.alg, &fixture.public).expect("public key");
+        let compressed = cose_key_to_vec(&key).expect("encoding");
+        let mut wire = CoseKey::from_slice(&compressed).expect("coset key");
+        let point = uncompressed_public_key(&fixture).expect("supported curve");
+        let coordinate_len = point.len().checked_sub(1).expect("prefix") / 2;
+        let y = point.get(1 + coordinate_len..).expect("Y coordinate");
+        let y_label = Label::Int(iana::Ec2KeyParameter::Y as i64);
+        let (_, value) = wire
+            .params
+            .iter_mut()
+            .find(|(label, _)| *label == y_label)
+            .expect("Y");
+        *value = Value::Bytes(y.to_vec());
+        let uncompressed = wire.to_vec().expect("uncompressed COSE key");
+        let parsed = cose_key_from_slice(&uncompressed).expect("valid full coordinates");
+        assert_eq!(
+            cose_key_to_vec(&parsed).expect("round trip").as_slice(),
+            uncompressed
+        );
+        assert_eq!(
+            cose_key_to_public_bytes(&parsed).expect("public bytes"),
+            fixture.public
+        );
+        assert_eq!(
+            derive_kid_from_cose_key_public(&parsed).expect("uncompressed kid"),
+            derive_kid_from_cose_key_public(&key).expect("compressed kid"),
+        );
+
+        let mut malformed = CoseKey::from_slice(&uncompressed).expect("coset key");
+        let (_, value) = malformed
+            .params
+            .iter_mut()
+            .find(|(label, _)| *label == y_label)
+            .expect("Y");
+        let bytes = value.as_bytes_mut().expect("Y bytes");
+        // Changing an upper byte preserves the parity consumed by the old
+        // implementation. The supplied point itself must still be checked.
+        bytes[0] ^= 0x80;
+        assert_eq!(
+            cose_key_from_slice(&malformed.to_vec().expect("malformed key")).err(),
+            Some(CoseError::InvalidKeyMaterial),
+            "{:?}",
+            fixture.alg,
+        );
+    }
+}
+
+#[test]
 fn cose_key_rejects_wrong_length_ml_kem_public_key() {
     let k = gen_ed25519();
 
@@ -258,7 +312,11 @@ fn decode_hex_32(encoded: &str) -> Option<[u8; 32]> {
         return None;
     }
     let mut output = [0_u8; 32];
-    for (slot, pair) in output.iter_mut().zip(encoded.as_bytes().chunks_exact(2)) {
+    let (pairs, remainder) = encoded.as_bytes().as_chunks::<2>();
+    if !remainder.is_empty() {
+        return None;
+    }
+    for (slot, pair) in output.iter_mut().zip(pairs.iter()) {
         let high = decode_hex_nibble(pair[0])?;
         let low = decode_hex_nibble(pair[1])?;
         *slot = high.checked_mul(16)?.checked_add(low)?;

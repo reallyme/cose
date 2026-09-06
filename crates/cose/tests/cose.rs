@@ -1,7 +1,7 @@
 #![allow(missing_docs, clippy::expect_used, clippy::unwrap_used)]
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 #[path = "cose_suite/support.rs"]
 mod support;
@@ -75,3 +75,7 @@ mod tamper_reject_tests;
 #[cfg(feature = "wire")]
 #[path = "cose_suite/wire_tests.rs"]
 mod wire_tests;
+
+#[cfg(feature = "cose-crypto")]
+#[path = "cose_suite/boundary_regression_tests.rs"]
+mod boundary_regression_tests;

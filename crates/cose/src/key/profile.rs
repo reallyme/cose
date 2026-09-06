@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 //! Supported COSE_Key profile validation and parameter access.
 
@@ -76,10 +76,12 @@ pub fn cose_key_signature_algorithm(
     key: &CoseKey,
 ) -> Result<Option<CoseSignatureAlgorithm>, CoseError> {
     match validate_cose_key_profile(key)? {
-        KeyProfile::Okp(profile) => match profile.alg {
-            Some(algorithm) => CoseSignatureAlgorithm::from_iana(algorithm).map(Some),
-            None => Ok(None),
-        },
+        KeyProfile::Okp(_) => key
+            .inner()
+            .alg
+            .as_ref()
+            .map(CoseSignatureAlgorithm::from_registered)
+            .transpose(),
         KeyProfile::Ec2(_) => key
             .inner()
             .alg
@@ -253,7 +255,10 @@ fn validate_optional_param_len(
     label: i64,
     expected_len: usize,
 ) -> Result<(), CoseError> {
-    if let Some(bytes) = get_param_bytes(key, label) {
+    if let Some(value) = get_param_value(key, label) {
+        // A present parameter with the wrong CBOR type is not absent. In
+        // particular, malformed private material must never become a public key.
+        let bytes = value.as_bytes().ok_or(CoseError::InvalidFormat)?;
         if bytes.len() != expected_len {
             return Err(CoseError::InvalidKeyMaterial);
         }

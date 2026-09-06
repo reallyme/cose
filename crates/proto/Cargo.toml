@@ -1,10 +1,6 @@
-# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
-#
-# SPDX-License-Identifier: Apache-2.0
-
 [package]
 name = "reallyme-cose-proto"
-version = "0.2.2"
+version = "0.2.3"
 description = "Generated protobuf boundary types for ReallyMe COSE."
 edition.workspace = true
 rust-version.workspace = true

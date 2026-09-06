@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 use reallyme_crypto::aes::{
     decrypt, decrypt_aes128_gcm, decrypt_aes192_gcm, Aes128GcmDecryptRequest, Aes128GcmKey,

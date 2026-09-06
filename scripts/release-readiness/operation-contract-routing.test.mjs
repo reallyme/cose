@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -8,7 +8,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 
-import { collectOperationContractRoutingViolations } from "./operation-contract-routing.mjs";
+import { collectOperationContractRoutingViolations, maskRustNonCode, rustFunctionBody } from "./operation-contract-routing.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../..", import.meta.url));
 
@@ -96,4 +96,22 @@ test("adapters cannot introduce independent error classification", () => {
     ),
   );
   assert.match(violations.join("\n"), /encrypt\/decrypt\.rs must not contain CoseWireError constructors/u);
+});
+
+test("non-BMP comments and literals preserve executable offsets", () => {
+  const source = '// 🔒 nested marker\nfn route() { let label = "🔑"; /* 🦀 */ execute(); }';
+  const masked = maskRustNonCode(source);
+  assert.equal(masked.length, source.length);
+  assert.equal(masked.indexOf("fn route"), source.indexOf("fn route"));
+  assert.equal(masked.indexOf("execute();"), source.indexOf("execute();"));
+  assert.match(rustFunctionBody(source, "route"), /execute\(\);/u);
+});
+
+test("non-BMP comments cannot conceal a forbidden facade call", () => {
+  const violations = violationsAfter("crates/cose/src/operation_contract/key/parse.rs", (source) =>
+    replaceOnce(source, "parse_cose_key(CoseKeyParseInput::new(&encoded_key))",
+      'cose_key_from_slice(&encoded_key) // 🔒 parse_cose_key(CoseKeyParseInput::new(&encoded_key))'),
+  );
+  assert.match(violations.join("\n"), /must not call native facade cose_key_from_slice/u);
+  assert.match(violations.join("\n"), /must call parse_cose_key exactly 1 time.*found 0/u);
 });

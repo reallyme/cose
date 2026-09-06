@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
-use coset::{AsCborValue, CoseSign1, Header, ProtectedHeader, RegisteredLabelWithPrivate};
+use coset::{CoseSign1, Header, ProtectedHeader, RegisteredLabelWithPrivate};
 use reallyme_crypto::core::Algorithm;
 use reallyme_crypto::dispatch::sign;
 
@@ -15,6 +15,7 @@ use crate::{
 
 use super::build_sig_structure::build_sig_structure;
 use super::convert_signature::cose_signature_from_backend;
+use super::decode::SensitiveCoseSign1;
 use crate::limits::{
     validate_cose_sign1_bytes_with_limit, validate_detached_payload, MAX_COSE_SIGN1_BYTES,
 };
@@ -339,27 +340,29 @@ fn create_cose_sign1_impl(
 ) -> Result<Zeroizing<Vec<u8>>, CoseError> {
     validate_detached_payload(input.payload)?;
     validate_detached_payload(input.external_aad)?;
-    let protected = build_protected_header(input.cose_algorithm, input.kid)?;
-    let signature = sign_payload(
+    if input
+        .kid
+        .is_some_and(|kid| kid.len() > input.options.max_cose_sign1_bytes())
+    {
+        return Err(CoseError::ResourceLimitExceeded);
+    }
+    // Keep identifiers under a wipe owner even when a provider rejects signing.
+    let mut cose = SensitiveCoseSign1::new(CoseSign1 {
+        protected: build_protected_header(input.cose_algorithm, input.kid)?,
+        ..Default::default()
+    });
+    cose.inner_mut().signature = sign_payload(
         input.algorithm,
         input.signing_source,
-        &protected,
+        &cose.inner().protected,
         input.external_aad,
         input.payload,
     )?;
-    let payload = match payload_mode {
+    cose.inner_mut().payload = match payload_mode {
         Sign1PayloadMode::Attached => Some(input.payload.to_vec()),
         Sign1PayloadMode::Detached => None,
     };
-    encode_cose_sign1(
-        CoseSign1 {
-            protected,
-            unprotected: Header::default(),
-            payload,
-            signature,
-        },
-        input.options,
-    )
+    encode_cose_sign1(core::mem::take(cose.inner_mut()), input.options)
 }
 
 fn build_protected_header(
@@ -405,7 +408,19 @@ fn encode_cose_sign1(
     cose: CoseSign1,
     options: CoseSign1EncodeOptions,
 ) -> Result<Zeroizing<Vec<u8>>, CoseError> {
-    let mut value = cose.to_cbor_value().map_err(|_| CoseError::Cbor)?;
+    let mut cose = SensitiveCoseSign1::new(cose);
+    let mut protected = encode_protected_header(&cose.inner().protected)?;
+    // Coset's consuming conversion serializes protected headers into ordinary
+    // temporary buffers. Move fields directly into our recursive wipe owner.
+    let mut value = ciborium::value::Value::Array(vec![
+        ciborium::value::Value::Bytes(core::mem::take(&mut *protected)),
+        ciborium::value::Value::Map(Vec::new()),
+        cose.inner_mut()
+            .payload
+            .take()
+            .map_or(ciborium::value::Value::Null, ciborium::value::Value::Bytes),
+        ciborium::value::Value::Bytes(core::mem::take(&mut cose.inner_mut().signature)),
+    ]);
     if options.tag() {
         value = ciborium::value::Value::Tag(18, Box::new(value));
     }
@@ -414,3 +429,7 @@ fn encode_cose_sign1(
     validate_cose_sign1_bytes_with_limit(&encoded, options.max_cose_sign1_bytes())?;
     Ok(encoded)
 }
+
+#[cfg(all(test, not(target_arch = "wasm32")))]
+#[path = "encode_tests.rs"]
+mod encode_tests;

@@ -1,7 +1,7 @@
 #![allow(missing_docs, clippy::expect_used, clippy::unwrap_used)]
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 use reallyme_cose::{
     cose_key_from_private_bytes, cose_key_from_public_bytes, derive_kid_from_cose_key_public,

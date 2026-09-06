@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 /// ReallyMe private-use COSE algorithm identifier for direct ML-KEM-512.
 pub const REALLYME_COSE_ALG_ML_KEM_512: i64 = -65_537;

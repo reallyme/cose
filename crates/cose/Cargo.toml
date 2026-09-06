@@ -1,10 +1,6 @@
-# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
-#
-# SPDX-License-Identifier: Apache-2.0
-
 [package]
 name = "reallyme-cose"
-version = "0.2.2"
+version = "0.2.3"
 description = "Strict COSE helpers for ReallyMe identity software."
 edition.workspace = true
 rust-version.workspace = true

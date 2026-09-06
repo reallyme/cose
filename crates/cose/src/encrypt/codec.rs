@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 use ciborium::value::Value;
 use coset::{
@@ -10,7 +10,7 @@ use coset::{
 use zeroize::Zeroizing;
 
 use crate::algorithm::REALLYME_COSE_HEADER_EK;
-use crate::encode_cbor::encode_cbor_value;
+use crate::encode_cbor::{encode_cbor_value, encode_protected_header};
 use crate::limits::MAX_COSE_ENCRYPT_BYTES;
 use crate::zeroize_coset::{zeroize_cose_encrypt, SensitiveCborValue};
 use crate::CoseError;
@@ -57,8 +57,46 @@ pub(crate) fn body_unprotected(iv: &[u8]) -> Header {
 }
 
 pub(crate) fn encode(cose: CoseEncrypt) -> Result<Zeroizing<Vec<u8>>, CoseError> {
-    let mut value = cose.to_cbor_value().map_err(|_| CoseError::Cbor)?;
-    value = Value::Tag(COSE_ENCRYPT_TAG, Box::new(value));
+    let mut sensitive = SensitiveCoseEncrypt { inner: cose };
+    let cose = &mut sensitive.inner;
+    validate_structure(cose)?;
+    let mut body_protected = encode_protected_header(&cose.protected)?;
+    let recipient = cose
+        .recipients
+        .first_mut()
+        .ok_or(CoseError::InvalidRecipient)?;
+    let mut recipient_protected = encode_protected_header(&recipient.protected)?;
+    let ek = recipient
+        .unprotected
+        .rest
+        .first_mut()
+        .and_then(|(_, value)| value.as_bytes_mut())
+        .ok_or(CoseError::InvalidEncapsulatedKey)?;
+    let ek = core::mem::take(ek);
+    // Encode only the validated profile fields, keeping header serialization
+    // out of coset's ordinary, non-zeroizing temporary buffers.
+    let value = Value::Tag(
+        COSE_ENCRYPT_TAG,
+        Box::new(Value::Array(vec![
+            Value::Bytes(core::mem::take(&mut *body_protected)),
+            Value::Map(vec![(
+                Value::Integer((iana::HeaderParameter::Iv as i64).into()),
+                Value::Bytes(core::mem::take(&mut cose.unprotected.iv)),
+            )]),
+            cose.ciphertext.take().map_or(Value::Null, Value::Bytes),
+            Value::Array(vec![Value::Array(vec![
+                Value::Bytes(core::mem::take(&mut *recipient_protected)),
+                Value::Map(vec![(
+                    Value::Integer(REALLYME_COSE_HEADER_EK.into()),
+                    Value::Bytes(ek),
+                )]),
+                recipient
+                    .ciphertext
+                    .take()
+                    .map_or(Value::Null, Value::Bytes),
+            ])]),
+        ])),
+    );
     let encoded = encode_cbor_value(value)?;
     if encoded.len() > MAX_COSE_ENCRYPT_BYTES {
         return Err(CoseError::ResourceLimitExceeded);
@@ -371,3 +409,7 @@ impl Drop for SensitiveCoseEncrypt {
         zeroize_cose_encrypt(&mut self.inner);
     }
 }
+
+#[cfg(all(test, not(target_arch = "wasm32")))]
+#[path = "encode_tests.rs"]
+mod encode_tests;

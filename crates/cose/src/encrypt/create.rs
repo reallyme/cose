@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 use coset::{CoseEncrypt, CoseRecipient, RegisteredLabelWithPrivate};
 use reallyme_crypto::aes::{
@@ -21,8 +21,9 @@ use crate::key::derive_kid_from_ml_kem_public_key;
 use crate::CoseError;
 
 use super::codec::{
-    body_unprotected, encode, protected_header, recipient_unprotected, AES_GCM_NONCE_LENGTH,
-    MAX_EXTERNAL_AAD_BYTES, MAX_KID_BYTES, MAX_PLAINTEXT_BYTES, MAX_SUPP_PRIV_INFO_BYTES,
+    body_unprotected, encode, protected_header, recipient_unprotected, SensitiveCoseEncrypt,
+    AES_GCM_NONCE_LENGTH, MAX_EXTERNAL_AAD_BYTES, MAX_KID_BYTES, MAX_PLAINTEXT_BYTES,
+    MAX_SUPP_PRIV_INFO_BYTES,
 };
 use super::kdf::{derive_key, enc_structure};
 use super::profile::{content_algorithm_profile, suite_for, MlKemSuite, ML_KEM_KID_LENGTH};
@@ -137,11 +138,26 @@ fn encrypt_ml_kem(
         return Err(CoseError::KidMismatch);
     }
 
-    let recipient_protected = protected_header(
-        RegisteredLabelWithPrivate::PrivateUse(suite.cose_algorithm),
-        Some(request.recipient_kid),
-    );
-    let recipient_protected_bytes = encode_protected_header(&recipient_protected)?;
+    // Own copied identifiers before KDF, entropy, or encryption can fail.
+    let mut sensitive = SensitiveCoseEncrypt {
+        inner: CoseEncrypt {
+            recipients: vec![CoseRecipient {
+                protected: protected_header(
+                    RegisteredLabelWithPrivate::PrivateUse(suite.cose_algorithm),
+                    Some(request.recipient_kid),
+                ),
+                unprotected: recipient_unprotected(encapsulated_key),
+                ..Default::default()
+            }],
+            ..Default::default()
+        },
+    };
+    let recipient = sensitive
+        .inner
+        .recipients
+        .first()
+        .ok_or(CoseError::InvalidRecipient)?;
+    let recipient_protected_bytes = encode_protected_header(&recipient.protected)?;
     let (content_cose_algorithm, _, content_key_length) =
         content_algorithm_profile(request.content_algorithm);
 
@@ -178,11 +194,11 @@ fn encrypt_ml_kem(
     };
 
     let nonce = generate_aead_nonce_12(&mut rng).map_err(|_| CoseError::Crypto)?;
-    let body_protected = protected_header(
+    sensitive.inner.protected = protected_header(
         RegisteredLabelWithPrivate::Assigned(content_cose_algorithm),
         None,
     );
-    let body_protected_bytes = encode_protected_header(&body_protected)?;
+    let body_protected_bytes = encode_protected_header(&sensitive.inner.protected)?;
     let aad = enc_structure(&body_protected_bytes, external_aad)?;
     let ciphertext = encrypt_content(
         request.content_algorithm,
@@ -192,19 +208,15 @@ fn encrypt_ml_kem(
         request.plaintext,
     )?;
 
-    let recipient = CoseRecipient {
-        protected: recipient_protected,
-        unprotected: recipient_unprotected(encapsulated_key),
-        ciphertext: recipient_ciphertext,
-        recipients: Vec::new(),
-    };
-    let cose = CoseEncrypt {
-        protected: body_protected,
-        unprotected: body_unprotected(nonce.as_bytes()),
-        ciphertext: Some(ciphertext),
-        recipients: vec![recipient],
-    };
-    encode(cose)
+    let recipient = sensitive
+        .inner
+        .recipients
+        .first_mut()
+        .ok_or(CoseError::InvalidRecipient)?;
+    recipient.ciphertext = recipient_ciphertext;
+    sensitive.inner.unprotected = body_unprotected(nonce.as_bytes());
+    sensitive.inner.ciphertext = Some(ciphertext);
+    encode(core::mem::take(&mut sensitive.inner))
 }
 
 fn validate_request(

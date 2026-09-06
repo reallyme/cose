@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 //! WASM runtime tests for the COSE_Sign1 boundary.
 
@@ -47,4 +47,36 @@ fn sign1_roundtrip_and_tamper_rejection_execute_in_wasm() {
         (kid == KEY_ID).then(|| ED25519_PUBLIC_KEY.to_vec())
     });
     assert_eq!(result.err(), Some(CoseError::InvalidSignature));
+}
+
+#[wasm_bindgen_test]
+fn cbor_integer_extensions_keep_all_64_bits_on_wasm32() {
+    // A canonical Ed25519 key with an integer-valued extension at label -3.
+    // This is a value, not an allocation length, despite exceeding usize::MAX.
+    for integer_head in [0x1b, 0x3b] {
+        let mut encoded = vec![0xa5, 0x01, 0x01, 0x03, 0x32, 0x20, 0x06, 0x21, 0x58, 0x20];
+        encoded.extend_from_slice(&ED25519_PUBLIC_KEY);
+        encoded.extend_from_slice(&[0x22, integer_head]);
+        encoded.extend_from_slice(&u64::MAX.to_be_bytes());
+        let key =
+            reallyme_cose::cose_key_from_slice(&encoded).expect("64-bit extension must parse");
+        assert_eq!(
+            reallyme_cose::cose_key_to_vec(&key)
+                .expect("key must encode")
+                .as_slice(),
+            encoded
+        );
+    }
+}
+
+#[wasm_bindgen_test]
+fn cbor_lengths_exceeding_usize_are_still_rejected_on_wasm32() {
+    let mut encoded = vec![0xa5, 0x01, 0x01, 0x03, 0x32, 0x20, 0x06, 0x21, 0x58, 0x20];
+    encoded.extend_from_slice(&ED25519_PUBLIC_KEY);
+    encoded.extend_from_slice(&[0x22, 0x5b]);
+    encoded.extend_from_slice(&u64::MAX.to_be_bytes());
+    assert_eq!(
+        reallyme_cose::cose_key_from_slice(&encoded).err(),
+        Some(CoseError::ResourceLimitExceeded),
+    );
 }

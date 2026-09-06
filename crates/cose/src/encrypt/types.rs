@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 use reallyme_crypto::core::Algorithm;
 use zeroize::Zeroizing;
@@ -198,8 +198,8 @@ pub struct DecryptedCoseEncrypt {
     pub kem_algorithm: CoseMlKemAlgorithm,
     /// Direct or AES-KW recipient mode.
     pub mode: CoseMlKemMode,
-    /// Protected recipient key identifier, zeroized on drop because application
-    /// key identifiers can contain privacy-sensitive routing metadata.
+    /// Authenticated SHA-256 thumbprint of the recipient's canonical public
+    /// COSE_Key, zeroized on drop because stable identifiers can affect privacy.
     pub kid: Zeroizing<Vec<u8>>,
     /// Identifier namespace decoded from the recipient algorithm.
     pub profile: CoseMlKemProfile,

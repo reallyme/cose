@@ -1,6 +1,4 @@
 # SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
-#
-# SPDX-License-Identifier: Apache-2.0
 
 name: Rust CI
 
@@ -46,7 +44,7 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master
         with:
-          toolchain: 1.96.0
+          toolchain: 1.98.1
           components: rustfmt, clippy
           targets: wasm32-unknown-unknown
 
@@ -146,12 +144,15 @@ jobs:
         run: cargo deny check
 
       - name: Security advisory audit
-        run: cargo audit
+        run: scripts/audit_committed_lockfiles.sh
 
       - name: Install Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '24'
+
+      - name: Test repository scripts
+        run: node --test scripts/*.test.mjs scripts/release-readiness/*.test.mjs
 
       - name: Install wasm-pack
         uses: taiki-e/install-action@41049aa56687c35e0afa74eed4f09cec4f9afabf # v2.85.2
@@ -170,7 +171,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: reallyme/release-readiness
-          ref: 44065b7488a8d3c77f66f530dff770fb39be9707
+          ref: 304bc55cdca3c53bf66218982d51188f341806ed
           path: .release-readiness
           persist-credentials: false
 

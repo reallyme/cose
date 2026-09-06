@@ -1,7 +1,7 @@
 #![allow(missing_docs, clippy::expect_used, clippy::panic, clippy::unwrap_used)]
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 use reallyme_cose::{
     cose_decrypt_ml_kem_with_external_aad, cose_key_from_public_bytes,
@@ -457,9 +457,11 @@ fn algorithm_from_name(name: &str) -> Algorithm {
 fn decode_hex(input: &str) -> Vec<u8> {
     assert_eq!(input.len() % 2, 0, "hex input must have an even length");
 
-    input
-        .as_bytes()
-        .chunks_exact(2)
+    let (pairs, remainder) = input.as_bytes().as_chunks::<2>();
+    assert!(remainder.is_empty(), "hex input must have an even length");
+
+    pairs
+        .iter()
         .map(|chunk| {
             let high = decode_hex_nibble(chunk[0]);
             let low = decode_hex_nibble(chunk[1]);

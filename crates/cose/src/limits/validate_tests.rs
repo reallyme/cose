@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 use super::validate::{validate_cbor_bytes, CborItemRole};
 use crate::CoseError;
@@ -137,5 +137,55 @@ fn append_major(output: &mut Vec<u8>, major: u8, value: u64) {
             output.push(major_bits | 27);
             output.extend_from_slice(&value.to_be_bytes());
         }
+    }
+}
+
+#[test]
+fn unsupported_simple_values_are_rejected_before_tree_decode() {
+    for value in 0..=255_u8 {
+        if matches!(value, 20..=22) {
+            continue;
+        }
+        // A sensitive byte string precedes the unsupported simple value.
+        let mut bytes = vec![0x82, 0x41, 0xaa];
+        if value < 24 {
+            bytes.push(0xe0 | value);
+        } else {
+            bytes.extend_from_slice(&[0xf8, value]);
+        }
+        assert_eq!(
+            validate_cbor_bytes(&bytes, bytes.len(), CborItemRole::Normal),
+            Err(CoseError::Cbor),
+        );
+    }
+}
+
+#[test]
+fn cose_key_extension_maps_require_recursive_deterministic_order() {
+    for bytes in [
+        vec![0xa1, 0x01, 0xa2, 0x02, 0xf6, 0x01, 0xf6],
+        vec![0xa1, 0x01, 0x81, 0xa2, 0x02, 0xf6, 0x01, 0xf6],
+    ] {
+        assert_eq!(
+            validate_cbor_bytes(&bytes, bytes.len(), CborItemRole::CoseKeyTop),
+            Err(CoseError::NonCanonicalCbor),
+        );
+        // COSE protected headers continue to authenticate received ordering.
+        assert_eq!(
+            validate_cbor_bytes(&bytes, bytes.len(), CborItemRole::Normal),
+            Ok(()),
+        );
+    }
+}
+
+#[test]
+fn integer_values_retain_their_full_wire_range_on_every_target() {
+    for major in [0_u8, 1] {
+        let mut bytes = vec![(major << 5) | 27];
+        bytes.extend_from_slice(&u64::MAX.to_be_bytes());
+        assert_eq!(
+            validate_cbor_bytes(&bytes, bytes.len(), CborItemRole::Normal),
+            Ok(())
+        );
     }
 }

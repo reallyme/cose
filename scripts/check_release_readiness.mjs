@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 import { isDeepStrictEqual } from "node:util";
 
@@ -25,6 +25,7 @@ const {
   assertReallyMeVendoredCorePolicy,
   assertTextPolicy,
   assertCargoMetadataPolicy,
+  assertSpdxHeaders,
 } = createReleaseReadinessContext({
   scriptUrl: import.meta.url,
   requireTrackedFiles: true,
@@ -42,12 +43,38 @@ assertCargoFuzzWorkflowPolicy({
   ],
 });
 assertReallyMeVendoredCorePolicy();
+// The upstream core is hash-pinned and retains its own Apache-2.0 license.
+// Generated sources are covered by their crate's bundled license text.
+assertSpdxHeaders({
+  extensions: [".rs", ".mjs", ".js", ".sh", ".py"],
+  names: [],
+  license: "SPDX-License-Identifier: MIT OR Apache-2.0",
+  excludedPrefixes: ["scripts/release-readiness/core.mjs", "crates/proto/src/generated"],
+});
+assertContains("Cargo.toml", 'license = "MIT OR Apache-2.0"');
+for (const manifest of ["fuzz/Cargo.toml", "tools/vector-audit/Cargo.toml", "tools/vector-goldens/Cargo.toml"]) {
+  assertContains(manifest, 'license = "MIT OR Apache-2.0"');
+}
+if (readText("crates/cose/README.md") !== readText("README.md")) {
+  fail("crates/cose/README.md must match the repository README.md");
+}
+for (const packageDirectory of ["crates/cose", "crates/proto"]) {
+  assertContains(`${packageDirectory}/Cargo.toml`, "license.workspace = true");
+  for (const file of ["LICENSE", "NOTICE"]) {
+    if (readText(`${packageDirectory}/${file}`) !== readText(file)) {
+      fail(`${packageDirectory}/${file} must match the repository ${file}`);
+    }
+  }
+}
 assertContains(".github/dependabot.yml", "groups:");
 assertContains(".github/dependabot.yml", "github-actions:");
 
 const expectedPackageName = "reallyme-cose";
 const expectedProtoPackageName = "reallyme-cose-proto";
-const expectedVersion = "0.2.2";
+const expectedVersion = "0.2.3";
+const expectedDevelopmentRustToolchain = "1.98.1";
+const expectedBufLinuxX86_64Sha256 =
+  "8720830e26a733da55bb89bcd3cb44849c0965fc0c44fb5d691cccdc64dca5af";
 const generatedFreshnessMode = process.argv.includes("--generated-freshness");
 const policyOnlyMode = process.argv.includes("--policy-only");
 const releasePackagesMode = process.argv.includes("--release-packages");
@@ -79,7 +106,6 @@ printf '%s\\n' "$install_dir" >> "$GITHUB_PATH"
 const expectedPlatformScope = {
   schema: "reallyme.cose.platform_scope.v1",
   spdxCopyrightText: "Copyright © 2026 ReallyMe LLC. All rights reserved",
-  spdxLicenseIdentifier: "Apache-2.0",
   release: expectedVersion,
   immediateScope: "rust_and_protobuf",
   publishableCrates: [expectedProtoPackageName, expectedPackageName],
@@ -94,10 +120,10 @@ const expectedPlatformScope = {
   protobufSwiftMetadataIsPackagingApproval: false,
   wasmRuntimeIsNpmPackagingApproval: false,
 };
-const platformScopePath = "docs/platform-scope-0.2.2.json";
+const platformScopePath = "docs/platform-scope-0.2.3.json";
 const platformScope = readJson(platformScopePath);
 if (!isDeepStrictEqual(platformScope, expectedPlatformScope)) {
-  fail(`${platformScopePath} must exactly match the approved 0.2.2 platform scope`);
+  fail(`${platformScopePath} must exactly match the approved 0.2.3 platform scope`);
 }
 
 const forbiddenPlatformPathPrefixes = [
@@ -128,7 +154,7 @@ for (const trackedFile of loadTrackedFiles()) {
     forbiddenPlatformPaths.has(trackedFile) ||
     forbiddenPlatformManifestNames.has(manifestName)
   ) {
-    fail(`${trackedFile} is outside the approved Rust/protobuf-only 0.2.2 scope`);
+    fail(`${trackedFile} is outside the approved Rust/protobuf-only 0.2.3 scope`);
   }
 }
 
@@ -170,10 +196,10 @@ assertNotMatches(
   /\bcrate-type\s*=\s*\[[^\]]*"(?:cdylib|staticlib)"/su,
   "a platform-native Rust library artifact",
 );
-assertContains("README.md", "## 0.2.2 Platform Scope");
+assertContains("README.md", "## 0.2.3 Platform Scope");
 assertContains(
   "README.md",
-  "The `0.2.2` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
+  "The `0.2.3` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
 );
 
 assertNodeWorkflowJobsPinNode({ nodeVersion: "24" });
@@ -197,12 +223,14 @@ assertContains("crates/cose/Cargo.toml", '"dep:serde"');
 assertContains("crates/cose/Cargo.toml", '"dep:serde_json"');
 assertContains(
   "Cargo.toml",
-  'reallyme-codec = { version = "0.2.1", default-features = false, features = ["base64url", "cbor", "multikey"] }',
+  'reallyme-codec = { version = "0.2.3", default-features = false, features = ["base64url", "cbor", "multikey"] }',
 );
 assertNotContains("Cargo.toml", 'path = "../codec');
 assertContains("crates/proto/Cargo.toml", '"buffa/json"');
 assertContains("crates/cose/src/lib.rs", 'reallyme-cose `wire` requires a runtime lane');
-assertContains("Cargo.toml", 'buffa = { version = "0.9.0", features = ["json"] }');
+assertContains("Cargo.toml", 'buffa = { version = "0.9.2", features = ["json"] }');
+assertContains("Cargo.toml", 'rust-version = "1.96"');
+assertContains("rust-toolchain.toml", `channel = "${expectedDevelopmentRustToolchain}"`);
 assertContains(
   "Cargo.toml",
   `reallyme-cose-proto = { version = "${expectedVersion}", path = "crates/proto", default-features = false }`,
@@ -240,7 +268,6 @@ assertContains("crates/cose/Cargo.toml", '"zeroize::Zeroizing"');
 assertNotContains("Cargo.toml", "getrandom02");
 assertNotContains("crates/cose/Cargo.toml", "getrandom02");
 assertContains("README.md", "cargo check-wasm");
-assertContains("scripts/check-wasm-lane.mjs", "rustup target add wasm32-unknown-unknown");
 assertContains(
   "scripts/release-readiness/operation-contract-routes.mjs",
   "export const OPERATION_CONTRACT_ROUTES",
@@ -616,7 +643,8 @@ assertContains("scripts/harden-generated-cose-proto.mjs", '"--check-idempotent"'
 assertContains("scripts/harden-generated-cose-proto.mjs", '["CoseOperationRequest", []]');
 assertReallyMeProtobufReleasePolicy({
   generatedFreshnessMode,
-  buffaVersion: "0.9.0",
+  bufVersion: "1.72.0",
+  buffaVersion: "0.9.2",
   workflowMode: "delegated",
   generatedFreshnessStepRun:
     "node .release-readiness/scripts/run-consumer-check.mjs --generated-freshness",
@@ -995,6 +1023,7 @@ assertContains(".github/workflows/rust-ci.yml", "wasm-pack test --node crates/co
 assertContains(".github/workflows/rust-ci.yml", "CARGO_CHECK_EXTERNAL_TYPES_VERSION: 0.5.0");
 assertContains(".github/workflows/rust-ci.yml", "EXTERNAL_TYPES_NIGHTLY: nightly-2026-03-20");
 assertContains(".github/workflows/rust-ci.yml", "check-external-types --manifest-path crates/cose/Cargo.toml --all-features");
+assertContains(".github/workflows/rust-ci.yml", "scripts/audit_committed_lockfiles.sh");
 assertContains(".github/workflows/fuzz.yml", "paths-ignore:");
 assertContains(".github/workflows/crates-release.yml", "CARGO_REGISTRY_TOKEN");
 assertContains(".github/workflows/crates-release.yml", "name: Crates.io Release");
@@ -1018,6 +1047,10 @@ assertContains(".github/workflows/crates-release.yml", "verify-preflight:");
 assertContains(".github/workflows/crates-release.yml", "actions: read");
 assertContains(".github/workflows/crates-release.yml", "runs-on: ubuntu-24.04");
 assertNotContains(".github/workflows/crates-release.yml", "runs-on: ubuntu-latest");
+assertContains(
+  ".github/workflows/crates-release.yml",
+  `toolchain: ${expectedDevelopmentRustToolchain}`,
+);
 assertContains(
   ".github/workflows/crates-release.yml",
   "node scripts/verify_release_attestation.mjs",
@@ -1061,7 +1094,7 @@ assertNotContains(".github/workflows/crates-release.yml", "buf generate");
 assertNotContains(".github/workflows/crates-release.yml", "cargo nextest run");
 assertContains(
   ".github/workflows/crates-package-preflight.yml",
-  "node scripts/run_pinned_release_readiness.mjs --release-packages",
+  "node .release-readiness/scripts/run-consumer-check.mjs --release-packages",
 );
 assertContains(
   ".github/workflows/protobuf-ci.yml",
@@ -1078,7 +1111,7 @@ for (const releaseReadinessWorkflow of [
   assertContains(releaseReadinessWorkflow, "repository: reallyme/release-readiness");
   assertContains(
     releaseReadinessWorkflow,
-    "ref: 44065b7488a8d3c77f66f530dff770fb39be9707",
+    "ref: 304bc55cdca3c53bf66218982d51188f341806ed",
   );
   assertContains(releaseReadinessWorkflow, "persist-credentials: false");
 }
@@ -1095,6 +1128,10 @@ assertNotContains(
 assertContains(".github/workflows/crates-release.yml", 'gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs"');
 assertNotContains(".github/workflows/crates-release.yml", "git push");
 assertContains(".github/workflows/crates-release.yml", "gh release create");
+assertContains(".github/workflows/crates-release.yml", "- update to buffa 0.9.2");
+assertContains(".github/workflows/crates-release.yml", "- update to reallyme/crypto 0.3.7");
+assertContains(".github/workflows/crates-release.yml", "- update to reallyme/codec 0.2.3");
+assertNotContains(".github/workflows/crates-release.yml", "--generate-notes");
 assertContains(".github/workflows/crates-release.yml", "RELEASE_TAG: ${{ steps.release-tag.outputs.tag }}");
 assertNotContains(
   ".github/workflows/crates-release.yml",
@@ -1125,6 +1162,10 @@ assertContains("scripts/publish_crates_in_order.mjs", "const publishedChecksum =
 assertContains(".github/workflows/protobuf-ci.yml", "name: lint, generated freshness");
 assertContains(".github/workflows/protobuf-ci.yml", "runs-on: ubuntu-24.04");
 assertNotContains(".github/workflows/protobuf-ci.yml", "runs-on: ubuntu-latest");
+assertContains(
+  ".github/workflows/protobuf-ci.yml",
+  `toolchain: ${expectedDevelopmentRustToolchain}`,
+);
 assertNotContains(".github/workflows/protobuf-ci.yml", "git fetch origin main:refs/remotes/origin/main");
 assertNotContains(".github/workflows/protobuf-ci.yml", "buf breaking --against");
 assertContains(".github/workflows/protobuf-ci.yml", "scripts/check_release_readiness.mjs");
@@ -1148,10 +1189,19 @@ assertContains(
   cratesPackagePreflightWorkflow,
   "run-name: Crates package preflight ${{ inputs.version }} @ ${{ github.sha }}",
 );
-assertContains(cratesPackagePreflightWorkflow, "BUF_VERSION: 1.71.0");
-assertContains(cratesPackagePreflightWorkflow, "BUFFA_VERSION: 0.9.0");
+assertContains(
+  ".github/workflows/rust-ci.yml",
+  `toolchain: ${expectedDevelopmentRustToolchain}`,
+);
+assertContains(
+  cratesPackagePreflightWorkflow,
+  `toolchain: ${expectedDevelopmentRustToolchain}`,
+);
+assertContains(cratesPackagePreflightWorkflow, "BUF_VERSION: 1.72.0");
+assertContains(cratesPackagePreflightWorkflow, "BUFFA_VERSION: 0.9.2");
 assertContains(cratesPackagePreflightWorkflow, "CARGO_DENY_VERSION: 0.20.2");
 assertContains(cratesPackagePreflightWorkflow, "CARGO_AUDIT_VERSION: 0.22.2");
+assertContains(cratesPackagePreflightWorkflow, "scripts/audit_committed_lockfiles.sh");
 assertContains(cratesPackagePreflightWorkflow, "CARGO_NEXTEST_VERSION: 0.9.140");
 assertContains(cratesPackagePreflightWorkflow, "CARGO_CHECK_EXTERNAL_TYPES_VERSION: 0.5.0");
 assertContains(cratesPackagePreflightWorkflow, "CARGO_FUZZ_VERSION: 0.13.2");
@@ -1159,6 +1209,7 @@ assertContains(cratesPackagePreflightWorkflow, "EXTERNAL_TYPES_NIGHTLY: nightly-
 assertContains(cratesPackagePreflightWorkflow, "FUZZ_NIGHTLY: nightly-2026-07-01");
 assertContains(cratesPackagePreflightWorkflow, "WASM_PACK_VERSION: 0.15.0");
 assertContains(cratesPackagePreflightWorkflow, "WASM_BINDGEN_CLI_VERSION: 0.2.126");
+assertContains("deny.toml", 'yanked = "deny"');
 assertContains(cratesPackagePreflightWorkflow, "version:");
 assertContains(cratesPackagePreflightWorkflow, `default: ${expectedVersion}`);
 assertContains(
@@ -1185,16 +1236,26 @@ assertContains(
   "reallyme-cose-crates-preflight-${{ inputs.version }}-${{ github.sha }}",
 );
 assertContains(cratesPackagePreflightWorkflow, "node-version: '24'");
-assertContains(cratesPackagePreflightWorkflow, "BUF_LINUX_X86_64_SHA256:");
+assertContains(
+  cratesPackagePreflightWorkflow,
+  `BUF_LINUX_X86_64_SHA256: ${expectedBufLinuxX86_64Sha256}`,
+);
 assertContains(cratesPackagePreflightWorkflow, "sha256sum --check --strict");
-assertContains(".github/workflows/protobuf-ci.yml", "BUF_LINUX_X86_64_SHA256:");
+assertContains(
+  ".github/workflows/protobuf-ci.yml",
+  `BUF_LINUX_X86_64_SHA256: ${expectedBufLinuxX86_64Sha256}`,
+);
 assertContains(".github/workflows/protobuf-ci.yml", "sha256sum --check --strict");
 assertContains(cratesPackagePreflightWorkflow, "uses: taiki-e/install-action@");
 assertContains(cratesPackagePreflightWorkflow, 'protoc-gen-buffa --version "$BUFFA_VERSION"');
 assertContains(cratesPackagePreflightWorkflow, 'protoc-gen-buffa-packaging --version "$BUFFA_VERSION"');
 assertContains(cratesPackagePreflightWorkflow, 'cargo install cargo-fuzz --version "$CARGO_FUZZ_VERSION" --locked');
-assertContains("scripts/run_pinned_release_readiness.mjs", "44065b7488a8d3c77f66f530dff770fb39be9707");
-assertContains("scripts/run_pinned_release_readiness.mjs", "fcc0b725a85784617568c29f1aa3382a206faaddc3a22012e46f0e35303e4e6d");
+assertContains(
+  cratesPackagePreflightWorkflow,
+  "node .release-readiness/scripts/run-consumer-check.mjs --release-packages",
+);
+assertContains("scripts/run_pinned_release_readiness.mjs", "304bc55cdca3c53bf66218982d51188f341806ed");
+assertContains("scripts/run_pinned_release_readiness.mjs", "0a33532aa595871c1beefb1ad1d3930f1a51675b236a73e8bf93ad5d7ccdbae4");
 assertContains("scripts/verify_release_source.mjs", "main:refs/remotes/origin/main");
 assertContains("scripts/verify_release_source.mjs", "manifest-version-mismatch");
 assertContains("scripts/verify_release_attestation.mjs", 'value.conclusion !== "success"');
@@ -1227,13 +1288,13 @@ assertCargoMetadataPolicy({
       dependencies: [
         {
           name: "reallyme-codec",
-          requirement: "^0.2.1",
+          requirement: "^0.2.3",
           source: "registry",
           defaultFeatures: false,
         },
         {
           name: "reallyme-crypto",
-          requirement: "^0.3.5",
+          requirement: "^0.3.7",
           source: "registry",
           defaultFeatures: false,
         },
@@ -1260,6 +1321,8 @@ assertCargoMetadataPolicy({
 });
 
 const validationCommands = [
+  ["node", ["--test", "scripts/publish_crates_in_order.test.mjs"]],
+  ["node", ["--test", "scripts/harden-generated-cose-proto.test.mjs"]],
   ["node", ["--test", "scripts/release-readiness/operation-contract-routing.test.mjs"]],
   ["node", ["--test", "scripts/verify_release_attestation.test.mjs"]],
   ["node", ["--test", "scripts/verify_release_source.test.mjs"]],

@@ -1,7 +1,6 @@
 {
   "schema": "reallyme.cose.platform_scope.v1",
   "spdxCopyrightText": "Copyright © 2026 ReallyMe LLC. All rights reserved",
-  "spdxLicenseIdentifier": "Apache-2.0",
   "release": "0.2.1",
   "immediateScope": "rust_and_protobuf",
   "publishableCrates": [

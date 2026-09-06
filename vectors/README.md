@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 # COSE Conformance Vectors
 
 These suites pin ReallyMe's supported COSE encodings and exercise parsing,
@@ -24,11 +18,17 @@ CCTV and Wycheproof adversarial corpora. Keeping those large primitive suites at
 the primitive boundary avoids duplicating them here while COSE tests verify that
 their typed rejection behavior survives the protocol wrapper.
 
-The classical COSE examples in RFC 9052 and RFC 9053 use generic algorithm
-identifiers that this profile deliberately rejects. They therefore cannot serve
-as positive interoperability fixtures for the fully specified algorithm IDs
-accepted by this crate. The `cose-sign1-ed25519-node-openssl` case instead uses
+The suite distinguishes exact algorithm registrations. ES256 (`-7`) is supported
+for P-256, while generic EdDSA (`-8`) is rejected in favor of the fully specified
+Ed25519 identifier (`-19`). The `cose-sign1-ed25519-node-openssl` case uses
 RFC 8032 test-vector key material and a signature produced by Node's
-OpenSSL-backed Ed25519 implementation over a COSE Sig_structure containing the
-profile's fully specified Ed25519 identifier. The golden generator deliberately
-preserves those bytes rather than recreating the signature with production code.
+OpenSSL-backed Ed25519 implementation over a COSE Sig_structure containing
+`-19`. The golden generator preserves those bytes instead of recreating the
+signature with production code. The independent auditor uses strict Ed25519
+verification, matching the runtime's rejection of weak-point signatures.
+
+From the repository root, audit the committed suites with:
+
+```sh
+cargo run --locked --manifest-path tools/vector-audit/Cargo.toml --bin reallyme-cose-vector-audit -- .
+```

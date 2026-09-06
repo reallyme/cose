@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 #![allow(clippy::expect_used, clippy::panic)]
 
@@ -496,4 +496,93 @@ fn assert_plaintext(cose_encrypt: &[u8], private_key: &[u8], kid: &[u8]) {
     let request = NativeDecryptRequest::new(cose_encrypt, private_key, kid, None);
     let decrypted = cose_decrypt_ml_kem(&request).expect("v2 ciphertext must decrypt natively");
     assert_eq!(decrypted.plaintext.as_slice(), PAYLOAD);
+}
+
+#[test]
+fn response_decoder_rejects_unspecified_legacy_signature_algorithm() {
+    let request = operation(RequestBranch::Sign1Verify(Box::default()));
+    let response = response_with_result(ResultBranch::Sign1Verify(Box::default()));
+    assert_backend_error(
+        decode_operation_response_for_request(&request, &response.encode_to_vec()),
+        CoseErrorReason::BackendInternal,
+    );
+}
+
+#[test]
+fn response_decoder_validates_key_algorithm_presence_and_registration() {
+    let request = operation(RequestBranch::KeyParse(Box::default()));
+    for (algorithm, present, valid) in [
+        (0, false, true),
+        (100, true, true),
+        (201, true, true),
+        (202, true, true),
+        (0, true, false),
+        (100, false, false),
+        (200, true, false),
+        (42_424_242, true, false),
+        (42_424_242, false, false),
+    ] {
+        let response = response_with_result(ResultBranch::KeyParse(Box::new(
+            reallyme_cose::wire::CoseKeyBytesResult {
+                signature_algorithm: EnumValue::from(algorithm),
+                has_signature_algorithm: present,
+                key_bytes: Vec::new(),
+                __buffa_unknown_fields: Default::default(),
+            },
+        )));
+        let decoded = decode_operation_response_for_request(&request, &response.encode_to_vec());
+        if valid {
+            assert!(decoded.is_ok());
+        } else {
+            assert_backend_error(decoded, CoseErrorReason::BackendInternal);
+        }
+    }
+}
+
+#[test]
+fn legacy_verification_metadata_remains_accepted_for_every_supported_algorithm() {
+    for algorithm in [
+        CoseSignatureAlgorithm::Ed25519,
+        CoseSignatureAlgorithm::EcdsaP256Sha256,
+        CoseSignatureAlgorithm::Es256,
+        CoseSignatureAlgorithm::Esp256,
+        CoseSignatureAlgorithm::EcdsaP384Sha384,
+        CoseSignatureAlgorithm::Esp384,
+        CoseSignatureAlgorithm::EcdsaP521Sha512,
+        CoseSignatureAlgorithm::Esp512,
+        CoseSignatureAlgorithm::EcdsaSecp256k1Sha256,
+        CoseSignatureAlgorithm::MlDsa44,
+        CoseSignatureAlgorithm::MlDsa65,
+        CoseSignatureAlgorithm::MlDsa87,
+    ] {
+        for detached in [false, true] {
+            let metadata = Box::new(reallyme_cose::wire::CoseSign1VerifyResult {
+                algorithm: EnumValue::from(algorithm),
+                payload: Vec::new(),
+                kid: Vec::new(),
+                exact_signature_algorithm: EnumValue::from(0),
+                has_exact_signature_algorithm: false,
+                __buffa_unknown_fields: Default::default(),
+            });
+            let (request, result) = if detached {
+                (
+                    RequestBranch::Sign1VerifyDetached(Box::default()),
+                    ResultBranch::Sign1VerifyDetached(metadata),
+                )
+            } else {
+                (
+                    RequestBranch::Sign1Verify(Box::default()),
+                    ResultBranch::Sign1Verify(metadata),
+                )
+            };
+            assert!(
+                decode_operation_response_for_request(
+                    &operation(request),
+                    &response_with_result(result).encode_to_vec(),
+                )
+                .is_ok(),
+                "{algorithm:?}"
+            );
+        }
+    }
 }

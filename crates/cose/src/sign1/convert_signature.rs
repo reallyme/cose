@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 //! Signature validation and encoding conversion at the COSE boundary.
 //!
@@ -14,6 +14,7 @@
 //! truncated signature, a valid prefix, or trailing bytes.
 
 use reallyme_crypto::core::Algorithm;
+use zeroize::Zeroizing;
 
 use crate::key::ec::{P256_COORDINATE_BYTES, P384_COORDINATE_BYTES, P521_COORDINATE_BYTES};
 use crate::CoseError;
@@ -25,6 +26,7 @@ const DER_SHORT_FORM_LENGTH_MAX: usize = 0x7f;
 const DER_LONG_FORM_LENGTH_MAX: usize = 0xff;
 const SIGN_BIT_MASK: u8 = 0x80;
 const ED25519_SIGNATURE_BYTES: usize = 64;
+const SECP256K1_SIGNATURE_BYTES: usize = 64;
 const ML_DSA_44_SIGNATURE_BYTES: usize = 2_420;
 const ML_DSA_65_SIGNATURE_BYTES: usize = 3_309;
 const ML_DSA_87_SIGNATURE_BYTES: usize = 4_627;
@@ -46,6 +48,7 @@ fn der_backed_coordinate_len(alg: Algorithm) -> Option<usize> {
 fn direct_signature_len(alg: Algorithm) -> Option<usize> {
     match alg {
         Algorithm::Ed25519 => Some(ED25519_SIGNATURE_BYTES),
+        Algorithm::Secp256k1 => Some(SECP256K1_SIGNATURE_BYTES),
         Algorithm::MlDsa44 => Some(ML_DSA_44_SIGNATURE_BYTES),
         Algorithm::MlDsa65 => Some(ML_DSA_65_SIGNATURE_BYTES),
         Algorithm::MlDsa87 => Some(ML_DSA_87_SIGNATURE_BYTES),
@@ -65,12 +68,13 @@ pub(crate) fn cose_signature_from_backend(
     alg: Algorithm,
     signature: Vec<u8>,
 ) -> Result<Vec<u8>, CoseError> {
+    let mut signature = Zeroizing::new(signature);
     match der_backed_coordinate_len(alg) {
         Some(coordinate_len) => der_to_fixed_width(&signature, coordinate_len)
             .map_err(|_| CoseError::InvalidSignatureEncoding),
         None => {
             validate_direct_signature_len(alg, &signature)?;
-            Ok(signature)
+            Ok(core::mem::take(&mut *signature))
         }
     }
 }

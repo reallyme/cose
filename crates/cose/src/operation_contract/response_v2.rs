@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 //! Generated operation-response construction and validation.
 
@@ -101,17 +101,28 @@ fn validate_result(result: &CoseOperationResult) -> CoseWireResult<()> {
         Some(
             CoseOperationResultBranch::Sign1Create(_)
             | CoseOperationResultBranch::Sign1CreateDetached(_)
-            | CoseOperationResultBranch::KeyFromPublicBytes(_)
-            | CoseOperationResultBranch::KeyFromPrivateBytes(_)
-            | CoseOperationResultBranch::KeyParse(_)
-            | CoseOperationResultBranch::KeyToPublicBytes(_)
-            | CoseOperationResultBranch::KeyToPrivateBytes(_)
-            | CoseOperationResultBranch::KeyDerivePublicKid(_)
             | CoseOperationResultBranch::KeyToMultikey(_)
-            | CoseOperationResultBranch::MultikeyToCoseKey(_)
             | CoseOperationResultBranch::MlKemEncryptDirect(_)
             | CoseOperationResultBranch::MlKemEncryptKeyWrap(_),
         ) => true,
+        Some(
+            CoseOperationResultBranch::KeyFromPublicBytes(message)
+            | CoseOperationResultBranch::KeyFromPrivateBytes(message)
+            | CoseOperationResultBranch::KeyParse(message)
+            | CoseOperationResultBranch::KeyToPublicBytes(message)
+            | CoseOperationResultBranch::KeyToPrivateBytes(message)
+            | CoseOperationResultBranch::KeyDerivePublicKid(message)
+            | CoseOperationResultBranch::MultikeyToCoseKey(message),
+        ) => {
+            if message.has_signature_algorithm {
+                message
+                    .signature_algorithm
+                    .as_known()
+                    .is_some_and(exact_signature_algorithm_is_valid)
+            } else {
+                message.signature_algorithm.to_i32() == 0
+            }
+        }
         Some(
             CoseOperationResultBranch::Sign1Verify(message)
             | CoseOperationResultBranch::Sign1VerifyDetached(message),
@@ -201,6 +212,9 @@ fn signature_algorithm_is_valid(value: EnumValue<CoseSignatureAlgorithm>) -> boo
 }
 
 fn sign1_metadata_is_valid(result: &crate::wire::CoseSign1VerifyResult) -> bool {
+    if !signature_algorithm_is_valid(result.algorithm) {
+        return false;
+    }
     let Some(compatibility) = result.algorithm.as_known() else {
         return false;
     };

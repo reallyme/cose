@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 use zeroize::Zeroizing;
 
@@ -28,7 +28,10 @@ pub(crate) fn build_sig_structure(
         .and_then(|size| checked_bstr_size(size, external_aad.len()))
         .and_then(|size| checked_bstr_size(size, payload.len()))
         .ok_or(CoseError::ResourceLimitExceeded)?;
-    let mut encoded = Zeroizing::new(Vec::with_capacity(capacity));
+    let mut encoded = Zeroizing::new(Vec::new());
+    encoded
+        .try_reserve_exact(capacity)
+        .map_err(|_| CoseError::ResourceLimitExceeded)?;
     encoded.push(ARRAY_OF_FOUR);
     encoded.push(SIGNATURE1_TEXT_HEADER);
     encoded.extend_from_slice(SIGNATURE1_TEXT);

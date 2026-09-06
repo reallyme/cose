@@ -1,15 +1,9 @@
-<!--
-SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 # reallyme-cose
 
 [![Rust CI](https://github.com/reallyme/cose/actions/workflows/rust-ci.yml/badge.svg)](https://github.com/reallyme/cose/actions/workflows/rust-ci.yml)
 [![reallyme-cose](https://img.shields.io/crates/v/reallyme-cose?label=reallyme-cose&color=2563eb)](https://crates.io/crates/reallyme-cose)
 [![Security Policy](https://img.shields.io/badge/security-policy-0f766e)](https://github.com/reallyme/cose/blob/main/SECURITY.md)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](LICENSE)
 
 `reallyme-cose` is a focused COSE layer for identity systems that need
 COSE_Sign1, COSE_Key, deterministic `kid` derivation, and Multikey interop
@@ -25,15 +19,17 @@ protocol implementations.
 cargo add reallyme-cose
 ```
 
-Default features enable COSE signing and verification through `reallyme-crypto`.
-With `default-features = false`, the crate still builds the COSE_Key, Multikey,
-policy, algorithm-mapping, and CBOR limit helpers, but does not export
-crypto-backed signing or verification APIs.
+The default `native` feature enables signing, verification, key validation,
+and ML-KEM encryption through `reallyme-crypto`. For `wasm32-unknown-unknown`,
+use `default-features = false, features = ["wasm"]`.
+Without a runtime lane, the key, Multikey, policy, algorithm-mapping, and CBOR
+helper APIs still compile, but operations requiring cryptographic key validation
+return `UnsupportedAlgorithm`; signing and encryption APIs are not exported.
 
 Enable the `wire` feature only for protobuf operation adapters:
 
 ```toml
-reallyme-cose = { version = "0.2.2", features = ["wire"] }
+reallyme-cose = { version = "0.2.3", features = ["wire"] }
 ```
 
 When default features are disabled, pair `wire` with an explicit runtime lane,
@@ -52,7 +48,7 @@ crates/
 ├── cose/       public COSE facade, semantic operations, tests, and benchmarks
 └── proto/      protobuf schema and generated Buffa boundary types
 docs/           versioned scope and performance records
-fuzz/           cargo-fuzz targets and corpora
+fuzz/           cargo-fuzz targets and usage instructions
 scripts/        generation, policy, and release-readiness automation
 tools/          independent vector audit and golden-vector generation
 vectors/        portable classical and post-quantum conformance vectors
@@ -85,19 +81,28 @@ relying-party validation remain the responsibility of a WebAuthn implementation;
 this crate supplies the strict COSE key and algorithm boundary it can consume.
 The protobuf contract exposes `ES256` and `ESP256` as separate stable enum
 values. COSE_Key result messages report the exact validated signature
-registration, and Sign1 verification results add `exact_signature_algorithm`
-while retaining the existing `algorithm` field and its numeric behavior for
-older clients. Generated SDKs therefore do not need to reparse CBOR or infer
+registration when the key's `alg` parameter is present. A supported signature
+key with omitted `alg` reports no exact registration. Sign1 verification results
+include `exact_signature_algorithm` while retaining the existing `algorithm`
+field and its numeric behavior for older clients. Generated SDKs therefore do not need to reparse CBOR or infer
 an algorithm from the curve.
 
-COSE_Key bytes used for deterministic `kid` derivation follow RFC 8949 core
-deterministic map ordering. Verification intentionally also accepts other map
+COSE_Key parsing and encoding require RFC 8949 core deterministic map ordering,
+including nested extension maps. Public keys are normalized before deterministic
+`kid` derivation. Verification intentionally also accepts other map
 orderings permitted by RFC 9052: the received protected-header byte string is
 authenticated exactly as received and is never decoded and re-encoded before
 signature or AEAD verification. Duplicate labels and other profile violations
 still fail closed.
 
 ## Quick Start
+
+This example generates its key pair with `reallyme-crypto`, so add that direct
+dependency alongside `reallyme-cose`:
+
+```toml
+reallyme-crypto = { version = "0.3.7", default-features = false, features = ["native", "dispatch", "ed25519"] }
+```
 
 ```rust
 use reallyme_cose::{cose_sign1, cose_verify1_with_policy, Algorithm, CoseError, CosePolicy};
@@ -129,7 +134,8 @@ The same example is compile-checked as the crate-level doc example.
 
 COSE_Sign1 encoders emit untagged messages by default. Use the tagged helpers
 or `CoseSign1EncodeOptions` when an integration expects the registered
-COSE_Sign1 root tag (18):
+COSE_Sign1 root tag (18). These snippets use the `private_key`, `public_key`,
+and `kid` from the quick-start example:
 
 ```rust
 use reallyme_cose::{cose_sign1_with_options, Algorithm, CoseSign1EncodeOptions};
@@ -138,7 +144,7 @@ let cose = cose_sign1_with_options(
     Algorithm::Ed25519,
     b"payload",
     &private_key,
-    Some(b"example-key"),
+    Some(kid),
     CoseSign1EncodeOptions::tagged().with_max_cose_sign1_bytes(512 * 1024),
 )?;
 ```
@@ -153,14 +159,19 @@ use reallyme_cose::{cose_verify1_with_policy, Algorithm, CosePolicy};
 
 let policy = CosePolicy::new()
     .with_require_kid(true)
-    .allow_algorithm(Algorithm::P256)
+    .allow_algorithm(Algorithm::Ed25519)
     .with_max_cose_sign1_bytes(512 * 1024);
 
-let verified = cose_verify1_with_policy(&cose, &policy, |algorithm, kid| {
-    resolve_public_key(algorithm, kid)
+let verified = cose_verify1_with_policy(&cose, &policy, |algorithm, requested_kid| {
+    (algorithm == Algorithm::Ed25519 && requested_kid == kid).then(|| public_key.clone())
 })?;
-assert_eq!(verified.alg, Algorithm::P256);
+assert_eq!(verified.alg, Algorithm::Ed25519);
 ```
+
+For P-256 integrations, use `allow_cose_algorithm(CoseSignatureAlgorithm::Es256)`
+or `allow_cose_algorithm(CoseSignatureAlgorithm::Esp256)` to restrict the exact
+registration. `allow_algorithm(Algorithm::P256)` permits both registrations;
+when both allow-lists are populated, an input must satisfy both.
 
 ### Non-exportable signing keys
 
@@ -173,15 +184,15 @@ COSE layer validates and normalizes the returned signature before encoding it.
 
 The provider declares its primitive through `CoseSigner::algorithm` and can
 override `CoseSigner::cose_algorithm` when the exact registration differs from
-the legacy fully specified default. ECDSA
-providers return their native DER signature; providers for Ed25519 and ML-DSA
-return fixed-width signature bytes. Providers must return signatures in a
-`Zeroizing<Vec<u8>>` owner and must not include key handles, platform exception
+the legacy fully specified default. P-256, P-384, and P-521 providers return
+DER signatures. Secp256k1 providers return 64-byte `r || s`; Ed25519 and ML-DSA
+providers return their fixed-width signature bytes. Providers must return
+signatures in a `Zeroizing<Vec<u8>>` owner and must not include key handles, platform exception
 text, or user data in errors.
 
 ### Sensitive result ownership
 
-Native APIs retain wipe-on-drop ownership at the public boundary:
+Sensitive native results retain wipe-on-drop ownership:
 `derive_kid_from_cose_key_public` returns `Zeroizing<Vec<u8>>`, and
 `cose_key_to_multikey` returns `Zeroizing<String>`. Keep those owners intact
 instead of converting them into ordinary `Vec` or `String` values. `CoseKey`
@@ -204,9 +215,10 @@ are deliberately not public struct-literal surface. Use
   `cose_sign1_detached_tagged`, or `CoseSign1EncodeOptions`.
 - Ed25519, ES256 (`-7`), ESP256 (`-9`), ESP384 (`-51`), ESP512 (`-52`),
   ES256K (`-47`), ML-DSA-44, ML-DSA-65, and ML-DSA-87 signing using their
-  current IANA COSE registrations.
-- ECDSA signatures use the fixed-width `r || s` encoding required by
-  RFC 9053; DER-encoded ECDSA signatures are rejected.
+  COSE registrations.
+- ECDSA signatures on the COSE wire use fixed-width `r || s` encoding;
+  DER is accepted only at the NIST-curve signing-provider boundary, not as
+  a COSE signature.
 - Verification accepts untagged COSE_Sign1 input and input carrying the
   registered COSE_Sign1 tag (18).
 - `cose_verify1_with_policy` and `cose_verify1_detached_with_policy` enforce
@@ -227,8 +239,8 @@ are deliberately not public struct-literal surface. Use
 - AES-128-GCM, AES-192-GCM, and AES-256-GCM protected content algorithms for
   every supported ML-KEM recipient profile.
 - Guarded COSE_Key, COSE_Sign1, and COSE_Encrypt parsers retain the decoded
-  CBOR tree under a recursive wipe owner until every semantic field has moved
-  into its profile-specific wipe-on-drop owner. Rejected parses therefore wipe
+  CBOR tree under a recursive wipe owner while semantic fields are copied
+  into their profile-specific wipe-on-drop owners. Rejected parses therefore wipe
   partially constructed payload, ciphertext, identifier, header, and key
   buffers. The public `CoseKey` owner also wipes private parameters,
   identifiers, base-IV material, and rejected text/byte extension owners.
@@ -236,9 +248,8 @@ are deliberately not public struct-literal surface. Use
 - COSE_Key public conversion for X25519 key-agreement keys.
 - COSE_Key to Multikey and Multikey to COSE_Key conversion, including the
   ReallyMe ML-KEM-512/768/1024 AKP profiles. ML-KEM uses the registered draft
-  Multicodec names `mlkem-512-pub`, `mlkem-768-pub`, and `mlkem-1024-pub` while
-  retaining ReallyMe private-use COSE algorithm identifiers until IANA assigns
-  final values.
+  Multicodec names `mlkem-512-pub`, `mlkem-768-pub`, and `mlkem-1024-pub` with
+  the stable ReallyMe private-use COSE algorithm identifiers documented below.
 - `kid = SHA-256(canonical algorithm-bound public-only COSE_Key)` derivation.
 - Portable classical and PQ vectors in `vectors/cose-sign1*.json`
   and `vectors/cose-key*.json`. The PQ suites cover ML-DSA-44/65/87
@@ -259,8 +270,9 @@ The checked-in schema lives at
 types live in the low-level `reallyme-cose-proto` workspace crate, under
 `crates/proto`; that crate is published only so the optional `wire` feature
 can remain publishable while generated code and its lint posture stay out of the
-handwritten native crate. After editing the schema, run `buf generate` and keep the
-generated files checked in. COSE does not currently publish Swift, Kotlin, or
+handwritten native crate. After editing the schema, regenerate, harden, and
+format the generated files using the commands in Development Checks, then keep
+them checked in. COSE does not currently publish Swift, Kotlin, or
 TypeScript packages from this repository. The schema's Swift metadata allows
 generated Swift protobuf consumers to use the same wire contract independently.
 
@@ -293,11 +305,14 @@ convenience and is not a constant-time secret comparison primitive.
 
 ProtoJSON is provided only by the generated Buffa protobuf types. The native
 Rust SDK does not define a second ad hoc JSON representation for COSE requests
-or results. `buf.gen.yaml` enables both borrowed Buffa views and strict
-generated ProtoJSON. The post-generation hardening pass redacts sensitive byte
-fields in both owned-message and borrowed-view `Debug` implementations; owned
-messages additionally zeroize sensitive buffers on `clear` and drop. Borrowed
-views cannot erase caller-owned input and therefore do not claim zeroization.
+or results. `buf.gen.yaml` enables borrowed Buffa views and generated ProtoJSON;
+the post-generation hardening pass enforces strict unknown-field rejection and
+redacts sensitive byte fields in both owned-message and borrowed-view `Debug`
+implementations; owned
+messages additionally zeroize sensitive buffers on `clear`, drop, and binary
+field replacement. Replacement wiping releases excess retained capacity so
+repeated small fields cannot trigger unbounded repeated wiping of a large buffer.
+Borrowed views cannot erase caller-owned input and therefore do not claim zeroization.
 The executable binary protobuf decoder rejects unknown fields, matching strict
 ProtoJSON semantics and preventing opaque length-delimited values from being
 retained in generated unknown-field storage. Direct users of sensitive
@@ -306,10 +321,9 @@ drop.
 
 ## ReallyMe ML-KEM COSE Profile
 
-The current IANA COSE algorithm registry does not yet assign ML-KEM recipient
-algorithm identifiers. To provide interoperable COSE objects now without
-occupying or guessing future standards-track values, ReallyMe emits stable
-private-use identifiers below `-65536`:
+This version encodes ML-KEM recipient profiles with stable ReallyMe
+private-use identifiers below `-65536`. These identify the construction
+specified here, independently of future standards-track registrations:
 
 | COSE algorithm | ReallyMe identifier |
 | --- | ---: |
@@ -332,11 +346,9 @@ decapsulation, KDF binding, and content or key-wrap authentication.
 For DID and Multikey integration, public ML-KEM AKP keys use the draft
 Multicodec names `mlkem-512-pub`, `mlkem-768-pub`, and `mlkem-1024-pub`.
 Decoding those Multikeys binds them to the corresponding ReallyMe private-use
-COSE algorithm identifier; it never guesses a future IANA value. When final
-IANA identifiers are assigned, transitional decoding must accept the private
-and final identifiers explicitly while encoding policy selects one deliberately.
+COSE algorithm identifier; it never guesses a future IANA value.
 
-The profile follows the current COSE ML-KEM draft construction:
+The ReallyMe profile uses the following construction:
 
 - ML-KEM uses AKP COSE keys. Private import/export uses the 64-octet FIPS 203
   seed `d || z`, and private/public construction cryptographically validates
@@ -372,10 +384,9 @@ accepts tagged or untagged `COSE_Encrypt`; encoding emits the registered
 parameter because the same key may be selected by either recipient mode; the
 recipient protected `alg` remains the authoritative operation profile.
 
-When IANA assigns final identifiers, ReallyMe will add explicit transitional
-decoding for the private-use and final identifiers. Existing private-use
-objects will not be silently reinterpreted, and emitted identifiers will change
-only in a documented profile/version transition.
+This version recognizes only the listed ML-KEM identifiers. Supporting any
+additional registration requires an explicit profile update; existing
+private-use objects must not be silently reinterpreted.
 
 ## COSE-Layer Vector Audit
 
@@ -425,7 +436,9 @@ The following structures and features are not implemented:
 - Indefinite-length CBOR at public byte boundaries.
 - Floating-point COSE_Key extension values. They are rejected rather than
   accepted without full RFC 8949 preferred-width and canonical-NaN validation.
-- Unexpected CBOR tags except a root COSE_Sign1 tag when decoding Sign1 input.
+- Undefined and unsupported CBOR simple values; detached payloads use null.
+- CBOR tags other than the matching root COSE_Sign1 (18) or COSE_Encrypt (96)
+  tag. COSE_Key inputs must be untagged.
 - X-Wing recipient processing. X-Wing-768 remains represented in the protobuf
   algorithm enum so the wire contract can add an explicit profile without
   renumbering; attempts to use it in an unsupported operation fail closed
@@ -451,9 +464,8 @@ larger attached reports can opt into a higher limit with
 should still prefer detached signing and enforce transport or application-level
 limits before calling this crate.
 
-`CosePolicy::allowed_algorithms()` is intentionally fail-open only when empty: an empty
-allow-list means "any algorithm implemented by this crate and accepted by the
-COSE_Key/key resolver path." Set at least one allowed algorithm for verifier
+Empty primitive and exact-registration allow-lists place no algorithm restriction;
+header, key, and signature validation still apply. Set at least one allowed algorithm for verifier
 surfaces that know their credential suite. `CosePolicy::require_kid()` is the
 separate protected-header presence gate; it does not imply an algorithm
 allow-list. Policy and signing-option structs are constructed with builders
@@ -469,68 +481,66 @@ through its algorithm allow-list and trusted `expected_kid` input.
 The protobuf operation lane is capped independently at 2 MiB for request
 messages and caller-supplied per-operation COSE/payload limits. Native Rust APIs
 may opt into larger local limits directly; protobuf callers cannot raise their
-parse policy beyond the message envelope cap.
+parse policy beyond the message envelope cap. Generated ProtoJSON requests have
+a separate 3 MiB input cap to accommodate base64 and field-name overhead.
 
-## 0.2.2 Platform Scope
+## 0.2.3 Platform Scope
 
-The `0.2.2` release is intentionally Rust and protobuf only. Its publishable
+The `0.2.3` release is intentionally Rust and protobuf only. Its publishable
 artifacts are `reallyme-cose-proto` and `reallyme-cose`; the `native` and `wasm`
 features are Rust runtime lanes, not platform SDK packages.
 
-The `0.2.2` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
+The `0.2.3` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
 native C/JNI, or TypeScript/WASM npm packages. Those package formats are not
 part of this release's compatibility or support contract.
 
 The protobuf `swift_prefix` option is generation metadata, not a published
 Swift package. Likewise, `wasm32-unknown-unknown` is a Rust compilation target,
 not an npm package. The exact artifact scope is recorded in
-[`docs/platform-scope-0.2.2.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.2.2.json).
+[`docs/platform-scope-0.2.3.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.2.3.json).
 
 ## Development Checks
 
-Run the full release gate before publishing:
+The workspace declares Rust 1.96 as its minimum supported version; the development
+toolchain is pinned in `rust-toolchain.toml`. Run the repository gate for format,
+feature-matrix, lint, test, allocation, WASM runtime, vector, fuzz-build, and
+dependency checks:
 
 ```sh
-cargo fmt --check
-cargo check --workspace --all-features
-RUSTFLAGS=-Dwarnings cargo check --workspace --all-features
-RUSTFLAGS=-Dwarnings cargo check --workspace --no-default-features
-RUSTFLAGS=-Dwarnings cargo check --workspace --no-default-features --features native,wire
-cargo clippy --workspace --all-targets --all-features -- -D warnings
-buf lint
-buf generate
-cargo fmt --package reallyme-cose-proto --check
-cargo fmt --manifest-path tools/vector-audit/Cargo.toml --check
-cargo clippy --manifest-path tools/vector-audit/Cargo.toml --all-targets -- -D warnings
-cargo fmt --manifest-path tools/vector-goldens/Cargo.toml --check
-cargo clippy --manifest-path tools/vector-goldens/Cargo.toml --all-targets -- -D warnings
-cargo test --workspace --all-features
-cargo bench --bench operation_performance --all-features
-cargo run --manifest-path tools/vector-audit/Cargo.toml --bin reallyme-cose-vector-audit -- .
-cargo nextest run --workspace --no-default-features --features native
-cargo check --workspace --no-default-features --features native
-cargo check-wasm
-cargo deny check
-cargo audit
-node --test scripts/release-readiness/operation-contract-routing.test.mjs
 node scripts/check_release_readiness.mjs
 ```
 
+Protobuf regeneration also requires Buf 1.72.0 and both Buffa 0.9.2 generators.
+After changing the schema or hardening script, regenerate with the pinned tools:
+
+```sh
+cargo install protoc-gen-buffa --version 0.9.2 --locked
+cargo install protoc-gen-buffa-packaging --version 0.9.2 --locked
+buf lint
+buf generate
+node scripts/harden-generated-cose-proto.mjs
+cargo fmt --package reallyme-cose-proto
+node scripts/check_release_readiness.mjs --generated-freshness
+```
+
+The freshness check repeats regeneration and rejects a difference from the
+checked-in generated files. To check hardening without modifying files, use
+`node scripts/harden-generated-cose-proto.mjs --check-idempotent`. CI uses the pinned shared release-readiness runner;
+crate publication additionally requires its package-preflight checks. Locally,
+`node scripts/run_pinned_release_readiness.mjs` verifies the vendored core against
+the pinned upstream copy before running the same gate (requires network access). Fuzzing
+commands and runtime limits are documented in
+[the fuzzing guide](https://github.com/reallyme/cose/blob/main/fuzz/README.md).
+
 Release readiness requires crates.io dependencies for the published ReallyMe
-foundational crates: `reallyme-crypto` `^0.3.5` and `reallyme-codec` `^0.2.1`.
+foundational crates: `reallyme-crypto` `^0.3.7` and `reallyme-codec` `^0.2.3`.
 Local `../crypto` or `../codec` path dependencies are not accepted for release.
 
-Release readiness structurally inspects all 15 executable operation routes.
-After masking Rust comments and literals, it requires one dispatcher branch,
-one selected semantic execution, one family result conversion, and one central
-failure mapper per route. It also rejects native convenience paths that bypass
-the semantic facade and adapters that add direct error classification,
-transport codecs, generated result construction, or native convenience facades.
-It also caps hand-written Rust modules at 500 lines, rejects substantive inline
-test modules, and enforces provider, ownership, concurrency, and performance
-controls. The benchmark asserts named peak-allocation ceilings; the host
-measurements are recorded in
-[`docs/performance-baseline-0.2.2.md`](https://github.com/reallyme/cose/blob/main/docs/performance-baseline-0.2.2.md).
+The gate also checks operation routing, typed errors, sensitive-buffer ownership,
+and allocation limits. The benchmark asserts named peak-allocation ceilings;
+reference measurements and their dependency versions are recorded in
+[`docs/performance-baseline-0.2.3.md`](https://github.com/reallyme/cose/blob/main/docs/performance-baseline-0.2.3.md).
+Rerun the benchmark to measure a changed implementation or host.
 
 The wasm lane must be checked against `wasm32-unknown-unknown`. A host-target
 `cargo check --workspace --no-default-features --features wasm` is intentionally
@@ -544,7 +554,10 @@ cargo check --workspace --target wasm32-unknown-unknown --no-default-features --
 
 ## License
 
-Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+Licensed under either the MIT License or the Apache License, Version 2.0, at
+your option (`MIT OR Apache-2.0`). Both license texts are included in
+[LICENSE](LICENSE); see [NOTICE](NOTICE) for attribution and separately licensed
+dependencies and repository tooling.
 
 ## Copyright and Trademarks
 
