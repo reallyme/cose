@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
-//
+// SPDX-FileCopyrightText: 2026 ReallyMe LLC
+
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 import { isDeepStrictEqual } from "node:util";
@@ -111,7 +111,7 @@ printf '%s\\n' "$install_dir" >> "$GITHUB_PATH"
 
 const expectedPlatformScope = {
   schema: "reallyme.cose.platform_scope.v1",
-  spdxCopyrightText: "Copyright © 2026 ReallyMe LLC. All rights reserved",
+  spdxCopyrightText: "2026 ReallyMe LLC",
   release: expectedVersion,
   immediateScope: "rust_and_protobuf",
   publishableCrates: [expectedProtoPackageName, expectedPackageName],

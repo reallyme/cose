@@ -1,5 +1,5 @@
-// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
-//
+// SPDX-FileCopyrightText: 2026 ReallyMe LLC
+
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 //! Public raw-byte facade for typed COSE_Key operations.

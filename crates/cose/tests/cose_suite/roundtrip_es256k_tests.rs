@@ -1,6 +1,6 @@
 #![allow(missing_docs, clippy::expect_used, clippy::unwrap_used)]
-// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe LLC. All rights reserved
-//
+// SPDX-FileCopyrightText: 2026 ReallyMe LLC
+
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 use super::support::{gen_secp256k1, sample_payload};
