@@ -1,9 +1,15 @@
-# reallyme-cose
+<div align="center">
+
+# ReallyMe Cose
+
+**Cose for Identity**
 
 [![Rust CI](https://github.com/reallyme/cose/actions/workflows/rust-ci.yml/badge.svg)](https://github.com/reallyme/cose/actions/workflows/rust-ci.yml)
 [![reallyme-cose](https://img.shields.io/crates/v/reallyme-cose?label=reallyme-cose&color=2563eb)](https://crates.io/crates/reallyme-cose)
 [![Security Policy](https://img.shields.io/badge/security-policy-0f766e)](https://github.com/reallyme/cose/blob/main/SECURITY.md)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](LICENSE)
+
+</div>
 
 `reallyme-cose` is a focused COSE layer for identity systems that need
 COSE_Sign1, COSE_Key, deterministic `kid` derivation, and Multikey interop
@@ -554,10 +560,10 @@ cargo check --workspace --target wasm32-unknown-unknown --no-default-features --
 
 ## License
 
-Licensed under either the MIT License or the Apache License, Version 2.0, at
-your option (`MIT OR Apache-2.0`). Both license texts are included in
-[LICENSE](LICENSE); see [NOTICE](NOTICE) for attribution and separately licensed
-dependencies and repository tooling.
+Licensed under either the [MIT License](LICENSE-MIT) or the
+[Apache License, Version 2.0](LICENSE-APACHE), at your option.
+
+Third-party components retain their own licenses and notices.
 
 ## Copyright and Trademarks
 
