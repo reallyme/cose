@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
-//
+// SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
+
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 import { createHash, timingSafeEqual } from "node:crypto";
@@ -25,7 +25,7 @@ const fail = (reason) => {
 const sha256 = (value) => createHash("sha256").update(value).digest();
 
 const expectedDigest = Buffer.from(RELEASE_READINESS_CORE_SHA256, "hex");
-const vendoredExpectedDigest = Buffer.from("b8cc9a9c8056759790e76dd037478de3057c04e0f03b12370d6d6673ef53b6af", "hex");
+const vendoredExpectedDigest = Buffer.from("e1d39f692b7fa8800be43065f73c9e9ad8f3391ce3af422951f062e6c73265c7", "hex");
 if (expectedDigest.length !== 32 || vendoredExpectedDigest.length !== 32) {
   fail("configured core digest is invalid");
 }

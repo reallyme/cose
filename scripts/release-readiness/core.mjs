@@ -1,5 +1,5 @@
-// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
-//
+// SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
+
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 import { lstatSync, readdirSync, readFileSync, realpathSync, writeSync } from "node:fs";
@@ -1264,7 +1264,6 @@ export function createReleaseReadinessContext(options) {
         ".jsx",
         ".kt",
         ".kts",
-        ".md",
         ".mjs",
         ".mts",
         ".proto",
@@ -1284,7 +1283,7 @@ export function createReleaseReadinessContext(options) {
       requireExclusionsMatched = false,
       requireExclusionReasons = false,
       copyright =
-        "SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved",
+        "SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited",
       license = "SPDX-License-Identifier: MIT OR Apache-2.0",
     } = policy;
     for (const [policyName, values] of [

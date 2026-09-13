@@ -1,5 +1,5 @@
-// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
-//
+// SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
+
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 //! Raw-byte construction, extraction, and canonical encoding for COSE_Key.

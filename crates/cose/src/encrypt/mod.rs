@@ -1,5 +1,5 @@
-// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
-//
+// SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
+
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 //! ReallyMe ML-KEM profiles for `COSE_Encrypt` and `COSE_Recipient`.

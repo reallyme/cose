@@ -1,6 +1,6 @@
 #![allow(missing_docs, clippy::unwrap_used)]
-// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
-//
+// SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
+
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 use coset::{CborSerializable, CoseSign1};
