@@ -107,6 +107,7 @@ pub(crate) fn encode_protected_header(
     encode_cbor_value(value)
 }
 
-#[cfg(all(test, not(target_arch = "wasm32")))]
+#[cfg(test)]
+#[cfg(not(target_arch = "wasm32"))]
 #[path = "encode_cbor_tests.rs"]
 mod tests;

@@ -40,6 +40,12 @@ struct DecryptFixture {
     kid: Zeroizing<Vec<u8>>,
 }
 
+#[derive(Debug)]
+enum BenchmarkFailure {
+    PeakAllocationExceeded,
+    UnsupportedAlgorithm,
+}
+
 fn benchmark_operations(c: &mut Criterion) {
     let realistic_sign = sign_fixture(REALISTIC_PAYLOAD_BYTES, false);
     let maximum_sign = sign_fixture(MAX_DETACHED_PAYLOAD_BYTES, true);
@@ -165,10 +171,9 @@ fn bench_decrypt(
 #[allow(clippy::print_stderr)]
 fn assert_peak_allocation<T>(name: &str, limit: u64, operation: impl FnOnce() -> T) {
     let info = measure(|| drop(black_box(operation())));
-    assert!(
-        info.bytes_max <= limit,
-        "{name} exceeded its reviewed peak allocation limit"
-    );
+    if info.bytes_max > limit {
+        benchmark_setup_failed(BenchmarkFailure::PeakAllocationExceeded);
+    }
     eprintln!(
         "allocation {name}: peak={} total={} count={}",
         info.bytes_max, info.bytes_total, info.count_total
@@ -242,7 +247,7 @@ fn decrypt_fixture(algorithm: CoseMlKemAlgorithm, plaintext_len: usize) -> Decry
         CoseMlKemAlgorithm::MlKem512 => Algorithm::MlKem512,
         CoseMlKemAlgorithm::MlKem768 => Algorithm::MlKem768,
         CoseMlKemAlgorithm::MlKem1024 => Algorithm::MlKem1024,
-        _ => benchmark_setup_failed("unrecognized ML-KEM benchmark algorithm"),
+        _ => benchmark_setup_failed(BenchmarkFailure::UnsupportedAlgorithm),
     };
     let (public_key, private_key) =
         generate_keypair(crypto_algorithm).unwrap_or_else(|error| benchmark_setup_failed(error));

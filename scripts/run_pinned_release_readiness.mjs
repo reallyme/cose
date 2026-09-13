@@ -7,9 +7,9 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { lstatSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 
-const RELEASE_READINESS_COMMIT = "304bc55cdca3c53bf66218982d51188f341806ed";
+const RELEASE_READINESS_COMMIT = "48a5ae4a9c6f25053459122d6f84cf1741463454";
 const RELEASE_READINESS_CORE_SHA256 =
-  "0a33532aa595871c1beefb1ad1d3930f1a51675b236a73e8bf93ad5d7ccdbae4";
+  "6eab296596b6badd76bb1ce4abf67b73513981ad352e8f6ab5e44cdca257545e";
 const RELEASE_READINESS_CORE_URL =
   `https://raw.githubusercontent.com/reallyme/release-readiness/${RELEASE_READINESS_COMMIT}/core.mjs`;
 const VENDORED_CORE_PATH = "scripts/release-readiness/core.mjs";
@@ -25,7 +25,7 @@ const fail = (reason) => {
 const sha256 = (value) => createHash("sha256").update(value).digest();
 
 const expectedDigest = Buffer.from(RELEASE_READINESS_CORE_SHA256, "hex");
-const vendoredExpectedDigest = Buffer.from("d22835b45feefeea73d5002f07f68f72ef5e1cef45913b15cdc94e37533068b4", "hex");
+const vendoredExpectedDigest = Buffer.from("b8cc9a9c8056759790e76dd037478de3057c04e0f03b12370d6d6673ef53b6af", "hex");
 if (expectedDigest.length !== 32 || vendoredExpectedDigest.length !== 32) {
   fail("configured core digest is invalid");
 }
