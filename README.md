@@ -1,8 +1,8 @@
 <div align="center">
 
-# ReallyMe Cose
+# ReallyMe COSE
 
-**Cose for Identity**
+**CBOR Object Signing and Encryption for Identity**
 
 [![Rust CI](https://github.com/reallyme/cose/actions/workflows/rust-ci.yml/badge.svg)](https://github.com/reallyme/cose/actions/workflows/rust-ci.yml)
 [![reallyme-cose](https://img.shields.io/crates/v/reallyme-cose?label=reallyme-cose&color=2563eb)](https://crates.io/crates/reallyme-cose)
