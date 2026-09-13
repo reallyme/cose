@@ -80,17 +80,17 @@ pub(crate) struct CoseFailure {
 }
 
 impl CoseFailure {
-    #[cfg(any(feature = "wire", test))]
+    #[cfg(feature = "wire")]
     pub(crate) const fn origin(&self) -> CoseFailureOrigin {
         self.origin
     }
 
-    #[cfg(any(feature = "wire", test))]
+    #[cfg(feature = "wire")]
     pub(crate) const fn branch(&self) -> CoseFailureBranch {
         self.branch
     }
 
-    #[cfg(any(feature = "wire", test))]
+    #[cfg(feature = "wire")]
     pub(crate) const fn reason(&self) -> CoseFailureReason {
         self.reason
     }
@@ -249,6 +249,11 @@ impl From<CoseError> for CoseFailure {
         }
     }
 }
+
+#[cfg(test)]
+#[cfg(not(feature = "wire"))]
+#[path = "failure/test_accessors.rs"]
+mod test_accessors;
 
 impl From<CoseFailure> for CoseError {
     fn from(failure: CoseFailure) -> Self {

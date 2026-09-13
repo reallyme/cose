@@ -26,6 +26,7 @@ const {
   assertTextPolicy,
   assertCargoMetadataPolicy,
   assertSpdxHeaders,
+  assertRustSourcePolicy,
 } = createReleaseReadinessContext({
   scriptUrl: import.meta.url,
   requireTrackedFiles: true,
@@ -43,6 +44,11 @@ assertCargoFuzzWorkflowPolicy({
   ],
 });
 assertReallyMeVendoredCorePolicy();
+assertRustSourcePolicy({
+  roots: ["."],
+  generatedPrefixes: ["crates/proto/src/generated"],
+  moduleHardLines: 150,
+});
 // The upstream core is hash-pinned and retains its own Apache-2.0 license.
 // Generated sources are covered by their crate's bundled license text.
 assertSpdxHeaders({
@@ -166,24 +172,6 @@ for (const obsoleteRoot of ["benches/", "conformance/", "src/", "tests/"]) {
   }
 }
 
-const MAX_HAND_WRITTEN_RUST_LINES = 500;
-const inlineTestModulePattern =
-  /#\[cfg\(test\)\]\s*(?:#\[[^\]]+\]\s*)*mod\s+[A-Za-z_][A-Za-z0-9_]*\s*\{/u;
-for (const trackedFile of loadTrackedFiles()) {
-  if (!trackedFile.startsWith("crates/cose/src/") || !trackedFile.endsWith(".rs")) {
-    continue;
-  }
-  const source = readText(trackedFile);
-  const lineCount = source.split("\n").length;
-  if (lineCount > MAX_HAND_WRITTEN_RUST_LINES) {
-    fail(
-      `${trackedFile} has ${lineCount} lines; hand-written Rust modules are capped at ${MAX_HAND_WRITTEN_RUST_LINES}`,
-    );
-  }
-  if (inlineTestModulePattern.test(source)) {
-    fail(`${trackedFile} must place substantive test modules in a dedicated source file`);
-  }
-}
 for (const forbiddenPlatformFeature of ["swift", "kotlin", "android", "jni", "ffi"]) {
   assertNotMatches(
     "crates/cose/Cargo.toml",
@@ -1111,7 +1099,7 @@ for (const releaseReadinessWorkflow of [
   assertContains(releaseReadinessWorkflow, "repository: reallyme/release-readiness");
   assertContains(
     releaseReadinessWorkflow,
-    "ref: 304bc55cdca3c53bf66218982d51188f341806ed",
+    "ref: 48a5ae4a9c6f25053459122d6f84cf1741463454",
   );
   assertContains(releaseReadinessWorkflow, "persist-credentials: false");
 }
@@ -1254,8 +1242,8 @@ assertContains(
   cratesPackagePreflightWorkflow,
   "node .release-readiness/scripts/run-consumer-check.mjs --release-packages",
 );
-assertContains("scripts/run_pinned_release_readiness.mjs", "304bc55cdca3c53bf66218982d51188f341806ed");
-assertContains("scripts/run_pinned_release_readiness.mjs", "0a33532aa595871c1beefb1ad1d3930f1a51675b236a73e8bf93ad5d7ccdbae4");
+assertContains("scripts/run_pinned_release_readiness.mjs", "48a5ae4a9c6f25053459122d6f84cf1741463454");
+assertContains("scripts/run_pinned_release_readiness.mjs", "6eab296596b6badd76bb1ce4abf67b73513981ad352e8f6ab5e44cdca257545e");
 assertContains("scripts/verify_release_source.mjs", "main:refs/remotes/origin/main");
 assertContains("scripts/verify_release_source.mjs", "manifest-version-mismatch");
 assertContains("scripts/verify_release_attestation.mjs", 'value.conclusion !== "success"');

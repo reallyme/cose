@@ -410,6 +410,7 @@ impl Drop for SensitiveCoseEncrypt {
     }
 }
 
-#[cfg(all(test, not(target_arch = "wasm32")))]
+#[cfg(test)]
+#[cfg(not(target_arch = "wasm32"))]
 #[path = "encode_tests.rs"]
 mod encode_tests;

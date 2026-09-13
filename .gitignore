@@ -24,7 +24,6 @@ target/
 /AGENTS.md
 /.agents/
 /.claude/
-/.codex/
 
 # Local test and release outputs
 coverage/

@@ -32,7 +32,8 @@ pub use parse::cose_key_from_slice;
 pub(crate) use parse::{parse_cose_key, CoseKeyParseInput, CoseKeyParseOutput};
 pub use profile::cose_key_signature_algorithm;
 
-#[cfg(all(test, feature = "cose-crypto"))]
+#[cfg(test)]
+#[cfg(feature = "cose-crypto")]
 mod parse_differential_tests;
 #[cfg(test)]
 mod parse_tests;

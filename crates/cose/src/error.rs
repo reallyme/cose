@@ -247,6 +247,7 @@ fn verify_error_from_signature_failure(kind: SignatureFailureKind) -> CoseError 
     }
 }
 
-#[cfg(all(test, feature = "cose-crypto"))]
+#[cfg(test)]
+#[cfg(feature = "cose-crypto")]
 #[path = "error_tests.rs"]
 mod tests;
