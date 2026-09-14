@@ -43,7 +43,7 @@ assertCargoFuzzWorkflowPolicy({
     { job: "scheduled", name: "Install cargo-fuzz" },
   ],
 });
-assertReallyMeVendoredCorePolicy();
+assertReallyMeVendoredCorePolicy({ version: "0.6.0" });
 assertRustSourcePolicy({
   roots: ["."],
   generatedPrefixes: ["crates/proto/src/generated"],
@@ -54,6 +54,7 @@ assertRustSourcePolicy({
 assertSpdxHeaders({
   extensions: [".rs", ".mjs", ".js", ".sh", ".py"],
   names: [],
+  copyright: "SPDX-FileCopyrightText: 2026 ReallyMe LLC",
   license: "SPDX-License-Identifier: MIT OR Apache-2.0",
   excludedPrefixes: ["scripts/release-readiness/core.mjs", "crates/proto/src/generated"],
 });
@@ -1093,13 +1094,14 @@ assertContains(
   "node .release-readiness/scripts/run-consumer-check.mjs --policy-only",
 );
 for (const releaseReadinessWorkflow of [
+  ".github/workflows/crates-package-preflight.yml",
   ".github/workflows/protobuf-ci.yml",
   ".github/workflows/rust-ci.yml",
 ]) {
   assertContains(releaseReadinessWorkflow, "repository: reallyme/release-readiness");
   assertContains(
     releaseReadinessWorkflow,
-    "ref: 48a5ae4a9c6f25053459122d6f84cf1741463454",
+    "ref: 3fcf50eb312ae20dc9dc7a256f8fae67a7ba2c6b",
   );
   assertContains(releaseReadinessWorkflow, "persist-credentials: false");
 }
@@ -1242,8 +1244,8 @@ assertContains(
   cratesPackagePreflightWorkflow,
   "node .release-readiness/scripts/run-consumer-check.mjs --release-packages",
 );
-assertContains("scripts/run_pinned_release_readiness.mjs", "48a5ae4a9c6f25053459122d6f84cf1741463454");
-assertContains("scripts/run_pinned_release_readiness.mjs", "6eab296596b6badd76bb1ce4abf67b73513981ad352e8f6ab5e44cdca257545e");
+assertContains("scripts/run_pinned_release_readiness.mjs", "3fcf50eb312ae20dc9dc7a256f8fae67a7ba2c6b");
+assertContains("scripts/run_pinned_release_readiness.mjs", "435ae6205d000d1605761bce2e7b75a1584d6d3ad1b7d338ca8e61868959abdc");
 assertContains("scripts/verify_release_source.mjs", "main:refs/remotes/origin/main");
 assertContains("scripts/verify_release_source.mjs", "manifest-version-mismatch");
 assertContains("scripts/verify_release_attestation.mjs", 'value.conclusion !== "success"');
