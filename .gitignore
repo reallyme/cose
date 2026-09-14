@@ -25,7 +25,6 @@ target/
 .secrets/
 /AGENTS.md
 /.agents/
-/.claude/
 
 # Local test and release outputs
 coverage/
