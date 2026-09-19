@@ -11,12 +11,34 @@ use crate::limits::validate_protected_header_bytes;
 use crate::zeroize_coset::{zeroize_cose_sign1, SensitiveCborValue};
 use crate::CoseError;
 
+use super::x5chain::decode_x5chain;
+
 /// Decode untagged COSE_Sign1 bytes, or bytes carrying the registered
 /// COSE_Sign1 tag (18) already allowed by the byte-boundary tag policy.
 pub(super) fn decode_cose_sign1(
     cose_bytes: &[u8],
     max_len: usize,
 ) -> Result<SensitiveCoseSign1, CoseError> {
+    decode_cose_sign1_internal(cose_bytes, max_len, false).map(|decoded| decoded.cose)
+}
+
+pub(super) struct DecodedCoseSign1WithX5Chain {
+    pub(super) cose: SensitiveCoseSign1,
+    pub(super) x5chain_der: Vec<Vec<u8>>,
+}
+
+pub(super) fn decode_cose_sign1_with_x5chain(
+    cose_bytes: &[u8],
+    max_len: usize,
+) -> Result<DecodedCoseSign1WithX5Chain, CoseError> {
+    decode_cose_sign1_internal(cose_bytes, max_len, true)
+}
+
+fn decode_cose_sign1_internal(
+    cose_bytes: &[u8],
+    max_len: usize,
+    allow_x5chain: bool,
+) -> Result<DecodedCoseSign1WithX5Chain, CoseError> {
     let decoded = SensitiveCborValue::decode_cose_sign1(cose_bytes, max_len)?;
     let body = match decoded.value() {
         Value::Tag(18, body) => body.as_ref(),
@@ -36,10 +58,13 @@ pub(super) fn decode_cose_sign1(
     // original CBOR tree and the partially constructed COSE object.
     let mut cose = SensitiveCoseSign1::new(CoseSign1::default());
     decode_protected_header(protected_value, &mut cose.inner_mut().protected)?;
+    let mut x5chain_der = Vec::new();
     decode_sign1_header(
         unprotected_value,
         &mut cose.inner_mut().unprotected,
         Sign1HeaderBucket::Unprotected,
+        allow_x5chain,
+        &mut x5chain_der,
     )?;
     cose.inner_mut().payload = match payload_value {
         Value::Bytes(payload) => Some(payload.clone()),
@@ -50,7 +75,7 @@ pub(super) fn decode_cose_sign1(
         Value::Bytes(signature) => signature.clone(),
         _ => return Err(CoseError::InvalidSignatureEncoding),
     };
-    Ok(cose)
+    Ok(DecodedCoseSign1WithX5Chain { cose, x5chain_der })
 }
 
 #[derive(Clone, Copy)]
@@ -73,10 +98,13 @@ fn decode_protected_header(
     }
 
     let decoded = SensitiveCborValue::decode_protected_header(bytes)?;
+    let mut rejected_x5chain = Vec::new();
     decode_sign1_header(
         decoded.value(),
         &mut protected.header,
         Sign1HeaderBucket::Protected,
+        false,
+        &mut rejected_x5chain,
     )
 }
 
@@ -84,6 +112,8 @@ fn decode_sign1_header(
     value: &Value,
     header: &mut Header,
     bucket: Sign1HeaderBucket,
+    allow_x5chain: bool,
+    x5chain_der: &mut Vec<Vec<u8>>,
 ) -> Result<(), CoseError> {
     let entries = match value {
         Value::Map(entries) => entries,
@@ -91,6 +121,7 @@ fn decode_sign1_header(
     };
     let mut saw_algorithm = false;
     let mut saw_kid = false;
+    let mut saw_x5chain = false;
 
     for (label, value) in entries {
         let label = match label {
@@ -123,6 +154,15 @@ fn decode_sign1_header(
             };
         } else if label == iana::HeaderParameter::Crit as i64 {
             return Err(CoseError::UnsupportedCriticalHeader);
+        } else if label == iana::HeaderParameter::X5Chain as i64 {
+            if saw_x5chain {
+                return Err(CoseError::DuplicateMapLabel);
+            }
+            saw_x5chain = true;
+            if !allow_x5chain || matches!(bucket, Sign1HeaderBucket::Protected) {
+                return Err(CoseError::InvalidFormat);
+            }
+            *x5chain_der = decode_x5chain(value)?;
         } else {
             // This SDK does not expose processing results for content-type,
             // countersignatures, extension headers, or application-specific

@@ -44,6 +44,7 @@ pub mod __buffa {
         reg.register_json_any(super::__COSE_ML_KEM_ENCRYPT_RESULT_JSON_ANY);
         reg.register_json_any(super::__COSE_ML_KEM_DECRYPT_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_ML_KEM_DECRYPT_RESULT_JSON_ANY);
+        reg.register_json_any(super::__COSE_X5CHAIN_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN1OPTIONS_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN1CREATE_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN1CREATE_DETACHED_REQUEST_JSON_ANY);
@@ -107,6 +108,10 @@ pub use self::__buffa::view::CoseMlKemDecryptRequestOwnedView;
 pub use self::__buffa::view::CoseMlKemDecryptResultView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseMlKemDecryptResultOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseX5ChainView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseX5ChainOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSign1OptionsView;
 #[doc(inline)]

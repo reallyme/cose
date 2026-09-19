@@ -14,7 +14,9 @@ use crate::CoseError;
 
 use super::build_sig_structure::build_sig_structure;
 use super::convert_signature::backend_signature_from_cose;
-use super::decode::{decode_cose_sign1, validate_cose_sign1_structure};
+use super::decode::{
+    decode_cose_sign1, decode_cose_sign1_with_x5chain, validate_cose_sign1_structure,
+};
 use super::types::{CoseSign1DetachedVerifyInput, CoseSign1KeyResolution, CoseSign1VerifyInput};
 use crate::limits::validate_detached_payload_with_limit;
 use zeroize::Zeroizing;
@@ -49,6 +51,26 @@ pub struct VerifiedDetachedCoseSign1 {
 
     /// Verified protected-header key identifier.
     pub kid: Zeroizing<Vec<u8>>,
+}
+
+/// Verified COSE_Sign1 payload and RFC 9360 certificate path.
+#[must_use]
+#[non_exhaustive]
+pub struct VerifiedCoseSign1WithX5Chain {
+    /// Verified attached payload bytes.
+    pub payload: Zeroizing<Vec<u8>>,
+
+    /// Verified protected-header algorithm.
+    pub alg: Algorithm,
+
+    /// Exact verified COSE signature-algorithm registration.
+    pub cose_algorithm: CoseSignatureAlgorithm,
+
+    /// Verified protected-header key identifier.
+    pub kid: Zeroizing<Vec<u8>>,
+
+    /// Bounded RFC 9360 leaf-first DER certificate path.
+    pub x5chain_der: Vec<Vec<u8>>,
 }
 
 /// Verify COSE_Sign1 with an attached payload.
@@ -113,6 +135,54 @@ pub fn cose_verify1_with_policy_and_external_aad(
         },
     )
     .map_err(CoseFailure::into_native_error)
+}
+
+/// Verify an attached COSE_Sign1 carrying an RFC 9360 `x5chain` header.
+///
+/// The ordinary verification APIs continue to reject unprotected extensions.
+/// This profile-specific entry point accepts only label 33, requires a
+/// non-empty bounded certificate path, and supplies that path to the caller's
+/// trust resolver before signature verification.
+///
+/// # Errors
+///
+/// Returns [`CoseError`] when the COSE structure, certificate path, policy,
+/// trust resolution, key material, or signature is invalid.
+pub fn cose_verify1_with_x5chain(
+    cose_bytes: &[u8],
+    policy: &CosePolicy,
+    public_key_resolver: impl FnOnce(Algorithm, &[Vec<u8>]) -> Option<Vec<u8>>,
+) -> Result<VerifiedCoseSign1WithX5Chain, CoseError> {
+    let decoded = decode_cose_sign1_with_x5chain(cose_bytes, policy.max_cose_sign1_bytes())?;
+    let mut cose = decoded.cose;
+    let x5chain_der = decoded.x5chain_der;
+    if x5chain_der.is_empty() {
+        return Err(CoseError::InvalidFormat);
+    }
+    let payload = cose
+        .inner()
+        .payload
+        .as_ref()
+        .ok_or(CoseError::MissingPayload)?;
+    let metadata = verify_cose_signature(cose.inner(), &[], payload, policy, |algorithm, _| {
+        match public_key_resolver(algorithm, &x5chain_der) {
+            Some(public_key) => CoseSign1KeyResolution::Resolved(Zeroizing::new(public_key)),
+            None => CoseSign1KeyResolution::NotResolved,
+        }
+    })
+    .map_err(CoseFailure::into_native_error)?;
+    let payload = cose
+        .inner_mut()
+        .payload
+        .take()
+        .ok_or(CoseError::MissingPayload)?;
+    Ok(VerifiedCoseSign1WithX5Chain {
+        payload: Zeroizing::new(payload),
+        alg: metadata.alg,
+        cose_algorithm: metadata.cose_algorithm,
+        kid: metadata.kid,
+        x5chain_der,
+    })
 }
 
 /// Verify COSE_Sign1 with a detached payload.

@@ -23,6 +23,7 @@ use zeroize::Zeroizing;
 
 use super::provider::CoseSigner;
 use super::types::{CoseSign1CreateInput, CoseSign1SigningSource};
+use super::x5chain::{build_unprotected_header, encode_unprotected_header, validate_x5chain};
 use crate::algorithm::CoseSignatureAlgorithm;
 
 #[must_use]
@@ -44,13 +45,16 @@ enum Sign1PayloadMode {
 
 /// Encoding controls for COSE_Sign1 signing APIs.
 #[must_use]
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct CoseSign1EncodeOptions {
     /// Emit the registered COSE_Sign1 root tag (18).
     tag: bool,
 
     /// Maximum encoded COSE_Sign1 size accepted after signing.
     max_cose_sign1_bytes: usize,
+
+    /// RFC 9360 certificate path placed in unprotected header label 33.
+    x5chain_der: Vec<Vec<u8>>,
 }
 
 impl Default for CoseSign1EncodeOptions {
@@ -65,6 +69,7 @@ impl CoseSign1EncodeOptions {
         Self {
             tag: false,
             max_cose_sign1_bytes: MAX_COSE_SIGN1_BYTES,
+            x5chain_der: Vec::new(),
         }
     }
 
@@ -73,6 +78,7 @@ impl CoseSign1EncodeOptions {
         Self {
             tag: true,
             max_cose_sign1_bytes: MAX_COSE_SIGN1_BYTES,
+            x5chain_der: Vec::new(),
         }
     }
 
@@ -88,6 +94,12 @@ impl CoseSign1EncodeOptions {
         self.max_cose_sign1_bytes
     }
 
+    /// Return the RFC 9360 leaf-first DER certificate path.
+    #[must_use]
+    pub fn x5chain_der(&self) -> &[Vec<u8>] {
+        self.x5chain_der.as_slice()
+    }
+
     /// Configure whether the registered COSE_Sign1 root tag (18) is emitted.
     pub const fn with_tag(mut self, tag: bool) -> Self {
         self.tag = tag;
@@ -97,6 +109,12 @@ impl CoseSign1EncodeOptions {
     /// Configure the maximum encoded COSE_Sign1 size accepted after signing.
     pub const fn with_max_cose_sign1_bytes(mut self, max_cose_sign1_bytes: usize) -> Self {
         self.max_cose_sign1_bytes = max_cose_sign1_bytes;
+        self
+    }
+
+    /// Configure an RFC 9360 leaf-first DER certificate path.
+    pub fn with_x5chain_der(mut self, x5chain_der: Vec<Vec<u8>>) -> Self {
+        self.x5chain_der = x5chain_der;
         self
     }
 }
@@ -340,6 +358,7 @@ fn create_cose_sign1_impl(
 ) -> Result<Zeroizing<Vec<u8>>, CoseError> {
     validate_detached_payload(input.payload)?;
     validate_detached_payload(input.external_aad)?;
+    validate_x5chain(input.options.x5chain_der())?;
     if input
         .kid
         .is_some_and(|kid| kid.len() > input.options.max_cose_sign1_bytes())
@@ -349,6 +368,7 @@ fn create_cose_sign1_impl(
     // Keep identifiers under a wipe owner even when a provider rejects signing.
     let mut cose = SensitiveCoseSign1::new(CoseSign1 {
         protected: build_protected_header(input.cose_algorithm, input.kid)?,
+        unprotected: build_unprotected_header(input.options.x5chain_der()),
         ..Default::default()
     });
     cose.inner_mut().signature = sign_payload(
@@ -414,7 +434,7 @@ fn encode_cose_sign1(
     // temporary buffers. Move fields directly into our recursive wipe owner.
     let mut value = ciborium::value::Value::Array(vec![
         ciborium::value::Value::Bytes(core::mem::take(&mut *protected)),
-        ciborium::value::Value::Map(Vec::new()),
+        encode_unprotected_header(&mut cose.inner_mut().unprotected)?,
         cose.inner_mut()
             .payload
             .take()

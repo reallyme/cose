@@ -6543,6 +6543,138 @@ pub const __COSE_ML_KEM_DECRYPT_RESULT_JSON_ANY: ::buffa::type_registry::JsonAny
     from_json: ::buffa::type_registry::any_from_json::<CoseMlKemDecryptResult>,
     is_wkt: false,
 };
+/// CoseX5Chain carries the RFC 9360 certificate path in leaf-first order.
+#[derive(Clone, PartialEq, Default)]
+#[derive(::serde::Serialize, ::serde::Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct CoseX5Chain {
+    /// Field 1: `certificates_der`
+    #[serde(
+        rename = "certificatesDer",
+        alias = "certificates_der",
+        with = "::buffa::json_helpers::proto_seq",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_vec"
+    )]
+    pub certificates_der: ::buffa::alloc::vec::Vec<::buffa::alloc::vec::Vec<u8>>,
+    #[serde(skip)]
+    #[doc(hidden)]
+    pub __buffa_unknown_fields: ::buffa::UnknownFields,
+}
+impl ::core::fmt::Debug for CoseX5Chain {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseX5Chain")
+            .field("certificates_der", &self.certificates_der)
+            .finish()
+    }
+}
+impl CoseX5Chain {
+    /// Protobuf type URL for this message, for use with `Any::pack` and
+    /// `Any::unpack_if`.
+    ///
+    /// Format: `type.googleapis.com/<fully.qualified.TypeName>`
+    pub const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseX5Chain";
+}
+::buffa::impl_default_instance!(CoseX5Chain);
+impl ::buffa::MessageName for CoseX5Chain {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseX5Chain";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseX5Chain";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseX5Chain";
+}
+impl ::buffa::Message for CoseX5Chain {
+    /// Returns the total encoded size in bytes.
+    ///
+    /// Accumulates in `u64` (which cannot overflow for in-memory
+    /// data) and saturates to `u32` at return, so a message whose
+    /// encoded size exceeds the 2 GiB protobuf limit yields a value
+    /// above [`::buffa::MAX_MESSAGE_BYTES`] that the encode entry
+    /// points reject, never a silently wrapped size.
+    #[allow(clippy::let_and_return)]
+    fn compute_size(&self, _cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        for v in &self.certificates_der {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
+        }
+        size += self.__buffa_unknown_fields.encoded_len() as u64;
+        ::buffa::saturate_size(size)
+    }
+    fn write_to(
+        &self,
+        _cache: &mut ::buffa::SizeCache,
+        buf: &mut impl ::buffa::EncodeSink,
+    ) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        for v in &self.certificates_der {
+            ::buffa::types::put_shared_bytes_field(1u32, v, buf);
+        }
+        self.__buffa_unknown_fields.write_to(buf);
+    }
+    fn merge_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        buf: &mut impl ::buffa::bytes::Buf,
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<(), ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::bytes::Buf as _;
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __elem = ::buffa::types::decode_bytes(buf)?;
+                ctx.register_element_memory(
+                    ::buffa::__private::element_footprint(&__elem),
+                )?;
+                self.certificates_der.push(__elem);
+            }
+            _ => {
+                self.__buffa_unknown_fields
+                    .push(::buffa::encoding::decode_unknown_field(tag, buf, ctx)?);
+            }
+        }
+        ::core::result::Result::Ok(())
+    }
+    fn clear(&mut self) {
+        self.certificates_der.clear();
+        __reallyme_zeroize_unknown_fields(&mut self.__buffa_unknown_fields);
+    }
+}
+impl ::buffa::ExtensionSet for CoseX5Chain {
+    const PROTO_FQN: &'static str = "reallyme.cose.v1.CoseX5Chain";
+    fn unknown_fields(&self) -> &::buffa::UnknownFields {
+        &self.__buffa_unknown_fields
+    }
+    fn unknown_fields_mut(&mut self) -> &mut ::buffa::UnknownFields {
+        &mut self.__buffa_unknown_fields
+    }
+}
+impl ::buffa::json_helpers::ProtoElemJson for CoseX5Chain {
+    fn serialize_proto_json<S: ::serde::Serializer>(
+        v: &Self,
+        s: S,
+    ) -> ::core::result::Result<S::Ok, S::Error> {
+        ::serde::Serialize::serialize(v, s)
+    }
+    fn deserialize_proto_json<'de, D: ::serde::Deserializer<'de>>(
+        d: D,
+    ) -> ::core::result::Result<Self, D::Error> {
+        <Self as ::serde::Deserialize>::deserialize(d)
+    }
+}
+#[doc(hidden)]
+pub const __COSE_X5CHAIN_JSON_ANY: ::buffa::type_registry::JsonAnyEntry = ::buffa::type_registry::JsonAnyEntry {
+    type_url: "type.googleapis.com/reallyme.cose.v1.CoseX5Chain",
+    to_json: ::buffa::type_registry::any_to_json::<CoseX5Chain>,
+    from_json: ::buffa::type_registry::any_from_json::<CoseX5Chain>,
+    is_wkt: false,
+};
 #[derive(Clone, PartialEq, Default)]
 #[derive(::serde::Serialize, ::serde::Deserialize)]
 #[serde(default, deny_unknown_fields)]
@@ -6568,6 +6700,14 @@ pub struct CoseSign1Options {
         skip_serializing_if = "::buffa::json_helpers::skip_if::is_zero_u64"
     )]
     pub max_cose_sign1_bytes: u64,
+    /// Optional RFC 9360 x5chain placed in unprotected header label 33.
+    ///
+    /// Field 3: `x5chain`
+    #[serde(
+        rename = "x5chain",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_unset_message_field"
+    )]
+    pub x5chain: ::buffa::MessageField<CoseX5Chain, ::buffa::Inline<CoseX5Chain>>,
     #[serde(skip)]
     #[doc(hidden)]
     pub __buffa_unknown_fields: ::buffa::UnknownFields,
@@ -6577,6 +6717,7 @@ impl ::core::fmt::Debug for CoseSign1Options {
         f.debug_struct("CoseSign1Options")
             .field("tag", &self.tag)
             .field("max_cose_sign1_bytes", &self.max_cose_sign1_bytes)
+            .field("x5chain", &self.x5chain)
             .finish()
     }
 }
@@ -6603,7 +6744,7 @@ impl ::buffa::Message for CoseSign1Options {
     /// above [`::buffa::MAX_MESSAGE_BYTES`] that the encode entry
     /// points reject, never a silently wrapped size.
     #[allow(clippy::let_and_return)]
-    fn compute_size(&self, _cache: &mut ::buffa::SizeCache) -> u32 {
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
         #[allow(unused_imports)]
         use ::buffa::Enumeration as _;
         let mut size = 0u64;
@@ -6616,12 +6757,20 @@ impl ::buffa::Message for CoseSign1Options {
                     + ::buffa::types::uint64_encoded_len(self.max_cose_sign1_bytes)
                         as u64;
         }
+        if self.x5chain.is_set() {
+            let __slot = __cache.reserve();
+            let inner_size = self.x5chain.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size
+                += 1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64
+                    + inner_size as u64;
+        }
         size += self.__buffa_unknown_fields.encoded_len() as u64;
         ::buffa::saturate_size(size)
     }
     fn write_to(
         &self,
-        _cache: &mut ::buffa::SizeCache,
+        __cache: &mut ::buffa::SizeCache,
         buf: &mut impl ::buffa::EncodeSink,
     ) {
         #[allow(unused_imports)]
@@ -6631,6 +6780,14 @@ impl ::buffa::Message for CoseSign1Options {
         }
         if self.max_cose_sign1_bytes != 0u64 {
             ::buffa::types::put_uint64_field(2u32, self.max_cose_sign1_bytes, buf);
+        }
+        if self.x5chain.is_set() {
+            ::buffa::types::put_len_delimited_header(
+                3u32,
+                u64::from(__cache.consume_next()),
+                buf,
+            );
+            self.x5chain.write_to(__cache, buf);
         }
         self.__buffa_unknown_fields.write_to(buf);
     }
@@ -6659,6 +6816,17 @@ impl ::buffa::Message for CoseSign1Options {
                 )?;
                 self.max_cose_sign1_bytes = ::buffa::types::decode_uint64(buf)?;
             }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                ::buffa::Message::merge_length_delimited(
+                    self.x5chain.get_or_insert_default(),
+                    buf,
+                    ctx,
+                )?;
+            }
             _ => {
                 self.__buffa_unknown_fields
                     .push(::buffa::encoding::decode_unknown_field(tag, buf, ctx)?);
@@ -6669,6 +6837,7 @@ impl ::buffa::Message for CoseSign1Options {
     fn clear(&mut self) {
         self.tag = false;
         self.max_cose_sign1_bytes = 0u64;
+        self.x5chain = ::buffa::MessageField::none();
         __reallyme_zeroize_unknown_fields(&mut self.__buffa_unknown_fields);
     }
 }
