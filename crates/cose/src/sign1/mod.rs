@@ -20,6 +20,11 @@ pub(crate) mod sign;
 pub(crate) mod types;
 #[cfg(feature = "cose-crypto")]
 pub(crate) mod verify;
+#[cfg(feature = "cose-crypto")]
+mod x5chain;
+#[cfg(test)]
+#[cfg(feature = "cose-crypto")]
+mod x5chain_tests;
 
 #[cfg(feature = "cose-crypto")]
 pub use exact::{
@@ -41,5 +46,6 @@ pub use verify::{
     cose_verify1, cose_verify1_detached, cose_verify1_detached_with_metadata,
     cose_verify1_detached_with_policy, cose_verify1_detached_with_policy_and_external_aad,
     cose_verify1_with_metadata, cose_verify1_with_policy,
-    cose_verify1_with_policy_and_external_aad, VerifiedCoseSign1, VerifiedDetachedCoseSign1,
+    cose_verify1_with_policy_and_external_aad, cose_verify1_with_x5chain, VerifiedCoseSign1,
+    VerifiedCoseSign1WithX5Chain, VerifiedDetachedCoseSign1,
 };

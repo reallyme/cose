@@ -251,6 +251,11 @@ message CoseMlKemDecryptResult {
   bytes recipient_kid = 5;
 }
 
+// CoseX5Chain carries the RFC 9360 certificate path in leaf-first order.
+message CoseX5Chain {
+  repeated bytes certificates_der = 1;
+}
+
 message CoseSign1Options {
   // Emit the registered COSE_Sign1 root tag (18). False emits the untagged
   // COSE_Sign1 structure used by most byte-level SDK APIs.
@@ -258,6 +263,8 @@ message CoseSign1Options {
   // Optional maximum encoded COSE_Sign1 size. A value of 0 uses the crate
   // default.
   uint64 max_cose_sign1_bytes = 2;
+  // Optional RFC 9360 x5chain placed in unprotected header label 33.
+  CoseX5Chain x5chain = 3;
 }
 
 // CoseSign1CreateRequest signs an attached payload.

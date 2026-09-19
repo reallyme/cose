@@ -187,6 +187,7 @@ fn generated_private_key_requests_redact_debug_output() {
         options: buffa::MessageField::some(CoseSign1Options {
             tag: true,
             max_cose_sign1_bytes: 0,
+            x5chain: buffa::MessageField::none(),
             __buffa_unknown_fields: Default::default(),
         }),
         external_aad: Vec::new(),

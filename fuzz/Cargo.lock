@@ -1279,7 +1279,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-cose"
-version = "0.2.3"
+version = "0.2.4"
 dependencies = [
  "buffa",
  "ciborium",
@@ -1307,7 +1307,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-cose-proto"
-version = "0.2.3"
+version = "0.2.4"
 dependencies = [
  "buffa",
  "serde",

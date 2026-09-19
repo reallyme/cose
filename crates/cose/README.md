@@ -35,7 +35,7 @@ return `UnsupportedAlgorithm`; signing and encryption APIs are not exported.
 Enable the `wire` feature only for protobuf operation adapters:
 
 ```toml
-reallyme-cose = { version = "0.2.3", features = ["wire"] }
+reallyme-cose = { version = "0.2.4", features = ["wire"] }
 ```
 
 When default features are disabled, pair `wire` with an explicit runtime lane,
@@ -219,6 +219,9 @@ are deliberately not public struct-literal surface. Use
 - COSE_Sign1 signing can emit either untagged messages or messages carrying the
   registered COSE_Sign1 root tag (18) through `cose_sign1_tagged`,
   `cose_sign1_detached_tagged`, or `CoseSign1EncodeOptions`.
+- Profile-specific signing can attach a bounded RFC 9360 `x5chain` certificate
+  path through `CoseSign1EncodeOptions`; ordinary verification remains strict,
+  while `cose_verify1_with_x5chain` explicitly returns the authenticated path.
 - Ed25519, ES256 (`-7`), ESP256 (`-9`), ESP384 (`-51`), ESP512 (`-52`),
   ES256K (`-47`), ML-DSA-44, ML-DSA-65, and ML-DSA-87 signing using their
   COSE registrations.
@@ -490,20 +493,20 @@ may opt into larger local limits directly; protobuf callers cannot raise their
 parse policy beyond the message envelope cap. Generated ProtoJSON requests have
 a separate 3 MiB input cap to accommodate base64 and field-name overhead.
 
-## 0.2.3 Platform Scope
+## 0.2.4 Platform Scope
 
-The `0.2.3` release is intentionally Rust and protobuf only. Its publishable
+The `0.2.4` release is intentionally Rust and protobuf only. Its publishable
 artifacts are `reallyme-cose-proto` and `reallyme-cose`; the `native` and `wasm`
 features are Rust runtime lanes, not platform SDK packages.
 
-The `0.2.3` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
+The `0.2.4` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
 native C/JNI, or TypeScript/WASM npm packages. Those package formats are not
 part of this release's compatibility or support contract.
 
 The protobuf `swift_prefix` option is generation metadata, not a published
 Swift package. Likewise, `wasm32-unknown-unknown` is a Rust compilation target,
 not an npm package. The exact artifact scope is recorded in
-[`docs/platform-scope-0.2.3.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.2.3.json).
+[`docs/platform-scope-0.2.4.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.2.4.json).
 
 ## Development Checks
 

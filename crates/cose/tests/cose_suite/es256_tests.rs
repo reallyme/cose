@@ -7,8 +7,9 @@ use reallyme_cose::{
     cose_key_from_public_bytes, cose_key_from_signature_private_bytes,
     cose_key_from_signature_public_bytes, cose_key_from_slice, cose_key_signature_algorithm,
     cose_key_to_public_bytes, cose_key_to_vec, cose_sign1_with_signature_algorithm,
-    cose_verify1_with_policy, derive_kid_from_cose_key_public, Algorithm, CoseError, CosePolicy,
-    CoseSignatureAlgorithm,
+    cose_sign1_with_signature_algorithm_and_external_aad, cose_verify1_with_policy,
+    cose_verify1_with_x5chain, derive_kid_from_cose_key_public, Algorithm, CoseError, CosePolicy,
+    CoseSign1EncodeOptions, CoseSignatureAlgorithm,
 };
 
 use super::support::{gen_p256, test_kid};
@@ -138,6 +139,37 @@ fn es256_sign1_roundtrip_reports_exact_registration_and_policy_distinguishes_it(
         .err(),
         Some(CoseError::UnsupportedAlgorithm),
     );
+}
+
+#[test]
+fn x5chain_verification_is_explicit_bounded_and_preserves_exact_es256() {
+    const LEAF_CERTIFICATE_DER: &[u8] = &[0x30, 0x03, 0x02, 0x01, 0x01];
+
+    let keypair = gen_p256();
+    let cose = cose_sign1_with_signature_algorithm_and_external_aad(
+        CoseSignatureAlgorithm::Es256,
+        b"payload",
+        &keypair.private,
+        None,
+        &[],
+        CoseSign1EncodeOptions::new().with_x5chain_der(vec![LEAF_CERTIFICATE_DER.to_vec()]),
+    )
+    .expect("ES256 x5chain COSE_Sign1 must sign");
+    let policy = CosePolicy::new().allow_cose_algorithm(CoseSignatureAlgorithm::Es256);
+
+    assert_eq!(
+        cose_verify1_with_policy(&cose, &policy, |_, _| Some(keypair.public.clone())).err(),
+        Some(CoseError::InvalidFormat),
+    );
+    let expected_certificates = vec![LEAF_CERTIFICATE_DER.to_vec()];
+    let verified = cose_verify1_with_x5chain(&cose, &policy, |algorithm, certificates| {
+        (algorithm == Algorithm::P256 && certificates == expected_certificates.as_slice())
+            .then(|| keypair.public.clone())
+    })
+    .expect("explicit x5chain profile must verify");
+    assert_eq!(verified.payload.as_slice(), b"payload");
+    assert_eq!(verified.cose_algorithm, CoseSignatureAlgorithm::Es256);
+    assert_eq!(verified.x5chain_der, expected_certificates);
 }
 
 #[test]

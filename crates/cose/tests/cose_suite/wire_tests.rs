@@ -28,6 +28,9 @@ use crate::support::{
     OperationOutputStatus,
 };
 
+#[path = "wire_tests/x5chain_tests.rs"]
+mod x5chain_tests;
+
 fn signature_value(algorithm: CoseSignatureAlgorithm) -> EnumValue<CoseSignatureAlgorithm> {
     EnumValue::from(algorithm)
 }

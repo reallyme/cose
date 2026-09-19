@@ -20,6 +20,15 @@ pub const MAX_COSE_ENCRYPT_BYTES: usize = 1_114_112;
 /// Maximum accepted detached payload size for signing and verification.
 pub const MAX_DETACHED_PAYLOAD_BYTES: usize = 1_048_576;
 
+/// Maximum certificates accepted in one RFC 9360 `x5chain` header.
+pub const MAX_COSE_X5CHAIN_CERTIFICATES: usize = 8;
+
+/// Maximum DER bytes accepted for one RFC 9360 `x5chain` certificate.
+pub const MAX_COSE_X5CHAIN_CERTIFICATE_BYTES: usize = 16_384;
+
+/// Maximum aggregate DER bytes accepted for one RFC 9360 `x5chain` header.
+pub const MAX_COSE_X5CHAIN_TOTAL_BYTES: usize = 65_536;
+
 #[cfg(feature = "cose-crypto")]
 pub(crate) fn validate_cose_sign1_bytes_with_limit(
     bytes: &[u8],

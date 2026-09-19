@@ -27,12 +27,18 @@ pub(crate) fn encode_options_from_proto(
     let Some(options) = options else {
         return Ok(CoseSign1EncodeOptions::default());
     };
+    let x5chain_der = options
+        .x5chain
+        .as_option()
+        .map(|chain| chain.certificates_der.clone())
+        .unwrap_or_default();
     Ok(CoseSign1EncodeOptions::new()
         .with_tag(options.tag)
         .with_max_cose_sign1_bytes(optional_limit_to_usize(
             options.max_cose_sign1_bytes,
             MAX_COSE_SIGN1_BYTES,
-        )?))
+        )?)
+        .with_x5chain_der(x5chain_der))
 }
 
 pub(crate) fn policy_from_parts(

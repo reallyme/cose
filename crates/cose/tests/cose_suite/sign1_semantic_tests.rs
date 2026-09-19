@@ -45,7 +45,7 @@ fn sign1_operations_match_native_binary_and_proto_json() {
         &private_key,
         Some(test_kid()),
         EXTERNAL_AAD,
-        options,
+        options.clone(),
     )
     .expect("native attached signing must succeed");
     let wire_attached = execute_create(Operation::Sign1Create(Box::new(create_request(
@@ -269,6 +269,7 @@ fn sign_options(
     buffa::MessageField::some(CoseSign1Options {
         tag: tagged,
         max_cose_sign1_bytes: 0,
+        x5chain: buffa::MessageField::none(),
         __buffa_unknown_fields: Default::default(),
     })
 }
