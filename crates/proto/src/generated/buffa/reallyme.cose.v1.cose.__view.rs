@@ -9664,6 +9664,11 @@ pub struct CoseKeyFromPublicBytesRequestView<'a> {
     ///
     /// Field 2: `public_key`
     pub public_key: &'a [u8],
+    /// EC2 point encoding. Unspecified preserves the compact default. This field
+    /// must remain unspecified for non-EC2 algorithms.
+    ///
+    /// Field 3: `ec2_point_encoding`
+    pub ec2_point_encoding: ::buffa::EnumValue<super::super::CoseEc2PointEncoding>,
     pub __buffa_unknown_fields: ::buffa::UnknownFieldsView<'a>,
 }
 impl ::core::fmt::Debug for CoseKeyFromPublicBytesRequestView<'_> {
@@ -9729,6 +9734,15 @@ impl<'a> ::buffa::MessageView<'a> for CoseKeyFromPublicBytesRequestView<'a> {
                 )?;
                 view.public_key = ::buffa::types::borrow_bytes(&mut cur)?;
             }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::Varint,
+                )?;
+                view.ec2_point_encoding = ::buffa::EnumValue::from(
+                    ::buffa::types::decode_int32(&mut cur)?,
+                );
+            }
             _ => {
                 ::buffa::encoding::skip_field_depth(tag, &mut cur, ctx.depth())?;
                 let span_len = before_tag.len() - cur.len();
@@ -9767,6 +9781,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseKeyFromPublicBytesRequestView<'a> {
                 None => ::buffa::MessageField::none(),
             },
             public_key: (self.public_key).to_vec(),
+            ec2_point_encoding: self.ec2_point_encoding,
             __buffa_unknown_fields: self.__buffa_unknown_fields.to_owned()?.into(),
             ..::core::default::Default::default()
         })
@@ -9789,6 +9804,12 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseKeyFromPublicBytesRequestView<'a> {
         if !self.public_key.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.public_key) as u64;
         }
+        {
+            let val = self.ec2_point_encoding.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
         size += self.__buffa_unknown_fields.encoded_len() as u64;
         ::buffa::saturate_size(size)
     }
@@ -9810,6 +9831,12 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseKeyFromPublicBytesRequestView<'a> {
         }
         if !self.public_key.is_empty() {
             ::buffa::types::put_shared_bytes_field(2u32, &self.public_key, buf);
+        }
+        {
+            let val = self.ec2_point_encoding.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(3u32, val, buf);
+            }
         }
         self.__buffa_unknown_fields.write_to(buf);
     }
@@ -9843,6 +9870,11 @@ impl<'__a> ::serde::Serialize for CoseKeyFromPublicBytesRequestView<'__a> {
                     "publicKey",
                     &::buffa::json_helpers::BytesJson(self.public_key),
                 )?;
+        }
+        if !::buffa::json_helpers::skip_if::is_default_enum_value(
+            &self.ec2_point_encoding,
+        ) {
+            __map.serialize_entry("ec2PointEncoding", &self.ec2_point_encoding)?;
         }
         __map.end()
     }
@@ -9961,6 +9993,16 @@ impl CoseKeyFromPublicBytesRequestOwnedView {
     #[must_use]
     pub fn public_key(&self) -> &'_ [u8] {
         self.0.reborrow().public_key
+    }
+    /// EC2 point encoding. Unspecified preserves the compact default. This field
+    /// must remain unspecified for non-EC2 algorithms.
+    ///
+    /// Field 3: `ec2_point_encoding`
+    #[must_use]
+    pub fn ec2_point_encoding(
+        &self,
+    ) -> ::buffa::EnumValue<super::super::CoseEc2PointEncoding> {
+        self.0.reborrow().ec2_point_encoding
     }
 }
 impl ::core::convert::From<

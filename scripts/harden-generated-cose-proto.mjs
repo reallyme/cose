@@ -595,6 +595,12 @@ for (const [name, fields] of [
     [
       { name: "algorithm", jsonName: "algorithm", kind: "message", messageName: "CoseAlgorithmIdentifier" },
       { name: "public_key", jsonName: "publicKey", kind: "bytes" },
+      {
+        name: "ec2_point_encoding",
+        jsonName: "ec2PointEncoding",
+        kind: "enum",
+        enumName: "CoseEc2PointEncoding",
+      },
     ],
   ],
   ["CoseKeyBytesRequest", [{ name: "cose_key", jsonName: "coseKey", kind: "bytes" }]],

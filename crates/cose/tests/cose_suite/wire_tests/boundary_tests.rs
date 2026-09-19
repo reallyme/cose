@@ -3,6 +3,18 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 #[test]
+fn binary_proto_decoder_rejects_unknown_length_delimited_fields() {
+    let mut bytes = CoseOperationRequest::default().encode_to_vec();
+    // Field 100, wire type 2, followed by bytes that must not be retained in
+    // generated UnknownFields storage.
+    bytes.extend_from_slice(&[0xa2, 0x06, 0x06]);
+    bytes.extend_from_slice(b"secret");
+
+    let output = execute_operation_bytes(&bytes);
+    assert_error_reason(&output, CoseErrorReason::CommonMalformedProtobuf);
+}
+
+#[test]
 fn ml_kem_wire_rejects_unknown_content_algorithm_without_fallback() {
     let (public_key, _) = reallyme_crypto::ml_kem_512::generate_ml_kem_512_keypair()
         .expect("ML-KEM-512 key generation");

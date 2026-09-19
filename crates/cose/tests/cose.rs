@@ -20,6 +20,9 @@ mod detached_reject_wrong_payload_tests;
 #[path = "cose_suite/detached_roundtrip_tests.rs"]
 mod detached_roundtrip_tests;
 #[cfg(all(feature = "cose-crypto", feature = "wire"))]
+#[path = "cose_suite/ec2_point_encoding_tests.rs"]
+mod ec2_point_encoding_tests;
+#[cfg(all(feature = "cose-crypto", feature = "wire"))]
 #[path = "cose_suite/encrypt_semantic_tests.rs"]
 mod encrypt_semantic_tests;
 #[path = "cose_suite/es256_tests.rs"]

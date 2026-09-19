@@ -84,6 +84,17 @@ enum CoseKeyAgreementAlgorithm {
   COSE_KEY_AGREEMENT_ALGORITHM_X25519 = 100;
 }
 
+// CoseEc2PointEncoding selects the interoperable EC2 coordinate shape used
+// when constructing a COSE_Key. Both forms are defined by RFC 9053.
+enum CoseEc2PointEncoding {
+  // Preserve the library default: encode y as a parity boolean.
+  COSE_EC2_POINT_ENCODING_UNSPECIFIED = 0;
+  // Encode y as a parity boolean for the compact RFC 9053 representation.
+  COSE_EC2_POINT_ENCODING_COMPRESSED = 1;
+  // Encode x and y as full affine-coordinate byte strings.
+  COSE_EC2_POINT_ENCODING_FULL_COORDINATES = 2;
+}
+
 enum CoseKemAlgorithm {
   COSE_KEM_ALGORITHM_UNSPECIFIED = 0;
   reserved 1 to 14;
@@ -408,6 +419,9 @@ message CoseKeyFromPublicBytesRequest {
   CoseAlgorithmIdentifier algorithm = 1;
   // Raw public key bytes for the selected algorithm.
   bytes public_key = 2;
+  // EC2 point encoding. Unspecified preserves the compact default. This field
+  // must remain unspecified for non-EC2 algorithms.
+  CoseEc2PointEncoding ec2_point_encoding = 3;
 }
 
 // CoseKeyFromPrivateBytesRequest builds a private COSE_Key from raw private key

@@ -10,6 +10,7 @@ use reallyme_crypto::core::Algorithm;
 use crate::algorithm::CoseSignatureAlgorithm;
 use crate::CoseError;
 
+use super::encoding::CoseEc2PointEncoding;
 use super::profile::{get_param_bytes, get_param_value};
 use super::validate_material::validate_public_key;
 
@@ -207,6 +208,66 @@ pub(crate) fn canonical_ec_public_key(
     });
     canonical.extend_from_slice(x);
     Ok(canonical)
+}
+
+pub(crate) fn ec_public_key_for_encoding(
+    profile: Ec2Profile,
+    public_key: &[u8],
+    encoding: CoseEc2PointEncoding,
+) -> Result<Vec<u8>, CoseError> {
+    let canonical = canonical_ec_public_key(profile, public_key)?;
+    match encoding {
+        CoseEc2PointEncoding::Compressed => Ok(canonical),
+        CoseEc2PointEncoding::FullCoordinates => expand_canonical_ec_point(profile, &canonical),
+    }
+}
+
+#[cfg(feature = "cose-crypto")]
+fn expand_canonical_ec_point(profile: Ec2Profile, canonical: &[u8]) -> Result<Vec<u8>, CoseError> {
+    use reallyme_crypto::operations::key_encoding::{
+        decompress_p256_public_key, decompress_p384_public_key, decompress_p521_public_key,
+        decompress_secp256k1_public_key,
+    };
+
+    match profile.curve {
+        iana::EllipticCurve::P_256 => {
+            decompress_p256_public_key(canonical).map_err(|_| CoseError::InvalidKeyMaterial)
+        }
+        iana::EllipticCurve::P_384 => {
+            decompress_p384_public_key(canonical).map_err(|_| CoseError::InvalidKeyMaterial)
+        }
+        iana::EllipticCurve::P_521 => {
+            decompress_p521_public_key(canonical).map_err(|_| CoseError::InvalidKeyMaterial)
+        }
+        iana::EllipticCurve::Secp256k1 => {
+            let (x, y) = decompress_secp256k1_public_key(canonical)
+                .map_err(|_| CoseError::InvalidKeyMaterial)?;
+            let raw_len = raw_point_len(profile)?;
+            let uncompressed_len = raw_len
+                .checked_add(COMPRESSED_POINT_PREFIX_BYTES)
+                .ok_or(CoseError::ResourceLimitExceeded)?;
+            if x.len() != profile.coordinate_len || y.len() != profile.coordinate_len {
+                return Err(CoseError::InvalidKeyMaterial);
+            }
+            let mut expanded = Vec::new();
+            expanded
+                .try_reserve_exact(uncompressed_len)
+                .map_err(|_| CoseError::ResourceLimitExceeded)?;
+            expanded.push(UNCOMPRESSED_POINT_PREFIX);
+            expanded.extend_from_slice(&x);
+            expanded.extend_from_slice(&y);
+            Ok(expanded)
+        }
+        _ => Err(CoseError::UnsupportedAlgorithm),
+    }
+}
+
+#[cfg(not(feature = "cose-crypto"))]
+fn expand_canonical_ec_point(
+    _profile: Ec2Profile,
+    _canonical: &[u8],
+) -> Result<Vec<u8>, CoseError> {
+    Err(CoseError::ProviderUnavailable)
 }
 
 fn validate_supplied_point(

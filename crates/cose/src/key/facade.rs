@@ -13,10 +13,13 @@ use crate::{CoseError, CoseKey};
 
 use super::convert::{
     construct_cose_key_from_private, construct_cose_key_from_public,
-    construct_cose_key_from_signature_private, construct_cose_key_from_signature_public,
-    encode_cose_key, extract_cose_key_private, extract_cose_key_public, CoseKeyBytesOutput,
+    construct_cose_key_from_public_with_encoding, construct_cose_key_from_signature_private,
+    construct_cose_key_from_signature_public,
+    construct_cose_key_from_signature_public_with_encoding, encode_cose_key,
+    extract_cose_key_private, extract_cose_key_public, CoseKeyBytesOutput,
     CoseKeyFromPrivateBytesInput, CoseKeyFromPublicBytesInput, CoseKeyOwnerOutput, CoseKeyRefInput,
 };
+use super::encoding::CoseEc2PointEncoding;
 
 /// Encode a COSE_Key to canonical CBOR bytes.
 ///
@@ -48,6 +51,22 @@ pub fn cose_key_from_public_bytes(
         .map_err(CoseFailure::into_native_error)
 }
 
+/// Build a public EC2 COSE_Key with an explicit point shape.
+///
+/// # Errors
+///
+/// Returns [`CoseError`] for non-EC2 algorithms, unavailable providers,
+/// invalid point material, or an input that cannot satisfy the policy.
+pub fn cose_key_from_public_bytes_with_encoding(
+    algorithm: Algorithm,
+    public_key: &[u8],
+    encoding: CoseEc2PointEncoding,
+) -> Result<CoseKey, CoseError> {
+    construct_cose_key_from_public_with_encoding(algorithm, public_key, encoding)
+        .map(CoseKeyOwnerOutput::into_key)
+        .map_err(CoseFailure::into_native_error)
+}
+
 /// Build a public COSE_Key with an exact signature-algorithm registration.
 ///
 /// Use this API when the protocol distinguishes registrations that share one
@@ -63,6 +82,27 @@ pub fn cose_key_from_signature_public_bytes(
     public_key: &[u8],
 ) -> Result<CoseKey, CoseError> {
     construct_cose_key_from_signature_public(algorithm, public_key)
+        .map(CoseKeyOwnerOutput::into_key)
+        .map_err(CoseFailure::into_native_error)
+}
+
+/// Build an exact-algorithm public EC2 COSE_Key with an explicit point shape.
+///
+/// Full coordinates are required by profiles whose consumers do not accept
+/// RFC 9053's compact y-parity representation. The full-coordinate policy
+/// requires raw `x || y` or uncompressed SEC1 input so it never reconstructs
+/// discarded coordinate material implicitly.
+///
+/// # Errors
+///
+/// Returns [`CoseError`] for non-EC2 algorithms, invalid point material, or an
+/// input shape that cannot satisfy the requested encoding.
+pub fn cose_key_from_signature_public_bytes_with_encoding(
+    algorithm: CoseSignatureAlgorithm,
+    public_key: &[u8],
+    encoding: CoseEc2PointEncoding,
+) -> Result<CoseKey, CoseError> {
+    construct_cose_key_from_signature_public_with_encoding(algorithm, public_key, encoding)
         .map(CoseKeyOwnerOutput::into_key)
         .map_err(CoseFailure::into_native_error)
 }

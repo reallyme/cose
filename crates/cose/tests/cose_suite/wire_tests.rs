@@ -462,6 +462,7 @@ fn cose_key_dispatch_accepts_family_scoped_signature_and_key_agreement_selectors
     let ed25519_request = CoseKeyFromPublicBytesRequest {
         algorithm: signature_identifier(CoseSignatureAlgorithm::Ed25519),
         public_key: ed25519.public,
+        ec2_point_encoding: Default::default(),
         __buffa_unknown_fields: Default::default(),
     };
     let ed25519_output = execute_operation_bytes(
@@ -485,6 +486,7 @@ fn cose_key_dispatch_accepts_family_scoped_signature_and_key_agreement_selectors
     let x25519_request = CoseKeyFromPublicBytesRequest {
         algorithm: key_agreement_identifier(CoseKeyAgreementAlgorithm::X25519),
         public_key: x25519_public,
+        ec2_point_encoding: Default::default(),
         __buffa_unknown_fields: Default::default(),
     };
     let x25519_output = execute_operation_bytes(
@@ -506,6 +508,7 @@ fn es256_wire_contract_preserves_the_exact_registration() {
     let key_request = CoseKeyFromPublicBytesRequest {
         algorithm: signature_identifier(CoseSignatureAlgorithm::Es256),
         public_key: key.public.clone(),
+        ec2_point_encoding: Default::default(),
         __buffa_unknown_fields: Default::default(),
     };
     let key_output = execute_operation_bytes(
@@ -532,6 +535,7 @@ fn es256_wire_contract_preserves_the_exact_registration() {
     let legacy_request = CoseKeyFromPublicBytesRequest {
         algorithm: signature_identifier(CoseSignatureAlgorithm::EcdsaP256Sha256),
         public_key: key.public.clone(),
+        ec2_point_encoding: Default::default(),
         __buffa_unknown_fields: Default::default(),
     };
     let legacy_output = execute_operation_bytes(
@@ -574,18 +578,6 @@ fn es256_wire_contract_preserves_the_exact_registration() {
         verify_result.exact_signature_algorithm.as_known(),
         Some(CoseSignatureAlgorithm::Es256),
     );
-}
-
-#[test]
-fn binary_proto_decoder_rejects_unknown_length_delimited_fields() {
-    let mut bytes = CoseOperationRequest::default().encode_to_vec();
-    // Field 100, wire type 2, followed by bytes that must not be retained in
-    // generated UnknownFields storage.
-    bytes.extend_from_slice(&[0xa2, 0x06, 0x06]);
-    bytes.extend_from_slice(b"secret");
-
-    let output = execute_operation_bytes(&bytes);
-    assert_error_reason(&output, CoseErrorReason::CommonMalformedProtobuf);
 }
 
 #[test]

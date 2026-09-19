@@ -8,16 +8,21 @@ use zeroize::{Zeroize, Zeroizing};
 
 use crate::key::convert::{
     construct_cose_key_from_private, construct_cose_key_from_public,
-    construct_cose_key_from_signature_private, construct_cose_key_from_signature_public,
-    extract_cose_key_private, extract_cose_key_public, CoseKeyFromPrivateBytesInput,
-    CoseKeyFromPublicBytesInput, CoseKeyRefInput,
+    construct_cose_key_from_public_with_encoding, construct_cose_key_from_signature_private,
+    construct_cose_key_from_signature_public,
+    construct_cose_key_from_signature_public_with_encoding, extract_cose_key_private,
+    extract_cose_key_public, CoseKeyFromPrivateBytesInput, CoseKeyFromPublicBytesInput,
+    CoseKeyRefInput,
 };
 use crate::key::derive_kid::derive_cose_key_public_kid;
 use crate::key::{parse_cose_key, CoseKeyParseInput, CoseKeyParseOutput};
 use crate::multikey::convert::{
     convert_cose_key_to_multikey, convert_multikey_to_cose_key, MultikeyInput,
 };
-use crate::operation_contract::input::{key_algorithm_identifier_from_proto, KeyAlgorithmInput};
+use crate::operation_contract::input::{
+    ec2_point_encoding_from_proto, key_algorithm_identifier_from_proto,
+    validate_ec2_point_encoding, KeyAlgorithmInput,
+};
 use crate::operation_contract::key::result;
 use crate::operation_contract::map_failure::boundary_error_from_failure;
 use crate::wire::{
@@ -29,13 +34,27 @@ pub(crate) fn from_public_bytes_result(
     mut request: CoseKeyFromPublicBytesRequest,
 ) -> CoseWireResult<CoseOperationResult> {
     let algorithm = key_algorithm_identifier_from_proto(request.algorithm.as_option())?;
+    let point_encoding = validate_ec2_point_encoding(
+        &algorithm,
+        ec2_point_encoding_from_proto(request.ec2_point_encoding)?,
+    )?;
     let public_key = Zeroizing::new(core::mem::take(&mut request.public_key));
-    let output = match algorithm {
-        KeyAlgorithmInput::Signature(algorithm) => {
+    let output = match (algorithm, point_encoding) {
+        (KeyAlgorithmInput::Signature(algorithm), Some(point_encoding)) => {
+            construct_cose_key_from_signature_public_with_encoding(
+                algorithm,
+                &public_key,
+                point_encoding,
+            )
+        }
+        (KeyAlgorithmInput::Signature(algorithm), None) => {
             construct_cose_key_from_signature_public(algorithm, &public_key)
         }
-        KeyAlgorithmInput::Crypto(algorithm) => {
+        (KeyAlgorithmInput::Crypto(algorithm), None) => {
             construct_cose_key_from_public(CoseKeyFromPublicBytesInput::new(algorithm, &public_key))
+        }
+        (KeyAlgorithmInput::Crypto(algorithm), Some(point_encoding)) => {
+            construct_cose_key_from_public_with_encoding(algorithm, &public_key, point_encoding)
         }
     }
     .map_err(boundary_error_from_failure)?;

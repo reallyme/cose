@@ -474,6 +474,173 @@ impl ::buffa::Enumeration for CoseKeyAgreementAlgorithm {
         ]
     }
 }
+/// CoseEc2PointEncoding selects the interoperable EC2 coordinate shape used
+/// when constructing a COSE_Key. Both forms are defined by RFC 9053.
+#[allow(non_camel_case_types)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[repr(i32)]
+pub enum CoseEc2PointEncoding {
+    /// Preserve the library default: encode y as a parity boolean.
+    COSE_EC2_POINT_ENCODING_UNSPECIFIED = 0i32,
+    /// Encode y as a parity boolean for the compact RFC 9053 representation.
+    COSE_EC2_POINT_ENCODING_COMPRESSED = 1i32,
+    /// Encode x and y as full affine-coordinate byte strings.
+    COSE_EC2_POINT_ENCODING_FULL_COORDINATES = 2i32,
+}
+impl CoseEc2PointEncoding {
+    ///Idiomatic alias for [`Self::COSE_EC2_POINT_ENCODING_UNSPECIFIED`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Unspecified: Self = Self::COSE_EC2_POINT_ENCODING_UNSPECIFIED;
+    ///Idiomatic alias for [`Self::COSE_EC2_POINT_ENCODING_COMPRESSED`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Compressed: Self = Self::COSE_EC2_POINT_ENCODING_COMPRESSED;
+    ///Idiomatic alias for [`Self::COSE_EC2_POINT_ENCODING_FULL_COORDINATES`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const FullCoordinates: Self = Self::COSE_EC2_POINT_ENCODING_FULL_COORDINATES;
+}
+impl ::core::default::Default for CoseEc2PointEncoding {
+    fn default() -> Self {
+        Self::COSE_EC2_POINT_ENCODING_UNSPECIFIED
+    }
+}
+impl ::serde::Serialize for CoseEc2PointEncoding {
+    fn serialize<S: ::serde::Serializer>(
+        &self,
+        s: S,
+    ) -> ::core::result::Result<S::Ok, S::Error> {
+        s.serialize_str(::buffa::Enumeration::proto_name(self))
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CoseEc2PointEncoding {
+    fn deserialize<D: ::serde::Deserializer<'de>>(
+        d: D,
+    ) -> ::core::result::Result<Self, D::Error> {
+        struct _V;
+        impl ::serde::de::Visitor<'_> for _V {
+            type Value = CoseEc2PointEncoding;
+            fn expecting(
+                &self,
+                f: &mut ::core::fmt::Formatter<'_>,
+            ) -> ::core::fmt::Result {
+                f.write_str(
+                    concat!(
+                        "a string, integer, or null for ",
+                        stringify!(CoseEc2PointEncoding)
+                    ),
+                )
+            }
+            fn visit_str<E: ::serde::de::Error>(
+                self,
+                v: &str,
+            ) -> ::core::result::Result<CoseEc2PointEncoding, E> {
+                <CoseEc2PointEncoding as ::buffa::Enumeration>::from_proto_name(v)
+                    .ok_or_else(|| { ::serde::de::Error::unknown_variant(v, &[]) })
+            }
+            fn visit_i64<E: ::serde::de::Error>(
+                self,
+                v: i64,
+            ) -> ::core::result::Result<CoseEc2PointEncoding, E> {
+                let v32 = i32::try_from(v)
+                    .map_err(|_| {
+                        ::serde::de::Error::custom("enum value out of i32 range")
+                    })?;
+                <CoseEc2PointEncoding as ::buffa::Enumeration>::from_i32(v32)
+                    .ok_or_else(|| {
+                        ::serde::de::Error::custom("unknown enum value")
+                    })
+            }
+            fn visit_u64<E: ::serde::de::Error>(
+                self,
+                v: u64,
+            ) -> ::core::result::Result<CoseEc2PointEncoding, E> {
+                let v32 = i32::try_from(v)
+                    .map_err(|_| {
+                        ::serde::de::Error::custom("enum value out of i32 range")
+                    })?;
+                <CoseEc2PointEncoding as ::buffa::Enumeration>::from_i32(v32)
+                    .ok_or_else(|| {
+                        ::serde::de::Error::custom("unknown enum value")
+                    })
+            }
+            fn visit_unit<E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseEc2PointEncoding, E> {
+                ::core::result::Result::Ok(::core::default::Default::default())
+            }
+        }
+        d.deserialize_any(_V)
+    }
+}
+impl ::buffa::json_helpers::ProtoElemJson for CoseEc2PointEncoding {
+    fn serialize_proto_json<S: ::serde::Serializer>(
+        v: &Self,
+        s: S,
+    ) -> ::core::result::Result<S::Ok, S::Error> {
+        ::serde::Serialize::serialize(v, s)
+    }
+    fn deserialize_proto_json<'de, D: ::serde::Deserializer<'de>>(
+        d: D,
+    ) -> ::core::result::Result<Self, D::Error> {
+        <Self as ::serde::Deserialize>::deserialize(d)
+    }
+}
+impl ::buffa::Enumeration for CoseEc2PointEncoding {
+    fn from_i32(value: i32) -> ::core::option::Option<Self> {
+        match value {
+            0i32 => {
+                ::core::option::Option::Some(Self::COSE_EC2_POINT_ENCODING_UNSPECIFIED)
+            }
+            1i32 => {
+                ::core::option::Option::Some(Self::COSE_EC2_POINT_ENCODING_COMPRESSED)
+            }
+            2i32 => {
+                ::core::option::Option::Some(
+                    Self::COSE_EC2_POINT_ENCODING_FULL_COORDINATES,
+                )
+            }
+            _ => ::core::option::Option::None,
+        }
+    }
+    fn to_i32(&self) -> i32 {
+        *self as i32
+    }
+    fn proto_name(&self) -> &'static str {
+        match self {
+            Self::COSE_EC2_POINT_ENCODING_UNSPECIFIED => {
+                "COSE_EC2_POINT_ENCODING_UNSPECIFIED"
+            }
+            Self::COSE_EC2_POINT_ENCODING_COMPRESSED => {
+                "COSE_EC2_POINT_ENCODING_COMPRESSED"
+            }
+            Self::COSE_EC2_POINT_ENCODING_FULL_COORDINATES => {
+                "COSE_EC2_POINT_ENCODING_FULL_COORDINATES"
+            }
+        }
+    }
+    fn from_proto_name(name: &str) -> ::core::option::Option<Self> {
+        match name {
+            "COSE_EC2_POINT_ENCODING_UNSPECIFIED" => {
+                ::core::option::Option::Some(Self::COSE_EC2_POINT_ENCODING_UNSPECIFIED)
+            }
+            "COSE_EC2_POINT_ENCODING_COMPRESSED" => {
+                ::core::option::Option::Some(Self::COSE_EC2_POINT_ENCODING_COMPRESSED)
+            }
+            "COSE_EC2_POINT_ENCODING_FULL_COORDINATES" => {
+                ::core::option::Option::Some(
+                    Self::COSE_EC2_POINT_ENCODING_FULL_COORDINATES,
+                )
+            }
+            _ => ::core::option::Option::None,
+        }
+    }
+    fn values() -> &'static [Self] {
+        &[
+            Self::COSE_EC2_POINT_ENCODING_UNSPECIFIED,
+            Self::COSE_EC2_POINT_ENCODING_COMPRESSED,
+            Self::COSE_EC2_POINT_ENCODING_FULL_COORDINATES,
+        ]
+    }
+}
 #[allow(non_camel_case_types)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 #[repr(i32)]
@@ -8992,6 +9159,17 @@ pub struct CoseKeyFromPublicBytesRequest {
         skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_bytes"
     )]
     pub public_key: ::buffa::alloc::vec::Vec<u8>,
+    /// EC2 point encoding. Unspecified preserves the compact default. This field
+    /// must remain unspecified for non-EC2 algorithms.
+    ///
+    /// Field 3: `ec2_point_encoding`
+    #[serde(
+        rename = "ec2PointEncoding",
+        alias = "ec2_point_encoding",
+        with = "::buffa::json_helpers::proto_enum",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_default_enum_value"
+    )]
+    pub ec2_point_encoding: ::buffa::EnumValue<CoseEc2PointEncoding>,
     #[serde(skip)]
     #[doc(hidden)]
     pub __buffa_unknown_fields: ::buffa::UnknownFields,
@@ -9001,6 +9179,7 @@ impl ::core::fmt::Debug for CoseKeyFromPublicBytesRequest {
         f.debug_struct("CoseKeyFromPublicBytesRequest")
             .field("algorithm", &self.algorithm)
             .field("public_key", &"<redacted>")
+            .field("ec2_point_encoding", &self.ec2_point_encoding)
             .finish()
     }
 }
@@ -9027,12 +9206,15 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyFromPublicBytesRequest {
             algorithm: ::buffa::MessageField<CoseAlgorithmIdentifier, ::buffa::Inline<CoseAlgorithmIdentifier>>,
             #[serde(rename = "publicKey", alias = "public_key", deserialize_with = "deserialize_secret_bytes")]
             public_key: ::zeroize::Zeroizing<::buffa::alloc::vec::Vec<u8>>,
+            #[serde(rename = "ec2PointEncoding", alias = "ec2_point_encoding", with = "::buffa::json_helpers::proto_enum")]
+            ec2_point_encoding: ::buffa::EnumValue<CoseEc2PointEncoding>,
         }
 
         let mut wire = Wire::deserialize(deserializer)?;
         Ok(Self {
             algorithm: ::core::mem::take(&mut wire.algorithm),
             public_key: ::core::mem::take(&mut *wire.public_key),
+            ec2_point_encoding: wire.ec2_point_encoding,
             __buffa_unknown_fields: Default::default(),
         })
     }
@@ -9081,6 +9263,12 @@ impl ::buffa::Message for CoseKeyFromPublicBytesRequest {
         if !self.public_key.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.public_key) as u64;
         }
+        {
+            let val = self.ec2_point_encoding.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
         size += self.__buffa_unknown_fields.encoded_len() as u64;
         ::buffa::saturate_size(size)
     }
@@ -9101,6 +9289,12 @@ impl ::buffa::Message for CoseKeyFromPublicBytesRequest {
         }
         if !self.public_key.is_empty() {
             ::buffa::types::put_shared_bytes_field(2u32, &self.public_key, buf);
+        }
+        {
+            let val = self.ec2_point_encoding.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(3u32, val, buf);
+            }
         }
         self.__buffa_unknown_fields.write_to(buf);
     }
@@ -9133,6 +9327,15 @@ impl ::buffa::Message for CoseKeyFromPublicBytesRequest {
                 )?;
                 crate::merge_sensitive::merge_bytes(&mut self.public_key, buf)?;
             }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::Varint,
+                )?;
+                self.ec2_point_encoding = ::buffa::EnumValue::from(
+                    ::buffa::types::decode_int32(buf)?,
+                );
+            }
             _ => {
                 self.__buffa_unknown_fields
                     .push(::buffa::encoding::decode_unknown_field(tag, buf, ctx)?);
@@ -9143,6 +9346,7 @@ impl ::buffa::Message for CoseKeyFromPublicBytesRequest {
     fn clear(&mut self) {
         self.algorithm = ::buffa::MessageField::none();
         ::zeroize::Zeroize::zeroize(&mut self.public_key);
+        self.ec2_point_encoding = ::buffa::EnumValue::from(0);
         __reallyme_zeroize_unknown_fields(&mut self.__buffa_unknown_fields);
     }
 }

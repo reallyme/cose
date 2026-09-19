@@ -13,8 +13,8 @@ use reallyme_cose_proto::generated::proto::reallyme::cose::v1::{
         cose_algorithm_identifier, cose_operation_request, cose_operation_response_v2,
         cose_operation_result,
     },
-    CoseAlgorithmIdentifier, CoseContentEncryptionAlgorithm, CoseErrorReason, CoseKemAlgorithm,
-    CoseKeyAgreementAlgorithm, CoseKeyBytesRequest, CoseKeyBytesResult,
+    CoseAlgorithmIdentifier, CoseContentEncryptionAlgorithm, CoseEc2PointEncoding, CoseErrorReason,
+    CoseKemAlgorithm, CoseKeyAgreementAlgorithm, CoseKeyBytesRequest, CoseKeyBytesResult,
     CoseKeyFromPrivateBytesRequest, CoseKeyFromPublicBytesRequest, CoseMlKemDecryptRequest,
     CoseMlKemDecryptResult, CoseMlKemEncryptRequest, CoseMlKemEncryptResult, CoseMlKemMode,
     CoseMultikeyResult, CoseMultikeyToCoseKeyRequest, CoseOperationRequest,
@@ -222,6 +222,17 @@ fn sign1_exact_algorithm_result_fields_are_frozen() {
 }
 
 #[test]
+fn public_key_ec2_point_encoding_field_is_frozen() {
+    let request = CoseKeyFromPublicBytesRequest {
+        algorithm: Default::default(),
+        public_key: Vec::new(),
+        ec2_point_encoding: EnumValue::from(CoseEc2PointEncoding::FullCoordinates),
+        __buffa_unknown_fields: Default::default(),
+    };
+    assert_eq!(request.encode_to_vec(), [0x18, 0x02]);
+}
+
+#[test]
 fn operation_request_type_name_is_frozen() {
     assert_eq!(
         CoseOperationRequest::TYPE_URL,
@@ -247,6 +258,9 @@ fn algorithm_and_mode_numbers_are_frozen() {
         (CoseSignatureAlgorithm::MlDsa87 as i32, 1020),
         (CoseKeyAgreementAlgorithm::Unspecified as i32, 0),
         (CoseKeyAgreementAlgorithm::X25519 as i32, 100),
+        (CoseEc2PointEncoding::Unspecified as i32, 0),
+        (CoseEc2PointEncoding::Compressed as i32, 1),
+        (CoseEc2PointEncoding::FullCoordinates as i32, 2),
         (CoseKemAlgorithm::Unspecified as i32, 0),
         (CoseKemAlgorithm::MlKem512 as i32, 1000),
         (CoseKemAlgorithm::MlKem768 as i32, 1010),

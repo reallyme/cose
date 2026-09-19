@@ -241,6 +241,12 @@ are deliberately not public struct-literal surface. Use
 - COSE_Key public/private construction and extraction for supported signing keys.
   Private construction requires the corresponding public key and validates the
   pair before the key can enter the typed API.
+- EC2 public-key construction uses the compact RFC 9053 `y`-sign form by
+  default. Profiles that require full affine coordinates can opt into
+  `CoseEc2PointEncoding::FullCoordinates`; the protobuf field has the same
+  explicit policy, with an omitted value preserving the compact default.
+  Compact and full-coordinate encodings derive the same canonical public-key
+  `kid`, so a representation choice does not change key identity.
 - One-recipient `COSE_Encrypt` and `COSE_Recipient` processing for
   ML-KEM-512, ML-KEM-768, and ML-KEM-1024, with direct KMAC256 derivation or
   the fixed ML-KEM-512+A128KW, ML-KEM-768+A192KW, and

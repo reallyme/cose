@@ -3,7 +3,12 @@
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use reallyme_cose::{cose_key_from_public_bytes, cose_key_to_public_bytes, Algorithm, CoseError};
+use reallyme_cose::{
+    cose_key_from_public_bytes, cose_key_from_signature_public_bytes,
+    cose_key_from_signature_public_bytes_with_encoding, cose_key_to_public_bytes, cose_key_to_vec,
+    derive_kid_from_cose_key_public, Algorithm, CoseEc2PointEncoding, CoseError,
+    CoseSignatureAlgorithm,
+};
 
 use super::support::{gen_ed25519, gen_p256, gen_p384, gen_p521, gen_secp256k1};
 
@@ -27,6 +32,51 @@ fn cose_key_p256_roundtrip() {
     let out = cose_key_to_public_bytes(&cose_key).unwrap();
 
     assert_eq!(out, k.public);
+}
+
+#[test]
+fn exact_es256_full_coordinates_are_explicit_and_identity_stable() {
+    use ciborium::value::Value;
+    use coset::{iana, CborSerializable, CoseKey as RawCoseKey, Label};
+
+    let fixture = gen_p256();
+    let compact =
+        cose_key_from_signature_public_bytes(CoseSignatureAlgorithm::Es256, &fixture.public)
+            .expect("compact ES256 key");
+    let full = cose_key_from_signature_public_bytes_with_encoding(
+        CoseSignatureAlgorithm::Es256,
+        &fixture.public,
+        CoseEc2PointEncoding::FullCoordinates,
+    )
+    .expect("full-coordinate ES256 key");
+    let compact_wire =
+        RawCoseKey::from_slice(&cose_key_to_vec(&compact).expect("compact encoding"))
+            .expect("compact wire key");
+    let full_wire = RawCoseKey::from_slice(&cose_key_to_vec(&full).expect("full encoding"))
+        .expect("full wire key");
+    let y_label = Label::Int(iana::Ec2KeyParameter::Y as i64);
+
+    let compact_y = compact_wire
+        .params
+        .iter()
+        .find_map(|(label, value)| (label == &y_label).then_some(value))
+        .expect("compact Y");
+    let full_y = full_wire
+        .params
+        .iter()
+        .find_map(|(label, value)| (label == &y_label).then_some(value))
+        .expect("full Y");
+
+    assert!(matches!(compact_y, Value::Bool(_)));
+    assert_eq!(full_y.as_bytes().map(Vec::len), Some(32));
+    assert_eq!(
+        derive_kid_from_cose_key_public(&compact).expect("compact kid"),
+        derive_kid_from_cose_key_public(&full).expect("full kid"),
+    );
+    assert_eq!(
+        cose_key_to_public_bytes(&full).expect("full public bytes"),
+        fixture.public,
+    );
 }
 
 #[test]

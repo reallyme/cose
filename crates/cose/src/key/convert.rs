@@ -19,7 +19,9 @@ use super::akp::{akp_key, akp_profile, algorithm_for_akp_profile};
 use super::ec::{
     algorithm_for_ec2_profile, canonical_ec_public_key, ec2_profile,
     ec2_profile_for_signature_algorithm, ec2_public_bytes_from_key, ec2_public_key_builder,
+    ec_public_key_for_encoding,
 };
+use super::encoding::CoseEc2PointEncoding;
 #[cfg(feature = "wire")]
 use super::profile::cose_key_signature_algorithm;
 use super::profile::{
@@ -120,11 +122,31 @@ pub(crate) fn construct_cose_key_from_public(
         .map_err(CoseFailure::from)
 }
 
+pub(crate) fn construct_cose_key_from_public_with_encoding(
+    algorithm: Algorithm,
+    public_key: &[u8],
+    encoding: CoseEc2PointEncoding,
+) -> Result<CoseKeyOwnerOutput, CoseFailure> {
+    construct_cose_key_from_public_with_encoding_impl(algorithm, None, public_key, encoding)
+        .map(|key| CoseKeyOwnerOutput { key })
+        .map_err(CoseFailure::from)
+}
+
 pub(crate) fn construct_cose_key_from_signature_public(
     algorithm: CoseSignatureAlgorithm,
     public_key: &[u8],
 ) -> Result<CoseKeyOwnerOutput, CoseFailure> {
     construct_cose_key_from_public_impl(algorithm.crypto_algorithm(), Some(algorithm), public_key)
+        .map(|key| CoseKeyOwnerOutput { key })
+        .map_err(CoseFailure::from)
+}
+
+pub(crate) fn construct_cose_key_from_signature_public_with_encoding(
+    algorithm: CoseSignatureAlgorithm,
+    public_key: &[u8],
+    encoding: CoseEc2PointEncoding,
+) -> Result<CoseKeyOwnerOutput, CoseFailure> {
+    construct_cose_key_from_signature_public_with_encoding_impl(algorithm, public_key, encoding)
         .map(|key| CoseKeyOwnerOutput { key })
         .map_err(CoseFailure::from)
 }
@@ -300,6 +322,40 @@ fn construct_cose_key_from_public_impl(
         }
         _ => Err(CoseError::UnsupportedAlgorithm),
     }
+}
+
+fn construct_cose_key_from_signature_public_with_encoding_impl(
+    algorithm: CoseSignatureAlgorithm,
+    public_key: &[u8],
+    encoding: CoseEc2PointEncoding,
+) -> Result<CoseKey, CoseError> {
+    construct_cose_key_from_public_with_encoding_impl(
+        algorithm.crypto_algorithm(),
+        Some(algorithm),
+        public_key,
+        encoding,
+    )
+}
+
+fn construct_cose_key_from_public_with_encoding_impl(
+    algorithm: Algorithm,
+    signature_algorithm: Option<CoseSignatureAlgorithm>,
+    public_key: &[u8],
+    encoding: CoseEc2PointEncoding,
+) -> Result<CoseKey, CoseError> {
+    let profile = match signature_algorithm {
+        Some(signature_algorithm) => ec2_profile_for_signature_algorithm(signature_algorithm)?,
+        None => ec2_profile(algorithm)?,
+    };
+    if signature_algorithm.is_some_and(|value| value.crypto_algorithm() != algorithm) {
+        return Err(CoseError::UnsupportedAlgorithm);
+    }
+    let selected = ec_public_key_for_encoding(profile, public_key, encoding)?;
+    Ok(CoseKey::new(
+        ec2_public_key_builder(profile, &selected)?
+            .algorithm(profile.alg)
+            .build(),
+    ))
 }
 
 fn extract_cose_key_public_impl(key: &CoseKey) -> Result<Vec<u8>, CoseError> {

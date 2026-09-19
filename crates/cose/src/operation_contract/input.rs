@@ -11,13 +11,14 @@ use reallyme_crypto::core::Algorithm;
 use crate::algorithm::CoseSignatureAlgorithm as NativeCoseSignatureAlgorithm;
 use crate::limits::{MAX_COSE_SIGN1_BYTES, MAX_DETACHED_PAYLOAD_BYTES};
 use crate::wire::{
-    CoseAlgorithmIdentifier, CoseContentEncryptionAlgorithm, CoseErrorReason, CoseKemAlgorithm,
+    CoseAlgorithmIdentifier, CoseContentEncryptionAlgorithm,
+    CoseEc2PointEncoding as WireCoseEc2PointEncoding, CoseErrorReason, CoseKemAlgorithm,
     CoseKeyAgreementAlgorithm, CoseSign1Options,
     CoseSignatureAlgorithm as WireCoseSignatureAlgorithm, CoseWireError, CoseWireResult,
     MAX_COSE_PROTO_MESSAGE_BYTES,
 };
 use crate::{
-    CoseContentEncryptionAlgorithm as NativeCoseContentEncryptionAlgorithm,
+    CoseContentEncryptionAlgorithm as NativeCoseContentEncryptionAlgorithm, CoseEc2PointEncoding,
     CoseMlKemAlgorithm as NativeCoseMlKemAlgorithm, CosePolicy, CoseSign1EncodeOptions,
 };
 
@@ -111,6 +112,50 @@ pub(crate) fn signature_algorithm_from_proto(
 pub(crate) enum KeyAlgorithmInput {
     Signature(NativeCoseSignatureAlgorithm),
     Crypto(Algorithm),
+}
+
+impl KeyAlgorithmInput {
+    pub(crate) fn supports_ec2_point_encoding(&self) -> bool {
+        matches!(
+            self,
+            Self::Signature(
+                NativeCoseSignatureAlgorithm::Es256
+                    | NativeCoseSignatureAlgorithm::Esp256
+                    | NativeCoseSignatureAlgorithm::Esp384
+                    | NativeCoseSignatureAlgorithm::Esp512
+                    | NativeCoseSignatureAlgorithm::Es256K,
+            ) | Self::Crypto(
+                Algorithm::P256 | Algorithm::P384 | Algorithm::P521 | Algorithm::Secp256k1,
+            )
+        )
+    }
+}
+
+pub(crate) fn ec2_point_encoding_from_proto(
+    value: EnumValue<WireCoseEc2PointEncoding>,
+) -> CoseWireResult<Option<CoseEc2PointEncoding>> {
+    match value.as_known() {
+        Some(WireCoseEc2PointEncoding::Unspecified) => Ok(None),
+        Some(WireCoseEc2PointEncoding::Compressed) => Ok(Some(CoseEc2PointEncoding::Compressed)),
+        Some(WireCoseEc2PointEncoding::FullCoordinates) => {
+            Ok(Some(CoseEc2PointEncoding::FullCoordinates))
+        }
+        None => Err(CoseWireError::primitive_internal(
+            CoseErrorReason::CommonInvalidParameter,
+        )),
+    }
+}
+
+pub(crate) fn validate_ec2_point_encoding(
+    algorithm: &KeyAlgorithmInput,
+    encoding: Option<CoseEc2PointEncoding>,
+) -> CoseWireResult<Option<CoseEc2PointEncoding>> {
+    if encoding.is_some() && !algorithm.supports_ec2_point_encoding() {
+        return Err(CoseWireError::primitive_internal(
+            CoseErrorReason::CommonInvalidParameter,
+        ));
+    }
+    Ok(encoding)
 }
 
 pub(crate) fn key_algorithm_identifier_from_proto(

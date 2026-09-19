@@ -8,6 +8,7 @@ mod akp;
 pub(crate) mod convert;
 pub(crate) mod derive_kid;
 pub(crate) mod ec;
+mod encoding;
 mod facade;
 #[cfg(feature = "cose-crypto")]
 pub(crate) mod map_algorithm;
@@ -21,10 +22,12 @@ mod validate_material;
 pub use derive_kid::derive_kid_from_cose_key_public;
 #[cfg(feature = "cose-crypto")]
 pub(crate) use derive_kid::derive_kid_from_ml_kem_public_key;
+pub use encoding::CoseEc2PointEncoding;
 pub use facade::{
-    cose_key_from_private_bytes, cose_key_from_public_bytes, cose_key_from_signature_private_bytes,
-    cose_key_from_signature_public_bytes, cose_key_to_private_bytes, cose_key_to_public_bytes,
-    cose_key_to_vec,
+    cose_key_from_private_bytes, cose_key_from_public_bytes,
+    cose_key_from_public_bytes_with_encoding, cose_key_from_signature_private_bytes,
+    cose_key_from_signature_public_bytes, cose_key_from_signature_public_bytes_with_encoding,
+    cose_key_to_private_bytes, cose_key_to_public_bytes, cose_key_to_vec,
 };
 pub use owned::CoseKey;
 pub use parse::cose_key_from_slice;
