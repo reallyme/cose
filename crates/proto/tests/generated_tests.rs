@@ -10,15 +10,15 @@
 use buffa::{EnumValue, Message};
 use reallyme_cose_proto::generated::proto::reallyme::cose::v1::{
     __buffa::oneof::{cose_algorithm_identifier, cose_error},
-    CoseAlgorithmIdentifier, CoseContentEncryptionAlgorithm, CoseError, CoseErrorReason,
-    CoseKemAlgorithm, CoseKeyAgreementAlgorithm, CoseKeyBytesRequest, CoseKeyBytesResult,
-    CoseKeyBytesResultOwnedView, CoseKeyFromPrivateBytesRequest, CoseMlKemDecryptResult,
-    CoseMlKemDecryptResultOwnedView, CoseMultikeyResult, CoseMultikeyToCoseKeyRequest,
-    CoseMultikeyToCoseKeyRequestOwnedView, CoseOperationRequest, CoseOperationResponseV2,
-    CoseOperationResult, CosePrimitiveError, CoseSign1CreateDetachedRequest,
-    CoseSign1CreateRequest, CoseSign1CreateResult, CoseSign1Options,
-    CoseSign1VerifyDetachedRequest, CoseSign1VerifyRequest, CoseSign1VerifyResult,
-    CoseSignatureAlgorithm,
+    CoseAlgorithmIdentifier, CoseContentEncryptionAlgorithm, CoseEc2PointEncoding, CoseError,
+    CoseErrorReason, CoseKemAlgorithm, CoseKeyAgreementAlgorithm, CoseKeyBytesRequest,
+    CoseKeyBytesResult, CoseKeyBytesResultOwnedView, CoseKeyFromPrivateBytesRequest,
+    CoseKeyFromPublicBytesRequest, CoseMlKemDecryptResult, CoseMlKemDecryptResultOwnedView,
+    CoseMultikeyResult, CoseMultikeyToCoseKeyRequest, CoseMultikeyToCoseKeyRequestOwnedView,
+    CoseOperationRequest, CoseOperationResponseV2, CoseOperationResult, CosePrimitiveError,
+    CoseSign1CreateDetachedRequest, CoseSign1CreateRequest, CoseSign1CreateResult,
+    CoseSign1Options, CoseSign1VerifyDetachedRequest, CoseSign1VerifyRequest,
+    CoseSign1VerifyResult, CoseSignatureAlgorithm,
 };
 
 fn ed25519_identifier(
@@ -53,6 +53,36 @@ fn family_scoped_algorithm_numbers_match_the_crypto_boundary() {
     assert_eq!(CoseContentEncryptionAlgorithm::Aes128Gcm as i32, 100);
     assert_eq!(CoseContentEncryptionAlgorithm::Aes192Gcm as i32, 110);
     assert_eq!(CoseContentEncryptionAlgorithm::Aes256Gcm as i32, 120);
+}
+
+#[test]
+fn ec2_point_encoding_proto_json_is_explicit_and_strict() {
+    let request = CoseKeyFromPublicBytesRequest {
+        algorithm: Default::default(),
+        public_key: Vec::new(),
+        ec2_point_encoding: EnumValue::from(CoseEc2PointEncoding::FullCoordinates),
+        __buffa_unknown_fields: Default::default(),
+    };
+    let Ok(json) = serde_json::to_value(&request) else {
+        panic!("point encoding must serialize");
+    };
+    assert_eq!(
+        json.get("ec2PointEncoding")
+            .and_then(serde_json::Value::as_str),
+        Some("COSE_EC2_POINT_ENCODING_FULL_COORDINATES"),
+    );
+
+    let Ok(omitted) = serde_json::from_str::<CoseKeyFromPublicBytesRequest>("{}") else {
+        panic!("omitted encoding must preserve compatibility");
+    };
+    assert_eq!(
+        omitted.ec2_point_encoding.as_known(),
+        Some(CoseEc2PointEncoding::Unspecified),
+    );
+    assert!(serde_json::from_str::<CoseKeyFromPublicBytesRequest>(
+        r#"{"ec2PointEncoding":"COSE_EC2_POINT_ENCODING_UNKNOWN"}"#,
+    )
+    .is_err());
 }
 
 #[test]

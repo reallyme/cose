@@ -40,6 +40,7 @@ fn every_executable_operation_returns_its_exact_version_two_variant() {
         CoseKeyFromPublicBytesRequest {
             algorithm: ed25519_identifier(),
             public_key: public_key.to_vec(),
+            ec2_point_encoding: Default::default(),
             __buffa_unknown_fields: Default::default(),
         },
     )));

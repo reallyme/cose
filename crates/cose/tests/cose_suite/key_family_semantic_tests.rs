@@ -41,6 +41,7 @@ fn remaining_key_family_operations_match_native_binary_and_proto_json() {
         CoseKeyFromPublicBytesRequest {
             algorithm: ed25519_identifier(),
             public_key: public_key.to_vec(),
+            ec2_point_encoding: Default::default(),
             __buffa_unknown_fields: Default::default(),
         },
     )));
@@ -113,6 +114,7 @@ fn remaining_key_family_failures_preserve_exact_branch_and_reason() {
         Operation::KeyFromPublicBytes(Box::new(CoseKeyFromPublicBytesRequest {
             algorithm: ed25519_identifier(),
             public_key: vec![0_u8; 31],
+            ec2_point_encoding: Default::default(),
             __buffa_unknown_fields: Default::default(),
         })),
         ErrorBranch::Primitive,
@@ -151,6 +153,7 @@ fn remaining_key_family_failures_preserve_exact_branch_and_reason() {
                 __buffa_unknown_fields: Default::default(),
             }),
             public_key: public_key.to_vec(),
+            ec2_point_encoding: Default::default(),
             __buffa_unknown_fields: Default::default(),
         })),
         ErrorBranch::Provider,

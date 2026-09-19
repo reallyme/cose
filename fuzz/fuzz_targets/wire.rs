@@ -37,6 +37,9 @@ fuzz_target!(|data: &[u8]| {
         CoseKeyFromPublicBytesRequest {
             algorithm: signature_identifier(signature_algorithm),
             public_key: data.to_vec(),
+            ec2_point_encoding: EnumValue::from(
+                data.first().copied().map(i32::from).unwrap_or_default(),
+            ),
             __buffa_unknown_fields: Default::default(),
         },
     )));
