@@ -94,8 +94,8 @@ pub use sign1::{
     cose_verify1_detached_with_metadata, cose_verify1_detached_with_policy,
     cose_verify1_detached_with_policy_and_external_aad, cose_verify1_with_metadata,
     cose_verify1_with_policy, cose_verify1_with_policy_and_external_aad, cose_verify1_with_x5chain,
-    CoseSign1EncodeOptions, CoseSigner, CoseSignerError, VerifiedCoseSign1,
-    VerifiedCoseSign1WithX5Chain, VerifiedDetachedCoseSign1,
+    CoseSign1EncodeOptions, CoseSigner, CoseSignerError, CoseType, VerifiedCoseSign1,
+    VerifiedCoseSign1WithX5Chain, VerifiedDetachedCoseSign1, MAX_COSE_TYPE_TEXT_BYTES,
 };
 
 /// COSE semantic policy enforcement.

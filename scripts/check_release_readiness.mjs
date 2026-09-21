@@ -78,7 +78,7 @@ assertContains(".github/dependabot.yml", "github-actions:");
 
 const expectedPackageName = "reallyme-cose";
 const expectedProtoPackageName = "reallyme-cose-proto";
-const expectedVersion = "0.2.4";
+const expectedVersion = "0.2.5";
 const expectedDevelopmentRustToolchain = "1.98.1";
 const expectedBufLinuxX86_64Sha256 =
   "8720830e26a733da55bb89bcd3cb44849c0965fc0c44fb5d691cccdc64dca5af";
@@ -127,10 +127,10 @@ const expectedPlatformScope = {
   protobufSwiftMetadataIsPackagingApproval: false,
   wasmRuntimeIsNpmPackagingApproval: false,
 };
-const platformScopePath = "docs/platform-scope-0.2.4.json";
+const platformScopePath = "docs/platform-scope-0.2.5.json";
 const platformScope = readJson(platformScopePath);
 if (!isDeepStrictEqual(platformScope, expectedPlatformScope)) {
-  fail(`${platformScopePath} must exactly match the approved 0.2.4 platform scope`);
+  fail(`${platformScopePath} must exactly match the approved 0.2.5 platform scope`);
 }
 
 const forbiddenPlatformPathPrefixes = [
@@ -161,7 +161,7 @@ for (const trackedFile of loadTrackedFiles()) {
     forbiddenPlatformPaths.has(trackedFile) ||
     forbiddenPlatformManifestNames.has(manifestName)
   ) {
-    fail(`${trackedFile} is outside the approved Rust/protobuf-only 0.2.4 scope`);
+    fail(`${trackedFile} is outside the approved Rust/protobuf-only 0.2.5 scope`);
   }
 }
 
@@ -185,10 +185,10 @@ assertNotMatches(
   /\bcrate-type\s*=\s*\[[^\]]*"(?:cdylib|staticlib)"/su,
   "a platform-native Rust library artifact",
 );
-assertContains("README.md", "## 0.2.4 Platform Scope");
+assertContains("README.md", "## 0.2.5 Platform Scope");
 assertContains(
   "README.md",
-  "The `0.2.4` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
+  "The `0.2.5` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
 );
 
 assertNodeWorkflowJobsPinNode({ nodeVersion: "24" });

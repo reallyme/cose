@@ -5,12 +5,15 @@
 //! Bounded COSE_Sign1 decoding and structural validation.
 
 use ciborium::value::Value;
-use coset::{iana, AsCborValue, CoseSign1, Header, ProtectedHeader, RegisteredLabelWithPrivate};
+use coset::{
+    iana, AsCborValue, CoseSign1, Header, Label, ProtectedHeader, RegisteredLabelWithPrivate,
+};
 
 use crate::limits::validate_protected_header_bytes;
 use crate::zeroize_coset::{zeroize_cose_sign1, SensitiveCborValue};
 use crate::CoseError;
 
+use super::cose_type::{CoseType, COSE_TYPE_HEADER_LABEL};
 use super::x5chain::decode_x5chain;
 
 /// Decode untagged COSE_Sign1 bytes, or bytes carrying the registered
@@ -18,13 +21,22 @@ use super::x5chain::decode_x5chain;
 pub(super) fn decode_cose_sign1(
     cose_bytes: &[u8],
     max_len: usize,
-) -> Result<SensitiveCoseSign1, CoseError> {
-    decode_cose_sign1_internal(cose_bytes, max_len, false).map(|decoded| decoded.cose)
+) -> Result<DecodedCoseSign1, CoseError> {
+    decode_cose_sign1_internal(cose_bytes, max_len, false).map(|decoded| DecodedCoseSign1 {
+        cose: decoded.cose,
+        tagged: decoded.tagged,
+    })
+}
+
+pub(super) struct DecodedCoseSign1 {
+    pub(super) cose: SensitiveCoseSign1,
+    pub(super) tagged: bool,
 }
 
 pub(super) struct DecodedCoseSign1WithX5Chain {
     pub(super) cose: SensitiveCoseSign1,
     pub(super) x5chain_der: Vec<Vec<u8>>,
+    pub(super) tagged: bool,
 }
 
 pub(super) fn decode_cose_sign1_with_x5chain(
@@ -40,6 +52,7 @@ fn decode_cose_sign1_internal(
     allow_x5chain: bool,
 ) -> Result<DecodedCoseSign1WithX5Chain, CoseError> {
     let decoded = SensitiveCborValue::decode_cose_sign1(cose_bytes, max_len)?;
+    let tagged = matches!(decoded.value(), Value::Tag(18, _));
     let body = match decoded.value() {
         Value::Tag(18, body) => body.as_ref(),
         value => value,
@@ -75,7 +88,11 @@ fn decode_cose_sign1_internal(
         Value::Bytes(signature) => signature.clone(),
         _ => return Err(CoseError::InvalidSignatureEncoding),
     };
-    Ok(DecodedCoseSign1WithX5Chain { cose, x5chain_der })
+    Ok(DecodedCoseSign1WithX5Chain {
+        cose,
+        x5chain_der,
+        tagged,
+    })
 }
 
 #[derive(Clone, Copy)]
@@ -122,6 +139,7 @@ fn decode_sign1_header(
     let mut saw_algorithm = false;
     let mut saw_kid = false;
     let mut saw_x5chain = false;
+    let mut saw_type = false;
 
     for (label, value) in entries {
         let label = match label {
@@ -154,6 +172,19 @@ fn decode_sign1_header(
             };
         } else if label == iana::HeaderParameter::Crit as i64 {
             return Err(CoseError::UnsupportedCriticalHeader);
+        } else if label == COSE_TYPE_HEADER_LABEL {
+            if saw_type {
+                return Err(CoseError::DuplicateMapLabel);
+            }
+            saw_type = true;
+            if matches!(bucket, Sign1HeaderBucket::Unprotected) {
+                return Err(CoseError::UnprotectedHeaderNotAllowed);
+            }
+            let cose_type = CoseType::from_cbor_value(value)?;
+            header.rest.push((
+                Label::Int(COSE_TYPE_HEADER_LABEL),
+                cose_type.to_cbor_value(),
+            ));
         } else if label == iana::HeaderParameter::X5Chain as i64 {
             if saw_x5chain {
                 return Err(CoseError::DuplicateMapLabel);
@@ -165,9 +196,9 @@ fn decode_sign1_header(
             *x5chain_der = decode_x5chain(value)?;
         } else {
             // This SDK does not expose processing results for content-type,
-            // countersignatures, extension headers, or application-specific
-            // unprotected metadata. Accepting them would imply semantics that
-            // the returned verified result cannot represent.
+            // countersignatures, other extension headers, or application-
+            // specific unprotected metadata. Accepting them would imply
+            // semantics that the returned verified result cannot represent.
             return Err(CoseError::InvalidFormat);
         }
     }
@@ -221,6 +252,15 @@ pub(super) fn validate_cose_sign1_structure(cose: &CoseSign1) -> Result<(), Cose
     }
 
     if cose.unprotected.alg.is_some() || !cose.unprotected.key_id.is_empty() {
+        return Err(CoseError::UnprotectedHeaderNotAllowed);
+    }
+
+    if cose
+        .unprotected
+        .rest
+        .iter()
+        .any(|(label, _)| *label == Label::Int(COSE_TYPE_HEADER_LABEL))
+    {
         return Err(CoseError::UnprotectedHeaderNotAllowed);
     }
 

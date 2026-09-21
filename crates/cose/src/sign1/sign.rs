@@ -2,7 +2,7 @@
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use coset::{CoseSign1, Header, ProtectedHeader, RegisteredLabelWithPrivate};
+use coset::{CoseSign1, Header, Label, ProtectedHeader, RegisteredLabelWithPrivate};
 use reallyme_crypto::core::Algorithm;
 use reallyme_crypto::dispatch::sign;
 
@@ -15,6 +15,7 @@ use crate::{
 
 use super::build_sig_structure::build_sig_structure;
 use super::convert_signature::cose_signature_from_backend;
+use super::cose_type::{CoseType, COSE_TYPE_HEADER_LABEL};
 use super::decode::SensitiveCoseSign1;
 use crate::limits::{
     validate_cose_sign1_bytes_with_limit, validate_detached_payload, MAX_COSE_SIGN1_BYTES,
@@ -55,6 +56,9 @@ pub struct CoseSign1EncodeOptions {
 
     /// RFC 9360 certificate path placed in unprotected header label 33.
     x5chain_der: Vec<Vec<u8>>,
+
+    /// RFC 9596 type placed in protected header label 16.
+    protected_type: Option<CoseType>,
 }
 
 impl Default for CoseSign1EncodeOptions {
@@ -70,6 +74,7 @@ impl CoseSign1EncodeOptions {
             tag: false,
             max_cose_sign1_bytes: MAX_COSE_SIGN1_BYTES,
             x5chain_der: Vec::new(),
+            protected_type: None,
         }
     }
 
@@ -79,6 +84,7 @@ impl CoseSign1EncodeOptions {
             tag: true,
             max_cose_sign1_bytes: MAX_COSE_SIGN1_BYTES,
             x5chain_der: Vec::new(),
+            protected_type: None,
         }
     }
 
@@ -100,6 +106,12 @@ impl CoseSign1EncodeOptions {
         self.x5chain_der.as_slice()
     }
 
+    /// Return the RFC 9596 protected `typ` value.
+    #[must_use]
+    pub const fn protected_type(&self) -> Option<&CoseType> {
+        self.protected_type.as_ref()
+    }
+
     /// Configure whether the registered COSE_Sign1 root tag (18) is emitted.
     pub const fn with_tag(mut self, tag: bool) -> Self {
         self.tag = tag;
@@ -115,6 +127,12 @@ impl CoseSign1EncodeOptions {
     /// Configure an RFC 9360 leaf-first DER certificate path.
     pub fn with_x5chain_der(mut self, x5chain_der: Vec<Vec<u8>>) -> Self {
         self.x5chain_der = x5chain_der;
+        self
+    }
+
+    /// Configure the RFC 9596 `typ` value in protected header label 16.
+    pub fn with_protected_type(mut self, cose_type: CoseType) -> Self {
+        self.protected_type = Some(cose_type);
         self
     }
 }
@@ -359,6 +377,9 @@ fn create_cose_sign1_impl(
     validate_detached_payload(input.payload)?;
     validate_detached_payload(input.external_aad)?;
     validate_x5chain(input.options.x5chain_der())?;
+    if let Some(cose_type) = input.options.protected_type() {
+        cose_type.validate()?;
+    }
     if input
         .kid
         .is_some_and(|kid| kid.len() > input.options.max_cose_sign1_bytes())
@@ -367,7 +388,11 @@ fn create_cose_sign1_impl(
     }
     // Keep identifiers under a wipe owner even when a provider rejects signing.
     let mut cose = SensitiveCoseSign1::new(CoseSign1 {
-        protected: build_protected_header(input.cose_algorithm, input.kid)?,
+        protected: build_protected_header(
+            input.cose_algorithm,
+            input.kid,
+            input.options.protected_type(),
+        )?,
         unprotected: build_unprotected_header(input.options.x5chain_der()),
         ..Default::default()
     });
@@ -388,13 +413,20 @@ fn create_cose_sign1_impl(
 fn build_protected_header(
     alg: CoseSignatureAlgorithm,
     kid: Option<&[u8]>,
+    cose_type: Option<&CoseType>,
 ) -> Result<ProtectedHeader, CoseError> {
     let cose_alg = alg.to_iana();
-    let header = Header {
+    let mut header = Header {
         alg: Some(RegisteredLabelWithPrivate::Assigned(cose_alg)),
         key_id: kid.map(<[u8]>::to_vec).unwrap_or_default(),
         ..Default::default()
     };
+    if let Some(cose_type) = cose_type {
+        header.rest.push((
+            Label::Int(COSE_TYPE_HEADER_LABEL),
+            cose_type.to_cbor_value(),
+        ));
+    }
 
     Ok(ProtectedHeader {
         header,
