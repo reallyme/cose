@@ -71,6 +71,8 @@ mod roundtrip_p256_tests;
 #[cfg(all(feature = "cose-crypto", feature = "wire"))]
 #[path = "cose_suite/sign1_semantic_tests.rs"]
 mod sign1_semantic_tests;
+#[path = "cose_suite/sign1_type_tests.rs"]
+mod sign1_type_tests;
 #[path = "cose_suite/signing_algorithm_coverage_tests.rs"]
 mod signing_algorithm_coverage_tests;
 #[path = "cose_suite/tamper_reject_tests.rs"]

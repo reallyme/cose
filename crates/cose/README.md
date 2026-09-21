@@ -35,7 +35,7 @@ return `UnsupportedAlgorithm`; signing and encryption APIs are not exported.
 Enable the `wire` feature only for protobuf operation adapters:
 
 ```toml
-reallyme-cose = { version = "0.2.4", features = ["wire"] }
+reallyme-cose = { version = "0.2.5", features = ["wire"] }
 ```
 
 When default features are disabled, pair `wire` with an explicit runtime lane,
@@ -144,14 +144,18 @@ COSE_Sign1 root tag (18). These snippets use the `private_key`, `public_key`,
 and `kid` from the quick-start example:
 
 ```rust
-use reallyme_cose::{cose_sign1_with_options, Algorithm, CoseSign1EncodeOptions};
+use reallyme_cose::{
+    cose_sign1_with_options, Algorithm, CoseSign1EncodeOptions, CoseType,
+};
 
 let cose = cose_sign1_with_options(
     Algorithm::Ed25519,
     b"payload",
     &private_key,
     Some(kid),
-    CoseSign1EncodeOptions::tagged().with_max_cose_sign1_bytes(512 * 1024),
+    CoseSign1EncodeOptions::tagged()
+        .with_protected_type(CoseType::Text("application/statuslist+cwt".to_owned()))
+        .with_max_cose_sign1_bytes(512 * 1024),
 )?;
 ```
 
@@ -165,6 +169,7 @@ use reallyme_cose::{cose_verify1_with_policy, Algorithm, CosePolicy};
 
 let policy = CosePolicy::new()
     .with_require_kid(true)
+    .with_require_tagged_sign1(true)
     .allow_algorithm(Algorithm::Ed25519)
     .with_max_cose_sign1_bytes(512 * 1024);
 
@@ -172,6 +177,12 @@ let verified = cose_verify1_with_policy(&cose, &policy, |algorithm, requested_ki
     (algorithm == Algorithm::Ed25519 && requested_kid == kid).then(|| public_key.clone())
 })?;
 assert_eq!(verified.alg, Algorithm::Ed25519);
+assert_eq!(
+    verified.cose_type,
+    Some(reallyme_cose::CoseType::Text(
+        "application/statuslist+cwt".to_owned(),
+    )),
+);
 ```
 
 For P-256 integrations, use `allow_cose_algorithm(CoseSignatureAlgorithm::Es256)`
@@ -219,6 +230,9 @@ are deliberately not public struct-literal surface. Use
 - COSE_Sign1 signing can emit either untagged messages or messages carrying the
   registered COSE_Sign1 root tag (18) through `cose_sign1_tagged`,
   `cose_sign1_detached_tagged`, or `CoseSign1EncodeOptions`.
+- RFC 9596 protected `typ` header label 16 with bounded text media types or
+  unsigned CoAP Content-Format identifiers. Verified metadata returns the
+  authenticated `CoseType` value.
 - Profile-specific signing can attach a bounded RFC 9360 `x5chain` certificate
   path through `CoseSign1EncodeOptions`; ordinary verification remains strict,
   while `cose_verify1_with_x5chain` explicitly returns the authenticated path.
@@ -232,10 +246,11 @@ are deliberately not public struct-literal surface. Use
   registered COSE_Sign1 tag (18).
 - `cose_verify1_with_policy` and `cose_verify1_detached_with_policy` enforce
   `CosePolicy` at the byte API boundary, including `kid` requirements,
-  algorithm allow-lists, and configurable byte limits.
+  required COSE_Sign1 tag 18, algorithm allow-lists, and configurable byte
+  limits.
 - `cose_verify1_with_metadata` and policy-aware verification return verified
-  payload, algorithm, and `kid` metadata so callers do not need to reparse COSE
-  after successful verification.
+  payload, algorithm, `kid`, and RFC 9596 `typ` metadata so callers do not need
+  to reparse COSE after successful verification.
 - Verification binds the protected header bytes exactly as received, per
   RFC 9052 §4.4.
 - COSE_Key public/private construction and extraction for supported signing keys.
@@ -445,8 +460,9 @@ The following structures and features are not implemented:
 - COSE_Sign multi-signer structures.
 - Countersignatures.
 - Critical protected headers.
-- COSE_Sign1 content-type and extension headers, because the verified-result
-  API does not expose processing results for those semantics.
+- COSE_Sign1 content-type and extension headers other than RFC 9596 `typ`,
+  because the verified-result API does not expose processing results for those
+  semantics.
 - Integrity-sensitive fields in unprotected headers, including `alg` and `kid`.
 - Indefinite-length CBOR at public byte boundaries.
 - Floating-point COSE_Key extension values. They are rejected rather than
@@ -499,20 +515,20 @@ may opt into larger local limits directly; protobuf callers cannot raise their
 parse policy beyond the message envelope cap. Generated ProtoJSON requests have
 a separate 3 MiB input cap to accommodate base64 and field-name overhead.
 
-## 0.2.4 Platform Scope
+## 0.2.5 Platform Scope
 
-The `0.2.4` release is intentionally Rust and protobuf only. Its publishable
+The `0.2.5` release is intentionally Rust and protobuf only. Its publishable
 artifacts are `reallyme-cose-proto` and `reallyme-cose`; the `native` and `wasm`
 features are Rust runtime lanes, not platform SDK packages.
 
-The `0.2.4` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
+The `0.2.5` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
 native C/JNI, or TypeScript/WASM npm packages. Those package formats are not
 part of this release's compatibility or support contract.
 
 The protobuf `swift_prefix` option is generation metadata, not a published
 Swift package. Likewise, `wasm32-unknown-unknown` is a Rust compilation target,
 not an npm package. The exact artifact scope is recorded in
-[`docs/platform-scope-0.2.4.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.2.4.json).
+[`docs/platform-scope-0.2.5.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.2.5.json).
 
 ## Development Checks
 

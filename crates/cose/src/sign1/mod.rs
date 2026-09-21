@@ -9,6 +9,8 @@ mod build_sig_structure;
 #[cfg(feature = "cose-crypto")]
 mod convert_signature;
 #[cfg(feature = "cose-crypto")]
+mod cose_type;
+#[cfg(feature = "cose-crypto")]
 mod decode;
 #[cfg(feature = "cose-crypto")]
 mod exact;
@@ -26,6 +28,8 @@ mod x5chain;
 #[cfg(feature = "cose-crypto")]
 mod x5chain_tests;
 
+#[cfg(feature = "cose-crypto")]
+pub use cose_type::{CoseType, MAX_COSE_TYPE_TEXT_BYTES};
 #[cfg(feature = "cose-crypto")]
 pub use exact::{
     cose_sign1_detached_with_signature_algorithm,

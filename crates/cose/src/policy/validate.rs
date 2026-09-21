@@ -30,6 +30,9 @@ pub struct CosePolicy {
 
     /// Maximum accepted detached payload bytes at detached verification APIs.
     max_detached_payload_bytes: usize,
+
+    /// Require the registered COSE_Sign1 root tag (18).
+    require_tagged_sign1: bool,
 }
 
 impl Default for CosePolicy {
@@ -40,6 +43,7 @@ impl Default for CosePolicy {
             allowed_cose_algs: Vec::new(),
             max_cose_sign1_bytes: MAX_COSE_SIGN1_BYTES,
             max_detached_payload_bytes: MAX_DETACHED_PAYLOAD_BYTES,
+            require_tagged_sign1: false,
         }
     }
 }
@@ -82,6 +86,12 @@ impl CosePolicy {
     #[must_use]
     pub fn max_detached_payload_bytes(&self) -> usize {
         self.max_detached_payload_bytes
+    }
+
+    /// Return whether verification requires the COSE_Sign1 root tag (18).
+    #[must_use]
+    pub fn require_tagged_sign1(&self) -> bool {
+        self.require_tagged_sign1
     }
 
     /// Configure whether protected-header `kid` is required.
@@ -133,6 +143,12 @@ impl CosePolicy {
         self.max_detached_payload_bytes = max_detached_payload_bytes;
         self
     }
+
+    /// Configure whether verification requires the COSE_Sign1 root tag (18).
+    pub fn with_require_tagged_sign1(mut self, require_tagged_sign1: bool) -> Self {
+        self.require_tagged_sign1 = require_tagged_sign1;
+        self
+    }
 }
 
 /// Validate COSE_Sign1 header policy without performing cryptographic verification.
@@ -144,8 +160,13 @@ impl CosePolicy {
 #[cfg(feature = "cose-crypto")]
 pub(crate) fn validate_cose_sign1_policy(
     cose: &CoseSign1,
+    tagged: bool,
     policy: &CosePolicy,
 ) -> Result<(), CoseError> {
+    if policy.require_tagged_sign1() && !tagged {
+        return Err(CoseError::InvalidFormat);
+    }
+
     // --- kid requirement ---
     if policy.require_kid() && cose.protected.header.key_id.is_empty() {
         return Err(CoseError::MissingKid);

@@ -14,6 +14,7 @@ use crate::CoseError;
 
 use super::build_sig_structure::build_sig_structure;
 use super::convert_signature::backend_signature_from_cose;
+use super::cose_type::CoseType;
 use super::decode::{
     decode_cose_sign1, decode_cose_sign1_with_x5chain, validate_cose_sign1_structure,
 };
@@ -37,6 +38,9 @@ pub struct VerifiedCoseSign1 {
 
     /// Verified protected-header key identifier.
     pub kid: Zeroizing<Vec<u8>>,
+
+    /// Authenticated RFC 9596 protected `typ` value, when present.
+    pub cose_type: Option<CoseType>,
 }
 
 /// Verified COSE_Sign1 protected-header metadata for detached payloads.
@@ -51,6 +55,9 @@ pub struct VerifiedDetachedCoseSign1 {
 
     /// Verified protected-header key identifier.
     pub kid: Zeroizing<Vec<u8>>,
+
+    /// Authenticated RFC 9596 protected `typ` value, when present.
+    pub cose_type: Option<CoseType>,
 }
 
 /// Verified COSE_Sign1 payload and RFC 9360 certificate path.
@@ -68,6 +75,9 @@ pub struct VerifiedCoseSign1WithX5Chain {
 
     /// Verified protected-header key identifier.
     pub kid: Zeroizing<Vec<u8>>,
+
+    /// Authenticated RFC 9596 protected `typ` value, when present.
+    pub cose_type: Option<CoseType>,
 
     /// Bounded RFC 9360 leaf-first DER certificate path.
     pub x5chain_der: Vec<Vec<u8>>,
@@ -156,6 +166,7 @@ pub fn cose_verify1_with_x5chain(
     let decoded = decode_cose_sign1_with_x5chain(cose_bytes, policy.max_cose_sign1_bytes())?;
     let mut cose = decoded.cose;
     let x5chain_der = decoded.x5chain_der;
+    let tagged = decoded.tagged;
     if x5chain_der.is_empty() {
         return Err(CoseError::InvalidFormat);
     }
@@ -164,12 +175,17 @@ pub fn cose_verify1_with_x5chain(
         .payload
         .as_ref()
         .ok_or(CoseError::MissingPayload)?;
-    let metadata = verify_cose_signature(cose.inner(), &[], payload, policy, |algorithm, _| {
-        match public_key_resolver(algorithm, &x5chain_der) {
+    let metadata = verify_cose_signature(
+        cose.inner(),
+        tagged,
+        &[],
+        payload,
+        policy,
+        |algorithm, _| match public_key_resolver(algorithm, &x5chain_der) {
             Some(public_key) => CoseSign1KeyResolution::Resolved(Zeroizing::new(public_key)),
             None => CoseSign1KeyResolution::NotResolved,
-        }
-    })
+        },
+    )
     .map_err(CoseFailure::into_native_error)?;
     let payload = cose
         .inner_mut()
@@ -181,6 +197,7 @@ pub fn cose_verify1_with_x5chain(
         alg: metadata.alg,
         cose_algorithm: metadata.cose_algorithm,
         kid: metadata.kid,
+        cose_type: metadata.cose_type,
         x5chain_der,
     })
 }
@@ -276,7 +293,8 @@ pub(crate) fn verify_cose_sign1(
         input.external_aad,
         input.policy.max_detached_payload_bytes(),
     )?;
-    let mut cose = decode_cose_sign1(input.cose_sign1, input.policy.max_cose_sign1_bytes())?;
+    let decoded = decode_cose_sign1(input.cose_sign1, input.policy.max_cose_sign1_bytes())?;
+    let mut cose = decoded.cose;
     let payload = cose
         .inner()
         .payload
@@ -284,6 +302,7 @@ pub(crate) fn verify_cose_sign1(
         .ok_or(CoseError::MissingPayload)?;
     let metadata = verify_cose_signature(
         cose.inner(),
+        decoded.tagged,
         input.external_aad,
         payload,
         input.policy,
@@ -300,6 +319,7 @@ pub(crate) fn verify_cose_sign1(
         alg: metadata.alg,
         cose_algorithm: metadata.cose_algorithm,
         kid: metadata.kid,
+        cose_type: metadata.cose_type,
     })
 }
 
@@ -312,13 +332,15 @@ pub(crate) fn verify_detached_cose_sign1(
         input.external_aad,
         input.policy.max_detached_payload_bytes(),
     )?;
-    let cose = decode_cose_sign1(input.cose_sign1, input.policy.max_cose_sign1_bytes())?;
+    let decoded = decode_cose_sign1(input.cose_sign1, input.policy.max_cose_sign1_bytes())?;
+    let cose = decoded.cose;
     if cose.inner().payload.is_some() {
         return Err(CoseFailure::from(CoseError::InvalidFormat));
     }
 
     verify_cose_signature(
         cose.inner(),
+        decoded.tagged,
         input.external_aad,
         input.payload,
         input.policy,
@@ -328,13 +350,14 @@ pub(crate) fn verify_detached_cose_sign1(
 
 fn verify_cose_signature(
     cose: &CoseSign1,
+    tagged: bool,
     external_aad: &[u8],
     payload: &[u8],
     policy: &CosePolicy,
     public_key_resolver: impl FnOnce(Algorithm, &[u8]) -> CoseSign1KeyResolution,
 ) -> Result<VerifiedDetachedCoseSign1, CoseFailure> {
     validate_cose_sign1_structure(cose)?;
-    validate_cose_sign1_policy(cose, policy)?;
+    validate_cose_sign1_policy(cose, tagged, policy)?;
 
     let cose_alg = cose
         .protected
@@ -346,6 +369,7 @@ fn verify_cose_signature(
     let alg = cose_algorithm.crypto_algorithm();
 
     let kid: &[u8] = &cose.protected.header.key_id;
+    let cose_type = CoseType::from_protected_header(&cose.protected.header)?;
     // Key stores must resolve the algorithm and identifier as one tuple. This
     // prevents a shared kid from selecting bytes belonging to another key
     // family and keeps that invariant independent of backend key-shape checks.
@@ -373,6 +397,7 @@ fn verify_cose_signature(
         alg,
         cose_algorithm,
         kid: Zeroizing::new(kid.to_vec()),
+        cose_type,
     })
 }
 
