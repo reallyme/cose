@@ -51,10 +51,12 @@ pub(crate) fn convert_cose_key_to_multikey(
 pub(crate) fn convert_multikey_to_cose_key(
     input: MultikeyInput<'_>,
 ) -> Result<CoseKeyOwnerOutput, CoseFailure> {
-    let mut parsed = parse_multikey(input.multikey)
+    let parsed = parse_multikey(input.multikey)
         .map_err(|_| CoseFailure::from(CoseError::InvalidMultikey))?;
-    let algorithm = algorithm_for_codec_name(parsed.codec_name).map_err(CoseFailure::from)?;
-    let public_key = Zeroizing::new(core::mem::take(&mut parsed.public_key));
+    let codec_name = parsed.codec_name();
+    // Take ownership before algorithm mapping so unsupported codecs still wipe key bytes.
+    let public_key = Zeroizing::new(parsed.into_public_key());
+    let algorithm = algorithm_for_codec_name(codec_name).map_err(CoseFailure::from)?;
     construct_cose_key_from_public(CoseKeyFromPublicBytesInput::new(algorithm, &public_key))
 }
 

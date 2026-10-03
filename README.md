@@ -107,7 +107,7 @@ This example generates its key pair with `reallyme-crypto`, so add that direct
 dependency alongside `reallyme-cose`:
 
 ```toml
-reallyme-crypto = { version = "0.3.7", default-features = false, features = ["native", "dispatch", "ed25519"] }
+reallyme-crypto = { version = "0.3.10", default-features = false, features = ["native", "dispatch", "ed25519"] }
 ```
 
 ```rust
@@ -564,7 +564,7 @@ commands and runtime limits are documented in
 [the fuzzing guide](https://github.com/reallyme/cose/blob/main/fuzz/README.md).
 
 Release readiness requires crates.io dependencies for the published ReallyMe
-foundational crates: `reallyme-crypto` `^0.3.7` and `reallyme-codec` `^0.2.3`.
+foundational crates: `reallyme-crypto` `^0.3.10` and `reallyme-codec` `^0.3.0`.
 Local `../crypto` or `../codec` path dependencies are not accepted for release.
 
 The gate also checks operation routing, typed errors, sensitive-buffer ownership,

@@ -10,24 +10,24 @@ publish = false
 workspace = true
 
 [dependencies]
-aes-gcm = "0.11"
+aes-gcm = "0.11.1"
 aes-kw = { version = "0.3.1", default-features = false, features = ["zeroize"] }
-bs58 = "0.5"
-ciborium = "0.2"
-ed25519-dalek = "3"
-hex = "0.4"
-k256 = { version = "0.14", features = ["ecdsa"] }
+bs58 = "0.5.1"
+ciborium = "0.2.2"
+ed25519-dalek = "3.0.0"
+hex = "0.4.3"
+k256 = { version = "0.14.0", features = ["ecdsa"] }
 ml-kem = { version = "0.3.2", features = ["zeroize"] }
 ml-dsa = "0.1.1"
-p256 = { version = "0.14", features = ["ecdsa"] }
-p384 = { version = "0.14", features = ["ecdsa"] }
-p521 = { version = "0.14", features = ["ecdsa"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-sha2 = "0.11"
+p256 = { version = "0.14.0", features = ["ecdsa"] }
+p384 = { version = "0.14.0", features = ["ecdsa"] }
+p521 = { version = "0.14.0", features = ["ecdsa"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+sha2 = "0.11.0"
 sha3-kmac = { version = "0.3.0", default-features = false }
-thiserror = "2.0"
-zeroize = "1.8"
+thiserror = "2.0.21"
+zeroize = "1.9.0"
 
 [workspace]
 
