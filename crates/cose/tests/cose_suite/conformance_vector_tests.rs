@@ -303,8 +303,8 @@ fn portable_cose_key_vectors_roundtrip_reallyme_codec() {
         );
 
         let parsed = parse_multikey(&case.multikey).expect("codec multikey must parse");
-        assert_eq!(parsed.codec_name, codec_name, "{}", case.id);
-        assert_eq!(parsed.public_key, public_key, "{}", case.id);
+        assert_eq!(parsed.codec_name(), codec_name, "{}", case.id);
+        assert_eq!(parsed.public_key(), public_key, "{}", case.id);
     }
 }
 
