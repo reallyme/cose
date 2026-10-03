@@ -532,12 +532,13 @@ not an npm package. The exact artifact scope is recorded in
 
 ## Development Checks
 
-The workspace declares Rust 1.96 as its minimum supported version; the development
+The workspace declares Rust 1.99 as its minimum supported version; the development
 toolchain is pinned in `rust-toolchain.toml`. Run the repository gate for format,
 feature-matrix, lint, test, allocation, WASM runtime, vector, fuzz-build, and
-dependency checks:
+dependency checks after installing the pinned external-type checker:
 
 ```sh
+bash scripts/install_external_type_checker.sh .local-tools
 node scripts/check_release_readiness.mjs
 ```
 

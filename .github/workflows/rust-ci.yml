@@ -31,7 +31,7 @@ env:
   CARGO_CHECK_EXTERNAL_TYPES_VERSION: 0.5.0
   CARGO_DENY_VERSION: 0.20.2
   CARGO_NEXTEST_VERSION: 0.9.146
-  EXTERNAL_TYPES_NIGHTLY: nightly-2026-03-20
+  EXTERNAL_TYPES_NIGHTLY: nightly-2026-09-15
   WASM_BINDGEN_CLI_VERSION: 0.2.129
   WASM_PACK_VERSION: 0.15.0
 
@@ -46,7 +46,7 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@7e38f4b43b4db5c8dd498af069a4f6196df1d067 # master
         with:
-          toolchain: 1.98.1
+          toolchain: 1.99.0
           components: rustfmt, clippy
           targets: wasm32-unknown-unknown
 
@@ -69,9 +69,7 @@ jobs:
           tool: cargo-audit@${{ env.CARGO_AUDIT_VERSION }}
 
       - name: Install external-type checker
-        uses: taiki-e/install-action@83ac0ad63c0167e6f06796fab0fce28db1bf3db0 # v2.87.22
-        with:
-          tool: cargo-check-external-types@${{ env.CARGO_CHECK_EXTERNAL_TYPES_VERSION }}
+        run: bash scripts/install_external_type_checker.sh .local-tools
 
       - name: Install external-type checker toolchain
         run: rustup toolchain install "$EXTERNAL_TYPES_NIGHTLY" --profile minimal
@@ -96,7 +94,7 @@ jobs:
         run: cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
 
       - name: Check public external-type provenance
-        run: cargo +"${EXTERNAL_TYPES_NIGHTLY}" check-external-types --manifest-path crates/cose/Cargo.toml --all-features
+        run: RUSTUP_TOOLCHAIN="$EXTERNAL_TYPES_NIGHTLY" .local-tools/bin/cargo-check-external-types check-external-types --manifest-path crates/cose/Cargo.toml --all-features
 
       - name: Format vector audit tool
         run: cargo fmt --manifest-path tools/vector-audit/Cargo.toml --check

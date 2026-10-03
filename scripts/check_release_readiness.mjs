@@ -84,7 +84,7 @@ assertContains(".github/dependabot.yml", "github-actions:");
 const expectedPackageName = "reallyme-cose";
 const expectedProtoPackageName = "reallyme-cose-proto";
 const expectedVersion = "0.2.5";
-const expectedDevelopmentRustToolchain = "1.98.1";
+const expectedDevelopmentRustToolchain = "1.99.0";
 const expectedBufLinuxX86_64Sha256 =
   "8f2986298ad08f0cc1bf999b9797b7c383adf32d7edf0f73d6f1e1a701baeac1";
 const generatedFreshnessMode = process.argv.includes("--generated-freshness");
@@ -223,7 +223,7 @@ assertNotContains("Cargo.toml", 'path = "../codec');
 assertContains("crates/proto/Cargo.toml", '"buffa/json"');
 assertContains("crates/cose/src/lib.rs", 'reallyme-cose `wire` requires a runtime lane');
 assertContains("Cargo.toml", 'buffa = { version = "0.9.2", features = ["json"] }');
-assertContains("Cargo.toml", 'rust-version = "1.96"');
+assertContains("Cargo.toml", 'rust-version = "1.99"');
 assertContains("rust-toolchain.toml", `channel = "${expectedDevelopmentRustToolchain}"`);
 assertContains(
   "Cargo.toml",
@@ -1025,7 +1025,8 @@ assertContains(".github/workflows/rust-ci.yml", "--features wasm,wire --target w
 assertContains(".github/workflows/rust-ci.yml", "cargo nextest run --release --locked --workspace --all-features");
 assertContains(".github/workflows/rust-ci.yml", "wasm-pack test --node crates/cose");
 assertContains(".github/workflows/rust-ci.yml", "CARGO_CHECK_EXTERNAL_TYPES_VERSION: 0.5.0");
-assertContains(".github/workflows/rust-ci.yml", "EXTERNAL_TYPES_NIGHTLY: nightly-2026-03-20");
+assertContains(".github/workflows/rust-ci.yml", "EXTERNAL_TYPES_NIGHTLY: nightly-2026-09-15");
+assertContains(".github/workflows/rust-ci.yml", "bash scripts/install_external_type_checker.sh .local-tools");
 assertContains(".github/workflows/rust-ci.yml", "check-external-types --manifest-path crates/cose/Cargo.toml --all-features");
 assertContains(".github/workflows/rust-ci.yml", "scripts/audit_committed_lockfiles.sh");
 assertContains(".github/workflows/fuzz.yml", "paths-ignore:");
@@ -1179,7 +1180,7 @@ assertContains(".github/workflows/fuzz.yml", "- wire");
 assertContains(".github/workflows/fuzz.yml", "runs-on: ubuntu-24.04");
 assertNotContains(".github/workflows/fuzz.yml", "runs-on: ubuntu-latest");
 assertContains(".github/workflows/fuzz.yml", "CARGO_FUZZ_VERSION: 0.13.2");
-assertContains(".github/workflows/fuzz.yml", "NIGHTLY_TOOLCHAIN: nightly-2026-07-01");
+assertContains(".github/workflows/fuzz.yml", "NIGHTLY_TOOLCHAIN: nightly-2026-09-15");
 assertContains(".github/workflows/fuzz.yml", "FUZZ_MAX_TOTAL_TIME_SECONDS: 900");
 assertContains(
   ".github/workflows/fuzz.yml",
@@ -1209,9 +1210,10 @@ assertContains(cratesPackagePreflightWorkflow, "CARGO_AUDIT_VERSION: 0.22.2");
 assertContains(cratesPackagePreflightWorkflow, "scripts/audit_committed_lockfiles.sh");
 assertContains(cratesPackagePreflightWorkflow, "CARGO_NEXTEST_VERSION: 0.9.146");
 assertContains(cratesPackagePreflightWorkflow, "CARGO_CHECK_EXTERNAL_TYPES_VERSION: 0.5.0");
+assertContains(cratesPackagePreflightWorkflow, "bash scripts/install_external_type_checker.sh .local-tools");
 assertContains(cratesPackagePreflightWorkflow, "CARGO_FUZZ_VERSION: 0.13.2");
-assertContains(cratesPackagePreflightWorkflow, "EXTERNAL_TYPES_NIGHTLY: nightly-2026-03-20");
-assertContains(cratesPackagePreflightWorkflow, "FUZZ_NIGHTLY: nightly-2026-07-01");
+assertContains(cratesPackagePreflightWorkflow, "EXTERNAL_TYPES_NIGHTLY: nightly-2026-09-15");
+assertContains(cratesPackagePreflightWorkflow, "FUZZ_NIGHTLY: nightly-2026-09-15");
 assertContains(cratesPackagePreflightWorkflow, "WASM_PACK_VERSION: 0.15.0");
 assertContains(cratesPackagePreflightWorkflow, "WASM_BINDGEN_CLI_VERSION: 0.2.129");
 assertContains("deny.toml", 'yanked = "deny"');
@@ -1275,7 +1277,13 @@ assertContains("scripts/write_release_attestation.mjs", "reallyme.cose.crates_pr
 assertContains(".github/workflows/rust-ci.yml", "runs-on: ubuntu-24.04");
 assertNotContains(".github/workflows/rust-ci.yml", "runs-on: ubuntu-latest");
 assertContains(".gitignore", "/.release-readiness/");
+assertContains(".gitignore", "/.local-tools/");
 assertContains(".gitignore", "/AGENTS.md");
+assertContains(
+  "scripts/install_external_type_checker.sh",
+  'upstream_commit="61d284da26e8bbaca386a5b9f34bee30e82aaa0e"',
+);
+assertContains("tools/external-type-checker-rustdoc61.patch", '+rustdoc-types = "0.61"');
 
 assertCargoMetadataPolicy({
   packages: [
@@ -1353,14 +1361,9 @@ const validationCommands = [
   ],
   ["cargo", ["clippy", "--locked", "--workspace", "--all-targets", "--all-features", "--", "-D", "warnings"]],
   [
-    "cargo",
-    [
-      "+nightly-2026-03-20",
-      "check-external-types",
-      "--manifest-path",
-      "crates/cose/Cargo.toml",
-      "--all-features",
-    ],
+    ".local-tools/bin/cargo-check-external-types",
+    ["check-external-types", "--manifest-path", "crates/cose/Cargo.toml", "--all-features"],
+    { env: { ...process.env, RUSTUP_TOOLCHAIN: "nightly-2026-09-15" } },
   ],
   ["cargo", ["fmt", "--manifest-path", "tools/vector-audit/Cargo.toml", "--check"]],
   ["cargo", ["clippy", "--locked", "--manifest-path", "tools/vector-audit/Cargo.toml", "--all-targets", "--", "-D", "warnings"]],
@@ -1390,7 +1393,7 @@ const validationCommands = [
     { capture: true },
   ],
   ["cargo", ["fmt", "--manifest-path", "fuzz/Cargo.toml", "--check"]],
-  ["cargo", ["+nightly-2026-07-01", "fuzz", "build"]],
+  ["cargo", ["+nightly-2026-09-15", "fuzz", "build"]],
   ["cargo", ["check", "--locked", "--workspace", "--no-default-features", "--features", "native"]],
   [
     "cargo",

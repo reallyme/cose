@@ -22,13 +22,13 @@ SDKs and applications pass untrusted input to.
 
 ```sh
 cargo install cargo-fuzz --version 0.13.2 --locked
-rustup toolchain install nightly-2026-07-01 --profile minimal
-cargo +nightly-2026-07-01 fuzz build
-cargo +nightly-2026-07-01 fuzz run cose_sign1 -- -max_total_time=900 -rss_limit_mb=4096
-cargo +nightly-2026-07-01 fuzz run cose_key -- -max_total_time=900 -rss_limit_mb=4096
-cargo +nightly-2026-07-01 fuzz run multikey_to_cose -- -max_total_time=900 -rss_limit_mb=4096
-cargo +nightly-2026-07-01 fuzz run wire -- -max_total_time=900 -rss_limit_mb=4096
-cargo +nightly-2026-07-01 fuzz run cose_encrypt -- -max_total_time=900 -rss_limit_mb=4096
+rustup toolchain install nightly-2026-09-15 --profile minimal
+cargo +nightly-2026-09-15 fuzz build
+cargo +nightly-2026-09-15 fuzz run cose_sign1 -- -max_total_time=900 -rss_limit_mb=4096
+cargo +nightly-2026-09-15 fuzz run cose_key -- -max_total_time=900 -rss_limit_mb=4096
+cargo +nightly-2026-09-15 fuzz run multikey_to_cose -- -max_total_time=900 -rss_limit_mb=4096
+cargo +nightly-2026-09-15 fuzz run wire -- -max_total_time=900 -rss_limit_mb=4096
+cargo +nightly-2026-09-15 fuzz run cose_encrypt -- -max_total_time=900 -rss_limit_mb=4096
 ```
 
 Crash inputs are written to `fuzz/artifacts/<target>/`. Add a deterministic

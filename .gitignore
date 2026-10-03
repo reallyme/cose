@@ -33,6 +33,7 @@ coverage/
 /tarpaulin-report.html
 /.cargo-release/
 /.release-readiness/
+/.local-tools/
 /release-attestation/
 proptest-regressions/
 
