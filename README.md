@@ -541,7 +541,7 @@ dependency checks:
 node scripts/check_release_readiness.mjs
 ```
 
-Protobuf regeneration also requires Buf 1.72.0 and both Buffa 0.9.2 generators.
+Protobuf regeneration also requires Buf 1.73.0 and both Buffa 0.9.2 generators.
 After changing the schema or hardening script, regenerate with the pinned tools:
 
 ```sh

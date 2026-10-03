@@ -5,8 +5,13 @@
 
 import { isDeepStrictEqual } from "node:util";
 
-import { createReleaseReadinessContext } from "./release-readiness/core.mjs";
 import { assertOperationContractRouting } from "./release-readiness/operation-contract-routing.mjs";
+
+// CI's pinned runner supplies its own reviewed core. Local checks use the
+// vendored copy, which is verified against the same immutable upstream pin.
+const releaseReadinessCoreUrl =
+  process.env.RELEASE_READINESS_CORE_URL ?? new URL("./release-readiness/core.mjs", import.meta.url).href;
+const { createReleaseReadinessContext } = await import(releaseReadinessCoreUrl);
 
 const {
   readText,
@@ -81,7 +86,7 @@ const expectedProtoPackageName = "reallyme-cose-proto";
 const expectedVersion = "0.2.5";
 const expectedDevelopmentRustToolchain = "1.98.1";
 const expectedBufLinuxX86_64Sha256 =
-  "8720830e26a733da55bb89bcd3cb44849c0965fc0c44fb5d691cccdc64dca5af";
+  "8f2986298ad08f0cc1bf999b9797b7c383adf32d7edf0f73d6f1e1a701baeac1";
 const generatedFreshnessMode = process.argv.includes("--generated-freshness");
 const policyOnlyMode = process.argv.includes("--policy-only");
 const releasePackagesMode = process.argv.includes("--release-packages");
@@ -634,7 +639,7 @@ assertContains("scripts/harden-generated-cose-proto.mjs", '"--check-idempotent"'
 assertContains("scripts/harden-generated-cose-proto.mjs", '["CoseOperationRequest", []]');
 assertReallyMeProtobufReleasePolicy({
   generatedFreshnessMode,
-  bufVersion: "1.72.0",
+  bufVersion: "1.73.0",
   buffaVersion: "0.9.2",
   workflowMode: "delegated",
   generatedFreshnessStepRun:
@@ -1197,12 +1202,12 @@ assertContains(
   cratesPackagePreflightWorkflow,
   `toolchain: ${expectedDevelopmentRustToolchain}`,
 );
-assertContains(cratesPackagePreflightWorkflow, "BUF_VERSION: 1.72.0");
+assertContains(cratesPackagePreflightWorkflow, "BUF_VERSION: 1.73.0");
 assertContains(cratesPackagePreflightWorkflow, "BUFFA_VERSION: 0.9.2");
 assertContains(cratesPackagePreflightWorkflow, "CARGO_DENY_VERSION: 0.20.2");
 assertContains(cratesPackagePreflightWorkflow, "CARGO_AUDIT_VERSION: 0.22.2");
 assertContains(cratesPackagePreflightWorkflow, "scripts/audit_committed_lockfiles.sh");
-assertContains(cratesPackagePreflightWorkflow, "CARGO_NEXTEST_VERSION: 0.9.140");
+assertContains(cratesPackagePreflightWorkflow, "CARGO_NEXTEST_VERSION: 0.9.146");
 assertContains(cratesPackagePreflightWorkflow, "CARGO_CHECK_EXTERNAL_TYPES_VERSION: 0.5.0");
 assertContains(cratesPackagePreflightWorkflow, "CARGO_FUZZ_VERSION: 0.13.2");
 assertContains(cratesPackagePreflightWorkflow, "EXTERNAL_TYPES_NIGHTLY: nightly-2026-03-20");
