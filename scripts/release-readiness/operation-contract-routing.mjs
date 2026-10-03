@@ -190,6 +190,20 @@ export function collectOperationContractRoutingViolations(readText) {
       if (callCount !== 1) {
         violations.push(`${executePath} ${routePolicy.variant} must call ${adapterCall} exactly once; found ${callCount}`);
       }
+      const armStart = new RegExp(`\\bOperation\\s*::\\s*${escapeRegExp(routePolicy.variant)}\\s*\\(\\s*request\\s*\\)\\s*=>`, "gu");
+      const arms = [...dispatcher.matchAll(armStart)];
+      if (arms.length === 1) {
+        const start = arms[0].index + arms[0][0].length;
+        const nextArm = /\bcose_operation_request\s*::\s*Operation\s*::/gu;
+        nextArm.lastIndex = start;
+        const next = nextArm.exec(dispatcher);
+        const armBody = dispatcher.slice(start, next?.index ?? dispatcher.length);
+        if (countMatches(armBody, qualifiedCallPattern(adapterCall)) !== 1) {
+          violations.push(`${executePath} ${routePolicy.variant} must invoke ${adapterCall} in its own match arm`);
+        }
+      } else {
+        violations.push(`${executePath} must bind ${routePolicy.variant} to exactly one match arm`);
+      }
     }
   }
 

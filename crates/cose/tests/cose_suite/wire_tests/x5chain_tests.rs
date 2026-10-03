@@ -57,14 +57,15 @@ fn sign1_wire_contract_preserves_es256_and_x5chain() {
             && value.as_integer().map(i128::from) == Some(-7)
     }));
 
-    let unprotected_entries = fields
-        .get(1)
-        .and_then(ciborium::value::Value::as_map)
-        .expect("unprotected header must be a map");
-    assert!(unprotected_entries.iter().any(|(label, value)| {
+    assert!(protected_entries.iter().any(|(label, value)| {
         label.as_integer().map(i128::from) == Some(33)
             && value
                 .as_bytes()
                 .is_some_and(|bytes| bytes.as_slice() == LEAF_CERTIFICATE_DER)
     }));
+    let unprotected_entries = fields
+        .get(1)
+        .and_then(ciborium::value::Value::as_map)
+        .expect("unprotected header must be a map");
+    assert!(unprotected_entries.is_empty());
 }

@@ -4,15 +4,17 @@
 
 //! Generated-result conversion for COSE_Sign1 operations.
 
-use buffa::EnumValue;
+use buffa::{EnumValue, MessageField};
 use zeroize::Zeroizing;
 
 use crate::algorithm::CoseSignatureAlgorithm as NativeCoseSignatureAlgorithm;
 use crate::sign1::sign::CoseSign1CreateOutput;
 use crate::sign1::verify::{VerifiedCoseSign1, VerifiedDetachedCoseSign1};
+use crate::sign1::CoseType as NativeCoseType;
 use crate::wire::{
-    cose_operation_result::Result as OperationResultBranch, CoseOperationResult,
-    CoseSign1CreateResult, CoseSign1VerifyResult, CoseSignatureAlgorithm, CoseWireResult,
+    cose_operation_result::Result as OperationResultBranch, cose_type::Value as WireCoseTypeValue,
+    CoseOperationResult, CoseSign1CreateResult, CoseSign1VerifyResult, CoseSignatureAlgorithm,
+    CoseType as WireCoseType, CoseWireResult,
 };
 
 pub(crate) fn created_attached(output: CoseSign1CreateOutput) -> CoseOperationResult {
@@ -28,7 +30,12 @@ pub(crate) fn created_detached(output: CoseSign1CreateOutput) -> CoseOperationRe
 }
 
 pub(crate) fn verified_attached(output: VerifiedCoseSign1) -> CoseWireResult<CoseOperationResult> {
-    let message = verify_message(output.payload, output.cose_algorithm, output.kid)?;
+    let message = verify_message(
+        output.payload,
+        output.cose_algorithm,
+        output.kid,
+        output.cose_type,
+    )?;
     Ok(operation_result(OperationResultBranch::Sign1Verify(
         Box::new(message),
     )))
@@ -41,6 +48,7 @@ pub(crate) fn verified_detached(
         Zeroizing::new(Vec::new()),
         output.cose_algorithm,
         output.kid,
+        output.cose_type,
     )?;
     Ok(operation_result(
         OperationResultBranch::Sign1VerifyDetached(Box::new(message)),
@@ -59,13 +67,26 @@ fn verify_message(
     mut payload: Zeroizing<Vec<u8>>,
     algorithm: NativeCoseSignatureAlgorithm,
     mut kid: Zeroizing<Vec<u8>>,
+    cose_type: Option<NativeCoseType>,
 ) -> CoseWireResult<CoseSign1VerifyResult> {
+    let protected_type = match cose_type {
+        Some(NativeCoseType::Text(text)) => MessageField::some(WireCoseType {
+            value: Some(WireCoseTypeValue::MediaType(text)),
+            __buffa_unknown_fields: Default::default(),
+        }),
+        Some(NativeCoseType::Registered(identifier)) => MessageField::some(WireCoseType {
+            value: Some(WireCoseTypeValue::ContentFormat(identifier)),
+            __buffa_unknown_fields: Default::default(),
+        }),
+        None => MessageField::none(),
+    };
     Ok(CoseSign1VerifyResult {
         payload: core::mem::take(&mut *payload),
         algorithm: EnumValue::from(legacy_signature_algorithm_to_proto(algorithm)),
         kid: core::mem::take(&mut *kid),
         exact_signature_algorithm: EnumValue::from(signature_algorithm_to_proto(algorithm)?),
         has_exact_signature_algorithm: true,
+        protected_type,
         __buffa_unknown_fields: Default::default(),
     })
 }

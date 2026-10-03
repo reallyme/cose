@@ -213,6 +213,7 @@ fn sign1_exact_algorithm_result_fields_are_frozen() {
         kid: Vec::new(),
         exact_signature_algorithm: EnumValue::from(CoseSignatureAlgorithm::Es256),
         has_exact_signature_algorithm: true,
+        protected_type: buffa::MessageField::none(),
         __buffa_unknown_fields: Default::default(),
     };
     assert_eq!(

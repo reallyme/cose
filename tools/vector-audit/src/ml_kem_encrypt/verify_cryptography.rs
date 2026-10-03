@@ -108,21 +108,24 @@ fn derive_key(
     algorithm: i64,
     output_length: usize,
     recipient_protected: &[u8],
-    supp_priv_info: &[u8],
+    supp_priv_info: Option<&[u8]>,
 ) -> AuditResult<Zeroizing<Vec<u8>>> {
     let output_bits = output_length
         .checked_mul(BITS_PER_BYTE)
         .ok_or_else(|| general(AuditReason::IntegerConversion))?;
     let output_bits =
         u64::try_from(output_bits).map_err(|_| general(AuditReason::IntegerConversion))?;
-    let context = encode_cbor(&Value::Array(vec![
+    let mut context_items = vec![
         Value::Integer(algorithm.into()),
         Value::Array(vec![
             Value::Integer(output_bits.into()),
             Value::Bytes(recipient_protected.to_vec()),
         ]),
-        Value::Bytes(supp_priv_info.to_vec()),
-    ]))?;
+    ];
+    if let Some(supp_priv_info) = supp_priv_info {
+        context_items.push(Value::Bytes(supp_priv_info.to_vec()));
+    }
+    let context = encode_cbor(&Value::Array(context_items))?;
     let mut kmac = Kmac256::new(shared_secret, &[]).map_err(|_| general(AuditReason::KemKdf))?;
     kmac.update(&context);
     let mut output = Zeroizing::new(vec![0_u8; output_length]);
@@ -153,7 +156,7 @@ fn unwrap_key(kem: Kem, kek: &[u8], wrapped: &[u8]) -> AuditResult<Zeroizing<Vec
 }
 
 fn decrypt_content(
-    kem: Kem,
+    content: Content,
     key: &[u8],
     iv: &[u8],
     aad: &[u8],
@@ -165,14 +168,14 @@ fn decrypt_content(
         msg: ciphertext,
         aad,
     };
-    let plaintext = match kem {
-        Kem::MlKem512 => Aes128Gcm::new_from_slice(key)
+    let plaintext = match content {
+        Content::Aes128 => Aes128Gcm::new_from_slice(key)
             .map_err(|_| general(AuditReason::EncryptAuthentication))?
             .decrypt((&iv).into(), payload),
-        Kem::MlKem768 => Aes192Gcm::new_from_slice(key)
+        Content::Aes192 => Aes192Gcm::new_from_slice(key)
             .map_err(|_| general(AuditReason::EncryptAuthentication))?
             .decrypt((&iv).into(), payload),
-        Kem::MlKem1024 => Aes256Gcm::new_from_slice(key)
+        Content::Aes256 => Aes256Gcm::new_from_slice(key)
             .map_err(|_| general(AuditReason::EncryptAuthentication))?
             .decrypt((&iv).into(), payload),
     }

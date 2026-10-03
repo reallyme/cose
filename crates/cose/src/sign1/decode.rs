@@ -70,8 +70,13 @@ fn decode_cose_sign1_internal(
     // Every rejected header or field type below therefore clears both the
     // original CBOR tree and the partially constructed COSE object.
     let mut cose = SensitiveCoseSign1::new(CoseSign1::default());
-    decode_protected_header(protected_value, &mut cose.inner_mut().protected)?;
     let mut x5chain_der = Vec::new();
+    decode_protected_header(
+        protected_value,
+        &mut cose.inner_mut().protected,
+        allow_x5chain,
+        &mut x5chain_der,
+    )?;
     decode_sign1_header(
         unprotected_value,
         &mut cose.inner_mut().unprotected,
@@ -104,6 +109,8 @@ enum Sign1HeaderBucket {
 fn decode_protected_header(
     value: &Value,
     protected: &mut ProtectedHeader,
+    allow_x5chain: bool,
+    x5chain_der: &mut Vec<Vec<u8>>,
 ) -> Result<(), CoseError> {
     let bytes = match value {
         Value::Bytes(bytes) => bytes,
@@ -115,13 +122,12 @@ fn decode_protected_header(
     }
 
     let decoded = SensitiveCborValue::decode_protected_header(bytes)?;
-    let mut rejected_x5chain = Vec::new();
     decode_sign1_header(
         decoded.value(),
         &mut protected.header,
         Sign1HeaderBucket::Protected,
-        false,
-        &mut rejected_x5chain,
+        allow_x5chain,
+        x5chain_der,
     )
 }
 
@@ -190,8 +196,11 @@ fn decode_sign1_header(
                 return Err(CoseError::DuplicateMapLabel);
             }
             saw_x5chain = true;
-            if !allow_x5chain || matches!(bucket, Sign1HeaderBucket::Protected) {
+            if !allow_x5chain {
                 return Err(CoseError::InvalidFormat);
+            }
+            if matches!(bucket, Sign1HeaderBucket::Unprotected) {
+                return Err(CoseError::UnprotectedHeaderNotAllowed);
             }
             *x5chain_der = decode_x5chain(value)?;
         } else {
@@ -211,7 +220,7 @@ fn parse_header_algorithm(
     match value {
         Value::Integer(integer) => {
             RegisteredLabelWithPrivate::from_cbor_value(Value::Integer(*integer))
-                .map_err(|_| CoseError::InvalidFormat)
+                .map_err(|_| CoseError::UnsupportedAlgorithm)
         }
         Value::Text(text) => Ok(RegisteredLabelWithPrivate::Text(text.clone())),
         _ => Err(CoseError::InvalidFormat),

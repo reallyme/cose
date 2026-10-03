@@ -63,6 +63,7 @@ pub(super) struct Case {
     plaintext_hex: String,
     external_aad_hex: String,
     supp_priv_info_hex: String,
+    supp_priv_info_present: Option<bool>,
     cose_encrypt_hex: String,
 }
 
@@ -107,27 +108,45 @@ impl Kem {
         }
     }
 
-    const fn content_algorithm(self) -> i64 {
-        match self {
-            Self::MlKem512 => 1,
-            Self::MlKem768 => 2,
-            Self::MlKem1024 => 3,
-        }
-    }
-
-    const fn content_algorithm_name(self) -> &'static str {
-        match self {
-            Self::MlKem512 => "A128GCM",
-            Self::MlKem768 => "A192GCM",
-            Self::MlKem1024 => "A256GCM",
-        }
-    }
-
     const fn key_length(self) -> usize {
         match self {
             Self::MlKem512 => 16,
             Self::MlKem768 => 24,
             Self::MlKem1024 => 32,
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
+enum Content {
+    Aes128,
+    Aes192,
+    Aes256,
+}
+
+impl Content {
+    fn parse(value: &str) -> AuditResult<Self> {
+        match value {
+            "A128GCM" => Ok(Self::Aes128),
+            "A192GCM" => Ok(Self::Aes192),
+            "A256GCM" => Ok(Self::Aes256),
+            _ => Err(general(AuditReason::KemAlgorithmMismatch)),
+        }
+    }
+
+    const fn id(self) -> i64 {
+        match self {
+            Self::Aes128 => 1,
+            Self::Aes192 => 2,
+            Self::Aes256 => 3,
+        }
+    }
+
+    const fn key_length(self) -> usize {
+        match self {
+            Self::Aes128 => 16,
+            Self::Aes192 => 24,
+            Self::Aes256 => 32,
         }
     }
 }
@@ -173,11 +192,8 @@ pub(super) fn audit_suite(suite: &Suite, ids: &mut HashSet<String>) -> AuditResu
 
 fn audit_case(case: &Case) -> AuditResult<()> {
     let kem = Kem::parse(&case.kem_algorithm)?;
+    let content = Content::parse(&case.content_algorithm)?;
     let mode = Mode::parse(&case.mode)?;
-    ensure(
-        case.content_algorithm == kem.content_algorithm_name(),
-        AuditReason::KemAlgorithmMismatch,
-    )?;
 
     let seed = decode_hex(&case.private_key_seed_hex)?;
     let public_key = decode_hex(&case.public_key_hex)?;
@@ -188,9 +204,17 @@ fn audit_case(case: &Case) -> AuditResult<()> {
     let expected_plaintext = decode_hex(&case.plaintext_hex)?;
     let external_aad = decode_hex(&case.external_aad_hex)?;
     let supp_priv_info = decode_hex(&case.supp_priv_info_hex)?;
+    ensure(
+        case.supp_priv_info_present != Some(false) || supp_priv_info.is_empty(),
+        AuditReason::KemKdf,
+    )?;
+    let supp_priv_info_ref = case
+        .supp_priv_info_present
+        .unwrap_or(true)
+        .then_some(supp_priv_info.as_slice());
     let encoded = decode_hex(&case.cose_encrypt_hex)?;
 
-    let parsed = parse_encrypt(&encoded, kem, mode, &expected_kid)?;
+    let parsed = parse_encrypt(&encoded, kem, content, mode, &expected_kid)?;
     ensure(
         parsed.iv == expected_iv,
         AuditReason::EncryptUnprotectedHeader,
@@ -227,10 +251,10 @@ fn audit_case(case: &Case) -> AuditResult<()> {
             )?;
             derive_key(
                 &decapsulated,
-                kem.content_algorithm(),
-                kem.key_length(),
+                content.id(),
+                content.key_length(),
                 &parsed.recipient_protected,
-                &supp_priv_info,
+                supp_priv_info_ref,
             )?
         }
         Mode::KeyWrap => {
@@ -243,7 +267,7 @@ fn audit_case(case: &Case) -> AuditResult<()> {
                 kem.key_wrap_algorithm(),
                 kem.key_length(),
                 &parsed.recipient_protected,
-                &supp_priv_info,
+                supp_priv_info_ref,
             )?;
             let unwrapped = unwrap_key(kem, &kek, wrapped)?;
             ensure(
@@ -261,7 +285,7 @@ fn audit_case(case: &Case) -> AuditResult<()> {
         Value::Bytes(external_aad),
     ]))?;
     let plaintext = decrypt_content(
-        kem,
+        content,
         &content_key,
         &parsed.iv,
         &enc_structure,
@@ -276,6 +300,7 @@ fn audit_case(case: &Case) -> AuditResult<()> {
 fn parse_encrypt(
     encoded: &[u8],
     kem: Kem,
+    content: Content,
     mode: Mode,
     expected_kid: &[u8],
 ) -> AuditResult<ParsedEncrypt> {
@@ -300,7 +325,7 @@ fn parse_encrypt(
         body_map.len() == 1
             && matches!(
                 map_get(&body_map, COSE_HEADER_ALGORITHM),
-                Some(value) if integer_matches(value, kem.content_algorithm())
+                Some(value) if integer_matches(value, content.id())
             ),
         AuditReason::EncryptProtectedHeader,
     )?;

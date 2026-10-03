@@ -7,9 +7,9 @@ use reallyme_cose::{
     cose_key_from_public_bytes, cose_key_from_signature_private_bytes,
     cose_key_from_signature_public_bytes, cose_key_from_slice, cose_key_signature_algorithm,
     cose_key_to_public_bytes, cose_key_to_vec, cose_sign1_with_signature_algorithm,
-    cose_sign1_with_signature_algorithm_and_external_aad, cose_verify1_with_policy,
-    cose_verify1_with_x5chain, derive_kid_from_cose_key_public, Algorithm, CoseError, CosePolicy,
-    CoseSign1EncodeOptions, CoseSignatureAlgorithm,
+    cose_sign1_with_signature_algorithm_and_external_aad, cose_verify1_with_exact_algorithm,
+    cose_verify1_with_policy, cose_verify1_with_x5chain, derive_kid_from_cose_key_public,
+    Algorithm, CoseError, CosePolicy, CoseSign1EncodeOptions, CoseSignatureAlgorithm,
 };
 
 use super::support::{gen_p256, test_kid};
@@ -24,6 +24,27 @@ const WEBAUTHN_ES256_COSE_KEY: [u8; 77] = [
     0x75, 0x70, 0x11, 0x63, 0xf7, 0xf9, 0xe4, 0x0d, 0xdf, 0x9f, 0x34, 0x1b, 0x3d, 0xc9, 0xba, 0x86,
     0x0a, 0xf7, 0xe0, 0xca, 0x7c, 0xa7, 0xe9, 0xee, 0xcd, 0x00, 0x84, 0xd1, 0x9c,
 ];
+
+#[test]
+fn exact_resolver_does_not_reuse_an_es256_key_for_esp256() {
+    let key = gen_p256();
+    let policy = CosePolicy::new();
+    for (algorithm, should_verify) in [
+        (CoseSignatureAlgorithm::Es256, true),
+        (CoseSignatureAlgorithm::Esp256, false),
+    ] {
+        let signed = cose_sign1_with_signature_algorithm(algorithm, b"payload", &key.private, None)
+            .expect("fixture must sign");
+        let result = cose_verify1_with_exact_algorithm(&signed, &[], &policy, |requested, _| {
+            (requested == CoseSignatureAlgorithm::Es256).then(|| key.public.clone())
+        });
+        if should_verify {
+            assert!(result.is_ok(), "ES256 key registration must verify");
+        } else {
+            assert!(matches!(result, Err(CoseError::KeyNotResolved)));
+        }
+    }
+}
 
 #[test]
 fn webauthn_es256_credential_public_key_parses_and_preserves_registration() {
@@ -123,6 +144,7 @@ fn es256_sign1_roundtrip_reports_exact_registration_and_policy_distinguishes_it(
     )
     .expect("ES256 COSE_Sign1 must sign");
     let policy = CosePolicy::new().allow_cose_algorithm(CoseSignatureAlgorithm::Es256);
+
     let verified = cose_verify1_with_policy(&cose, &policy, |algorithm, kid| {
         (algorithm == Algorithm::P256 && kid == test_kid()).then(|| keypair.public.clone())
     })
@@ -157,6 +179,27 @@ fn x5chain_verification_is_explicit_bounded_and_preserves_exact_es256() {
     .expect("ES256 x5chain COSE_Sign1 must sign");
     let policy = CosePolicy::new().allow_cose_algorithm(CoseSignatureAlgorithm::Es256);
 
+    let parsed: ciborium::value::Value =
+        ciborium::de::from_reader(cose.as_slice()).expect("signed COSE must decode");
+    let entries = parsed
+        .as_array()
+        .expect("signed COSE_Sign1 must be an array");
+    let protected_bytes = entries
+        .first()
+        .and_then(ciborium::value::Value::as_bytes)
+        .expect("protected header must be a byte string");
+    let protected: ciborium::value::Value =
+        ciborium::de::from_reader(protected_bytes.as_slice()).expect("protected CBOR must decode");
+    assert!(matches!(
+        protected,
+        ciborium::value::Value::Map(ref fields) if fields.iter().any(|(key, value)|
+            matches!(key, ciborium::value::Value::Integer(label) if i64::try_from(*label) == Ok(33))
+                && matches!(value, ciborium::value::Value::Bytes(bytes) if bytes == LEAF_CERTIFICATE_DER))
+    ));
+    assert!(
+        matches!(entries.get(1), Some(ciborium::value::Value::Map(fields)) if fields.is_empty())
+    );
+
     assert_eq!(
         cose_verify1_with_policy(&cose, &policy, |_, _| Some(keypair.public.clone())).err(),
         Some(CoseError::InvalidFormat),
@@ -170,6 +213,46 @@ fn x5chain_verification_is_explicit_bounded_and_preserves_exact_es256() {
     assert_eq!(verified.payload.as_slice(), b"payload");
     assert_eq!(verified.cose_algorithm, CoseSignatureAlgorithm::Es256);
     assert_eq!(verified.x5chain_der, expected_certificates);
+
+    let mut tampered = cose.to_vec();
+    let certificate_offset = tampered
+        .windows(LEAF_CERTIFICATE_DER.len())
+        .position(|window| window == LEAF_CERTIFICATE_DER)
+        .expect("signed certificate must occur in the COSE object");
+    let last_certificate_byte = certificate_offset
+        .checked_add(
+            LEAF_CERTIFICATE_DER
+                .len()
+                .checked_sub(1)
+                .expect("fixed certificate cannot be empty"),
+        )
+        .expect("fixed certificate position must fit");
+    tampered[last_certificate_byte] ^= 1;
+    assert_eq!(
+        cose_verify1_with_x5chain(&tampered, &policy, |_, _| Some(keypair.public.clone())).err(),
+        Some(CoseError::InvalidSignature),
+    );
+
+    let mut unprotected_chain: ciborium::value::Value =
+        ciborium::de::from_reader(cose.as_slice()).expect("signed COSE must decode");
+    let unprotected_entries = unprotected_chain
+        .as_array_mut()
+        .and_then(|fields| fields.get_mut(1))
+        .expect("unprotected header must exist");
+    *unprotected_entries = ciborium::value::Value::Map(vec![(
+        ciborium::value::Value::Integer(33_i64.into()),
+        ciborium::value::Value::Bytes(LEAF_CERTIFICATE_DER.to_vec()),
+    )]);
+    let mut unprotected_bytes = Vec::new();
+    ciborium::ser::into_writer(&unprotected_chain, &mut unprotected_bytes)
+        .expect("test COSE must encode");
+    assert_eq!(
+        cose_verify1_with_x5chain(&unprotected_bytes, &policy, |_, _| {
+            Some(keypair.public.clone())
+        })
+        .err(),
+        Some(CoseError::UnprotectedHeaderNotAllowed),
+    );
 }
 
 #[test]

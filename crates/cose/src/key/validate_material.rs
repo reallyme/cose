@@ -37,6 +37,26 @@ const ML_DSA_87_SIGNATURE_BYTES: usize = 4_627;
 const X25519_PUBLIC_KEY_BYTES: usize = 32;
 #[cfg(feature = "cose-crypto")]
 const X25519_VALIDATION_SECRET: [u8; X25519_PUBLIC_KEY_BYTES] = [0x42; X25519_PUBLIC_KEY_BYTES];
+#[cfg(feature = "cose-crypto")]
+const X25519_FIELD_MODULUS_LE: [u8; X25519_PUBLIC_KEY_BYTES] = [
+    0xed, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x7f,
+];
+
+#[cfg(feature = "cose-crypto")]
+fn validate_canonical_x25519_public_key(public_key: &[u8]) -> Result<(), CoseError> {
+    let bytes: &[u8; X25519_PUBLIC_KEY_BYTES] = public_key
+        .try_into()
+        .map_err(|_| CoseError::InvalidKeyMaterial)?;
+    // RFC 7748 decoding masks the high bit and reduces non-canonical field
+    // elements. Neither transformation is safe for persistent key identities.
+    if bytes[31] & 0x80 != 0
+        || bytes.iter().rev().cmp(X25519_FIELD_MODULUS_LE.iter().rev()) != core::cmp::Ordering::Less
+    {
+        return Err(CoseError::InvalidKeyMaterial);
+    }
+    Ok(())
+}
 
 #[cfg(feature = "cose-crypto")]
 pub(crate) fn validate_public_key(
@@ -45,7 +65,18 @@ pub(crate) fn validate_public_key(
 ) -> Result<(), CoseError> {
     reject_weak_public_key(algorithm, public_key)?;
 
+    if algorithm == Algorithm::Ed25519 {
+        // A verifier can report malformed points as an invalid signature.
+        // Validate the encoding and subgroup before the dummy verification can
+        // treat that result as evidence of a usable public key.
+        reallyme_crypto::ed25519::assert_public_key(public_key).map_err(|error| match error {
+            CryptoError::InvalidKey => CoseError::InvalidKeyMaterial,
+            _ => CoseError::Crypto,
+        })?;
+    }
+
     if algorithm == Algorithm::X25519 {
+        validate_canonical_x25519_public_key(public_key)?;
         return match derive_shared_secret(algorithm, &X25519_VALIDATION_SECRET, public_key) {
             Ok(mut shared_secret) => {
                 shared_secret.zeroize();

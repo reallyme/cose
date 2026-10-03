@@ -5,12 +5,119 @@
 
 use reallyme_cose::{
     cose_key_from_public_bytes, cose_key_from_signature_public_bytes,
-    cose_key_from_signature_public_bytes_with_encoding, cose_key_to_public_bytes, cose_key_to_vec,
-    derive_kid_from_cose_key_public, Algorithm, CoseEc2PointEncoding, CoseError,
-    CoseSignatureAlgorithm,
+    cose_key_from_signature_public_bytes_with_encoding, cose_key_from_slice,
+    cose_key_to_public_bytes, cose_key_to_vec, derive_kid_from_cose_key_public, Algorithm,
+    CoseEc2PointEncoding, CoseError, CoseSignatureAlgorithm,
 };
+use serde::Deserialize;
 
 use super::support::{gen_ed25519, gen_p256, gen_p384, gen_p521, gen_secp256k1};
+
+#[derive(Deserialize)]
+struct NegativeEd25519KeySuite {
+    cases: Vec<NegativeEd25519KeyCase>,
+}
+
+#[derive(Deserialize)]
+struct NegativeEd25519KeyCase {
+    id: String,
+    public_key_hex: String,
+    cose_key_hex: String,
+    expected_error: String,
+}
+
+#[test]
+fn ed25519_invalid_points_cannot_enter_cose_key_api() {
+    let suite: NegativeEd25519KeySuite =
+        serde_json::from_str(include_str!("../../../../vectors/cose-key-negative.json"))
+            .expect("committed negative key vectors must parse");
+    for case in suite.cases {
+        assert_eq!(case.expected_error, "invalid_key_material", "{}", case.id);
+        let public_key = hex::decode(&case.public_key_hex).expect("fixed public key hex");
+        let encoded_key = hex::decode(&case.cose_key_hex).expect("fixed COSE_Key hex");
+        assert_eq!(
+            cose_key_from_public_bytes(Algorithm::Ed25519, &public_key).err(),
+            Some(CoseError::InvalidKeyMaterial),
+            "{} direct constructor",
+            case.id
+        );
+        assert_eq!(
+            cose_key_from_slice(&encoded_key).err(),
+            Some(CoseError::InvalidKeyMaterial),
+            "{} CBOR constructor",
+            case.id
+        );
+    }
+}
+
+#[test]
+fn x25519_noncanonical_encodings_cannot_acquire_distinct_identifiers() {
+    let mut canonical = [0_u8; 32];
+    canonical[0] = 9;
+    assert!(cose_key_from_public_bytes(Algorithm::X25519, &canonical).is_ok());
+
+    let mut high_bit = canonical;
+    high_bit[31] = 0x80;
+    let mut p_plus_nine = [0xff_u8; 32];
+    p_plus_nine[0] = 0xf6;
+    p_plus_nine[31] = 0x7f;
+    for encoding in [high_bit, p_plus_nine] {
+        assert_eq!(
+            cose_key_from_public_bytes(Algorithm::X25519, &encoding).err(),
+            Some(CoseError::InvalidKeyMaterial),
+        );
+    }
+}
+
+#[test]
+fn cose_key_label_zero_is_rejected_at_parse() {
+    // A canonical one-entry map exercises the parameter-label check before
+    // profile validation can reject the missing key type for another reason.
+    assert_eq!(
+        cose_key_from_slice(&[0xa1, 0x00, 0x00]).err(),
+        Some(CoseError::InvalidFormat),
+    );
+}
+
+#[test]
+fn public_signing_key_operations_allow_verify_but_reject_sign() {
+    use ciborium::value::Value;
+
+    let key = gen_ed25519();
+    let public =
+        cose_key_from_public_bytes(key.alg, &key.public).expect("fixed public key must construct");
+    let encoded = cose_key_to_vec(&public).expect("fixed public key must encode");
+    let value: Value = ciborium::de::from_reader(encoded.as_slice())
+        .expect("fixed public key must decode as CBOR");
+    let entries = value.as_map().expect("COSE_Key must encode as a map");
+
+    for (operation, expected) in [(2_i64, None), (1_i64, Some(CoseError::InvalidKeyMaterial))] {
+        let mut with_operations = entries.clone();
+        let insert_at = with_operations
+            .iter()
+            .position(|(label, _)| {
+                label
+                    .as_integer()
+                    .is_some_and(|integer| i128::from(integer) < 0)
+            })
+            .unwrap_or(with_operations.len());
+        with_operations.insert(
+            insert_at,
+            (
+                Value::Integer(4.into()),
+                Value::Array(vec![Value::Integer(operation.into())]),
+            ),
+        );
+        let mut encoded_with_operations = Vec::new();
+        ciborium::ser::into_writer(&Value::Map(with_operations), &mut encoded_with_operations)
+            .expect("test key must encode");
+        assert_eq!(
+            cose_key_from_slice(&encoded_with_operations).err(),
+            expected,
+            "key operation {operation}"
+        );
+    }
+}
 
 #[test]
 fn cose_key_ed25519_roundtrip() {
@@ -118,7 +225,7 @@ fn cose_key_rejects_invalid_ec_length() {
 
     let res = cose_key_from_public_bytes(Algorithm::P256, &bad);
 
-    assert!(res.is_err());
+    assert_eq!(res.err(), Some(CoseError::InvalidKeyMaterial));
 }
 
 #[test]
@@ -245,7 +352,7 @@ fn cose_key_rejects_wrong_length_ml_kem_public_key() {
 
     let res = cose_key_from_public_bytes(Algorithm::MlKem1024, &k.public);
 
-    assert!(res.is_err());
+    assert_eq!(res.err(), Some(CoseError::InvalidKeyMaterial));
 }
 
 #[test]

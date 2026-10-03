@@ -1,6 +1,6 @@
 [package]
 name = "reallyme-cose"
-version = "0.2.6"
+version = "0.2.7"
 description = "Strict COSE helpers for ReallyMe identity software."
 edition.workspace = true
 rust-version.workspace = true
@@ -67,6 +67,7 @@ thiserror.workspace = true
 zeroize.workspace = true
 
 [dev-dependencies]
+hex = "0.4.3"
 serde.workspace = true
 serde_json.workspace = true
 

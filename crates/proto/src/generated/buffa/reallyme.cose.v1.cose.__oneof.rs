@@ -479,3 +479,34 @@ pub mod cose_operation_result {
         }
     }
 }
+pub mod cose_type {
+    #[allow(unused_imports)]
+    use super::*;
+    #[derive(Clone, PartialEq, Debug)]
+    pub enum Value {
+        MediaType(::buffa::alloc::string::String),
+        ContentFormat(u64),
+    }
+    impl ::buffa::Oneof for Value {}
+    impl ::serde::Serialize for Value {
+        fn serialize<S: ::serde::Serializer>(
+            &self,
+            s: S,
+        ) -> ::core::result::Result<S::Ok, S::Error> {
+            use ::serde::ser::SerializeMap;
+            let mut map = s.serialize_map(Some(1))?;
+            match self {
+                Self::MediaType(v) => {
+                    map.serialize_entry("mediaType", v)?;
+                }
+                Self::ContentFormat(v) => {
+                    map.serialize_entry(
+                        "contentFormat",
+                        &::buffa::json_helpers::ProtoJson(v),
+                    )?;
+                }
+            }
+            map.end()
+        }
+    }
+}

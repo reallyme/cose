@@ -41,8 +41,8 @@ wildcards = "deny"
 highlight = "all"
 workspace-default-features = "allow"
 external-default-features = "allow"
-# Direct use of broad error/logging crates is prohibited by AGENTS.md and
-# source review. Do not ban transitive use unless we are ready to replace
+# Direct use of broad error/logging crates is prohibited by repository policy
+# and source review. Do not ban transitive use unless we are ready to replace
 # upstream dependencies that carry them internally.
 deny = []
 skip = []

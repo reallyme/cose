@@ -43,6 +43,22 @@ test("a missing operation-contract route cannot hide behind another dispatcher b
   assert.match(violations.join("\n"), /KeyParse must call .*key::parse::result exactly once; found 0/u);
 });
 
+test("swapped dispatcher adapters are rejected even when both calls remain present", () => {
+  const violations = violationsAfter("crates/cose/src/operation_contract/execute.rs", (source) =>
+    source
+      .replace(
+        "super::sign1::create::attached_result(*request)",
+        "__SWAPPED_ATTACHED_ADAPTER__",
+      )
+      .replace(
+        "super::sign1::create::detached_result(*request)",
+        "super::sign1::create::attached_result(*request)",
+      )
+      .replace("__SWAPPED_ATTACHED_ADAPTER__", "super::sign1::create::detached_result(*request)"),
+  );
+  assert.match(violations.join("\n"), /Sign1Create must invoke .*attached_result in its own match arm/u);
+});
+
 test("adapter comments cannot impersonate an executable semantic call", () => {
   const violations = violationsAfter("crates/cose/src/operation_contract/key/parse.rs", (source) =>
     replaceOnce(

@@ -35,7 +35,7 @@ return `UnsupportedAlgorithm`; signing and encryption APIs are not exported.
 Enable the `wire` feature only for protobuf operation adapters:
 
 ```toml
-reallyme-cose = { version = "0.2.6", features = ["wire"] }
+reallyme-cose = { version = "0.2.7", features = ["wire"] }
 ```
 
 When default features are disabled, pair `wire` with an explicit runtime lane,
@@ -107,7 +107,7 @@ This example generates its key pair with `reallyme-crypto`, so add that direct
 dependency alongside `reallyme-cose`:
 
 ```toml
-reallyme-crypto = { version = "0.3.11", default-features = false, features = ["native", "dispatch", "ed25519"] }
+reallyme-crypto = { version = "0.3.12", default-features = false, features = ["native", "dispatch", "ed25519"] }
 ```
 
 ```rust
@@ -233,29 +233,42 @@ are deliberately not public struct-literal surface. Use
 - RFC 9596 protected `typ` header label 16 with bounded text media types or
   unsigned CoAP Content-Format identifiers. Verified metadata returns the
   authenticated `CoseType` value.
-- Profile-specific signing can attach a bounded RFC 9360 `x5chain` certificate
-  path through `CoseSign1EncodeOptions`; ordinary verification remains strict,
-  while `cose_verify1_with_x5chain` explicitly returns the authenticated path.
+- Profile-specific signing places a bounded RFC 9360 `x5chain` certificate
+  path in protected header label 33 through `CoseSign1EncodeOptions`. The
+  `cose_verify1_with_x5chain` API returns the signed path after signature
+  verification; callers must validate its certificates and trust chain in the
+  resolver. Ordinary verification rejects this extension.
 - Ed25519, ES256 (`-7`), ESP256 (`-9`), ESP384 (`-51`), ESP512 (`-52`),
   ES256K (`-47`), ML-DSA-44, ML-DSA-65, and ML-DSA-87 signing using their
   COSE registrations.
+- EdDSA (`-8`), ES384 (`-35`), ES512 (`-36`), and unknown algorithm
+  registrations are unsupported. They are never inferred from key shape.
 - ECDSA signatures on the COSE wire use fixed-width `r || s` encoding;
   DER is accepted only at the NIST-curve signing-provider boundary, not as
   a COSE signature.
+- NIST-curve verification accepts both `(r, s)` and `(r, n-s)` signatures,
+  as permitted by RFC 9053. Applications deduplicating signed messages must
+  use an authenticated message identity rather than raw COSE bytes.
 - Verification accepts untagged COSE_Sign1 input and input carrying the
   registered COSE_Sign1 tag (18).
 - `cose_verify1_with_policy` and `cose_verify1_detached_with_policy` enforce
   `CosePolicy` at the byte API boundary, including `kid` requirements,
-  required COSE_Sign1 tag 18, algorithm allow-lists, and configurable byte
-  limits.
+  required COSE_Sign1 tag 18, exact protected `typ`, algorithm allow-lists,
+  and configurable byte limits.
 - `cose_verify1_with_metadata` and policy-aware verification return verified
   payload, algorithm, `kid`, and RFC 9596 `typ` metadata so callers do not need
-  to reparse COSE after successful verification.
+  to reparse COSE after successful verification. Protobuf verification exposes
+  the same `typ` metadata and accepts exact-type and tag-18 requirements.
 - Verification binds the protected header bytes exactly as received, per
   RFC 9052 §4.4.
 - COSE_Key public/private construction and extraction for supported signing keys.
   Private construction requires the corresponding public key and validates the
   pair before the key can enter the typed API.
+- Public `kid` derivation hashes the canonical public COSE_Key, including its
+  algorithm binding. A key without `alg` uses the suite's documented default
+  registration for this purpose; for P-256 that is ESP256 (`-9`). The same
+  point explicitly bound to ES256 (`-7`) has a different `kid`.
+
 - EC2 public-key construction uses the compact RFC 9053 `y`-sign form by
   default. Profiles that require full affine coordinates can opt into
   `CoseEc2PointEncoding::FullCoordinates`; the protobuf field has the same
@@ -287,6 +300,12 @@ are deliberately not public struct-literal surface. Use
   remain the cross-lane contract for fixed-width `r || s` signatures. Any
   Swift, Kotlin, TypeScript, and other SDK implementations must reject DER signatures
   at the COSE boundary.
+
+An empty private-key argument to a signing or construction API yields
+`MissingPrivateKey`. Extracting a private component from a public-only
+COSE_Key yields `MissingKeyMaterial`. A provider's `InvalidMessage` report is
+treated as an operational crypto failure because the COSE layer constructed
+the bounded message supplied to that provider.
 
 ## Protobuf Wire Boundary
 
@@ -370,8 +389,9 @@ protobuf enum numbers. The content algorithm is authenticated in the
 `COSE_Encrypt` protected header. The exact direct or key-wrap ML-KEM profile and
 the mandatory recipient `kid` are authenticated in the `COSE_Recipient`
 protected header. The `ek` header carries the ML-KEM ciphertext in the
-recipient unprotected map because its integrity is established by successful
-decapsulation, KDF binding, and content or key-wrap authentication.
+recipient unprotected map. Tampering with `ek` is detected by ML-KEM
+decapsulation and subsequent content or key-wrap authentication; `ek` is not
+included in the KDF context.
 
 For DID and Multikey integration, public ML-KEM AKP keys use the draft
 Multicodec names `mlkem-512-pub`, `mlkem-768-pub`, and `mlkem-1024-pub`.
@@ -492,47 +512,61 @@ The default attached COSE_Sign1 limit is 65,536 bytes. Consumers that need
 larger attached reports can opt into a higher limit with
 `CoseSign1EncodeOptions::with_max_cose_sign1_bytes` when signing and
 `CosePolicy::with_max_cose_sign1_bytes` when verifying. Large application payloads
-should still prefer detached signing and enforce transport or application-level
-limits before calling this crate.
+must still fit the independent 1,048,576-byte signing input limit; external
+AAD has the same independent limit. Larger payloads should use an application
+protocol that does not pass those bytes through this signing boundary.
 
-Empty primitive and exact-registration allow-lists place no algorithm restriction;
-header, key, and signature validation still apply. Set at least one allowed algorithm for verifier
-surfaces that know their credential suite. `CosePolicy::require_kid()` is the
+The default verification policy accepts every supported signature algorithm.
+An explicitly configured empty primitive or exact-registration allow-list
+rejects every algorithm; `allow_any_algorithm()` opts back into unrestricted
+verification. Set an allow-list for verifier surfaces that know their
+credential suite. `CosePolicy::require_kid()` is the
 separate protected-header presence gate; it does not imply an algorithm
 allow-list. Policy and signing-option structs are constructed with builders
 rather than public fields so new policy controls can be added without breaking
 downstream callers.
 
-Every native Sign1 key resolver receives `(expected_algorithm, protected_kid)`.
-Resolvers must use that tuple as the key-store lookup identity and return only
-a public key registered for both values; resolving by `kid` alone discards the
-algorithm-binding guarantee. The protobuf lane expresses the same restriction
-through its algorithm allow-list and trusted `expected_kid` input.
+The exact-algorithm native verifier variants pass
+`(CoseSignatureAlgorithm, protected_kid)` to the key resolver. Use both values
+as the lookup identity when a key is registered for a specific COSE algorithm.
+The legacy resolver variants, including `cose_verify1_with_x5chain`, pass the
+broader cryptographic primitive `Algorithm`; they cannot distinguish ES256
+from ESP256. Protobuf verification can bind a supplied key to an exact
+registration with `public_key_algorithm`; its algorithm allow-list and
+`expected_kid` provide separate policy controls. A legacy wire
+`ECDSA_P256_SHA256` allow-list entry denotes ESP256 only; use the `ES256`
+entry to permit ES256.
 
 The protobuf operation lane is capped independently at 2 MiB for request
 messages and caller-supplied per-operation COSE/payload limits. Native Rust APIs
 may opt into larger local limits directly; protobuf callers cannot raise their
 parse policy beyond the message envelope cap. Generated ProtoJSON requests have
 a separate 3 MiB input cap to accommodate base64 and field-name overhead.
+ProtoJSON requests must use literal characters rather than JSON escape sequences, including in
+base64-encoded secret fields, so decoding does not retain an unwiped escape
+scratch buffer. Binary protobuf follows protobuf's last-oneof-member and
+repeated-message merge semantics; ProtoJSON rejects duplicate fields. Callers
+that require one canonical request encoding should choose one lane and enforce
+it before admission.
 
-## 0.2.6 Platform Scope
+## 0.2.7 Platform Scope
 
-The `0.2.6` release is intentionally Rust and protobuf only. Its publishable
+The `0.2.7` release is intentionally Rust and protobuf only. Its publishable
 artifacts are `reallyme-cose-proto` and `reallyme-cose`; the `native` and `wasm`
 features are Rust runtime lanes, not platform SDK packages.
 
-The `0.2.6` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
+The `0.2.7` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
 native C/JNI, or TypeScript/WASM npm packages. Those package formats are not
 part of this release's compatibility or support contract.
 
 The protobuf `swift_prefix` option is generation metadata, not a published
 Swift package. Likewise, `wasm32-unknown-unknown` is a Rust compilation target,
 not an npm package. The exact artifact scope is recorded in
-[`docs/platform-scope-0.2.6.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.2.6.json).
+[`docs/platform-scope-0.2.7.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.2.7.json).
 
 ## Development Checks
 
-The workspace declares Rust 1.99 as its minimum supported version; the development
+The workspace declares Rust 1.96 as its minimum supported version; the development
 toolchain is pinned in `rust-toolchain.toml`. Run the repository gate for format,
 feature-matrix, lint, test, allocation, WASM runtime, vector, fuzz-build, and
 dependency checks after installing the pinned external-type checker:
@@ -565,12 +599,18 @@ commands and runtime limits are documented in
 [the fuzzing guide](https://github.com/reallyme/cose/blob/main/fuzz/README.md).
 
 Release readiness requires crates.io dependencies for the published ReallyMe
-foundational crates: `reallyme-crypto` `^0.3.11` and `reallyme-codec` `^0.3.0`.
+foundational crates: `reallyme-crypto` `^0.3.12` and `reallyme-codec` `^0.3.1`.
 Local `../crypto` or `../codec` path dependencies are not accepted for release.
+
+The package preflight verifies the requested release commit and crate version,
+audits committed lockfiles, runs the pinned release-readiness checks, and
+inspects and dry-runs the package publication. The release workflow publishes
+with the repository's `CARGO_REGISTRY_TOKEN` after the reviewed package
+preflight succeeds.
 
 The gate also checks operation routing, typed errors, sensitive-buffer ownership,
 and allocation limits. The benchmark asserts named peak-allocation ceilings;
-reference measurements and their dependency versions are recorded in
+historical measurements for the 0.2.3 dependency set are recorded in
 [`docs/performance-baseline-0.2.3.md`](https://github.com/reallyme/cose/blob/main/docs/performance-baseline-0.2.3.md).
 Rerun the benchmark to measure a changed implementation or host.
 

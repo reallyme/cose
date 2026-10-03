@@ -6,17 +6,23 @@
 
 use crate::failure::{CoseFailureBranch, CoseFailureOrigin, CoseFailureReason};
 use crate::limits::MAX_COSE_KEY_BYTES;
+#[cfg(feature = "cose-crypto")]
 use crate::{Algorithm, CoseError};
 
+#[cfg(feature = "cose-crypto")]
 use super::facade::{cose_key_from_public_bytes, cose_key_to_vec};
-use super::parse::{parse_cose_key, CoseKeyParseInput, CoseKeyParseOutput};
+#[cfg(feature = "cose-crypto")]
+use super::parse::CoseKeyParseOutput;
+use super::parse::{parse_cose_key, CoseKeyParseInput};
 
+#[cfg(feature = "cose-crypto")]
 const RFC_8032_ED25519_PUBLIC_KEY: [u8; 32] = [
     0xd7, 0x5a, 0x98, 0x01, 0x82, 0xb1, 0x0a, 0xb7, 0xd5, 0x4b, 0xfe, 0xd3, 0xc9, 0x64, 0x07, 0x3a,
     0x0e, 0xe1, 0x72, 0xf3, 0xda, 0xa6, 0x23, 0x25, 0xaf, 0x02, 0x1a, 0x68, 0xf7, 0x07, 0x51, 0x1a,
 ];
 
 #[test]
+#[cfg(feature = "cose-crypto")]
 fn semantic_parse_preserves_canonical_key_bytes() -> Result<(), CoseError> {
     let key = cose_key_from_public_bytes(Algorithm::Ed25519, &RFC_8032_ED25519_PUBLIC_KEY)?;
     let encoded = cose_key_to_vec(&key)?;
@@ -62,6 +68,7 @@ fn semantic_parse_rejects_oversized_input_before_decode() {
     );
 }
 
+#[cfg(feature = "cose-crypto")]
 fn reencode(output: CoseKeyParseOutput) -> Result<zeroize::Zeroizing<Vec<u8>>, CoseError> {
     cose_key_to_vec(&output.into_key())
 }

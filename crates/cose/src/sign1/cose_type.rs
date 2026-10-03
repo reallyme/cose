@@ -19,6 +19,7 @@ pub(crate) const COSE_TYPE_HEADER_LABEL: i64 =
 /// after verification while comfortably covering registered media types and
 /// their parameters. Numeric CoAP Content-Format identifiers are unaffected.
 pub const MAX_COSE_TYPE_TEXT_BYTES: usize = 256;
+const MAX_COAP_CONTENT_FORMAT_IDENTIFIER: u64 = 65_535;
 
 /// Authenticated RFC 9596 type of a complete COSE object.
 ///
@@ -35,11 +36,15 @@ pub enum CoseType {
 }
 
 impl CoseType {
-    pub(super) fn validate(&self) -> Result<(), CoseError> {
+    pub(crate) fn validate(&self) -> Result<(), CoseError> {
         match self {
             Self::Text(text) if text.is_empty() => Err(CoseError::InvalidFormat),
             Self::Text(text) if text.len() > MAX_COSE_TYPE_TEXT_BYTES => {
                 Err(CoseError::ResourceLimitExceeded)
+            }
+            Self::Text(text) if text.chars().any(char::is_control) => Err(CoseError::InvalidFormat),
+            Self::Registered(identifier) if *identifier > MAX_COAP_CONTENT_FORMAT_IDENTIFIER => {
+                Err(CoseError::InvalidFormat)
             }
             Self::Text(_) | Self::Registered(_) => Ok(()),
         }
@@ -64,7 +69,7 @@ impl CoseType {
         }
     }
 
-    pub(super) fn from_protected_header(header: &Header) -> Result<Option<Self>, CoseError> {
+    pub(crate) fn from_protected_header(header: &Header) -> Result<Option<Self>, CoseError> {
         let mut found = None;
         for (label, value) in &header.rest {
             if *label != Label::Int(COSE_TYPE_HEADER_LABEL) {

@@ -5649,8 +5649,7 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemEncryptRequest {
         where
             D: ::serde::Deserializer<'de>,
         {
-            ::buffa::json_helpers::bytes::deserialize(deserializer)
-                .map(::zeroize::Zeroizing::new)
+            crate::secret_json_bytes::deserialize(deserializer)
         }
 
 
@@ -5961,8 +5960,7 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemEncryptResult {
         where
             D: ::serde::Deserializer<'de>,
         {
-            ::buffa::json_helpers::bytes::deserialize(deserializer)
-                .map(::zeroize::Zeroizing::new)
+            crate::secret_json_bytes::deserialize(deserializer)
         }
 
 
@@ -6185,8 +6183,7 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemDecryptRequest {
         where
             D: ::serde::Deserializer<'de>,
         {
-            ::buffa::json_helpers::bytes::deserialize(deserializer)
-                .map(::zeroize::Zeroizing::new)
+            crate::secret_json_bytes::deserialize(deserializer)
         }
 
 
@@ -6490,8 +6487,7 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemDecryptResult {
         where
             D: ::serde::Deserializer<'de>,
         {
-            ::buffa::json_helpers::bytes::deserialize(deserializer)
-                .map(::zeroize::Zeroizing::new)
+            crate::secret_json_bytes::deserialize(deserializer)
         }
 
 
@@ -7082,8 +7078,7 @@ pub struct CoseSign1CreateRequest {
         skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_bytes"
     )]
     pub kid: ::buffa::alloc::vec::Vec<u8>,
-    /// Whether kid is present. This distinguishes an omitted kid from an
-    /// intentionally empty kid byte string.
+    /// Whether a non-empty kid is present. An empty kid with this flag is invalid.
     ///
     /// Field 5: `has_kid`
     #[serde(
@@ -7152,8 +7147,7 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateRequest {
         where
             D: ::serde::Deserializer<'de>,
         {
-            ::buffa::json_helpers::bytes::deserialize(deserializer)
-                .map(::zeroize::Zeroizing::new)
+            crate::secret_json_bytes::deserialize(deserializer)
         }
 
         #[derive(Default, ::serde::Deserialize)]
@@ -7456,8 +7450,7 @@ pub struct CoseSign1CreateDetachedRequest {
         skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_bytes"
     )]
     pub kid: ::buffa::alloc::vec::Vec<u8>,
-    /// Whether kid is present. This distinguishes an omitted kid from an
-    /// intentionally empty kid byte string.
+    /// Whether a non-empty kid is present. An empty kid with this flag is invalid.
     ///
     /// Field 5: `has_kid`
     #[serde(
@@ -7526,8 +7519,7 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateDetachedRequest {
         where
             D: ::serde::Deserializer<'de>,
         {
-            ::buffa::json_helpers::bytes::deserialize(deserializer)
-                .map(::zeroize::Zeroizing::new)
+            crate::secret_json_bytes::deserialize(deserializer)
         }
 
         #[derive(Default, ::serde::Deserialize)]
@@ -7823,8 +7815,7 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateResult {
         where
             D: ::serde::Deserializer<'de>,
         {
-            ::buffa::json_helpers::bytes::deserialize(deserializer)
-                .map(::zeroize::Zeroizing::new)
+            crate::secret_json_bytes::deserialize(deserializer)
         }
 
 
@@ -7952,6 +7943,252 @@ pub const __COSE_SIGN1CREATE_RESULT_JSON_ANY: ::buffa::type_registry::JsonAnyEnt
     from_json: ::buffa::type_registry::any_from_json::<CoseSign1CreateResult>,
     is_wkt: false,
 };
+/// CoseType is the protected RFC 9596 typ header. Exactly one value must be
+/// present when used as an expected verification type.
+#[derive(Clone, PartialEq, Default)]
+#[derive(::serde::Serialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct CoseType {
+    #[serde(flatten)]
+    pub value: ::core::option::Option<__buffa::oneof::cose_type::Value>,
+    #[serde(skip)]
+    #[doc(hidden)]
+    pub __buffa_unknown_fields: ::buffa::UnknownFields,
+}
+impl ::core::fmt::Debug for CoseType {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseType").field("value", &self.value).finish()
+    }
+}
+impl CoseType {
+    /// Protobuf type URL for this message, for use with `Any::pack` and
+    /// `Any::unpack_if`.
+    ///
+    /// Format: `type.googleapis.com/<fully.qualified.TypeName>`
+    pub const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseType";
+}
+::buffa::impl_default_instance!(CoseType);
+impl ::buffa::MessageName for CoseType {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseType";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseType";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseType";
+}
+impl ::buffa::Message for CoseType {
+    /// Returns the total encoded size in bytes.
+    ///
+    /// Accumulates in `u64` (which cannot overflow for in-memory
+    /// data) and saturates to `u32` at return, so a message whose
+    /// encoded size exceeds the 2 GiB protobuf limit yields a value
+    /// above [`::buffa::MAX_MESSAGE_BYTES`] that the encode entry
+    /// points reject, never a silently wrapped size.
+    #[allow(clippy::let_and_return)]
+    fn compute_size(&self, _cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if let ::core::option::Option::Some(ref v) = self.value {
+            match v {
+                __buffa::oneof::cose_type::Value::MediaType(x) => {
+                    size += 1u64 + ::buffa::types::string_encoded_len(x) as u64;
+                }
+                __buffa::oneof::cose_type::Value::ContentFormat(v) => {
+                    size += 1u64 + ::buffa::types::uint64_encoded_len(*v) as u64;
+                }
+            }
+        }
+        size += self.__buffa_unknown_fields.encoded_len() as u64;
+        ::buffa::saturate_size(size)
+    }
+    fn write_to(
+        &self,
+        _cache: &mut ::buffa::SizeCache,
+        buf: &mut impl ::buffa::EncodeSink,
+    ) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if let ::core::option::Option::Some(ref v) = self.value {
+            match v {
+                __buffa::oneof::cose_type::Value::MediaType(x) => {
+                    ::buffa::types::put_string_field(1u32, x, buf);
+                }
+                __buffa::oneof::cose_type::Value::ContentFormat(x) => {
+                    ::buffa::types::put_uint64_field(2u32, *x, buf);
+                }
+            }
+        }
+        self.__buffa_unknown_fields.write_to(buf);
+    }
+    fn merge_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        buf: &mut impl ::buffa::bytes::Buf,
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<(), ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::bytes::Buf as _;
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                self.value = ::core::option::Option::Some(
+                    __buffa::oneof::cose_type::Value::MediaType(
+                        ::buffa::types::decode_string(buf)?,
+                    ),
+                );
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::Varint,
+                )?;
+                self.value = ::core::option::Option::Some(
+                    __buffa::oneof::cose_type::Value::ContentFormat(
+                        ::buffa::types::decode_uint64(buf)?,
+                    ),
+                );
+            }
+            _ => {
+                self.__buffa_unknown_fields
+                    .push(::buffa::encoding::decode_unknown_field(tag, buf, ctx)?);
+            }
+        }
+        ::core::result::Result::Ok(())
+    }
+    fn clear(&mut self) {
+        self.value = ::core::option::Option::None;
+        __reallyme_zeroize_unknown_fields(&mut self.__buffa_unknown_fields);
+    }
+}
+impl ::buffa::ExtensionSet for CoseType {
+    const PROTO_FQN: &'static str = "reallyme.cose.v1.CoseType";
+    fn unknown_fields(&self) -> &::buffa::UnknownFields {
+        &self.__buffa_unknown_fields
+    }
+    fn unknown_fields_mut(&mut self) -> &mut ::buffa::UnknownFields {
+        &mut self.__buffa_unknown_fields
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CoseType {
+    fn deserialize<D: ::serde::Deserializer<'de>>(
+        d: D,
+    ) -> ::core::result::Result<Self, D::Error> {
+        struct _V;
+        impl<'de> ::serde::de::Visitor<'de> for _V {
+            type Value = CoseType;
+            fn expecting(
+                &self,
+                f: &mut ::core::fmt::Formatter<'_>,
+            ) -> ::core::fmt::Result {
+                f.write_str("struct CoseType")
+            }
+            #[allow(clippy::field_reassign_with_default)]
+            fn visit_map<A: ::serde::de::MapAccess<'de>>(
+                self,
+                mut map: A,
+            ) -> ::core::result::Result<CoseType, A::Error> {
+                let mut __oneof_value: ::core::option::Option<
+                    __buffa::oneof::cose_type::Value,
+                > = None;
+                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                    match key.as_str() {
+                        "mediaType" | "media_type" => {
+                            let v: ::core::option::Option<
+                                ::buffa::alloc::string::String,
+                            > = map
+                                .next_value_seed(
+                                    ::buffa::json_helpers::NullableDeserializeSeed(
+                                        ::buffa::json_helpers::DefaultDeserializeSeed::<
+                                            ::buffa::alloc::string::String,
+                                        >::new(),
+                                    ),
+                                )?;
+                            if let Some(v) = v {
+                                if __oneof_value.is_some() {
+                                    return Err(
+                                        ::serde::de::Error::custom(
+                                            "multiple oneof fields set for 'value'",
+                                        ),
+                                    );
+                                }
+                                __oneof_value = Some(
+                                    __buffa::oneof::cose_type::Value::MediaType(v),
+                                );
+                            }
+                        }
+                        "contentFormat" | "content_format" => {
+                            struct _DeserSeed;
+                            impl<'de> ::serde::de::DeserializeSeed<'de> for _DeserSeed {
+                                type Value = u64;
+                                fn deserialize<D: ::serde::Deserializer<'de>>(
+                                    self,
+                                    d: D,
+                                ) -> ::core::result::Result<u64, D::Error> {
+                                    ::buffa::json_helpers::uint64::deserialize(d)
+                                }
+                            }
+                            let v: ::core::option::Option<u64> = map
+                                .next_value_seed(
+                                    ::buffa::json_helpers::NullableDeserializeSeed(_DeserSeed),
+                                )?;
+                            if let Some(v) = v {
+                                if __oneof_value.is_some() {
+                                    return Err(
+                                        ::serde::de::Error::custom(
+                                            "multiple oneof fields set for 'value'",
+                                        ),
+                                    );
+                                }
+                                __oneof_value = Some(
+                                    __buffa::oneof::cose_type::Value::ContentFormat(v),
+                                );
+                            }
+                        }
+                        _ => {
+                            return Err(::serde::de::Error::custom("unknown field"));
+                        }
+                    }
+                }
+                let mut __r = <CoseType as ::core::default::Default>::default();
+                __r.value = __oneof_value;
+                Ok(__r)
+            }
+        }
+        d.deserialize_map(_V)
+    }
+}
+impl ::buffa::json_helpers::ProtoElemJson for CoseType {
+    fn serialize_proto_json<S: ::serde::Serializer>(
+        v: &Self,
+        s: S,
+    ) -> ::core::result::Result<S::Ok, S::Error> {
+        ::serde::Serialize::serialize(v, s)
+    }
+    fn deserialize_proto_json<'de, D: ::serde::Deserializer<'de>>(
+        d: D,
+    ) -> ::core::result::Result<Self, D::Error> {
+        <Self as ::serde::Deserialize>::deserialize(d)
+    }
+}
+#[doc(hidden)]
+pub const __COSE_TYPE_JSON_ANY: ::buffa::type_registry::JsonAnyEntry = ::buffa::type_registry::JsonAnyEntry {
+    type_url: "type.googleapis.com/reallyme.cose.v1.CoseType",
+    to_json: ::buffa::type_registry::any_to_json::<CoseType>,
+    from_json: ::buffa::type_registry::any_from_json::<CoseType>,
+    is_wkt: false,
+};
+pub mod cose_type {
+    #[allow(unused_imports)]
+    use super::*;
+    #[doc(inline)]
+    pub use super::__buffa::oneof::cose_type::Value;
+    #[doc(inline)]
+    pub use super::__buffa::view::oneof::cose_type::Value as ValueView;
+}
 /// CoseSign1VerifyRequest verifies a COSE_Sign1 with an attached payload. The
 /// public_key field is the protobuf-boundary equivalent of the Rust SDK key
 /// resolver output for the protected-header kid.
@@ -7991,8 +8228,9 @@ pub struct CoseSign1VerifyRequest {
         skip_serializing_if = "::buffa::json_helpers::skip_if::is_zero_u64"
     )]
     pub max_cose_sign1_bytes: u64,
-    /// Reserved for shape parity with detached verification. A value of 0 uses the
-    /// crate default; attached verification does not consume a detached payload.
+    /// Maximum external AAD size for attached verification. A value of 0 uses
+    /// the crate default; the field also bounds detached payloads in detached
+    /// verification requests.
     ///
     /// Field 4: `max_detached_payload_bytes`
     #[serde(
@@ -8049,6 +8287,36 @@ pub struct CoseSign1VerifyRequest {
         skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_bytes"
     )]
     pub expected_kid: ::buffa::alloc::vec::Vec<u8>,
+    /// Require the registered COSE_Sign1 root tag (18).
+    ///
+    /// Field 9: `require_tagged_sign1`
+    #[serde(
+        rename = "requireTaggedSign1",
+        alias = "require_tagged_sign1",
+        with = "::buffa::json_helpers::proto_bool",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_false"
+    )]
+    pub require_tagged_sign1: bool,
+    /// When set, require this exact authenticated protected typ value.
+    ///
+    /// Field 10: `expected_type`
+    #[serde(
+        rename = "expectedType",
+        alias = "expected_type",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_unset_message_field"
+    )]
+    pub expected_type: ::buffa::MessageField<CoseType, ::buffa::Inline<CoseType>>,
+    /// Exact registration authorized for public_key. UNSPECIFIED preserves the
+    /// legacy primitive-only binding; set this for suite-bound credentials.
+    ///
+    /// Field 11: `public_key_algorithm`
+    #[serde(
+        rename = "publicKeyAlgorithm",
+        alias = "public_key_algorithm",
+        with = "::buffa::json_helpers::proto_enum",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_default_enum_value"
+    )]
+    pub public_key_algorithm: ::buffa::EnumValue<CoseSignatureAlgorithm>,
     #[serde(skip)]
     #[doc(hidden)]
     pub __buffa_unknown_fields: ::buffa::UnknownFields,
@@ -8064,6 +8332,9 @@ impl ::core::fmt::Debug for CoseSign1VerifyRequest {
             .field("allowed_algorithms", &self.allowed_algorithms)
             .field("external_aad", &"<redacted>")
             .field("expected_kid", &"<redacted>")
+            .field("require_tagged_sign1", &self.require_tagged_sign1)
+            .field("expected_type", &self.expected_type)
+            .field("public_key_algorithm", &self.public_key_algorithm)
             .finish()
     }
 }
@@ -8078,8 +8349,7 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyRequest {
         where
             D: ::serde::Deserializer<'de>,
         {
-            ::buffa::json_helpers::bytes::deserialize(deserializer)
-                .map(::zeroize::Zeroizing::new)
+            crate::secret_json_bytes::deserialize(deserializer)
         }
 
 
@@ -8102,6 +8372,12 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyRequest {
             external_aad: ::zeroize::Zeroizing<::buffa::alloc::vec::Vec<u8>>,
             #[serde(rename = "expectedKid", alias = "expected_kid", deserialize_with = "deserialize_secret_bytes")]
             expected_kid: ::zeroize::Zeroizing<::buffa::alloc::vec::Vec<u8>>,
+            #[serde(rename = "requireTaggedSign1", alias = "require_tagged_sign1", with = "::buffa::json_helpers::proto_bool")]
+            require_tagged_sign1: bool,
+            #[serde(rename = "expectedType", alias = "expected_type")]
+            expected_type: ::buffa::MessageField<CoseType, ::buffa::Inline<CoseType>>,
+            #[serde(rename = "publicKeyAlgorithm", alias = "public_key_algorithm", with = "::buffa::json_helpers::proto_enum")]
+            public_key_algorithm: ::buffa::EnumValue<CoseSignatureAlgorithm>,
         }
 
         let mut wire = Wire::deserialize(deserializer)?;
@@ -8114,6 +8390,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyRequest {
             allowed_algorithms: ::core::mem::take(&mut wire.allowed_algorithms),
             external_aad: ::core::mem::take(&mut *wire.external_aad),
             expected_kid: ::core::mem::take(&mut *wire.expected_kid),
+            require_tagged_sign1: wire.require_tagged_sign1,
+            expected_type: ::core::mem::take(&mut wire.expected_type),
+            public_key_algorithm: wire.public_key_algorithm,
             __buffa_unknown_fields: Default::default(),
         })
     }
@@ -8150,7 +8429,7 @@ impl ::buffa::Message for CoseSign1VerifyRequest {
     /// above [`::buffa::MAX_MESSAGE_BYTES`] that the encode entry
     /// points reject, never a silently wrapped size.
     #[allow(clippy::let_and_return)]
-    fn compute_size(&self, _cache: &mut ::buffa::SizeCache) -> u32 {
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
         #[allow(unused_imports)]
         use ::buffa::Enumeration as _;
         let mut size = 0u64;
@@ -8189,12 +8468,29 @@ impl ::buffa::Message for CoseSign1VerifyRequest {
         if !self.expected_kid.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.expected_kid) as u64;
         }
+        if self.require_tagged_sign1 {
+            size += 1u64 + ::buffa::types::BOOL_ENCODED_LEN as u64;
+        }
+        if self.expected_type.is_set() {
+            let __slot = __cache.reserve();
+            let inner_size = self.expected_type.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size
+                += 1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64
+                    + inner_size as u64;
+        }
+        {
+            let val = self.public_key_algorithm.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
         size += self.__buffa_unknown_fields.encoded_len() as u64;
         ::buffa::saturate_size(size)
     }
     fn write_to(
         &self,
-        _cache: &mut ::buffa::SizeCache,
+        __cache: &mut ::buffa::SizeCache,
         buf: &mut impl ::buffa::EncodeSink,
     ) {
         #[allow(unused_imports)]
@@ -8230,6 +8526,23 @@ impl ::buffa::Message for CoseSign1VerifyRequest {
         }
         if !self.expected_kid.is_empty() {
             ::buffa::types::put_shared_bytes_field(8u32, &self.expected_kid, buf);
+        }
+        if self.require_tagged_sign1 {
+            ::buffa::types::put_bool_field(9u32, self.require_tagged_sign1, buf);
+        }
+        if self.expected_type.is_set() {
+            ::buffa::types::put_len_delimited_header(
+                10u32,
+                u64::from(__cache.consume_next()),
+                buf,
+            );
+            self.expected_type.write_to(__cache, buf);
+        }
+        {
+            let val = self.public_key_algorithm.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(11u32, val, buf);
+            }
         }
         self.__buffa_unknown_fields.write_to(buf);
     }
@@ -8331,6 +8644,33 @@ impl ::buffa::Message for CoseSign1VerifyRequest {
                 )?;
                 crate::merge_sensitive::merge_bytes(&mut self.expected_kid, buf)?;
             }
+            9u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::Varint,
+                )?;
+                self.require_tagged_sign1 = ::buffa::types::decode_bool(buf)?;
+            }
+            10u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                ::buffa::Message::merge_length_delimited(
+                    self.expected_type.get_or_insert_default(),
+                    buf,
+                    ctx,
+                )?;
+            }
+            11u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::Varint,
+                )?;
+                self.public_key_algorithm = ::buffa::EnumValue::from(
+                    ::buffa::types::decode_int32(buf)?,
+                );
+            }
             _ => {
                 self.__buffa_unknown_fields
                     .push(::buffa::encoding::decode_unknown_field(tag, buf, ctx)?);
@@ -8347,6 +8687,9 @@ impl ::buffa::Message for CoseSign1VerifyRequest {
         self.allowed_algorithms.clear();
         ::zeroize::Zeroize::zeroize(&mut self.external_aad);
         ::zeroize::Zeroize::zeroize(&mut self.expected_kid);
+        self.require_tagged_sign1 = false;
+        self.expected_type = ::buffa::MessageField::none();
+        self.public_key_algorithm = ::buffa::EnumValue::from(0);
         __reallyme_zeroize_unknown_fields(&mut self.__buffa_unknown_fields);
     }
 }
@@ -8485,6 +8828,36 @@ pub struct CoseSign1VerifyDetachedRequest {
         skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_bytes"
     )]
     pub expected_kid: ::buffa::alloc::vec::Vec<u8>,
+    /// Require the registered COSE_Sign1 root tag (18).
+    ///
+    /// Field 10: `require_tagged_sign1`
+    #[serde(
+        rename = "requireTaggedSign1",
+        alias = "require_tagged_sign1",
+        with = "::buffa::json_helpers::proto_bool",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_false"
+    )]
+    pub require_tagged_sign1: bool,
+    /// When set, require this exact authenticated protected typ value.
+    ///
+    /// Field 11: `expected_type`
+    #[serde(
+        rename = "expectedType",
+        alias = "expected_type",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_unset_message_field"
+    )]
+    pub expected_type: ::buffa::MessageField<CoseType, ::buffa::Inline<CoseType>>,
+    /// Exact registration authorized for public_key. UNSPECIFIED preserves the
+    /// legacy primitive-only binding; set this for suite-bound credentials.
+    ///
+    /// Field 12: `public_key_algorithm`
+    #[serde(
+        rename = "publicKeyAlgorithm",
+        alias = "public_key_algorithm",
+        with = "::buffa::json_helpers::proto_enum",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_default_enum_value"
+    )]
+    pub public_key_algorithm: ::buffa::EnumValue<CoseSignatureAlgorithm>,
     #[serde(skip)]
     #[doc(hidden)]
     pub __buffa_unknown_fields: ::buffa::UnknownFields,
@@ -8501,6 +8874,9 @@ impl ::core::fmt::Debug for CoseSign1VerifyDetachedRequest {
             .field("allowed_algorithms", &self.allowed_algorithms)
             .field("external_aad", &"<redacted>")
             .field("expected_kid", &"<redacted>")
+            .field("require_tagged_sign1", &self.require_tagged_sign1)
+            .field("expected_type", &self.expected_type)
+            .field("public_key_algorithm", &self.public_key_algorithm)
             .finish()
     }
 }
@@ -8515,8 +8891,7 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyDetachedRequest {
         where
             D: ::serde::Deserializer<'de>,
         {
-            ::buffa::json_helpers::bytes::deserialize(deserializer)
-                .map(::zeroize::Zeroizing::new)
+            crate::secret_json_bytes::deserialize(deserializer)
         }
 
 
@@ -8541,6 +8916,12 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyDetachedRequest {
             external_aad: ::zeroize::Zeroizing<::buffa::alloc::vec::Vec<u8>>,
             #[serde(rename = "expectedKid", alias = "expected_kid", deserialize_with = "deserialize_secret_bytes")]
             expected_kid: ::zeroize::Zeroizing<::buffa::alloc::vec::Vec<u8>>,
+            #[serde(rename = "requireTaggedSign1", alias = "require_tagged_sign1", with = "::buffa::json_helpers::proto_bool")]
+            require_tagged_sign1: bool,
+            #[serde(rename = "expectedType", alias = "expected_type")]
+            expected_type: ::buffa::MessageField<CoseType, ::buffa::Inline<CoseType>>,
+            #[serde(rename = "publicKeyAlgorithm", alias = "public_key_algorithm", with = "::buffa::json_helpers::proto_enum")]
+            public_key_algorithm: ::buffa::EnumValue<CoseSignatureAlgorithm>,
         }
 
         let mut wire = Wire::deserialize(deserializer)?;
@@ -8554,6 +8935,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyDetachedRequest {
             allowed_algorithms: ::core::mem::take(&mut wire.allowed_algorithms),
             external_aad: ::core::mem::take(&mut *wire.external_aad),
             expected_kid: ::core::mem::take(&mut *wire.expected_kid),
+            require_tagged_sign1: wire.require_tagged_sign1,
+            expected_type: ::core::mem::take(&mut wire.expected_type),
+            public_key_algorithm: wire.public_key_algorithm,
             __buffa_unknown_fields: Default::default(),
         })
     }
@@ -8591,7 +8975,7 @@ impl ::buffa::Message for CoseSign1VerifyDetachedRequest {
     /// above [`::buffa::MAX_MESSAGE_BYTES`] that the encode entry
     /// points reject, never a silently wrapped size.
     #[allow(clippy::let_and_return)]
-    fn compute_size(&self, _cache: &mut ::buffa::SizeCache) -> u32 {
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
         #[allow(unused_imports)]
         use ::buffa::Enumeration as _;
         let mut size = 0u64;
@@ -8633,12 +9017,29 @@ impl ::buffa::Message for CoseSign1VerifyDetachedRequest {
         if !self.expected_kid.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.expected_kid) as u64;
         }
+        if self.require_tagged_sign1 {
+            size += 1u64 + ::buffa::types::BOOL_ENCODED_LEN as u64;
+        }
+        if self.expected_type.is_set() {
+            let __slot = __cache.reserve();
+            let inner_size = self.expected_type.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size
+                += 1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64
+                    + inner_size as u64;
+        }
+        {
+            let val = self.public_key_algorithm.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
         size += self.__buffa_unknown_fields.encoded_len() as u64;
         ::buffa::saturate_size(size)
     }
     fn write_to(
         &self,
-        _cache: &mut ::buffa::SizeCache,
+        __cache: &mut ::buffa::SizeCache,
         buf: &mut impl ::buffa::EncodeSink,
     ) {
         #[allow(unused_imports)]
@@ -8677,6 +9078,23 @@ impl ::buffa::Message for CoseSign1VerifyDetachedRequest {
         }
         if !self.expected_kid.is_empty() {
             ::buffa::types::put_shared_bytes_field(9u32, &self.expected_kid, buf);
+        }
+        if self.require_tagged_sign1 {
+            ::buffa::types::put_bool_field(10u32, self.require_tagged_sign1, buf);
+        }
+        if self.expected_type.is_set() {
+            ::buffa::types::put_len_delimited_header(
+                11u32,
+                u64::from(__cache.consume_next()),
+                buf,
+            );
+            self.expected_type.write_to(__cache, buf);
+        }
+        {
+            let val = self.public_key_algorithm.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(12u32, val, buf);
+            }
         }
         self.__buffa_unknown_fields.write_to(buf);
     }
@@ -8785,6 +9203,33 @@ impl ::buffa::Message for CoseSign1VerifyDetachedRequest {
                 )?;
                 crate::merge_sensitive::merge_bytes(&mut self.expected_kid, buf)?;
             }
+            10u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::Varint,
+                )?;
+                self.require_tagged_sign1 = ::buffa::types::decode_bool(buf)?;
+            }
+            11u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                ::buffa::Message::merge_length_delimited(
+                    self.expected_type.get_or_insert_default(),
+                    buf,
+                    ctx,
+                )?;
+            }
+            12u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::Varint,
+                )?;
+                self.public_key_algorithm = ::buffa::EnumValue::from(
+                    ::buffa::types::decode_int32(buf)?,
+                );
+            }
             _ => {
                 self.__buffa_unknown_fields
                     .push(::buffa::encoding::decode_unknown_field(tag, buf, ctx)?);
@@ -8802,6 +9247,9 @@ impl ::buffa::Message for CoseSign1VerifyDetachedRequest {
         self.allowed_algorithms.clear();
         ::zeroize::Zeroize::zeroize(&mut self.external_aad);
         ::zeroize::Zeroize::zeroize(&mut self.expected_kid);
+        self.require_tagged_sign1 = false;
+        self.expected_type = ::buffa::MessageField::none();
+        self.public_key_algorithm = ::buffa::EnumValue::from(0);
         __reallyme_zeroize_unknown_fields(&mut self.__buffa_unknown_fields);
     }
 }
@@ -8888,6 +9336,15 @@ pub struct CoseSign1VerifyResult {
         skip_serializing_if = "::buffa::json_helpers::skip_if::is_false"
     )]
     pub has_exact_signature_algorithm: bool,
+    /// Authenticated protected typ, if one was present.
+    ///
+    /// Field 6: `protected_type`
+    #[serde(
+        rename = "protectedType",
+        alias = "protected_type",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_unset_message_field"
+    )]
+    pub protected_type: ::buffa::MessageField<CoseType, ::buffa::Inline<CoseType>>,
     #[serde(skip)]
     #[doc(hidden)]
     pub __buffa_unknown_fields: ::buffa::UnknownFields,
@@ -8900,6 +9357,7 @@ impl ::core::fmt::Debug for CoseSign1VerifyResult {
             .field("kid", &"<redacted>")
             .field("exact_signature_algorithm", &self.exact_signature_algorithm)
             .field("has_exact_signature_algorithm", &self.has_exact_signature_algorithm)
+            .field("protected_type", &self.protected_type)
             .finish()
     }
 }
@@ -8914,8 +9372,7 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyResult {
         where
             D: ::serde::Deserializer<'de>,
         {
-            ::buffa::json_helpers::bytes::deserialize(deserializer)
-                .map(::zeroize::Zeroizing::new)
+            crate::secret_json_bytes::deserialize(deserializer)
         }
 
 
@@ -8932,6 +9389,8 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyResult {
             exact_signature_algorithm: ::buffa::EnumValue<CoseSignatureAlgorithm>,
             #[serde(rename = "hasExactSignatureAlgorithm", alias = "has_exact_signature_algorithm", with = "::buffa::json_helpers::proto_bool")]
             has_exact_signature_algorithm: bool,
+            #[serde(rename = "protectedType", alias = "protected_type")]
+            protected_type: ::buffa::MessageField<CoseType, ::buffa::Inline<CoseType>>,
         }
 
         let mut wire = Wire::deserialize(deserializer)?;
@@ -8941,6 +9400,7 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyResult {
             kid: ::core::mem::take(&mut *wire.kid),
             exact_signature_algorithm: wire.exact_signature_algorithm,
             has_exact_signature_algorithm: wire.has_exact_signature_algorithm,
+            protected_type: ::core::mem::take(&mut wire.protected_type),
             __buffa_unknown_fields: Default::default(),
         })
     }
@@ -8975,7 +9435,7 @@ impl ::buffa::Message for CoseSign1VerifyResult {
     /// above [`::buffa::MAX_MESSAGE_BYTES`] that the encode entry
     /// points reject, never a silently wrapped size.
     #[allow(clippy::let_and_return)]
-    fn compute_size(&self, _cache: &mut ::buffa::SizeCache) -> u32 {
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
         #[allow(unused_imports)]
         use ::buffa::Enumeration as _;
         let mut size = 0u64;
@@ -9000,12 +9460,20 @@ impl ::buffa::Message for CoseSign1VerifyResult {
         if self.has_exact_signature_algorithm {
             size += 1u64 + ::buffa::types::BOOL_ENCODED_LEN as u64;
         }
+        if self.protected_type.is_set() {
+            let __slot = __cache.reserve();
+            let inner_size = self.protected_type.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size
+                += 1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64
+                    + inner_size as u64;
+        }
         size += self.__buffa_unknown_fields.encoded_len() as u64;
         ::buffa::saturate_size(size)
     }
     fn write_to(
         &self,
-        _cache: &mut ::buffa::SizeCache,
+        __cache: &mut ::buffa::SizeCache,
         buf: &mut impl ::buffa::EncodeSink,
     ) {
         #[allow(unused_imports)]
@@ -9034,6 +9502,14 @@ impl ::buffa::Message for CoseSign1VerifyResult {
                 self.has_exact_signature_algorithm,
                 buf,
             );
+        }
+        if self.protected_type.is_set() {
+            ::buffa::types::put_len_delimited_header(
+                6u32,
+                u64::from(__cache.consume_next()),
+                buf,
+            );
+            self.protected_type.write_to(__cache, buf);
         }
         self.__buffa_unknown_fields.write_to(buf);
     }
@@ -9087,6 +9563,17 @@ impl ::buffa::Message for CoseSign1VerifyResult {
                 )?;
                 self.has_exact_signature_algorithm = ::buffa::types::decode_bool(buf)?;
             }
+            6u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                ::buffa::Message::merge_length_delimited(
+                    self.protected_type.get_or_insert_default(),
+                    buf,
+                    ctx,
+                )?;
+            }
             _ => {
                 self.__buffa_unknown_fields
                     .push(::buffa::encoding::decode_unknown_field(tag, buf, ctx)?);
@@ -9100,6 +9587,7 @@ impl ::buffa::Message for CoseSign1VerifyResult {
         ::zeroize::Zeroize::zeroize(&mut self.kid);
         self.exact_signature_algorithm = ::buffa::EnumValue::from(0);
         self.has_exact_signature_algorithm = false;
+        self.protected_type = ::buffa::MessageField::none();
         __reallyme_zeroize_unknown_fields(&mut self.__buffa_unknown_fields);
     }
 }
@@ -9194,8 +9682,7 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyFromPublicBytesRequest {
         where
             D: ::serde::Deserializer<'de>,
         {
-            ::buffa::json_helpers::bytes::deserialize(deserializer)
-                .map(::zeroize::Zeroizing::new)
+            crate::secret_json_bytes::deserialize(deserializer)
         }
 
 
@@ -9460,8 +9947,7 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyFromPrivateBytesRequest {
         where
             D: ::serde::Deserializer<'de>,
         {
-            ::buffa::json_helpers::bytes::deserialize(deserializer)
-                .map(::zeroize::Zeroizing::new)
+            crate::secret_json_bytes::deserialize(deserializer)
         }
 
         #[derive(Default, ::serde::Deserialize)]
@@ -9697,8 +10183,7 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyBytesRequest {
         where
             D: ::serde::Deserializer<'de>,
         {
-            ::buffa::json_helpers::bytes::deserialize(deserializer)
-                .map(::zeroize::Zeroizing::new)
+            crate::secret_json_bytes::deserialize(deserializer)
         }
 
 
@@ -9888,8 +10373,7 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyBytesResult {
         where
             D: ::serde::Deserializer<'de>,
         {
-            ::buffa::json_helpers::bytes::deserialize(deserializer)
-                .map(::zeroize::Zeroizing::new)
+            crate::secret_json_bytes::deserialize(deserializer)
         }
 
 

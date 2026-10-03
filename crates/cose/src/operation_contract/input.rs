@@ -6,33 +6,71 @@
 
 use buffa::EnumValue;
 use reallyme_cose_proto::generated::proto::reallyme::cose::v1::__buffa::oneof::cose_algorithm_identifier::Algorithm as CoseAlgorithmIdentifierBranch;
+use reallyme_cose_proto::generated::proto::reallyme::cose::v1::__buffa::oneof::cose_type::Value as WireCoseTypeValue;
 use reallyme_crypto::core::Algorithm;
 
 use crate::algorithm::CoseSignatureAlgorithm as NativeCoseSignatureAlgorithm;
-use crate::limits::{MAX_COSE_SIGN1_BYTES, MAX_DETACHED_PAYLOAD_BYTES};
+use crate::limits::{
+    MAX_COSE_SIGN1_BYTES, MAX_COSE_X5CHAIN_CERTIFICATES, MAX_COSE_X5CHAIN_CERTIFICATE_BYTES,
+    MAX_COSE_X5CHAIN_TOTAL_BYTES, MAX_DETACHED_PAYLOAD_BYTES,
+};
 use crate::wire::{
     CoseAlgorithmIdentifier, CoseContentEncryptionAlgorithm,
     CoseEc2PointEncoding as WireCoseEc2PointEncoding, CoseErrorReason, CoseKemAlgorithm,
     CoseKeyAgreementAlgorithm, CoseSign1Options,
-    CoseSignatureAlgorithm as WireCoseSignatureAlgorithm, CoseWireError, CoseWireResult,
-    MAX_COSE_PROTO_MESSAGE_BYTES,
+    CoseSignatureAlgorithm as WireCoseSignatureAlgorithm, CoseType as WireCoseType, CoseWireError,
+    CoseWireResult, MAX_COSE_PROTO_MESSAGE_BYTES,
 };
 use crate::{
     CoseContentEncryptionAlgorithm as NativeCoseContentEncryptionAlgorithm, CoseEc2PointEncoding,
     CoseMlKemAlgorithm as NativeCoseMlKemAlgorithm, CosePolicy, CoseSign1EncodeOptions,
+    CoseType as NativeCoseType,
 };
 
+const MAX_WIRE_ALLOWED_SIGNATURE_ALGORITHMS: usize = 32;
+
+pub(crate) fn validate_supp_priv_info_flag(
+    has_supp_priv_info: bool,
+    supp_priv_info: &[u8],
+) -> CoseWireResult<()> {
+    if !has_supp_priv_info && !supp_priv_info.is_empty() {
+        return Err(CoseWireError::primitive_internal(
+            CoseErrorReason::CommonInvalidParameter,
+        ));
+    }
+    Ok(())
+}
+
 pub(crate) fn encode_options_from_proto(
-    options: Option<&CoseSign1Options>,
+    options: Option<&mut CoseSign1Options>,
 ) -> CoseWireResult<CoseSign1EncodeOptions> {
     let Some(options) = options else {
         return Ok(CoseSign1EncodeOptions::default());
     };
-    let x5chain_der = options
-        .x5chain
-        .as_option()
-        .map(|chain| chain.certificates_der.clone())
-        .unwrap_or_default();
+    let x5chain_der =
+        if let Some(chain) = options.x5chain.as_option_mut() {
+            if chain.certificates_der.len() > MAX_COSE_X5CHAIN_CERTIFICATES {
+                return Err(CoseWireError::primitive_internal(
+                    CoseErrorReason::CommonResourceLimitExceeded,
+                ));
+            }
+            let mut total = 0_usize;
+            for certificate in &chain.certificates_der {
+                total = total.checked_add(certificate.len()).ok_or(
+                    CoseWireError::primitive_internal(CoseErrorReason::CommonResourceLimitExceeded),
+                )?;
+                if certificate.len() > MAX_COSE_X5CHAIN_CERTIFICATE_BYTES
+                    || total > MAX_COSE_X5CHAIN_TOTAL_BYTES
+                {
+                    return Err(CoseWireError::primitive_internal(
+                        CoseErrorReason::CommonResourceLimitExceeded,
+                    ));
+                }
+            }
+            core::mem::take(&mut chain.certificates_der)
+        } else {
+            Vec::new()
+        };
     Ok(CoseSign1EncodeOptions::new()
         .with_tag(options.tag)
         .with_max_cose_sign1_bytes(optional_limit_to_usize(
@@ -47,14 +85,21 @@ pub(crate) fn policy_from_parts(
     max_detached_payload_bytes: u64,
     require_kid: bool,
     allowed_algorithms: &[EnumValue<WireCoseSignatureAlgorithm>],
+    require_tagged_sign1: bool,
+    expected_type: Option<&WireCoseType>,
 ) -> CoseWireResult<CosePolicy> {
+    if allowed_algorithms.len() > MAX_WIRE_ALLOWED_SIGNATURE_ALGORITHMS {
+        return Err(CoseWireError::primitive_internal(
+            CoseErrorReason::CommonResourceLimitExceeded,
+        ));
+    }
     let mut allowed = Vec::with_capacity(allowed_algorithms.len());
     for candidate in allowed_algorithms {
         allowed.push(signature_algorithm_from_proto(*candidate)?);
     }
-    Ok(CosePolicy::new()
+    let mut policy = CosePolicy::new()
         .with_require_kid(require_kid)
-        .with_allowed_cose_algorithms(allowed)
+        .with_require_tagged_sign1(require_tagged_sign1)
         .with_max_cose_sign1_bytes(optional_limit_to_usize(
             max_cose_sign1_bytes,
             MAX_COSE_SIGN1_BYTES,
@@ -62,7 +107,29 @@ pub(crate) fn policy_from_parts(
         .with_max_detached_payload_bytes(optional_limit_to_usize(
             max_detached_payload_bytes,
             MAX_DETACHED_PAYLOAD_BYTES,
-        )?))
+        )?);
+    policy = if allowed.is_empty() {
+        policy.allow_any_algorithm()
+    } else {
+        policy.with_allowed_cose_algorithms(allowed)
+    };
+    if let Some(expected_type) = expected_type {
+        let value = expected_type
+            .value
+            .as_ref()
+            .ok_or(CoseWireError::primitive_internal(
+                CoseErrorReason::CommonInvalidParameter,
+            ))?;
+        let native_type = match value {
+            WireCoseTypeValue::MediaType(text) => NativeCoseType::Text(text.clone()),
+            WireCoseTypeValue::ContentFormat(identifier) => NativeCoseType::Registered(*identifier),
+        };
+        native_type.validate().map_err(|_| {
+            CoseWireError::primitive_internal(CoseErrorReason::CommonInvalidParameter)
+        })?;
+        policy = policy.with_expected_type(native_type);
+    }
+    Ok(policy)
 }
 
 fn optional_limit_to_usize(value: u64, default: usize) -> CoseWireResult<usize> {

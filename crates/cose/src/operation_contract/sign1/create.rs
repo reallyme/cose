@@ -23,7 +23,7 @@ pub(crate) fn attached_result(
     let kid = Zeroizing::new(core::mem::take(&mut request.kid));
     let external_aad = Zeroizing::new(core::mem::take(&mut request.external_aad));
     let algorithm = signature_algorithm_from_proto(request.algorithm)?;
-    let options = encode_options_from_proto(request.options.as_option())?;
+    let options = encode_options_from_proto(request.options.as_option_mut())?;
     let kid = request.has_kid.then_some(kid.as_slice());
     let result = create_cose_sign1(CoseSign1CreateInput::with_signature_algorithm(
         algorithm,
@@ -45,7 +45,7 @@ pub(crate) fn detached_result(
     let kid = Zeroizing::new(core::mem::take(&mut request.kid));
     let external_aad = Zeroizing::new(core::mem::take(&mut request.external_aad));
     let algorithm = signature_algorithm_from_proto(request.algorithm)?;
-    let options = encode_options_from_proto(request.options.as_option())?;
+    let options = encode_options_from_proto(request.options.as_option_mut())?;
     let kid = request.has_kid.then_some(kid.as_slice());
     let result = create_detached_cose_sign1(CoseSign1CreateInput::with_signature_algorithm(
         algorithm,

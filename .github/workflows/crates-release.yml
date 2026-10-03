@@ -187,4 +187,4 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --verify-tag \
             --title "$RELEASE_TAG" \
-            --notes $'- raise minimum Rust version to 1.99\n- update to reallyme/crypto 0.3.11\n- update to reallyme/codec 0.3.0'
+            --notes $'- minimum Rust version 1.96\n- update to reallyme/crypto 0.3.12\n- update to reallyme/codec 0.3.1'

@@ -25,6 +25,24 @@ fn policy_rejects_missing_kid() {
 }
 
 #[test]
+fn signing_rejects_present_but_empty_kid() {
+    let key = gen_ed25519();
+    assert_eq!(
+        cose_sign1(key.alg, b"hello", &key.private, Some(b"")).unwrap_err(),
+        CoseError::InvalidFormat
+    );
+}
+
+#[test]
+fn explicitly_empty_algorithm_policy_rejects_before_key_resolution() {
+    let key = gen_ed25519();
+    let signed = cose_sign1(key.alg, b"hello", &key.private, Some(test_kid())).unwrap();
+    let policy = CosePolicy::new().with_allowed_algorithms(vec![]);
+    let result = cose_verify1_with_policy(&signed, &policy, |_, _| None);
+    assert!(matches!(result, Err(CoseError::UnsupportedAlgorithm)));
+}
+
+#[test]
 fn policy_allows_p384_when_explicitly_allowed() {
     let k = gen_p384();
 
@@ -104,7 +122,7 @@ fn verify_allows_empty_kid_when_resolver_accepts_default_key() {
 }
 
 #[test]
-fn verify_fails_with_missing_kid_when_default_key_is_not_resolved() {
+fn verify_fails_with_key_not_resolved_when_default_key_is_not_resolved() {
     let k = gen_ed25519();
 
     let cose_bytes = cose_sign1(k.alg, b"hello", &k.private, None).unwrap();
@@ -113,6 +131,6 @@ fn verify_fails_with_missing_kid_when_default_key_is_not_resolved() {
 
     assert_eq!(
         cose_verify1(&cose_bytes, resolver).unwrap_err(),
-        CoseError::MissingKid
+        CoseError::KeyNotResolved
     );
 }

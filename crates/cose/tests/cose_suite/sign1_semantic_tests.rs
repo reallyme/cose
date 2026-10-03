@@ -6,15 +6,16 @@ use buffa::{EnumValue, Message};
 use reallyme_cose::wire::cose_error_proto;
 use reallyme_cose::wire::cose_operation_request::Operation;
 use reallyme_cose::wire::{
-    decode_cose_error, execute_operation_proto, execute_operation_proto_json, CoseErrorReason,
-    CoseOperationRequest, CoseSign1CreateDetachedRequest, CoseSign1CreateRequest,
-    CoseSign1CreateResult, CoseSign1Options, CoseSign1VerifyDetachedRequest,
-    CoseSign1VerifyRequest, CoseSign1VerifyResult, CoseSignatureAlgorithm,
+    cose_type::Value as WireCoseTypeValue, decode_cose_error, execute_operation_proto,
+    execute_operation_proto_json, CoseErrorReason, CoseOperationRequest,
+    CoseSign1CreateDetachedRequest, CoseSign1CreateRequest, CoseSign1CreateResult,
+    CoseSign1Options, CoseSign1VerifyDetachedRequest, CoseSign1VerifyRequest,
+    CoseSign1VerifyResult, CoseSignatureAlgorithm, CoseType as WireCoseType,
 };
 use reallyme_cose::{
     cose_sign1_detached_with_options_and_external_aad, cose_sign1_with_options_and_external_aad,
     cose_verify1_detached_with_policy_and_external_aad, cose_verify1_with_policy_and_external_aad,
-    Algorithm, CoseError, CosePolicy, CoseSign1EncodeOptions,
+    Algorithm, CoseError, CosePolicy, CoseSign1EncodeOptions, CoseType,
 };
 use zeroize::Zeroizing;
 
@@ -23,6 +24,7 @@ use super::support::{
 };
 
 const EXTERNAL_AAD: &[u8] = b"reallyme-cose/sign1/external-aad";
+const STATUS_TYPE: &str = "application/statuslist+cwt";
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum ErrorBranch {
@@ -116,6 +118,143 @@ fn sign1_operations_match_native_binary_and_proto_json() {
         wire_detached_verified.kid,
         native_detached_verified.kid.as_slice()
     );
+}
+
+#[test]
+fn sign1_wire_policy_requires_tag_and_exact_protected_type() {
+    let mut fixture = gen_ed25519();
+    let public_key = Zeroizing::new(core::mem::take(&mut fixture.public));
+    let private_key = Zeroizing::new(core::mem::take(&mut fixture.private));
+    let options = CoseSign1EncodeOptions::new()
+        .with_tag(true)
+        .with_protected_type(CoseType::Text(STATUS_TYPE.to_owned()));
+    let attached = cose_sign1_with_options_and_external_aad(
+        fixture.alg,
+        b"typed payload",
+        &private_key,
+        Some(test_kid()),
+        EXTERNAL_AAD,
+        options.clone(),
+    )
+    .expect("typed tagged signature must sign");
+    let detached = cose_sign1_detached_with_options_and_external_aad(
+        fixture.alg,
+        b"typed payload",
+        &private_key,
+        Some(test_kid()),
+        EXTERNAL_AAD,
+        options,
+    )
+    .expect("typed tagged detached signature must sign");
+    let expected_type = WireCoseType {
+        value: Some(WireCoseTypeValue::MediaType(STATUS_TYPE.to_owned())),
+        __buffa_unknown_fields: Default::default(),
+    };
+
+    let mut attached_request = verify_request(
+        &attached,
+        &public_key,
+        test_kid(),
+        vec![CoseSignatureAlgorithm::Ed25519],
+    );
+    attached_request.require_tagged_sign1 = true;
+    attached_request.expected_type = buffa::MessageField::some(expected_type.clone());
+    let verified = execute_verify(Operation::Sign1Verify(Box::new(attached_request.clone())));
+    assert_eq!(verified.payload, b"typed payload");
+    assert_eq!(verified.protected_type.as_option(), Some(&expected_type));
+
+    let mut detached_request = verify_detached_request(
+        &detached,
+        b"typed payload",
+        &public_key,
+        test_kid(),
+        vec![CoseSignatureAlgorithm::Ed25519],
+    );
+    detached_request.require_tagged_sign1 = true;
+    detached_request.expected_type = buffa::MessageField::some(expected_type);
+    let verified_detached =
+        execute_verify(Operation::Sign1VerifyDetached(Box::new(detached_request)));
+    assert!(verified_detached.payload.is_empty());
+    assert!(verified_detached.protected_type.is_set());
+
+    attached_request.expected_type = buffa::MessageField::some(WireCoseType {
+        value: Some(WireCoseTypeValue::MediaType("application/other".to_owned())),
+        __buffa_unknown_fields: Default::default(),
+    });
+    assert_error(
+        Operation::Sign1Verify(Box::new(attached_request)),
+        ErrorBranch::Primitive,
+        CoseErrorReason::CommonInvalidFormat,
+    );
+
+    let mut invalid_type_request = verify_request(
+        &attached,
+        &public_key,
+        test_kid(),
+        vec![CoseSignatureAlgorithm::Ed25519],
+    );
+    invalid_type_request.expected_type = buffa::MessageField::some(WireCoseType {
+        value: None,
+        __buffa_unknown_fields: Default::default(),
+    });
+    assert_error(
+        Operation::Sign1Verify(Box::new(invalid_type_request)),
+        ErrorBranch::Primitive,
+        CoseErrorReason::CommonInvalidParameter,
+    );
+
+    let untagged = cose_sign1_with_options_and_external_aad(
+        fixture.alg,
+        b"typed payload",
+        &private_key,
+        Some(test_kid()),
+        EXTERNAL_AAD,
+        CoseSign1EncodeOptions::new().with_protected_type(CoseType::Text(STATUS_TYPE.to_owned())),
+    )
+    .expect("untagged typed signature must sign");
+    let mut untagged_request = verify_request(
+        &untagged,
+        &public_key,
+        test_kid(),
+        vec![CoseSignatureAlgorithm::Ed25519],
+    );
+    untagged_request.require_tagged_sign1 = true;
+    assert_error(
+        Operation::Sign1Verify(Box::new(untagged_request)),
+        ErrorBranch::Primitive,
+        CoseErrorReason::CommonInvalidFormat,
+    );
+
+    let registered = cose_sign1_with_options_and_external_aad(
+        fixture.alg,
+        b"typed payload",
+        &private_key,
+        Some(test_kid()),
+        EXTERNAL_AAD,
+        CoseSign1EncodeOptions::new()
+            .with_tag(true)
+            .with_protected_type(CoseType::Registered(50)),
+    )
+    .expect("registered type signature must sign");
+    let mut registered_request = verify_request(
+        &registered,
+        &public_key,
+        test_kid(),
+        vec![CoseSignatureAlgorithm::Ed25519],
+    );
+    registered_request.require_tagged_sign1 = true;
+    registered_request.expected_type = buffa::MessageField::some(WireCoseType {
+        value: Some(WireCoseTypeValue::ContentFormat(50)),
+        __buffa_unknown_fields: Default::default(),
+    });
+    let registered_result = execute_verify(Operation::Sign1Verify(Box::new(registered_request)));
+    assert!(matches!(
+        registered_result
+            .protected_type
+            .as_option()
+            .and_then(|value| value.value.as_ref()),
+        Some(WireCoseTypeValue::ContentFormat(50))
+    ));
 }
 
 #[test]
@@ -292,6 +431,9 @@ fn verify_request(
             .collect(),
         external_aad: EXTERNAL_AAD.to_vec(),
         expected_kid: expected_kid.to_vec(),
+        require_tagged_sign1: false,
+        expected_type: buffa::MessageField::none(),
+        public_key_algorithm: EnumValue::from(0),
         __buffa_unknown_fields: Default::default(),
     }
 }
@@ -316,6 +458,9 @@ fn verify_detached_request(
             .collect(),
         external_aad: EXTERNAL_AAD.to_vec(),
         expected_kid: expected_kid.to_vec(),
+        require_tagged_sign1: false,
+        expected_type: buffa::MessageField::none(),
+        public_key_algorithm: EnumValue::from(0),
         __buffa_unknown_fields: Default::default(),
     }
 }

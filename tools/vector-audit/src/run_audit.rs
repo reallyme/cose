@@ -34,6 +34,8 @@ fn run() -> AuditResult<AuditSummary> {
     let repo_root = repo_root()?;
     let sign1: Sign1Suite = read_json(&repo_root, SIGN1_FILE, AuditContext::General)?;
     let keys: KeySuite = read_json(&repo_root, KEY_FILE, AuditContext::General)?;
+    let negative_keys: NegativeKeySuite =
+        read_json(&repo_root, NEGATIVE_KEY_FILE, AuditContext::General)?;
     let ml_kem_encrypt: ml_kem_encrypt::Suite =
         read_json(&repo_root, ML_KEM_ENCRYPT_FILE, AuditContext::General)?;
     let manifest: verify_manifest::Manifest =
@@ -45,11 +47,14 @@ fn run() -> AuditResult<AuditSummary> {
     verify_manifest::verify(
         &repo_root,
         &manifest,
-        sign1.cases.len(),
-        keys.cases.len(),
-        pq_summary.sign1_cases,
-        pq_summary.key_cases,
-        ml_kem_encrypt.cases.len(),
+        verify_manifest::ManifestCounts {
+            sign1: sign1.cases.len(),
+            keys: keys.cases.len(),
+            negative_keys: negative_keys.cases.len(),
+            pq_sign1: pq_summary.sign1_cases,
+            pq_keys: pq_summary.key_cases,
+            ml_kem_encrypt: ml_kem_encrypt.cases.len(),
+        },
     )?;
 
     ensure(
@@ -66,6 +71,10 @@ fn run() -> AuditResult<AuditSummary> {
     for case in &keys.cases {
         audit_unique_id(&mut ids, &case.id)?;
         audit_key(case).map_err(|error| attach_case(error, &case.id))?;
+    }
+    for case in &negative_keys.cases {
+        audit_unique_id(&mut ids, &case.id)?;
+        audit_negative_key(case).map_err(|error| attach_case(error, &case.id))?;
     }
     ml_kem_encrypt::audit_suite(&ml_kem_encrypt, &mut ids)?;
 
@@ -118,6 +127,7 @@ fn audit_sign1(case: &Sign1Case) -> AuditResult<()> {
     let public = decode_hex(&case.public_key_hex)?;
     let seed = decode_hex(&case.private_key_seed_hex)?;
     let payload = decode_hex(&case.payload_hex)?;
+    let external_aad = decode_hex(case.external_aad_hex.as_deref().unwrap_or(""))?;
     let cose = decode_hex(&case.cose_sign1_hex)?;
 
     ensure(
@@ -132,8 +142,8 @@ fn audit_sign1(case: &Sign1Case) -> AuditResult<()> {
         .payload
         .as_ref()
         .map_or(payload.as_slice(), Vec::as_slice);
-    let signed_message = sig_structure(&parsed.protected_bytes, effective_payload)?;
-    let declared_payload_message = sig_structure(&parsed.protected_bytes, &payload)?;
+    let signed_message = sig_structure(&parsed.protected_bytes, &external_aad, effective_payload)?;
+    let declared_payload_message = sig_structure(&parsed.protected_bytes, &external_aad, &payload)?;
     let signature_ok = independent_verify(algorithm, &public, &signed_message, &parsed.signature)?;
     let declared_signature_ok = independent_verify(
         algorithm,
@@ -174,7 +184,7 @@ fn audit_sign1(case: &Sign1Case) -> AuditResult<()> {
 
 fn audit_payload_placement(case: &Sign1Case, parsed: &ParsedSign1) -> AuditResult<()> {
     match case.operation.as_str() {
-        "verify_attached" => {
+        "verify_attached" | "verify_x5chain" => {
             if case.expected_error.as_deref() == Some("MissingPayload") {
                 ensure(
                     parsed.payload.is_none(),
@@ -227,7 +237,28 @@ fn audit_happy_sign1(
     ensure(
         matches!(protected_kid, Value::Bytes(value) if value.as_slice() == expected_kid),
         AuditReason::ProtectedKidMismatch,
-    )
+    )?;
+    if let Some(expected_type) = &case.protected_type {
+        ensure(
+            matches!(map_get(&parsed.protected_map, 16), Some(Value::Text(actual)) if actual == expected_type),
+            AuditReason::ProtectedTypeMismatch,
+        )?;
+    }
+    if let Some(expected_chain_hex) = &case.x5chain_der_hex {
+        let expected_chain = expected_chain_hex
+            .iter()
+            .map(|certificate| decode_hex(certificate))
+            .collect::<AuditResult<Vec<_>>>()?;
+        let matches_chain = match map_get(&parsed.protected_map, 33) {
+            Some(Value::Bytes(actual)) if expected_chain.len() == 1 => actual == &expected_chain[0],
+            Some(Value::Array(actual)) if expected_chain.len() > 1 => actual.iter().zip(&expected_chain).all(
+                |(value, expected)| matches!(value, Value::Bytes(bytes) if bytes == expected),
+            ) && actual.len() == expected_chain.len(),
+            _ => false,
+        };
+        ensure(matches_chain, AuditReason::ProtectedX5ChainMismatch)?;
+    }
+    Ok(())
 }
 
 fn audit_key_resolution_negative(
@@ -260,9 +291,16 @@ fn audit_unsupported_algorithm_negative(parsed: &ParsedSign1) -> AuditResult<()>
 }
 
 fn audit_key(case: &KeyCase) -> AuditResult<()> {
+    use sha2::{Digest, Sha256};
+
     let algorithm = Algorithm::parse(&case.algorithm)?;
     let public = decode_hex(&case.public_key_hex)?;
     let cose_key = decode_hex(&case.cose_key_hex)?;
+    let expected_kid = decode_hex(&case.kid_hex)?;
+    ensure(
+        Sha256::digest(&cose_key).as_slice() == expected_kid,
+        AuditReason::CoseKeyKidMismatch,
+    )?;
     let profile = cose_key_profile(algorithm)?;
     let map = match from_reader::<Value, _>(Cursor::new(cose_key.as_slice())) {
         Ok(Value::Map(map)) => map,
@@ -304,6 +342,34 @@ fn audit_key(case: &KeyCase) -> AuditResult<()> {
         _ => return Err(general(AuditReason::CoseKeyTypeMismatch)),
     }
     audit_multikey(&case.multikey, profile.multicodec, &public)
+}
+
+fn audit_negative_key(case: &NegativeKeyCase) -> AuditResult<()> {
+    use curve25519_dalek::edwards::CompressedEdwardsY;
+
+    ensure(
+        case.expected_error == "invalid_key_material",
+        AuditReason::UnsupportedExpectedError,
+    )?;
+    let public = decode_hex(&case.public_key_hex)?;
+    let bytes = fixed_32(&public, AuditReason::InvalidPublicKeyLength)?;
+    let cose_key = decode_hex(&case.cose_key_hex)?;
+    let map = match from_reader::<Value, _>(Cursor::new(cose_key.as_slice())) {
+        Ok(Value::Map(map)) => map,
+        Ok(_) => return Err(general(AuditReason::CoseKeyRootNotMap)),
+        Err(_) => return Err(general(AuditReason::CborDecode)),
+    };
+    ensure(
+        matches!(map_get(&map, 1), Some(value) if integer_matches(value, 1))
+            && matches!(map_get(&map, 3), Some(value) if integer_matches(value, -19))
+            && matches!(map_get(&map, -1), Some(value) if integer_matches(value, 6))
+            && matches!(map_get(&map, -2), Some(Value::Bytes(value)) if value == &public),
+        AuditReason::NegativeCoseKeyMismatch,
+    )?;
+    let valid = CompressedEdwardsY(bytes).decompress().is_some_and(|point| {
+        point.compress().to_bytes() == bytes && point.is_torsion_free() && !point.is_small_order()
+    });
+    ensure(!valid, AuditReason::NegativeEd25519KeyValid)
 }
 
 fn audit_okp_key(algorithm: Algorithm, x: &[u8], public: &[u8]) -> AuditResult<()> {

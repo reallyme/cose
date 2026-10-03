@@ -24,7 +24,7 @@ use zeroize::Zeroizing;
 
 use super::provider::CoseSigner;
 use super::types::{CoseSign1CreateInput, CoseSign1SigningSource};
-use super::x5chain::{build_unprotected_header, encode_unprotected_header, validate_x5chain};
+use super::x5chain::{encode_unprotected_header, protected_x5chain, validate_x5chain};
 use crate::algorithm::CoseSignatureAlgorithm;
 
 #[must_use]
@@ -54,7 +54,7 @@ pub struct CoseSign1EncodeOptions {
     /// Maximum encoded COSE_Sign1 size accepted after signing.
     max_cose_sign1_bytes: usize,
 
-    /// RFC 9360 certificate path placed in unprotected header label 33.
+    /// RFC 9360 certificate path placed in protected header label 33.
     x5chain_der: Vec<Vec<u8>>,
 
     /// RFC 9596 type placed in protected header label 16.
@@ -95,6 +95,7 @@ impl CoseSign1EncodeOptions {
     }
 
     /// Return the maximum encoded COSE_Sign1 size accepted after signing.
+    /// Payload and external AAD also have independent 1 MiB input limits.
     #[must_use]
     pub const fn max_cose_sign1_bytes(&self) -> usize {
         self.max_cose_sign1_bytes
@@ -380,6 +381,9 @@ fn create_cose_sign1_impl(
     if let Some(cose_type) = input.options.protected_type() {
         cose_type.validate()?;
     }
+    if input.kid.is_some_and(<[u8]>::is_empty) {
+        return Err(CoseError::InvalidFormat);
+    }
     if input
         .kid
         .is_some_and(|kid| kid.len() > input.options.max_cose_sign1_bytes())
@@ -392,8 +396,9 @@ fn create_cose_sign1_impl(
             input.cose_algorithm,
             input.kid,
             input.options.protected_type(),
+            input.options.x5chain_der(),
         )?,
-        unprotected: build_unprotected_header(input.options.x5chain_der()),
+        unprotected: Header::default(),
         ..Default::default()
     });
     cose.inner_mut().signature = sign_payload(
@@ -414,6 +419,7 @@ fn build_protected_header(
     alg: CoseSignatureAlgorithm,
     kid: Option<&[u8]>,
     cose_type: Option<&CoseType>,
+    x5chain_der: &[Vec<u8>],
 ) -> Result<ProtectedHeader, CoseError> {
     let cose_alg = alg.to_iana();
     let mut header = Header {
@@ -426,6 +432,11 @@ fn build_protected_header(
             Label::Int(COSE_TYPE_HEADER_LABEL),
             cose_type.to_cbor_value(),
         ));
+    }
+    if let Some(x5chain) = protected_x5chain(x5chain_der) {
+        // RFC 9360 requires integrity protection of the end-entity
+        // certificate. Protect the entire path to avoid ambiguous identities.
+        header.rest.push(x5chain);
     }
 
     Ok(ProtectedHeader {

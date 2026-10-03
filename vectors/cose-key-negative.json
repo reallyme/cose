@@ -1,0 +1,24 @@
+{
+  "schema": "reallyme.cose.conformance.cose_key_negative.v1",
+  "suite": "cose-key-negative",
+  "cases": [
+    {
+      "id": "ed25519-off-curve",
+      "public_key_hex": "0202020202020202020202020202020202020202020202020202020202020202",
+      "cose_key_hex": "a40101033220062158200202020202020202020202020202020202020202020202020202020202020202",
+      "expected_error": "invalid_key_material"
+    },
+    {
+      "id": "ed25519-mixed-order",
+      "public_key_hex": "98519eadf35b995233b51b5cd23e9cc5a28b639b5a4af0ec903cb960d81b7819",
+      "cose_key_hex": "a401010332200621582098519eadf35b995233b51b5cd23e9cc5a28b639b5a4af0ec903cb960d81b7819",
+      "expected_error": "invalid_key_material"
+    },
+    {
+      "id": "ed25519-noncanonical-y",
+      "public_key_hex": "f0ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "cose_key_hex": "a4010103322006215820f0ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_error": "invalid_key_material"
+    }
+  ]
+}

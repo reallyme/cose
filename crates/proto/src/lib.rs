@@ -9,3 +9,5 @@ pub mod generated;
 
 #[cfg(feature = "generated")]
 mod merge_sensitive;
+#[cfg(feature = "generated")]
+mod secret_json_bytes;

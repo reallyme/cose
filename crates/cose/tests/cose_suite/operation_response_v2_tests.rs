@@ -235,6 +235,7 @@ fn version_two_decoder_rejects_mismatched_and_hostile_responses_as_backend_failu
             kid: Vec::new(),
             exact_signature_algorithm: EnumValue::from(42_424_242),
             has_exact_signature_algorithm: true,
+            protected_type: buffa::MessageField::none(),
             __buffa_unknown_fields: Default::default(),
         },
     )));
@@ -250,6 +251,7 @@ fn version_two_decoder_rejects_mismatched_and_hostile_responses_as_backend_failu
             kid: Vec::new(),
             exact_signature_algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
             has_exact_signature_algorithm: true,
+            protected_type: buffa::MessageField::none(),
             __buffa_unknown_fields: Default::default(),
         },
     )));
@@ -265,6 +267,7 @@ fn version_two_decoder_rejects_mismatched_and_hostile_responses_as_backend_failu
             kid: Vec::new(),
             exact_signature_algorithm: EnumValue::from(0),
             has_exact_signature_algorithm: false,
+            protected_type: buffa::MessageField::none(),
             __buffa_unknown_fields: Default::default(),
         },
     )));
@@ -448,6 +451,9 @@ fn verify_request(cose_sign1: &[u8], public_key: &[u8]) -> CoseSign1VerifyReques
         allowed_algorithms: vec![EnumValue::from(CoseSignatureAlgorithm::Ed25519)],
         external_aad: Vec::new(),
         expected_kid: test_kid().to_vec(),
+        require_tagged_sign1: false,
+        expected_type: buffa::MessageField::none(),
+        public_key_algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
         __buffa_unknown_fields: Default::default(),
     }
 }
@@ -463,6 +469,9 @@ fn detached_verify_request(cose_sign1: &[u8], public_key: &[u8]) -> CoseSign1Ver
         allowed_algorithms: vec![EnumValue::from(CoseSignatureAlgorithm::Ed25519)],
         external_aad: Vec::new(),
         expected_kid: test_kid().to_vec(),
+        require_tagged_sign1: false,
+        expected_type: buffa::MessageField::none(),
+        public_key_algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
         __buffa_unknown_fields: Default::default(),
     }
 }
@@ -563,6 +572,7 @@ fn legacy_verification_metadata_remains_accepted_for_every_supported_algorithm()
                 kid: Vec::new(),
                 exact_signature_algorithm: EnumValue::from(0),
                 has_exact_signature_algorithm: false,
+                protected_type: buffa::MessageField::none(),
                 __buffa_unknown_fields: Default::default(),
             });
             let (request, result) = if detached {

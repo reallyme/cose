@@ -33,6 +33,27 @@ fn cose_sign1_rejects_malformed_cbor() {
 }
 
 #[test]
+fn empty_protected_header_cannot_supply_an_algorithm() {
+    // Four-element COSE_Sign1 with an empty protected bstr and empty
+    // unprotected map, payload, and signature.
+    let encoded = [0x84, 0x40, 0xa0, 0x40, 0x40];
+    assert_eq!(
+        cose_verify1(&encoded, |_, _| None).err(),
+        Some(CoseError::UnsupportedAlgorithm)
+    );
+}
+
+#[test]
+fn unassigned_integer_algorithm_is_unsupported() {
+    // Protected map {1: 100}; 100 has no supported COSE signature profile.
+    let encoded = [0x84, 0x44, 0xa1, 0x01, 0x18, 0x64, 0xa0, 0x40, 0x40];
+    assert_eq!(
+        cose_verify1(&encoded, |_, _| None).err(),
+        Some(CoseError::UnsupportedAlgorithm)
+    );
+}
+
+#[test]
 fn cose_sign1_rejects_indefinite_forms() {
     let indefinite_protected_bstr = [0x84, 0x5f, 0xff, 0xa0, 0xf6, 0x40];
 

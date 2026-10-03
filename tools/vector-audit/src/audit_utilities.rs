@@ -2,11 +2,11 @@
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-fn sig_structure(protected: &[u8], payload: &[u8]) -> AuditResult<Vec<u8>> {
+fn sig_structure(protected: &[u8], external_aad: &[u8], payload: &[u8]) -> AuditResult<Vec<u8>> {
     encode_cbor(&Value::Array(vec![
         Value::Text("Signature1".to_owned()),
         Value::Bytes(protected.to_vec()),
-        Value::Bytes(Vec::new()),
+        Value::Bytes(external_aad.to_vec()),
         Value::Bytes(payload.to_vec()),
     ]))
 }

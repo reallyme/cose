@@ -216,13 +216,12 @@ fn sign_error_from_signature_failure(kind: SignatureFailureKind) -> CoseError {
     match kind {
         SignatureFailureKind::InvalidPrivateKey
         | SignatureFailureKind::InvalidPublicKey
-        | SignatureFailureKind::InvalidMessage
         | SignatureFailureKind::SecureEnclaveRejectedKey => CoseError::InvalidKeyMaterial,
         SignatureFailureKind::InvalidSignature => CoseError::InvalidSignature,
         SignatureFailureKind::SecureEnclaveUnavailable => CoseError::ProviderUnavailable,
-        SignatureFailureKind::BackendFailure | SignatureFailureKind::KeyGenerationFailed => {
-            CoseError::Crypto
-        }
+        SignatureFailureKind::InvalidMessage
+        | SignatureFailureKind::BackendFailure
+        | SignatureFailureKind::KeyGenerationFailed => CoseError::Crypto,
         // Future provider/backend signature failures are operational crypto
         // failures unless COSE deliberately classifies them more narrowly.
         _ => CoseError::Crypto,
@@ -234,13 +233,12 @@ fn verify_error_from_signature_failure(kind: SignatureFailureKind) -> CoseError 
     match kind {
         SignatureFailureKind::InvalidPublicKey
         | SignatureFailureKind::InvalidPrivateKey
-        | SignatureFailureKind::InvalidMessage
         | SignatureFailureKind::SecureEnclaveRejectedKey => CoseError::InvalidKeyMaterial,
         SignatureFailureKind::InvalidSignature => CoseError::InvalidSignature,
         SignatureFailureKind::SecureEnclaveUnavailable => CoseError::ProviderUnavailable,
-        SignatureFailureKind::BackendFailure | SignatureFailureKind::KeyGenerationFailed => {
-            CoseError::Crypto
-        }
+        SignatureFailureKind::InvalidMessage
+        | SignatureFailureKind::BackendFailure
+        | SignatureFailureKind::KeyGenerationFailed => CoseError::Crypto,
         // Future provider/backend signature failures are operational crypto
         // failures unless COSE deliberately classifies them more narrowly.
         _ => CoseError::Crypto,

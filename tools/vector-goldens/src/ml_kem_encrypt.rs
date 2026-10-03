@@ -13,10 +13,7 @@ use std::fs;
 use std::io::Cursor;
 use std::path::{Path, PathBuf};
 
-use aes_gcm::aead::consts::U12;
-use aes_gcm::aead::{Aead, KeyInit, Payload};
-use aes_gcm::aes::Aes192;
-use aes_gcm::{Aes128Gcm, Aes256Gcm, AesGcm};
+use aes_gcm::aead::KeyInit;
 use aes_kw::{KwAes128, KwAes192, KwAes256};
 use ciborium::value::Value;
 use ml_kem::kem::KeyExport;
@@ -46,7 +43,9 @@ const AES_KW_A256: i64 = -5;
 const AES_KW_OVERHEAD: usize = 8;
 const BITS_PER_BYTE: usize = 8;
 
-type Aes192Gcm = AesGcm<Aes192, U12>;
+#[path = "ml_kem_encrypt/content.rs"]
+mod content;
+use content::{encrypt_content, Content};
 
 #[derive(Debug, Error)]
 pub(super) enum GenerateError {
@@ -87,6 +86,8 @@ struct Case {
     plaintext_hex: String,
     external_aad_hex: String,
     supp_priv_info_hex: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    supp_priv_info_present: Option<bool>,
     cose_encrypt_hex: String,
 }
 
@@ -169,11 +170,33 @@ impl Mode {
 }
 
 pub(super) fn regenerate() -> Result<(), GenerateError> {
-    let mut cases = Vec::with_capacity(6);
+    let mut cases = Vec::with_capacity(8);
     for kem in [Kem::MlKem512, Kem::MlKem768, Kem::MlKem1024] {
-        cases.push(generate_case(kem, Mode::Direct)?);
-        cases.push(generate_case(kem, Mode::KeyWrap)?);
+        cases.push(generate_case(
+            kem,
+            Mode::Direct,
+            true,
+            Content::for_kem(kem),
+        )?);
+        cases.push(generate_case(
+            kem,
+            Mode::KeyWrap,
+            true,
+            Content::for_kem(kem),
+        )?);
     }
+    cases.push(generate_case(
+        Kem::MlKem512,
+        Mode::Direct,
+        false,
+        Content::Aes128,
+    )?);
+    cases.push(generate_case(
+        Kem::MlKem512,
+        Mode::Direct,
+        true,
+        Content::Aes256,
+    )?);
 
     let suite = Suite {
         schema: "reallyme.cose.ml_kem_encrypt.vectors.v1",
@@ -186,7 +209,12 @@ pub(super) fn regenerate() -> Result<(), GenerateError> {
     fs::write(repository_root().join(VECTOR_PATH), output).map_err(|_| GenerateError::Write)
 }
 
-fn generate_case(kem: Kem, mode: Mode) -> Result<Case, GenerateError> {
+fn generate_case(
+    kem: Kem,
+    mode: Mode,
+    include_supp_priv_info: bool,
+    content: Content,
+) -> Result<Case, GenerateError> {
     let marker = match kem {
         Kem::MlKem512 => 0x51,
         Kem::MlKem768 => 0x76,
@@ -202,7 +230,12 @@ fn generate_case(kem: Kem, mode: Mode) -> Result<Case, GenerateError> {
     )
     .into_bytes();
     let external_aad = format!("ReallyMe {} external AAD", kem.name()).into_bytes();
-    let supp_priv_info = format!("ReallyMe {} private KDF context", kem.name()).into_bytes();
+    let supp_priv_info = if include_supp_priv_info {
+        format!("ReallyMe {} private KDF context", kem.name()).into_bytes()
+    } else {
+        Vec::new()
+    };
+    let supp_priv_info_ref = include_supp_priv_info.then_some(supp_priv_info.as_slice());
     let mut encapsulation = deterministic_encapsulation(kem, &seed, &randomness)?;
 
     let public_cose_key = cose_key_from_public_bytes(kem.algorithm(), &encapsulation.public_key)
@@ -224,8 +257,8 @@ fn generate_case(kem: Kem, mode: Mode) -> Result<Case, GenerateError> {
             Value::Bytes(kid.to_vec()),
         ),
     ]))?;
-    let content_algorithm = content_algorithm(kem);
-    let content_key_length = kem.key_length();
+    let content_algorithm = content.id();
+    let content_key_length = content.key_length();
     let mut cek = Zeroizing::new(Vec::new());
     let (content_key, recipient_ciphertext) = match mode {
         Mode::Direct => (
@@ -234,7 +267,7 @@ fn generate_case(kem: Kem, mode: Mode) -> Result<Case, GenerateError> {
                 content_algorithm,
                 content_key_length,
                 &recipient_protected,
-                &supp_priv_info,
+                supp_priv_info_ref,
             )?,
             Value::Null,
         ),
@@ -244,7 +277,7 @@ fn generate_case(kem: Kem, mode: Mode) -> Result<Case, GenerateError> {
                 kem.key_wrap_algorithm(),
                 kem.key_length(),
                 &recipient_protected,
-                &supp_priv_info,
+                supp_priv_info_ref,
             )?;
             *cek = patterned_vec(content_key_length, marker.wrapping_add(3));
             let wrapped = wrap_key(kem, &kek, &cek)?;
@@ -262,7 +295,7 @@ fn generate_case(kem: Kem, mode: Mode) -> Result<Case, GenerateError> {
         Value::Bytes(body_protected.clone()),
         Value::Bytes(external_aad.clone()),
     ]))?;
-    let ciphertext = encrypt_content(kem, &content_key, &iv, &enc_structure, &plaintext)?;
+    let ciphertext = encrypt_content(content, &content_key, &iv, &enc_structure, &plaintext)?;
 
     let cose_encrypt = encode_cbor(&Value::Tag(
         COSE_ENCRYPT_TAG,
@@ -285,14 +318,29 @@ fn generate_case(kem: Kem, mode: Mode) -> Result<Case, GenerateError> {
     ))?;
 
     Ok(Case {
-        id: format!(
-            "cose-encrypt-{}-{}",
-            kem.name().to_ascii_lowercase(),
-            mode.name()
-        ),
+        id: if content != Content::for_kem(kem) {
+            format!(
+                "cose-encrypt-{}-{}-{}",
+                kem.name().to_ascii_lowercase(),
+                mode.name(),
+                content.name().to_ascii_lowercase()
+            )
+        } else if include_supp_priv_info {
+            format!(
+                "cose-encrypt-{}-{}",
+                kem.name().to_ascii_lowercase(),
+                mode.name()
+            )
+        } else {
+            format!(
+                "cose-encrypt-{}-{}-no-supp-priv-info",
+                kem.name().to_ascii_lowercase(),
+                mode.name()
+            )
+        },
         kem_algorithm: kem.name(),
         mode: mode.name(),
-        content_algorithm: content_algorithm_name(kem),
+        content_algorithm: content.name(),
         private_key_seed_hex: hex::encode(seed),
         public_key_hex: hex::encode(encapsulation.public_key),
         recipient_kid_hex: hex::encode(kid),
@@ -302,6 +350,7 @@ fn generate_case(kem: Kem, mode: Mode) -> Result<Case, GenerateError> {
         plaintext_hex: hex::encode(plaintext),
         external_aad_hex: hex::encode(external_aad),
         supp_priv_info_hex: hex::encode(supp_priv_info),
+        supp_priv_info_present: (!include_supp_priv_info).then_some(false),
         cose_encrypt_hex: hex::encode(cose_encrypt),
     })
 }
@@ -359,20 +408,23 @@ fn derive_key(
     algorithm: i64,
     output_length: usize,
     recipient_protected: &[u8],
-    supp_priv_info: &[u8],
+    supp_priv_info: Option<&[u8]>,
 ) -> Result<Zeroizing<Vec<u8>>, GenerateError> {
     let output_bits = output_length
         .checked_mul(BITS_PER_BYTE)
         .ok_or(GenerateError::LengthOverflow)?;
     let output_bits = u64::try_from(output_bits).map_err(|_| GenerateError::LengthOverflow)?;
-    let context = encode_cbor(&Value::Array(vec![
+    let mut context_items = vec![
         Value::Integer(algorithm.into()),
         Value::Array(vec![
             Value::Integer(output_bits.into()),
             Value::Bytes(recipient_protected.to_vec()),
         ]),
-        Value::Bytes(supp_priv_info.to_vec()),
-    ]))?;
+    ];
+    if let Some(supp_priv_info) = supp_priv_info {
+        context_items.push(Value::Bytes(supp_priv_info.to_vec()));
+    }
+    let context = encode_cbor(&Value::Array(context_items))?;
     let mut kmac = Kmac256::new(shared_secret, &[]).map_err(|_| GenerateError::Crypto)?;
     kmac.update(&context);
     let mut output = Zeroizing::new(vec![0_u8; output_length]);
@@ -399,47 +451,6 @@ fn wrap_key(kem: Kem, kek: &[u8], cek: &[u8]) -> Result<Vec<u8>, GenerateError> 
     }
     .map_err(|_| GenerateError::Crypto)?;
     Ok(wrapped.to_vec())
-}
-
-fn encrypt_content(
-    kem: Kem,
-    key: &[u8],
-    iv: &[u8; 12],
-    aad: &[u8],
-    plaintext: &[u8],
-) -> Result<Vec<u8>, GenerateError> {
-    let payload = Payload {
-        msg: plaintext,
-        aad,
-    };
-    match kem {
-        Kem::MlKem512 => Aes128Gcm::new_from_slice(key)
-            .map_err(|_| GenerateError::Crypto)?
-            .encrypt(iv.into(), payload),
-        Kem::MlKem768 => Aes192Gcm::new_from_slice(key)
-            .map_err(|_| GenerateError::Crypto)?
-            .encrypt(iv.into(), payload),
-        Kem::MlKem1024 => Aes256Gcm::new_from_slice(key)
-            .map_err(|_| GenerateError::Crypto)?
-            .encrypt(iv.into(), payload),
-    }
-    .map_err(|_| GenerateError::Crypto)
-}
-
-const fn content_algorithm(kem: Kem) -> i64 {
-    match kem {
-        Kem::MlKem512 => AES_GCM_A128,
-        Kem::MlKem768 => AES_GCM_A192,
-        Kem::MlKem1024 => AES_GCM_A256,
-    }
-}
-
-const fn content_algorithm_name(kem: Kem) -> &'static str {
-    match kem {
-        Kem::MlKem512 => "A128GCM",
-        Kem::MlKem768 => "A192GCM",
-        Kem::MlKem1024 => "A256GCM",
-    }
 }
 
 fn patterned<const N: usize>(marker: u8) -> [u8; N] {

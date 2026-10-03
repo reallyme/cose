@@ -48,8 +48,10 @@ impl From<CoseSignerError> for CoseError {
 /// The provider receives the complete COSE `Sig_structure` and returns the
 /// native signature representation expected for [`Self::algorithm`]: DER for
 /// NIST ECDSA algorithms and fixed-width bytes for the other supported
-/// algorithms. The COSE layer validates and converts that result before it is
-/// encoded, so providers do not implement COSE or CBOR semantics.
+/// algorithms. The COSE layer checks its encoding and converts that result
+/// before it is emitted. The provider remains responsible for signing with
+/// the intended key; this boundary cannot authenticate a signature without
+/// the corresponding public key.
 pub trait CoseSigner {
     /// Algorithm bound to the provider's key handle.
     fn algorithm(&self) -> Algorithm;
