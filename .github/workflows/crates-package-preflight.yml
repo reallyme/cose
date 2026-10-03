@@ -30,8 +30,8 @@ env:
   CARGO_DENY_VERSION: 0.20.2
   CARGO_FUZZ_VERSION: 0.13.2
   CARGO_NEXTEST_VERSION: 0.9.146
-  EXTERNAL_TYPES_NIGHTLY: nightly-2026-03-20
-  FUZZ_NIGHTLY: nightly-2026-07-01
+  EXTERNAL_TYPES_NIGHTLY: nightly-2026-09-15
+  FUZZ_NIGHTLY: nightly-2026-09-15
   WASM_BINDGEN_CLI_VERSION: 0.2.129
   WASM_PACK_VERSION: 0.15.0
   BUF_LINUX_X86_64_SHA256: 8f2986298ad08f0cc1bf999b9797b7c383adf32d7edf0f73d6f1e1a701baeac1
@@ -79,7 +79,7 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@7e38f4b43b4db5c8dd498af069a4f6196df1d067 # master
         with:
-          toolchain: 1.98.1
+          toolchain: 1.99.0
           components: rustfmt, clippy
           targets: wasm32-unknown-unknown
 
@@ -118,9 +118,7 @@ jobs:
           tool: cargo-nextest@${{ env.CARGO_NEXTEST_VERSION }}
 
       - name: Install external-type checker
-        uses: taiki-e/install-action@83ac0ad63c0167e6f06796fab0fce28db1bf3db0 # v2.87.22
-        with:
-          tool: cargo-check-external-types@${{ env.CARGO_CHECK_EXTERNAL_TYPES_VERSION }}
+        run: bash scripts/install_external_type_checker.sh .local-tools
 
       - name: Install external-type checker toolchain
         run: rustup toolchain install "$EXTERNAL_TYPES_NIGHTLY" --profile minimal

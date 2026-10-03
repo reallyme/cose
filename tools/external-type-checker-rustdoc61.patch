@@ -1,0 +1,26 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 5942154..a0f1a87 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -80 +80 @@ name = "cargo-check-external-types"
+-version = "0.4.0"
++version = "0.5.0"
+@@ -398 +398 @@ name = "rustdoc-types"
+-version = "0.57.3"
++version = "0.61.0"
+@@ -400 +400 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "7e6919c49bdd9cca072b3b502d16c073d0a4d3b7283ff6e0c86a5f6e6b07bbfe"
++checksum = "aa251f75d3b9d5d5d8317ce526dfa4a040c15938d82fd3a5443d103f30a66932"
+diff --git a/Cargo.toml b/Cargo.toml
+index c8fc2c3..e3c3f27 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -16 +16 @@ pest = "2" # For pretty error formatting
+-rustdoc-types = "0.57"
++rustdoc-types = "0.61"
+diff --git a/src/visitor.rs b/src/visitor.rs
+index d7b3728..8eae956 100644
+--- a/src/visitor.rs
++++ b/src/visitor.rs
+@@ -164,0 +165 @@ impl Visitor {
++                ..
