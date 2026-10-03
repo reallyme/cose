@@ -1,7 +1,5 @@
 # SPDX-FileCopyrightText: 2026 ReallyMe LLC
 
-# SPDX-License-Identifier: MIT OR Apache-2.0
-
 # Rust build and instrumentation artifacts
 target/
 *.rmeta
@@ -23,9 +21,7 @@ target/
 .env.*
 !.env.example
 .secrets/
-/AGENTS.md
 /.agents/
-/.claude/
 /.codex/
 
 # Local test and release outputs

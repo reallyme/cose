@@ -261,6 +261,7 @@ fn generated_byte_fields_redact_debug_output() {
         kid: vec![245, 246, 247, 248],
         exact_signature_algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
         has_exact_signature_algorithm: true,
+        protected_type: buffa::MessageField::none(),
         __buffa_unknown_fields: Default::default(),
     };
     let verified_debug = format!("{verified:?}");
@@ -303,6 +304,9 @@ fn generated_byte_fields_redact_debug_output() {
         allowed_algorithms: Vec::new(),
         external_aad: vec![241, 242, 243, 244],
         expected_kid: vec![245, 246, 247, 248],
+        require_tagged_sign1: false,
+        expected_type: buffa::MessageField::none(),
+        public_key_algorithm: EnumValue::from(0),
         __buffa_unknown_fields: Default::default(),
     };
     let verify_debug = format!("{verify:?}");
@@ -319,6 +323,9 @@ fn generated_byte_fields_redact_debug_output() {
         allowed_algorithms: Vec::new(),
         external_aad: vec![241, 242, 243, 244],
         expected_kid: vec![245, 246, 247, 248],
+        require_tagged_sign1: false,
+        expected_type: buffa::MessageField::none(),
+        public_key_algorithm: EnumValue::from(0),
         __buffa_unknown_fields: Default::default(),
     };
     let detached_verify_debug = format!("{detached_verify:?}");

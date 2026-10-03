@@ -27,6 +27,11 @@ const DER_LONG_FORM_LENGTH_MAX: usize = 0xff;
 const SIGN_BIT_MASK: u8 = 0x80;
 const ED25519_SIGNATURE_BYTES: usize = 64;
 const SECP256K1_SIGNATURE_BYTES: usize = 64;
+const SECP256K1_SCALAR_BYTES: usize = 32;
+const SECP256K1_HALF_ORDER_BE: [u8; SECP256K1_SCALAR_BYTES] = [
+    0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0x5d, 0x57, 0x6e, 0x73, 0x57, 0xa4, 0x50, 0x1d, 0xdf, 0xe9, 0x2f, 0x46, 0x68, 0x1b, 0x20, 0xa0,
+];
 const ML_DSA_44_SIGNATURE_BYTES: usize = 2_420;
 const ML_DSA_65_SIGNATURE_BYTES: usize = 3_309;
 const ML_DSA_87_SIGNATURE_BYTES: usize = 4_627;
@@ -74,6 +79,16 @@ pub(crate) fn cose_signature_from_backend(
             .map_err(|_| CoseError::InvalidSignatureEncoding),
         None => {
             validate_direct_signature_len(alg, &signature)?;
+            if alg == Algorithm::Secp256k1 {
+                let s = signature
+                    .get(SECP256K1_SCALAR_BYTES..)
+                    .ok_or(CoseError::InvalidSignatureEncoding)?;
+                // The backend rejects high-S signatures. Reject provider
+                // output before emitting an object we cannot verify.
+                if s.cmp(SECP256K1_HALF_ORDER_BE.as_slice()) == core::cmp::Ordering::Greater {
+                    return Err(CoseError::InvalidSignatureEncoding);
+                }
+            }
             Ok(core::mem::take(&mut *signature))
         }
     }

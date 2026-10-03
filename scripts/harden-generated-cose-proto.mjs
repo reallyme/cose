@@ -38,6 +38,34 @@ function fail(message) {
   process.exit(1);
 }
 
+function schemaMessageFields(name) {
+  const match = new RegExp(`\\bmessage\\s+${name}\\s*\\{([\\s\\S]*?)\\n\\}`, "u").exec(protoSource);
+  if (match === null) {
+    fail(`protobuf schema is missing message ${name}`);
+  }
+  return [...match[1].matchAll(/^\s*(?:repeated\s+)?([A-Za-z_]\w*)\s+([a-z_]\w*)\s*=\s*\d+/gmu)]
+    .map((field) => ({ type: field[1], name: field[2] }));
+}
+
+function assertSchemaFields(name, expectedFields) {
+  const actual = schemaMessageFields(name).map((field) => field.name).sort();
+  const expected = expectedFields.map((field) => field.name).sort();
+  if (actual.length !== expected.length || actual.some((field, index) => field !== expected[index])) {
+    fail(`${name} hardening fields differ from the protobuf schema`);
+  }
+}
+
+function assertSchemaSensitiveFields(name, expectedFieldNames) {
+  const actual = schemaMessageFields(name)
+    .filter((field) => field.type === "bytes" || field.type === "string")
+    .map((field) => field.name)
+    .sort();
+  const expected = [...expectedFieldNames].sort();
+  if (actual.length !== expected.length || actual.some((field, index) => field !== expected[index])) {
+    fail(`${name} sensitive fields differ from the protobuf schema`);
+  }
+}
+
 for (const argument of process.argv.slice(2)) {
   if (!supportedArguments.has(argument)) {
     fail(`unsupported argument ${argument}`);
@@ -89,22 +117,20 @@ function hardenSecretMessage(text, name, privateFieldLine) {
   const deserializeMarker = `impl<'de> ::serde::Deserialize<'de> for ${name} {`;
   const deserializeIndex = text.indexOf(deserializeMarker, markerIndex);
   const inherentIndex = text.indexOf(`impl ${name} {`, markerIndex);
-  const hardenedDeserialize =
-    deserializeIndex >= 0 &&
-    inherentIndex > deserializeIndex &&
-    text
-      .slice(deserializeIndex, inherentIndex)
-      .includes(".map(::zeroize::Zeroizing::new)") &&
-    text
-      .slice(deserializeIndex, inherentIndex)
-      .includes("private_key: ::core::mem::take(&mut *wire.private_key)");
   if (
     structHeader.includes(hardenedSerdeDerive) &&
     hardenedDropPattern.test(text) &&
-    hardenedDeserialize &&
+    deserializeIndex >= 0 &&
     !text.includes(privateFieldLine)
   ) {
-    return text;
+    if (!text.slice(deserializeIndex, inherentIndex).includes("private_key: ::core::mem::take(&mut *wire.private_key)")) {
+      fail(`${name} has an incomplete hardened deserializer`);
+    }
+    const deserializeEnd = text.indexOf("\n}\n", deserializeIndex);
+    if (deserializeEnd < 0 || deserializeEnd > inherentIndex) {
+      fail(`${name} has an incomplete hardened deserializer`);
+    }
+    return text.slice(0, deserializeIndex) + deserializeImpl + text.slice(deserializeEnd + 3);
   }
 
   const serdePrefix = text.slice(0, markerIndex);
@@ -249,8 +275,7 @@ function secretDeserializeImpl(name) {
         where
             D: ::serde::Deserializer<'de>,
         {
-            ::buffa::json_helpers::bytes::deserialize(deserializer)
-                .map(::zeroize::Zeroizing::new)
+            crate::secret_json_bytes::deserialize(deserializer)
         }
 
         #[derive(Default, ::serde::Deserialize)]
@@ -312,8 +337,7 @@ function secretDeserializeImpl(name) {
         where
             D: ::serde::Deserializer<'de>,
         {
-            ::buffa::json_helpers::bytes::deserialize(deserializer)
-                .map(::zeroize::Zeroizing::new)
+            crate::secret_json_bytes::deserialize(deserializer)
         }
 
         #[derive(Default, ::serde::Deserialize)]
@@ -416,8 +440,7 @@ function genericSensitiveDeserializeImpl(name, fields) {
         where
             D: ::serde::Deserializer<'de>,
         {
-            ::buffa::json_helpers::bytes::deserialize(deserializer)
-                .map(::zeroize::Zeroizing::new)
+            crate::secret_json_bytes::deserialize(deserializer)
         }
 
 `
@@ -471,17 +494,17 @@ function hardenSensitiveDeserialize(text, name, fields) {
   const deserializeMarker = `impl<'de> ::serde::Deserialize<'de> for ${name} {`;
   const deserializeIndex = text.indexOf(deserializeMarker, markerIndex);
   const inherentIndex = text.indexOf(`impl ${name} {`, markerIndex);
-  const hardenedDeserialize =
+  if (
+    structHeader.includes(hardenedSerdeDerive) &&
     deserializeIndex >= 0 &&
     inherentIndex > deserializeIndex &&
-    text
-      .slice(deserializeIndex, inherentIndex)
-      .includes(".map(::zeroize::Zeroizing::new)") &&
-    text
-      .slice(deserializeIndex, inherentIndex)
-      .includes("__buffa_unknown_fields: Default::default()");
-  if (structHeader.includes(hardenedSerdeDerive) && hardenedDeserialize) {
-    return text;
+    text.slice(deserializeIndex, inherentIndex).includes("__buffa_unknown_fields: Default::default()")
+  ) {
+    const deserializeEnd = text.indexOf("\n}\n", deserializeIndex);
+    if (deserializeEnd < 0 || deserializeEnd > inherentIndex) {
+      fail(`${name} has an incomplete hardened deserializer`);
+    }
+    return text.slice(0, deserializeIndex) + deserializeImpl + text.slice(deserializeEnd + 3);
   }
   const serdePrefix = text.slice(0, markerIndex);
   const serdeDeriveIndex = serdePrefix.lastIndexOf(serdeDerive);
@@ -555,6 +578,9 @@ for (const [name, fields] of [
       { name: "allowed_algorithms", jsonName: "allowedAlgorithms", kind: "repeated_enum", enumName: "CoseSignatureAlgorithm" },
       { name: "external_aad", jsonName: "externalAad", kind: "bytes" },
       { name: "expected_kid", jsonName: "expectedKid", kind: "bytes" },
+      { name: "require_tagged_sign1", jsonName: "requireTaggedSign1", kind: "bool" },
+      { name: "expected_type", jsonName: "expectedType", kind: "message", messageName: "CoseType" },
+      { name: "public_key_algorithm", jsonName: "publicKeyAlgorithm", kind: "enum", enumName: "CoseSignatureAlgorithm" },
     ],
   ],
   [
@@ -569,6 +595,9 @@ for (const [name, fields] of [
       { name: "allowed_algorithms", jsonName: "allowedAlgorithms", kind: "repeated_enum", enumName: "CoseSignatureAlgorithm" },
       { name: "external_aad", jsonName: "externalAad", kind: "bytes" },
       { name: "expected_kid", jsonName: "expectedKid", kind: "bytes" },
+      { name: "require_tagged_sign1", jsonName: "requireTaggedSign1", kind: "bool" },
+      { name: "expected_type", jsonName: "expectedType", kind: "message", messageName: "CoseType" },
+      { name: "public_key_algorithm", jsonName: "publicKeyAlgorithm", kind: "enum", enumName: "CoseSignatureAlgorithm" },
     ],
   ],
   [
@@ -588,6 +617,7 @@ for (const [name, fields] of [
         jsonName: "hasExactSignatureAlgorithm",
         kind: "bool",
       },
+      { name: "protected_type", jsonName: "protectedType", kind: "message", messageName: "CoseType" },
     ],
   ],
   [
@@ -675,6 +705,7 @@ for (const [name, fields] of [
     ],
   ],
 ]) {
+  assertSchemaFields(name, fields);
   generatedText = hardenSensitiveDeserialize(generatedText, name, fields);
 }
 generatedText = hardenSecretMessage(
@@ -753,6 +784,7 @@ for (const [name, fieldNames] of [
   ],
   ["CoseMlKemDecryptResult", ["plaintext", "recipient_kid"]],
 ]) {
+  assertSchemaSensitiveFields(name, fieldNames);
   generatedText = hardenByteFieldsOnDrop(generatedText, name, fieldNames);
 }
 for (const fieldName of [

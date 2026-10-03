@@ -78,6 +78,11 @@ fn decode_owned_cose_key(bytes: &[u8]) -> Result<CoseKey, CoseError> {
     let mut key = CoseKey::new(coset::CoseKey::default());
     for (raw_label, raw_value) in entries {
         let label = parse_cose_key_label(raw_label)?;
+        if label == Label::Int(0) {
+            // Label zero has no COSE_Key parameter meaning and cannot survive
+            // canonical roundtrip through the supported key profile.
+            return Err(CoseError::InvalidFormat);
+        }
         match label {
             Label::Int(value) if value == iana::KeyParameter::Kty as i64 => {
                 key.inner_mut().kty = parse_key_type(raw_value)?;

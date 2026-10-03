@@ -120,6 +120,10 @@ enum AuditReason {
     ProtectedAlgorithmMismatch,
     #[error("protected kid mismatch")]
     ProtectedKidMismatch,
+    #[error("protected type mismatch")]
+    ProtectedTypeMismatch,
+    #[error("protected certificate path mismatch")]
+    ProtectedX5ChainMismatch,
     #[error("missing protected kid")]
     ProtectedKidMissing,
     #[error("key-resolution negative vector has matching resolver kid")]
@@ -142,6 +146,8 @@ enum AuditReason {
     CoseKeyCurveMismatch,
     #[error("COSE_Key alg mismatch")]
     CoseKeyAlgorithmMismatch,
+    #[error("COSE_Key identifier does not match its canonical public encoding")]
+    CoseKeyKidMismatch,
     #[error("COSE_Key unexpected alg")]
     CoseKeyUnexpectedAlgorithm,
     #[error("COSE_Key leaks private d parameter")]
@@ -154,6 +160,10 @@ enum AuditReason {
     OkpPublicWidth,
     #[error("Ed25519 public key rejected by independent implementation")]
     Ed25519PublicRejected,
+    #[error("negative Ed25519 key vector is valid")]
+    NegativeEd25519KeyValid,
+    #[error("negative COSE_Key vector does not carry its stated public key")]
+    NegativeCoseKeyMismatch,
     #[error("EC2 y parameter missing")]
     Ec2MissingY,
     #[error("EC2 SEC1 public key mismatch")]
@@ -230,6 +240,9 @@ struct Sign1Case {
     public_key_hex: String,
     private_key_seed_hex: String,
     payload_hex: String,
+    external_aad_hex: Option<String>,
+    protected_type: Option<String>,
+    x5chain_der_hex: Option<Vec<String>>,
     cose_sign1_hex: String,
     expected_error: Option<String>,
     provenance: Option<Provenance>,
@@ -247,11 +260,25 @@ struct KeySuite {
 }
 
 #[derive(Debug, Deserialize)]
+struct NegativeKeySuite {
+    cases: Vec<NegativeKeyCase>,
+}
+
+#[derive(Debug, Deserialize)]
+struct NegativeKeyCase {
+    id: String,
+    public_key_hex: String,
+    cose_key_hex: String,
+    expected_error: String,
+}
+
+#[derive(Debug, Deserialize)]
 struct KeyCase {
     id: String,
     algorithm: String,
     public_key_hex: String,
     cose_key_hex: String,
+    kid_hex: String,
     multikey: String,
 }
 

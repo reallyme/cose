@@ -79,7 +79,8 @@ pub struct VerifiedCoseSign1WithX5Chain {
     /// Authenticated RFC 9596 protected `typ` value, when present.
     pub cose_type: Option<CoseType>,
 
-    /// Bounded RFC 9360 leaf-first DER certificate path.
+    /// Signed, bounded RFC 9360 leaf-first DER certificate path. The resolver
+    /// remains responsible for certificate and trust-path validation.
     pub x5chain_der: Vec<Vec<u8>>,
 }
 
@@ -139,6 +140,31 @@ pub fn cose_verify1_with_policy_and_external_aad(
 ) -> Result<VerifiedCoseSign1, CoseError> {
     verify_cose_sign1(
         CoseSign1VerifyInput::new(cose_bytes, external_aad, policy),
+        |algorithm, kid| match public_key_resolver(algorithm.crypto_algorithm(), kid) {
+            Some(public_key) => CoseSign1KeyResolution::Resolved(Zeroizing::new(public_key)),
+            None => CoseSign1KeyResolution::NotResolved,
+        },
+    )
+    .map_err(CoseFailure::into_native_error)
+}
+
+/// Verify an attached COSE_Sign1 while resolving by its exact registration.
+///
+/// The resolver receives [`CoseSignatureAlgorithm`] so a key authorized for
+/// ES256 cannot also be selected for ESP256 merely because both use P-256.
+///
+/// # Errors
+///
+/// Returns [`CoseError`] for invalid structure, policy, key resolution, or
+/// signature verification.
+pub fn cose_verify1_with_exact_algorithm(
+    cose_bytes: &[u8],
+    external_aad: &[u8],
+    policy: &CosePolicy,
+    public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[u8]) -> Option<Vec<u8>>,
+) -> Result<VerifiedCoseSign1, CoseError> {
+    verify_cose_sign1(
+        CoseSign1VerifyInput::new(cose_bytes, external_aad, policy),
         |algorithm, kid| match public_key_resolver(algorithm, kid) {
             Some(public_key) => CoseSign1KeyResolution::Resolved(Zeroizing::new(public_key)),
             None => CoseSign1KeyResolution::NotResolved,
@@ -150,9 +176,10 @@ pub fn cose_verify1_with_policy_and_external_aad(
 /// Verify an attached COSE_Sign1 carrying an RFC 9360 `x5chain` header.
 ///
 /// The ordinary verification APIs continue to reject unprotected extensions.
-/// This profile-specific entry point accepts only label 33, requires a
-/// non-empty bounded certificate path, and supplies that path to the caller's
-/// trust resolver before signature verification.
+/// This profile-specific entry point requires a non-empty, bounded path in
+/// protected label 33 and supplies it to the caller's trust resolver before
+/// signature verification. The resolver must validate certificate semantics,
+/// trust, and the end-entity public key.
 ///
 /// # Errors
 ///
@@ -163,10 +190,26 @@ pub fn cose_verify1_with_x5chain(
     policy: &CosePolicy,
     public_key_resolver: impl FnOnce(Algorithm, &[Vec<u8>]) -> Option<Vec<u8>>,
 ) -> Result<VerifiedCoseSign1WithX5Chain, CoseError> {
+    cose_verify1_with_x5chain_and_exact_algorithm(cose_bytes, policy, |algorithm, certificates| {
+        public_key_resolver(algorithm.crypto_algorithm(), certificates)
+    })
+}
+
+/// Verify an attached certificate-bearing COSE_Sign1 with exact algorithm
+/// registration supplied to the trust resolver.
+///
+/// # Errors
+///
+/// Returns [`CoseError`] for invalid structure, certificates, policy, key
+/// resolution, or signature verification.
+pub fn cose_verify1_with_x5chain_and_exact_algorithm(
+    cose_bytes: &[u8],
+    policy: &CosePolicy,
+    public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[Vec<u8>]) -> Option<Vec<u8>>,
+) -> Result<VerifiedCoseSign1WithX5Chain, CoseError> {
     let decoded = decode_cose_sign1_with_x5chain(cose_bytes, policy.max_cose_sign1_bytes())?;
     let mut cose = decoded.cose;
     let x5chain_der = decoded.x5chain_der;
-    let tagged = decoded.tagged;
     if x5chain_der.is_empty() {
         return Err(CoseError::InvalidFormat);
     }
@@ -177,7 +220,7 @@ pub fn cose_verify1_with_x5chain(
         .ok_or(CoseError::MissingPayload)?;
     let metadata = verify_cose_signature(
         cose.inner(),
-        tagged,
+        decoded.tagged,
         &[],
         payload,
         policy,
@@ -277,6 +320,29 @@ pub fn cose_verify1_detached_with_policy_and_external_aad(
 ) -> Result<VerifiedDetachedCoseSign1, CoseError> {
     verify_detached_cose_sign1(
         CoseSign1DetachedVerifyInput::new(cose_bytes, payload, external_aad, policy),
+        |algorithm, kid| match public_key_resolver(algorithm.crypto_algorithm(), kid) {
+            Some(public_key) => CoseSign1KeyResolution::Resolved(Zeroizing::new(public_key)),
+            None => CoseSign1KeyResolution::NotResolved,
+        },
+    )
+    .map_err(CoseFailure::into_native_error)
+}
+
+/// Verify a detached COSE_Sign1 while resolving by its exact registration.
+///
+/// # Errors
+///
+/// Returns [`CoseError`] for invalid structure, policy, key resolution, or
+/// signature verification.
+pub fn cose_verify1_detached_with_exact_algorithm(
+    cose_bytes: &[u8],
+    payload: &[u8],
+    external_aad: &[u8],
+    policy: &CosePolicy,
+    public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[u8]) -> Option<Vec<u8>>,
+) -> Result<VerifiedDetachedCoseSign1, CoseError> {
+    verify_detached_cose_sign1(
+        CoseSign1DetachedVerifyInput::new(cose_bytes, payload, external_aad, policy),
         |algorithm, kid| match public_key_resolver(algorithm, kid) {
             Some(public_key) => CoseSign1KeyResolution::Resolved(Zeroizing::new(public_key)),
             None => CoseSign1KeyResolution::NotResolved,
@@ -287,7 +353,7 @@ pub fn cose_verify1_detached_with_policy_and_external_aad(
 
 pub(crate) fn verify_cose_sign1(
     input: CoseSign1VerifyInput<'_>,
-    public_key_resolver: impl FnOnce(Algorithm, &[u8]) -> CoseSign1KeyResolution,
+    public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[u8]) -> CoseSign1KeyResolution,
 ) -> Result<VerifiedCoseSign1, CoseFailure> {
     validate_detached_payload_with_limit(
         input.external_aad,
@@ -325,7 +391,7 @@ pub(crate) fn verify_cose_sign1(
 
 pub(crate) fn verify_detached_cose_sign1(
     input: CoseSign1DetachedVerifyInput<'_>,
-    public_key_resolver: impl FnOnce(Algorithm, &[u8]) -> CoseSign1KeyResolution,
+    public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[u8]) -> CoseSign1KeyResolution,
 ) -> Result<VerifiedDetachedCoseSign1, CoseFailure> {
     validate_detached_payload_with_limit(input.payload, input.policy.max_detached_payload_bytes())?;
     validate_detached_payload_with_limit(
@@ -354,7 +420,7 @@ fn verify_cose_signature(
     external_aad: &[u8],
     payload: &[u8],
     policy: &CosePolicy,
-    public_key_resolver: impl FnOnce(Algorithm, &[u8]) -> CoseSign1KeyResolution,
+    public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[u8]) -> CoseSign1KeyResolution,
 ) -> Result<VerifiedDetachedCoseSign1, CoseFailure> {
     validate_cose_sign1_structure(cose)?;
     validate_cose_sign1_policy(cose, tagged, policy)?;
@@ -373,14 +439,18 @@ fn verify_cose_signature(
     // Key stores must resolve the algorithm and identifier as one tuple. This
     // prevents a shared kid from selecting bytes belonging to another key
     // family and keeps that invariant independent of backend key-shape checks.
-    let public_key = match public_key_resolver(alg, kid) {
+    let public_key = match public_key_resolver(cose_algorithm, kid) {
         CoseSign1KeyResolution::Resolved(public_key) => public_key,
         CoseSign1KeyResolution::NotResolved => {
-            return Err(CoseFailure::from(key_resolution_error(kid)));
+            return Err(CoseFailure::from(CoseError::KeyNotResolved));
         }
         #[cfg(feature = "wire")]
         CoseSign1KeyResolution::KidMismatch => {
             return Err(CoseFailure::sign1_kid_key_mismatch());
+        }
+        #[cfg(feature = "wire")]
+        CoseSign1KeyResolution::AlgorithmMismatch => {
+            return Err(CoseFailure::from(CoseError::UnsupportedAlgorithm));
         }
     };
 
@@ -399,12 +469,4 @@ fn verify_cose_signature(
         kid: Zeroizing::new(kid.to_vec()),
         cose_type,
     })
-}
-
-fn key_resolution_error(kid: &[u8]) -> CoseError {
-    if kid.is_empty() {
-        CoseError::MissingKid
-    } else {
-        CoseError::KeyNotResolved
-    }
 }

@@ -11,9 +11,12 @@
 //! # Example
 //!
 //! ```
+//! # #[cfg(feature = "cose-crypto")]
 //! use reallyme_cose::{cose_sign1, cose_verify1_with_policy, Algorithm, CoseError, CosePolicy};
+//! # #[cfg(feature = "cose-crypto")]
 //! use reallyme_crypto::dispatch::generate_keypair;
 //!
+//! # #[cfg(feature = "cose-crypto")]
 //! fn sign_and_verify() -> Result<(), CoseError> {
 //!     let (public_key, private_key) = generate_keypair(Algorithm::Ed25519)
 //!         .map_err(|_| CoseError::Crypto)?;
@@ -32,13 +35,21 @@
 //!     assert_eq!(verified.kid.as_slice(), kid);
 //!     Ok(())
 //! }
+//! # #[cfg(feature = "cose-crypto")]
 //! # fn main() -> Result<(), CoseError> { sign_and_verify() }
+//! # #[cfg(not(feature = "cose-crypto"))]
+//! # fn main() {}
 //! ```
 
 #[cfg(all(feature = "wire", not(any(feature = "native", feature = "wasm"))))]
 compile_error!(
     "reallyme-cose `wire` requires a runtime lane: enable feature `native` for Rust crypto or `wasm` for wasm32-unknown-unknown"
 );
+#[cfg(all(
+    feature = "cose-crypto",
+    not(any(feature = "native", feature = "wasm"))
+))]
+compile_error!("reallyme-cose `cose-crypto` requires the `native` or `wasm` runtime lane");
 
 /// Crypto algorithm selector used by the COSE public API.
 ///
@@ -91,11 +102,13 @@ pub use sign1::{
     cose_sign1_tagged, cose_sign1_with_options, cose_sign1_with_options_and_external_aad,
     cose_sign1_with_signature_algorithm, cose_sign1_with_signature_algorithm_and_external_aad,
     cose_sign1_with_signer, cose_verify1, cose_verify1_detached,
-    cose_verify1_detached_with_metadata, cose_verify1_detached_with_policy,
-    cose_verify1_detached_with_policy_and_external_aad, cose_verify1_with_metadata,
-    cose_verify1_with_policy, cose_verify1_with_policy_and_external_aad, cose_verify1_with_x5chain,
-    CoseSign1EncodeOptions, CoseSigner, CoseSignerError, CoseType, VerifiedCoseSign1,
-    VerifiedCoseSign1WithX5Chain, VerifiedDetachedCoseSign1, MAX_COSE_TYPE_TEXT_BYTES,
+    cose_verify1_detached_with_exact_algorithm, cose_verify1_detached_with_metadata,
+    cose_verify1_detached_with_policy, cose_verify1_detached_with_policy_and_external_aad,
+    cose_verify1_with_exact_algorithm, cose_verify1_with_metadata, cose_verify1_with_policy,
+    cose_verify1_with_policy_and_external_aad, cose_verify1_with_x5chain,
+    cose_verify1_with_x5chain_and_exact_algorithm, CoseSign1EncodeOptions, CoseSigner,
+    CoseSignerError, CoseType, VerifiedCoseSign1, VerifiedCoseSign1WithX5Chain,
+    VerifiedDetachedCoseSign1, MAX_COSE_TYPE_TEXT_BYTES,
 };
 
 /// COSE semantic policy enforcement.

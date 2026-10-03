@@ -11,7 +11,7 @@ use sha2::{Digest, Sha256};
 
 use super::{ensure, manifest_error, AuditContext, AuditError, AuditReason, AuditResult};
 
-const EXPECTED_SUITE_COUNT: usize = 5;
+const EXPECTED_SUITE_COUNT: usize = 6;
 
 #[derive(Debug, Deserialize)]
 pub(super) struct Manifest {
@@ -33,44 +33,55 @@ struct ExpectedSuite<'a> {
     repo_root: &'a Path,
 }
 
+pub(super) struct ManifestCounts {
+    pub(super) sign1: usize,
+    pub(super) keys: usize,
+    pub(super) negative_keys: usize,
+    pub(super) pq_sign1: usize,
+    pub(super) pq_keys: usize,
+    pub(super) ml_kem_encrypt: usize,
+}
+
 pub(super) fn verify(
     repo_root: &Path,
     manifest: &Manifest,
-    sign1_cases: usize,
-    key_cases: usize,
-    pq_sign1_cases: usize,
-    pq_key_cases: usize,
-    ml_kem_encrypt_cases: usize,
+    counts: ManifestCounts,
 ) -> AuditResult<()> {
     let expected = [
         ExpectedSuite {
             id: "cose-sign1",
             path: "cose-sign1.json",
-            case_count: sign1_cases,
+            case_count: counts.sign1,
             repo_root,
         },
         ExpectedSuite {
             id: "cose-key",
             path: "cose-key.json",
-            case_count: key_cases,
+            case_count: counts.keys,
+            repo_root,
+        },
+        ExpectedSuite {
+            id: "cose-key-negative",
+            path: "cose-key-negative.json",
+            case_count: counts.negative_keys,
             repo_root,
         },
         ExpectedSuite {
             id: "cose-sign1-pq",
             path: "cose-sign1-pq.json",
-            case_count: pq_sign1_cases,
+            case_count: counts.pq_sign1,
             repo_root,
         },
         ExpectedSuite {
             id: "cose-key-pq",
             path: "cose-key-pq.json",
-            case_count: pq_key_cases,
+            case_count: counts.pq_keys,
             repo_root,
         },
         ExpectedSuite {
             id: "cose-encrypt-ml-kem",
             path: "cose-encrypt-ml-kem.json",
-            case_count: ml_kem_encrypt_cases,
+            case_count: counts.ml_kem_encrypt,
             repo_root,
         },
     ];

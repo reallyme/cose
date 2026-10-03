@@ -1,7 +1,5 @@
 // SPDX-FileCopyrightText: 2026 ReallyMe LLC
 
-// SPDX-License-Identifier: MIT OR Apache-2.0
-
 syntax = "proto3";
 
 package reallyme.cose.v1;
@@ -291,8 +289,7 @@ message CoseSign1CreateRequest {
   bytes private_key = 3;
   // Protected-header kid bytes. Ignored unless has_kid is true.
   bytes kid = 4;
-  // Whether kid is present. This distinguishes an omitted kid from an
-  // intentionally empty kid byte string.
+  // Whether a non-empty kid is present. An empty kid with this flag is invalid.
   bool has_kid = 5;
   // Optional encoding controls. If omitted, the Rust SDK defaults apply.
   CoseSign1Options options = 6;
@@ -315,8 +312,7 @@ message CoseSign1CreateDetachedRequest {
   bytes private_key = 3;
   // Protected-header kid bytes. Ignored unless has_kid is true.
   bytes kid = 4;
-  // Whether kid is present. This distinguishes an omitted kid from an
-  // intentionally empty kid byte string.
+  // Whether a non-empty kid is present. An empty kid with this flag is invalid.
   bool has_kid = 5;
   // Optional encoding controls. If omitted, the Rust SDK defaults apply.
   CoseSign1Options options = 6;
@@ -333,6 +329,17 @@ message CoseSign1CreateResult {
   bytes cose_sign1 = 1;
 }
 
+// CoseType is the protected RFC 9596 typ header. Exactly one value must be
+// present when used as an expected verification type.
+message CoseType {
+  oneof value {
+    // Bounded UTF-8 media type, including optional media type parameters.
+    string media_type = 1;
+    // Unsigned IANA CoAP Content-Format identifier.
+    uint64 content_format = 2;
+  }
+}
+
 // CoseSign1VerifyRequest verifies a COSE_Sign1 with an attached payload. The
 // public_key field is the protobuf-boundary equivalent of the Rust SDK key
 // resolver output for the protected-header kid.
@@ -345,8 +352,9 @@ message CoseSign1VerifyRequest {
   // Optional maximum accepted encoded COSE_Sign1 size. A value of 0 uses the
   // crate default.
   uint64 max_cose_sign1_bytes = 3;
-  // Reserved for shape parity with detached verification. A value of 0 uses the
-  // crate default; attached verification does not consume a detached payload.
+  // Maximum external AAD size for attached verification. A value of 0 uses
+  // the crate default; the field also bounds detached payloads in detached
+  // verification requests.
   uint64 max_detached_payload_bytes = 4;
   // Require a non-empty protected-header kid before verification.
   bool require_kid = 5;
@@ -361,6 +369,13 @@ message CoseSign1VerifyRequest {
   // where public_key was already selected outside this request.
   // Selection of this value belongs to the caller's trust-store boundary.
   bytes expected_kid = 8;
+  // Require the registered COSE_Sign1 root tag (18).
+  bool require_tagged_sign1 = 9;
+  // When set, require this exact authenticated protected typ value.
+  CoseType expected_type = 10;
+  // Exact registration authorized for public_key. UNSPECIFIED preserves the
+  // legacy primitive-only binding; set this for suite-bound credentials.
+  CoseSignatureAlgorithm public_key_algorithm = 11;
 }
 
 // CoseSign1VerifyDetachedRequest verifies a COSE_Sign1 whose payload is carried
@@ -393,6 +408,13 @@ message CoseSign1VerifyDetachedRequest {
   // where public_key was already selected outside this request.
   // Selection of this value belongs to the caller's trust-store boundary.
   bytes expected_kid = 9;
+  // Require the registered COSE_Sign1 root tag (18).
+  bool require_tagged_sign1 = 10;
+  // When set, require this exact authenticated protected typ value.
+  CoseType expected_type = 11;
+  // Exact registration authorized for public_key. UNSPECIFIED preserves the
+  // legacy primitive-only binding; set this for suite-bound credentials.
+  CoseSignatureAlgorithm public_key_algorithm = 12;
 }
 
 // CoseSign1VerifyResult contains the verified attached payload and protected
@@ -410,6 +432,8 @@ message CoseSign1VerifyResult {
   // Exact signature registration authenticated by the protected header.
   CoseSignatureAlgorithm exact_signature_algorithm = 4;
   bool has_exact_signature_algorithm = 5;
+  // Authenticated protected typ, if one was present.
+  CoseType protected_type = 6;
 }
 
 // CoseKeyFromPublicBytesRequest builds a public COSE_Key from raw public key

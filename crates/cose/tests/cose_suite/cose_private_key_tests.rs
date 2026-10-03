@@ -163,7 +163,7 @@ fn cose_key_private_missing_d_is_rejected() {
 
     let res = cose_key_to_private_bytes(&cose_key);
 
-    assert!(res.is_err());
+    assert_eq!(res.err(), Some(CoseError::MissingKeyMaterial));
 }
 
 #[test]
@@ -172,7 +172,7 @@ fn cose_key_private_rejects_wrong_length_ml_kem_key() {
 
     let res = cose_key_from_private_bytes(Algorithm::MlKem1024, &k.private, Some(&k.public));
 
-    assert!(res.is_err());
+    assert_eq!(res.err(), Some(CoseError::InvalidKeyMaterial));
 }
 
 #[test]

@@ -20,6 +20,28 @@ const STATUS_LIST_CWT_CONTENT_FORMAT: u64 = 279;
 const COSE_TYPE_HEADER_LABEL: i64 = 16;
 
 #[test]
+fn signing_rejects_control_characters_and_out_of_range_registered_types() {
+    let key = gen_ed25519();
+    for (cose_type, expected) in [
+        (
+            CoseType::Text("application/json\n".to_owned()),
+            CoseError::InvalidFormat,
+        ),
+        (
+            CoseType::Text("application/json\u{0085}".to_owned()),
+            CoseError::InvalidFormat,
+        ),
+        (CoseType::Registered(65_536), CoseError::InvalidFormat),
+    ] {
+        let options = CoseSign1EncodeOptions::new().with_protected_type(cose_type);
+        assert_eq!(
+            cose_sign1_with_options(key.alg, b"payload", &key.private, None, options).err(),
+            Some(expected),
+        );
+    }
+}
+
+#[test]
 fn tagged_sign1_round_trips_authenticated_text_type() {
     let key = gen_ed25519();
     let payload = b"status list claims";

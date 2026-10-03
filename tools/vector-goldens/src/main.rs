@@ -14,7 +14,11 @@ use std::path::{Path, PathBuf};
 
 use ciborium::value::Value;
 use ed25519_dalek::{Signer, SigningKey};
-use reallyme_cose::{cose_sign1, cose_sign1_detached, Algorithm};
+use reallyme_cose::{
+    cose_sign1, cose_sign1_detached, cose_sign1_with_options_and_external_aad,
+    cose_sign1_with_signature_algorithm, Algorithm, CoseSign1EncodeOptions, CoseSignatureAlgorithm,
+    CoseType,
+};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -26,6 +30,8 @@ const ED25519_ALGORITHM: i64 = -19;
 
 #[derive(Debug, Error)]
 enum RegenerateError {
+    #[error("vector parameters are invalid")]
+    InvalidParameter,
     #[error("vector file could not be read")]
     Read,
     #[error("vector JSON could not be decoded")]
@@ -76,6 +82,12 @@ struct Case {
     public_key_hex: String,
     private_key_seed_hex: String,
     payload_hex: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    external_aad_hex: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    protected_type: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    x5chain_der_hex: Option<Vec<String>>,
     cose_sign1_hex: String,
     expected_error: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -157,7 +169,41 @@ fn sign_case(case: &Case, detached: bool) -> Result<Vec<u8>, RegenerateError> {
     let private_key = decode_hex(&case.private_key_seed_hex)?;
     let kid = decode_hex(&case.kid_hex)?;
     let payload = decode_hex(&case.payload_hex)?;
-    let encoded = if detached {
+    let encoded = if case.external_aad_hex.is_some()
+        || case.protected_type.is_some()
+        || case.x5chain_der_hex.is_some()
+    {
+        if detached {
+            return Err(RegenerateError::InvalidParameter);
+        }
+        let aad = decode_hex(case.external_aad_hex.as_deref().unwrap_or(""))?;
+        let mut options = CoseSign1EncodeOptions::new();
+        if let Some(cose_type) = &case.protected_type {
+            options = options.with_protected_type(CoseType::Text(cose_type.clone()));
+        }
+        if let Some(chain) = &case.x5chain_der_hex {
+            let certificates = chain
+                .iter()
+                .map(|certificate| decode_hex(certificate))
+                .collect::<Result<Vec<_>, _>>()?;
+            options = options.with_x5chain_der(certificates);
+        }
+        cose_sign1_with_options_and_external_aad(
+            algorithm,
+            &payload,
+            &private_key,
+            Some(&kid),
+            &aad,
+            options,
+        )
+    } else if case.algorithm == "ES256" && !detached {
+        cose_sign1_with_signature_algorithm(
+            CoseSignatureAlgorithm::Es256,
+            &payload,
+            &private_key,
+            Some(&kid),
+        )
+    } else if detached {
         cose_sign1_detached(algorithm, &payload, &private_key, Some(&kid))
     } else {
         cose_sign1(algorithm, &payload, &private_key, Some(&kid))
@@ -174,6 +220,10 @@ fn regenerate_case(case: &Case, bases: &Bases) -> Result<Vec<u8>, RegenerateErro
         | "cose-sign1-ed25519-detached-wrong-kid"
         | "cose-sign1-ed25519-detached-as-attached" => bases.ed_detached.clone(),
         "cose-sign1-es256-attached" => bases.p256_attached.clone(),
+        "cose-sign1-es256-registration-attached" => sign_case(case, false)?,
+        "cose-sign1-ed25519-type-external-aad" | "cose-sign1-ed25519-x5chain" => {
+            sign_case(case, false)?
+        }
         "cose-sign1-es256-detached" | "cose-sign1-es256-detached-wrong-payload" => {
             bases.p256_detached.clone()
         }
@@ -349,6 +399,7 @@ fn parse_algorithm(value: &str) -> Result<Algorithm, RegenerateError> {
     match value {
         "Ed25519" => Ok(Algorithm::Ed25519),
         "P256" => Ok(Algorithm::P256),
+        "ES256" => Ok(Algorithm::P256),
         "P384" => Ok(Algorithm::P384),
         "P521" => Ok(Algorithm::P521),
         "Secp256k1" => Ok(Algorithm::Secp256k1),

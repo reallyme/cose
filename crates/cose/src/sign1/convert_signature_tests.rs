@@ -69,6 +69,17 @@ fn wrong_length_fixed_signature_is_rejected() {
 }
 
 #[test]
+fn high_s_secp256k1_provider_output_is_rejected_before_encoding() {
+    let mut signature = vec![0_u8; 64];
+    signature[31] = 1;
+    signature[32..].fill(0xff);
+    assert_eq!(
+        cose_signature_from_backend(Algorithm::Secp256k1, signature),
+        Err(CoseError::InvalidSignatureEncoding),
+    );
+}
+
+#[test]
 fn zero_scalars_are_rejected() {
     let fixed = vec![0_u8; P256_SIGNATURE_LEN];
     let err = backend_signature_from_cose(Algorithm::P256, &fixed).unwrap_err();

@@ -9,6 +9,7 @@ use zeroize::Zeroizing;
 use crate::encrypt::decrypt::decrypt_cose_ml_kem;
 use crate::encrypt::types::{CoseMlKemDecryptInput, CoseMlKemDecryptRequest};
 use crate::operation_contract::encrypt::result;
+use crate::operation_contract::input::validate_supp_priv_info_flag;
 use crate::operation_contract::map_failure::boundary_error_from_failure;
 use crate::wire::{
     CoseMlKemDecryptRequest as ProtoDecryptRequest, CoseOperationResult, CoseWireResult,
@@ -21,6 +22,7 @@ pub(crate) fn result(mut request: ProtoDecryptRequest) -> CoseWireResult<CoseOpe
         Zeroizing::new(core::mem::take(&mut request.expected_recipient_kid));
     let external_aad = Zeroizing::new(core::mem::take(&mut request.external_aad));
     let supp_priv_info = Zeroizing::new(core::mem::take(&mut request.supp_priv_info));
+    validate_supp_priv_info_flag(request.has_supp_priv_info, &supp_priv_info)?;
     let native_request = CoseMlKemDecryptRequest::new(
         &cose_encrypt,
         &recipient_private_key,

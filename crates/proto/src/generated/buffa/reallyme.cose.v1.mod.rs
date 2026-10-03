@@ -49,6 +49,7 @@ pub mod __buffa {
         reg.register_json_any(super::__COSE_SIGN1CREATE_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN1CREATE_DETACHED_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN1CREATE_RESULT_JSON_ANY);
+        reg.register_json_any(super::__COSE_TYPE_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN1VERIFY_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN1VERIFY_DETACHED_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN1VERIFY_RESULT_JSON_ANY);
@@ -128,6 +129,10 @@ pub use self::__buffa::view::CoseSign1CreateDetachedRequestOwnedView;
 pub use self::__buffa::view::CoseSign1CreateResultView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSign1CreateResultOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseTypeView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseTypeOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSign1VerifyRequestView;
 #[doc(inline)]

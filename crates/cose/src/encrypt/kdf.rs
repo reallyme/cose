@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 use ciborium::value::{Integer, Value};
-use reallyme_crypto::kmac::{derive_kmac256, Kmac256Key};
+use reallyme_crypto::kmac::{derive_kmac256, Kmac256Key, KMAC256_MAX_CONTEXT_LENGTH};
 use zeroize::Zeroizing;
 
 use crate::encode_cbor::encode_cbor_value;
@@ -11,6 +11,24 @@ use crate::CoseError;
 
 pub(crate) fn derive_key(
     shared_secret: &[u8],
+    algorithm_id: i64,
+    output_length: usize,
+    recipient_protected: &[u8],
+    supp_priv_info: Option<&[u8]>,
+) -> Result<Zeroizing<Vec<u8>>, CoseError> {
+    let context = encode_kdf_context(
+        algorithm_id,
+        output_length,
+        recipient_protected,
+        supp_priv_info,
+    )?;
+    let key = Kmac256Key::from_slice(shared_secret).map_err(|_| CoseError::Crypto)?;
+    let derived =
+        derive_kmac256(&key, &context, &[], output_length).map_err(|_| CoseError::Crypto)?;
+    Ok(Zeroizing::new(derived.as_bytes().to_vec()))
+}
+
+fn encode_kdf_context(
     algorithm_id: i64,
     output_length: usize,
     recipient_protected: &[u8],
@@ -35,11 +53,11 @@ pub(crate) fn derive_key(
     }
 
     let context = encode_cbor_value(Value::Array(context_items))?;
+    if context.len() > KMAC256_MAX_CONTEXT_LENGTH {
+        return Err(CoseError::ResourceLimitExceeded);
+    }
 
-    let key = Kmac256Key::from_slice(shared_secret).map_err(|_| CoseError::Crypto)?;
-    let derived =
-        derive_kmac256(&key, &context, &[], output_length).map_err(|_| CoseError::Crypto)?;
-    Ok(Zeroizing::new(derived.as_bytes().to_vec()))
+    Ok(context)
 }
 
 pub(crate) fn enc_structure(
@@ -53,3 +71,7 @@ pub(crate) fn enc_structure(
     ]);
     encode_cbor_value(value)
 }
+
+#[cfg(test)]
+#[path = "kdf_tests.rs"]
+mod tests;

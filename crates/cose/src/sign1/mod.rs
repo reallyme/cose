@@ -47,9 +47,11 @@ pub use sign::{
 };
 #[cfg(feature = "cose-crypto")]
 pub use verify::{
-    cose_verify1, cose_verify1_detached, cose_verify1_detached_with_metadata,
-    cose_verify1_detached_with_policy, cose_verify1_detached_with_policy_and_external_aad,
+    cose_verify1, cose_verify1_detached, cose_verify1_detached_with_exact_algorithm,
+    cose_verify1_detached_with_metadata, cose_verify1_detached_with_policy,
+    cose_verify1_detached_with_policy_and_external_aad, cose_verify1_with_exact_algorithm,
     cose_verify1_with_metadata, cose_verify1_with_policy,
-    cose_verify1_with_policy_and_external_aad, cose_verify1_with_x5chain, VerifiedCoseSign1,
-    VerifiedCoseSign1WithX5Chain, VerifiedDetachedCoseSign1,
+    cose_verify1_with_policy_and_external_aad, cose_verify1_with_x5chain,
+    cose_verify1_with_x5chain_and_exact_algorithm, VerifiedCoseSign1, VerifiedCoseSign1WithX5Chain,
+    VerifiedDetachedCoseSign1,
 };

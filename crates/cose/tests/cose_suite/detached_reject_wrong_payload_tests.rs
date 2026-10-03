@@ -3,7 +3,7 @@
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use reallyme_cose::{cose_sign1_detached, cose_verify1_detached};
+use reallyme_cose::{cose_sign1_detached, cose_verify1_detached, CoseError};
 
 use super::support::{gen_ed25519, test_kid};
 
@@ -27,7 +27,7 @@ fn cose_detached_rejects_wrong_payload() {
 
     let res = cose_verify1_detached(&cose, &wrong, resolver);
 
-    assert!(res.is_err(), "verification must fail for wrong payload");
+    assert!(matches!(res, Err(CoseError::InvalidSignature)));
 }
 
 #[test]
@@ -50,5 +50,5 @@ fn cose_detached_with_kid_rejects_wrong_payload() {
 
     let res = cose_verify1_detached(&cose, &wrong, resolver);
 
-    assert!(res.is_err(), "verification must fail for wrong payload");
+    assert!(matches!(res, Err(CoseError::InvalidSignature)));
 }

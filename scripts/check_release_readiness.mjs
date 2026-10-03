@@ -83,7 +83,7 @@ assertContains(".github/dependabot.yml", "github-actions:");
 
 const expectedPackageName = "reallyme-cose";
 const expectedProtoPackageName = "reallyme-cose-proto";
-const expectedVersion = "0.2.6";
+const expectedVersion = "0.2.7";
 const expectedDevelopmentRustToolchain = "1.99.0";
 const expectedBufLinuxX86_64Sha256 =
   "8f2986298ad08f0cc1bf999b9797b7c383adf32d7edf0f73d6f1e1a701baeac1";
@@ -132,10 +132,10 @@ const expectedPlatformScope = {
   protobufSwiftMetadataIsPackagingApproval: false,
   wasmRuntimeIsNpmPackagingApproval: false,
 };
-const platformScopePath = "docs/platform-scope-0.2.6.json";
+const platformScopePath = "docs/platform-scope-0.2.7.json";
 const platformScope = readJson(platformScopePath);
 if (!isDeepStrictEqual(platformScope, expectedPlatformScope)) {
-  fail(`${platformScopePath} must exactly match the approved 0.2.6 platform scope`);
+  fail(`${platformScopePath} must exactly match the approved 0.2.7 platform scope`);
 }
 
 const forbiddenPlatformPathPrefixes = [
@@ -166,7 +166,7 @@ for (const trackedFile of loadTrackedFiles()) {
     forbiddenPlatformPaths.has(trackedFile) ||
     forbiddenPlatformManifestNames.has(manifestName)
   ) {
-    fail(`${trackedFile} is outside the approved Rust/protobuf-only 0.2.6 scope`);
+    fail(`${trackedFile} is outside the approved Rust/protobuf-only 0.2.7 scope`);
   }
 }
 
@@ -190,10 +190,10 @@ assertNotMatches(
   /\bcrate-type\s*=\s*\[[^\]]*"(?:cdylib|staticlib)"/su,
   "a platform-native Rust library artifact",
 );
-assertContains("README.md", "## 0.2.6 Platform Scope");
+assertContains("README.md", "## 0.2.7 Platform Scope");
 assertContains(
   "README.md",
-  "The `0.2.6` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
+  "The `0.2.7` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
 );
 
 assertNodeWorkflowJobsPinNode({ nodeVersion: "24" });
@@ -217,13 +217,13 @@ assertContains("crates/cose/Cargo.toml", '"dep:serde"');
 assertContains("crates/cose/Cargo.toml", '"dep:serde_json"');
 assertContains(
   "Cargo.toml",
-  'reallyme-codec = { version = "0.3.0", default-features = false, features = ["base64url", "cbor", "multikey"] }',
+  'reallyme-codec = { version = "0.3.1", default-features = false, features = ["base64url", "cbor", "multikey"] }',
 );
 assertNotContains("Cargo.toml", 'path = "../codec');
 assertContains("crates/proto/Cargo.toml", '"buffa/json"');
 assertContains("crates/cose/src/lib.rs", 'reallyme-cose `wire` requires a runtime lane');
 assertContains("Cargo.toml", 'buffa = { version = "0.9.2", features = ["json"] }');
-assertContains("Cargo.toml", 'rust-version = "1.99"');
+assertContains("Cargo.toml", 'rust-version = "1.96"');
 assertContains("rust-toolchain.toml", `channel = "${expectedDevelopmentRustToolchain}"`);
 assertContains(
   "Cargo.toml",
@@ -336,7 +336,7 @@ assertContains(
 );
 assertContains(
   "README.md",
-  "Every native Sign1 key resolver receives `(expected_algorithm, protected_kid)`.",
+  "The exact-algorithm native verifier variants pass",
 );
 assertContains(
   "crates/cose/src/sign1/verify.rs",
@@ -666,6 +666,7 @@ assertReallyMeProtobufReleasePolicy({
     // public keys and Multikey strings because they are persistent identity
     // correlators even when they are not cryptographic secrets.
     scalarFieldClassifications: [
+      { message: "CoseType", field: "media_type", kind: "string", sensitivity: "public" },
       { message: "CoseX5Chain", field: "certificates_der", kind: "bytes", sensitivity: "public" },
       { message: "CoseMlKemEncryptRequest", field: "recipient_public_key", kind: "bytes", sensitivity: "sensitive" },
       { message: "CoseMlKemEncryptRequest", field: "recipient_kid", kind: "bytes", sensitivity: "sensitive" },
@@ -1134,9 +1135,9 @@ assertNotContains(
 assertContains(".github/workflows/crates-release.yml", 'gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs"');
 assertNotContains(".github/workflows/crates-release.yml", "git push");
 assertContains(".github/workflows/crates-release.yml", "gh release create");
-assertContains(".github/workflows/crates-release.yml", "- raise minimum Rust version to 1.99");
-assertContains(".github/workflows/crates-release.yml", "- update to reallyme/crypto 0.3.11");
-assertContains(".github/workflows/crates-release.yml", "- update to reallyme/codec 0.3.0");
+assertContains(".github/workflows/crates-release.yml", "- minimum Rust version 1.96");
+assertContains(".github/workflows/crates-release.yml", "- update to reallyme/crypto 0.3.12");
+assertContains(".github/workflows/crates-release.yml", "- update to reallyme/codec 0.3.1");
 assertNotContains(".github/workflows/crates-release.yml", "--generate-notes");
 assertContains(".github/workflows/crates-release.yml", "RELEASE_TAG: ${{ steps.release-tag.outputs.tag }}");
 assertNotContains(
@@ -1278,7 +1279,6 @@ assertContains(".github/workflows/rust-ci.yml", "runs-on: ubuntu-24.04");
 assertNotContains(".github/workflows/rust-ci.yml", "runs-on: ubuntu-latest");
 assertContains(".gitignore", "/.release-readiness/");
 assertContains(".gitignore", "/.local-tools/");
-assertContains(".gitignore", "/AGENTS.md");
 assertContains(
   "scripts/install_external_type_checker.sh",
   'upstream_commit="61d284da26e8bbaca386a5b9f34bee30e82aaa0e"',
@@ -1302,13 +1302,13 @@ assertCargoMetadataPolicy({
       dependencies: [
         {
           name: "reallyme-codec",
-          requirement: "^0.3.0",
+          requirement: "^0.3.1",
           source: "registry",
           defaultFeatures: false,
         },
         {
           name: "reallyme-crypto",
-          requirement: "^0.3.11",
+          requirement: "^0.3.12",
           source: "registry",
           defaultFeatures: false,
         },

@@ -5,7 +5,7 @@
 
 use super::support::{gen_ed25519, sample_payload, test_kid};
 
-use reallyme_cose::{cose_sign1, cose_verify1};
+use reallyme_cose::{cose_sign1, cose_verify1, CoseError};
 
 #[test]
 fn cose_rejects_tampered_payload() {
@@ -29,5 +29,8 @@ fn cose_rejects_tampered_payload() {
         }
     };
 
-    assert!(cose_verify1(&tampered, resolver).is_err());
+    assert!(matches!(
+        cose_verify1(&tampered, resolver),
+        Err(CoseError::InvalidSignature)
+    ));
 }

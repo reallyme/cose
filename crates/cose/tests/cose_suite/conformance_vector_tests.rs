@@ -7,14 +7,16 @@ use reallyme_cose::{
     cose_decrypt_ml_kem_with_external_aad, cose_key_from_public_bytes,
     cose_key_from_signature_public_bytes, cose_key_from_slice, cose_key_to_multikey,
     cose_key_to_public_bytes, cose_key_to_vec, cose_verify1, cose_verify1_detached,
+    cose_verify1_with_policy_and_external_aad, cose_verify1_with_x5chain_and_exact_algorithm,
     derive_kid_from_cose_key_public, multikey_to_cose_key, Algorithm,
     CoseContentEncryptionAlgorithm, CoseError, CoseMlKemAlgorithm, CoseMlKemDecryptRequest,
-    CoseMlKemMode, CoseSignatureAlgorithm,
+    CoseMlKemMode, CosePolicy, CoseSignatureAlgorithm, CoseType,
 };
 use serde::Deserialize;
 
 const COSE_SIGN1_VECTORS: &str = include_str!("../../../../vectors/cose-sign1.json");
 const COSE_KEY_VECTORS: &str = include_str!("../../../../vectors/cose-key.json");
+const COSE_KEY_NEGATIVE_VECTORS: &str = include_str!("../../../../vectors/cose-key-negative.json");
 const COSE_PQ_SIGN1_VECTORS: &str = include_str!("../../../../vectors/cose-sign1-pq.json");
 const COSE_PQ_KEY_VECTORS: &str = include_str!("../../../../vectors/cose-key-pq.json");
 const COSE_ML_KEM_ENCRYPT_VECTORS: &str =
@@ -32,6 +34,11 @@ struct ManifestSuite {
     case_count: usize,
 }
 
+#[derive(Debug, Deserialize)]
+struct NegativeCoseKeySuite {
+    cases: Vec<serde_json::Value>,
+}
+
 #[test]
 fn manifest_case_counts_match_suites() {
     let manifest: Manifest = serde_json::from_str(VECTOR_MANIFEST).expect("manifest must parse");
@@ -39,6 +46,8 @@ fn manifest_case_counts_match_suites() {
         serde_json::from_str(COSE_SIGN1_VECTORS).expect("COSE_Sign1 vectors must parse");
     let key: CoseKeySuite =
         serde_json::from_str(COSE_KEY_VECTORS).expect("COSE_Key vectors must parse");
+    let negative_key: NegativeCoseKeySuite = serde_json::from_str(COSE_KEY_NEGATIVE_VECTORS)
+        .expect("negative COSE_Key vectors must parse");
     let pq_sign1: CoseSign1Suite =
         serde_json::from_str(COSE_PQ_SIGN1_VECTORS).expect("PQ COSE_Sign1 vectors must parse");
     let pq_key: CoseKeySuite =
@@ -50,6 +59,7 @@ fn manifest_case_counts_match_suites() {
         let actual = match suite.id.as_str() {
             "cose-sign1" => sign1.cases.len(),
             "cose-key" => key.cases.len(),
+            "cose-key-negative" => negative_key.cases.len(),
             "cose-sign1-pq" => pq_sign1.cases.len(),
             "cose-key-pq" => pq_key.cases.len(),
             "cose-encrypt-ml-kem" => encrypt.cases.len(),
@@ -72,6 +82,9 @@ struct CoseSign1Case {
     kid_hex: String,
     public_key_hex: String,
     payload_hex: String,
+    external_aad_hex: Option<String>,
+    protected_type: Option<String>,
+    x5chain_der_hex: Option<Vec<String>>,
     cose_sign1_hex: String,
     expected_error: Option<String>,
 }
@@ -87,6 +100,8 @@ struct CoseKeyCase {
     algorithm: String,
     public_key_hex: String,
     cose_key_hex: String,
+    #[serde(default)]
+    kid_hex: Option<String>,
     multikey: String,
 }
 
@@ -107,6 +122,7 @@ struct CoseMlKemEncryptCase {
     plaintext_hex: String,
     external_aad_hex: String,
     supp_priv_info_hex: String,
+    supp_priv_info_present: Option<bool>,
     cose_encrypt_hex: String,
 }
 
@@ -120,8 +136,58 @@ fn portable_cose_sign1_vectors_verify() {
         let public_key = decode_hex(&case.public_key_hex);
         let payload = decode_hex(&case.payload_hex);
         let cose = decode_hex(&case.cose_sign1_hex);
+        let external_aad = decode_hex(case.external_aad_hex.as_deref().unwrap_or(""));
 
         let result = match case.operation.as_str() {
+            "verify_x5chain" => {
+                let expected_chain = case
+                    .x5chain_der_hex
+                    .as_ref()
+                    .expect("x5chain vector requires certificates")
+                    .iter()
+                    .map(|certificate| decode_hex(certificate))
+                    .collect::<Vec<_>>();
+                cose_verify1_with_x5chain_and_exact_algorithm(
+                    &cose,
+                    &CosePolicy::new(),
+                    |algorithm, chain| {
+                        (algorithm == CoseSignatureAlgorithm::Ed25519
+                            && chain == expected_chain.as_slice())
+                        .then(|| public_key.clone())
+                    },
+                )
+                .map(|verified| {
+                    assert_eq!(
+                        verified.payload.as_slice(),
+                        payload.as_slice(),
+                        "{}",
+                        case.id
+                    );
+                    assert_eq!(verified.x5chain_der, expected_chain, "{}", case.id);
+                })
+            }
+            "verify_attached"
+                if case.external_aad_hex.is_some() || case.protected_type.is_some() =>
+            {
+                let mut policy = CosePolicy::new();
+                if let Some(cose_type) = &case.protected_type {
+                    policy = policy.with_expected_type(CoseType::Text(cose_type.clone()));
+                }
+                cose_verify1_with_policy_and_external_aad(
+                    &cose,
+                    &external_aad,
+                    &policy,
+                    |_, requested_kid| resolve_expected_kid(requested_kid, &kid, &public_key),
+                )
+                .map(|verified| {
+                    assert_eq!(
+                        verified.payload.as_slice(),
+                        payload.as_slice(),
+                        "{}",
+                        case.id
+                    );
+                })
+            }
             "verify_attached" => cose_verify1(&cose, |_, requested_kid| {
                 resolve_expected_kid(requested_kid, &kid, &public_key)
             })
@@ -194,6 +260,15 @@ fn portable_cose_key_vectors_roundtrip() {
         let cose_key_bytes = decode_hex(&case.cose_key_hex);
 
         let decoded_key = cose_key_from_slice(&cose_key_bytes).expect("COSE_Key must decode");
+        let expected_kid = decode_hex(case.kid_hex.as_deref().expect("classical kid vector"));
+        assert_eq!(
+            derive_kid_from_cose_key_public(&decoded_key)
+                .expect("canonical public key must derive a kid")
+                .as_slice(),
+            expected_kid.as_slice(),
+            "{}",
+            case.id,
+        );
         assert_eq!(
             cose_key_to_public_bytes(&decoded_key).expect("public key must extract"),
             public_key,
@@ -323,6 +398,10 @@ fn deterministic_ml_kem_cose_encrypt_vectors_decrypt_and_preserve_metadata() {
         let plaintext = decode_hex(&case.plaintext_hex);
         let external_aad = decode_hex(&case.external_aad_hex);
         let supp_priv_info = decode_hex(&case.supp_priv_info_hex);
+        let supp_priv_info_ref = case
+            .supp_priv_info_present
+            .unwrap_or(true)
+            .then_some(supp_priv_info.as_slice());
         let cose_encrypt = decode_hex(&case.cose_encrypt_hex);
 
         let public_cose_key = cose_key_from_public_bytes(crypto_algorithm, &public_key)
@@ -337,7 +416,7 @@ fn deterministic_ml_kem_cose_encrypt_vectors_decrypt_and_preserve_metadata() {
         );
 
         let decrypted = cose_decrypt_ml_kem_with_external_aad(
-            &CoseMlKemDecryptRequest::new(&cose_encrypt, &private_key, &kid, Some(&supp_priv_info)),
+            &CoseMlKemDecryptRequest::new(&cose_encrypt, &private_key, &kid, supp_priv_info_ref),
             &external_aad,
         )
         .expect("committed ML-KEM COSE_Encrypt vector must decrypt");

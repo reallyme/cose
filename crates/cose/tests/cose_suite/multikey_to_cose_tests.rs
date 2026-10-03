@@ -3,10 +3,10 @@
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use reallyme_codec::multikey::encode_multikey;
+use reallyme_codec::multikey::{encode_multikey, parse_multikey};
 use reallyme_cose::{
     cose_key_from_public_bytes, cose_key_to_multikey, cose_key_to_public_bytes,
-    multikey_to_cose_key,
+    multikey_to_cose_key, CoseError,
 };
 
 use super::support::{
@@ -106,11 +106,21 @@ fn multikey_to_cose_secp256k1_roundtrip() {
 
 #[test]
 fn multikey_to_cose_rejects_unknown_codec() {
-    let bad = "zThisIsNotAValidMultikey";
+    // A valid Multikey with an unsupported codec must reach algorithm dispatch.
+    let multikey = encode_multikey("rsa-pub", &[0x30, 0x03, 0x02, 0x01, 0x01]).unwrap();
+    assert_eq!(parse_multikey(&multikey).unwrap().codec_name(), "rsa-pub");
+    assert_eq!(
+        multikey_to_cose_key(&multikey).err(),
+        Some(CoseError::UnsupportedAlgorithm)
+    );
+}
 
-    let res = multikey_to_cose_key(bad);
-
-    assert!(res.is_err());
+#[test]
+fn multikey_to_cose_rejects_malformed_multikey() {
+    assert_eq!(
+        multikey_to_cose_key("zThisIsNotAValidMultikey").err(),
+        Some(CoseError::InvalidMultikey)
+    );
 }
 
 #[test]

@@ -14,6 +14,67 @@ use zeroize::Zeroizing;
 
 const PLAINTEXT: &[u8] = b"ReallyMe ML-KEM COSE profile test plaintext";
 const EXTERNAL_AAD: &[u8] = b"authenticated transport metadata";
+const MAX_ENCRYPT_PLAINTEXT_BYTES: usize = 1_048_576;
+const MAX_ENCRYPT_EXTERNAL_AAD_BYTES: usize = 1_048_576;
+
+#[test]
+fn encryption_rejects_plaintext_and_external_aad_above_their_limits() {
+    let (public_key, _, kid) = keypair(CoseMlKemAlgorithm::MlKem512);
+    let oversized_plaintext_len = MAX_ENCRYPT_PLAINTEXT_BYTES
+        .checked_add(1)
+        .expect("test limit fits");
+    let oversized_plaintext = vec![0x5a; oversized_plaintext_len];
+    let request = encrypt_request(
+        CoseMlKemAlgorithm::MlKem512,
+        CoseContentEncryptionAlgorithm::Aes128Gcm,
+        &public_key,
+        &kid,
+        &oversized_plaintext,
+    );
+    assert_eq!(
+        cose_encrypt_ml_kem_direct(&request).map(|_| ()),
+        Err(CoseError::ResourceLimitExceeded),
+    );
+
+    let request = encrypt_request(
+        CoseMlKemAlgorithm::MlKem512,
+        CoseContentEncryptionAlgorithm::Aes128Gcm,
+        &public_key,
+        &kid,
+        PLAINTEXT,
+    );
+    let oversized_external_aad_len = MAX_ENCRYPT_EXTERNAL_AAD_BYTES
+        .checked_add(1)
+        .expect("test limit fits");
+    let oversized_external_aad = vec![0x5a; oversized_external_aad_len];
+    assert_eq!(
+        cose_encrypt_ml_kem_direct_with_external_aad(&request, &oversized_external_aad).map(|_| ()),
+        Err(CoseError::ResourceLimitExceeded),
+    );
+}
+
+#[test]
+fn content_ciphertext_tampering_fails_authentication() {
+    let (public_key, private_key, kid) = keypair(CoseMlKemAlgorithm::MlKem512);
+    let request = encrypt_request(
+        CoseMlKemAlgorithm::MlKem512,
+        CoseContentEncryptionAlgorithm::Aes128Gcm,
+        &public_key,
+        &kid,
+        PLAINTEXT,
+    );
+    let encoded = cose_encrypt_ml_kem_direct(&request).expect("direct encryption");
+    let mut cose = CoseEncrypt::from_tagged_slice(&encoded).expect("tagged COSE_Encrypt");
+    let ciphertext = cose.ciphertext.as_mut().expect("content ciphertext");
+    ciphertext[0] ^= 0x80;
+    let tampered = cose.to_tagged_vec().expect("encode tampered object");
+
+    assert_eq!(
+        cose_decrypt_ml_kem(&decrypt_request(&tampered, &private_key, &kid)).map(|_| ()),
+        Err(CoseError::AuthenticationFailed),
+    );
+}
+
 #[test]
 fn every_direct_kem_and_content_algorithm_round_trips() {
     for kem_algorithm in kem_algorithms() {

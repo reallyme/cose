@@ -29,6 +29,7 @@ const CASE_ID_BYTES: usize = 96;
 const CASE_ID_BYTES_U8: u8 = 96;
 const SIGN1_FILE: &str = "vectors/cose-sign1.json";
 const KEY_FILE: &str = "vectors/cose-key.json";
+const NEGATIVE_KEY_FILE: &str = "vectors/cose-key-negative.json";
 const ML_KEM_ENCRYPT_FILE: &str = "vectors/cose-encrypt-ml-kem.json";
 const MANIFEST_FILE: &str = "vectors/manifest.json";
 

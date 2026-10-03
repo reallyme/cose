@@ -158,6 +158,9 @@ fn sign1_verify_request(data: &[u8], algorithm: CoseSignatureAlgorithm) -> CoseS
         allowed_algorithms: vec![EnumValue::from(algorithm)],
         external_aad: data.to_vec(),
         expected_kid: Vec::new(),
+        require_tagged_sign1: data.first().is_some_and(|byte| byte & 1 == 1),
+        expected_type: buffa::MessageField::none(),
+        public_key_algorithm: EnumValue::from(algorithm),
         __buffa_unknown_fields: Default::default(),
     }
 }
@@ -176,6 +179,9 @@ fn sign1_verify_detached_request(
         allowed_algorithms: vec![EnumValue::from(algorithm)],
         external_aad: data.to_vec(),
         expected_kid: Vec::new(),
+        require_tagged_sign1: data.first().is_some_and(|byte| byte & 1 == 1),
+        expected_type: buffa::MessageField::none(),
+        public_key_algorithm: EnumValue::from(algorithm),
         __buffa_unknown_fields: Default::default(),
     }
 }

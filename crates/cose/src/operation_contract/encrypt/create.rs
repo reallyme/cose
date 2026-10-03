@@ -12,7 +12,9 @@ use crate::encrypt::create::{
 use crate::encrypt::types::{CoseMlKemEncryptInput, CoseMlKemEncryptRequest};
 use crate::failure::CoseFailure;
 use crate::operation_contract::encrypt::result;
-use crate::operation_contract::input::{content_algorithm_from_proto, ml_kem_algorithm_from_proto};
+use crate::operation_contract::input::{
+    content_algorithm_from_proto, ml_kem_algorithm_from_proto, validate_supp_priv_info_flag,
+};
 use crate::operation_contract::map_failure::boundary_error_from_failure;
 use crate::wire::{
     CoseMlKemEncryptRequest as ProtoEncryptRequest, CoseOperationResult, CoseWireResult,
@@ -46,6 +48,7 @@ fn encrypt_result(
     let plaintext = Zeroizing::new(core::mem::take(&mut request.plaintext));
     let external_aad = Zeroizing::new(core::mem::take(&mut request.external_aad));
     let supp_priv_info = Zeroizing::new(core::mem::take(&mut request.supp_priv_info));
+    validate_supp_priv_info_flag(request.has_supp_priv_info, &supp_priv_info)?;
     let native_request = CoseMlKemEncryptRequest::new(
         ml_kem_algorithm_from_proto(request.kem_algorithm)?,
         content_algorithm_from_proto(request.content_algorithm)?,

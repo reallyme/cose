@@ -212,6 +212,14 @@ fn signature_algorithm_is_valid(value: EnumValue<CoseSignatureAlgorithm>) -> boo
 }
 
 fn sign1_metadata_is_valid(result: &crate::wire::CoseSign1VerifyResult) -> bool {
+    if let Some(cose_type) = result.protected_type.as_option() {
+        match cose_type.value.as_ref() {
+            Some(crate::wire::cose_type::Value::MediaType(text))
+                if !text.is_empty() && text.len() <= crate::MAX_COSE_TYPE_TEXT_BYTES => {}
+            Some(crate::wire::cose_type::Value::ContentFormat(_)) => {}
+            _ => return false,
+        }
+    }
     if !signature_algorithm_is_valid(result.algorithm) {
         return false;
     }

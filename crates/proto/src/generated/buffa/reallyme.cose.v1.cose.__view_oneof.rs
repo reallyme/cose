@@ -234,3 +234,12 @@ pub mod cose_operation_result {
         ),
     }
 }
+pub mod cose_type {
+    #[allow(unused_imports)]
+    use super::*;
+    #[derive(Clone, Debug)]
+    pub enum Value<'a> {
+        MediaType(&'a str),
+        ContentFormat(u64),
+    }
+}

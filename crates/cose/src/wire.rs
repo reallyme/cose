@@ -24,16 +24,17 @@ pub mod proto {
 pub use reallyme_cose_proto::generated::proto::reallyme::cose::v1::{
     __buffa::oneof::cose_algorithm_identifier, __buffa::oneof::cose_error as cose_error_proto,
     __buffa::oneof::cose_operation_request, __buffa::oneof::cose_operation_response_v2,
-    __buffa::oneof::cose_operation_result, CoseAlgorithmIdentifier, CoseBackendError,
-    CoseContentEncryptionAlgorithm, CoseEc2PointEncoding, CoseError as CoseErrorProto,
-    CoseErrorReason, CoseKemAlgorithm, CoseKeyAgreementAlgorithm, CoseKeyBytesRequest,
-    CoseKeyBytesResult, CoseKeyFromPrivateBytesRequest, CoseKeyFromPublicBytesRequest,
-    CoseMlKemDecryptRequest, CoseMlKemDecryptResult, CoseMlKemEncryptRequest,
-    CoseMlKemEncryptResult, CoseMlKemMode, CoseMultikeyResult, CoseMultikeyToCoseKeyRequest,
-    CoseOperationRequest, CoseOperationResponseV2, CoseOperationResult, CosePrimitiveError,
-    CoseProviderError, CoseSign1CreateDetachedRequest, CoseSign1CreateRequest,
-    CoseSign1CreateResult, CoseSign1Options, CoseSign1VerifyDetachedRequest,
-    CoseSign1VerifyRequest, CoseSign1VerifyResult, CoseSignatureAlgorithm, CoseX5Chain,
+    __buffa::oneof::cose_operation_result, __buffa::oneof::cose_type, CoseAlgorithmIdentifier,
+    CoseBackendError, CoseContentEncryptionAlgorithm, CoseEc2PointEncoding,
+    CoseError as CoseErrorProto, CoseErrorReason, CoseKemAlgorithm, CoseKeyAgreementAlgorithm,
+    CoseKeyBytesRequest, CoseKeyBytesResult, CoseKeyFromPrivateBytesRequest,
+    CoseKeyFromPublicBytesRequest, CoseMlKemDecryptRequest, CoseMlKemDecryptResult,
+    CoseMlKemEncryptRequest, CoseMlKemEncryptResult, CoseMlKemMode, CoseMultikeyResult,
+    CoseMultikeyToCoseKeyRequest, CoseOperationRequest, CoseOperationResponseV2,
+    CoseOperationResult, CosePrimitiveError, CoseProviderError, CoseSign1CreateDetachedRequest,
+    CoseSign1CreateRequest, CoseSign1CreateResult, CoseSign1Options,
+    CoseSign1VerifyDetachedRequest, CoseSign1VerifyRequest, CoseSign1VerifyResult,
+    CoseSignatureAlgorithm, CoseType, CoseX5Chain,
 };
 
 /// Maximum accepted protobuf message size at the COSE wire boundary.
@@ -98,6 +99,15 @@ pub(crate) fn decode_json<M: serde::de::DeserializeOwned + Message>(
     if bytes.len() > MAX_COSE_PROTO_JSON_BYTES {
         return Err(CoseWireError::primitive_internal(
             CoseErrorReason::CommonResourceLimitExceeded,
+        ));
+    }
+    // Escaped JSON strings make serde_json allocate an unwiped scratch string
+    // before a field deserializer can decide whether that field is secret.
+    // This executable boundary accepts only literal UTF-8 strings, so secret
+    // base64 never passes through that scratch allocation.
+    if bytes.contains(&b'\\') {
+        return Err(CoseWireError::primitive_internal(
+            CoseErrorReason::CommonMalformedJson,
         ));
     }
 
