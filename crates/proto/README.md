@@ -23,7 +23,7 @@ more than one algorithm family. Earlier compact enum values are reserved so an
 old request cannot be silently reinterpreted as a different algorithm.
 
 The source of truth is `proto/reallyme/cose/v1/cose.proto` inside this crate.
-Use Buf 1.72.0 and `protoc-gen-buffa` / `protoc-gen-buffa-packaging` 0.9.2.
+Use Buf 1.73.0 and `protoc-gen-buffa` / `protoc-gen-buffa-packaging` 0.9.2.
 From the repository root, regenerate after changing the schema or hardening pass:
 
 ```sh
