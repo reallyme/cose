@@ -83,7 +83,7 @@ assertContains(".github/dependabot.yml", "github-actions:");
 
 const expectedPackageName = "reallyme-cose";
 const expectedProtoPackageName = "reallyme-cose-proto";
-const expectedVersion = "0.2.5";
+const expectedVersion = "0.2.6";
 const expectedDevelopmentRustToolchain = "1.99.0";
 const expectedBufLinuxX86_64Sha256 =
   "8f2986298ad08f0cc1bf999b9797b7c383adf32d7edf0f73d6f1e1a701baeac1";
@@ -132,10 +132,10 @@ const expectedPlatformScope = {
   protobufSwiftMetadataIsPackagingApproval: false,
   wasmRuntimeIsNpmPackagingApproval: false,
 };
-const platformScopePath = "docs/platform-scope-0.2.5.json";
+const platformScopePath = "docs/platform-scope-0.2.6.json";
 const platformScope = readJson(platformScopePath);
 if (!isDeepStrictEqual(platformScope, expectedPlatformScope)) {
-  fail(`${platformScopePath} must exactly match the approved 0.2.5 platform scope`);
+  fail(`${platformScopePath} must exactly match the approved 0.2.6 platform scope`);
 }
 
 const forbiddenPlatformPathPrefixes = [
@@ -166,7 +166,7 @@ for (const trackedFile of loadTrackedFiles()) {
     forbiddenPlatformPaths.has(trackedFile) ||
     forbiddenPlatformManifestNames.has(manifestName)
   ) {
-    fail(`${trackedFile} is outside the approved Rust/protobuf-only 0.2.5 scope`);
+    fail(`${trackedFile} is outside the approved Rust/protobuf-only 0.2.6 scope`);
   }
 }
 
@@ -190,10 +190,10 @@ assertNotMatches(
   /\bcrate-type\s*=\s*\[[^\]]*"(?:cdylib|staticlib)"/su,
   "a platform-native Rust library artifact",
 );
-assertContains("README.md", "## 0.2.5 Platform Scope");
+assertContains("README.md", "## 0.2.6 Platform Scope");
 assertContains(
   "README.md",
-  "The `0.2.5` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
+  "The `0.2.6` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
 );
 
 assertNodeWorkflowJobsPinNode({ nodeVersion: "24" });
@@ -1134,8 +1134,8 @@ assertNotContains(
 assertContains(".github/workflows/crates-release.yml", 'gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs"');
 assertNotContains(".github/workflows/crates-release.yml", "git push");
 assertContains(".github/workflows/crates-release.yml", "gh release create");
-assertContains(".github/workflows/crates-release.yml", "- update to buffa 0.9.2");
-assertContains(".github/workflows/crates-release.yml", "- update to reallyme/crypto 0.3.10");
+assertContains(".github/workflows/crates-release.yml", "- raise minimum Rust version to 1.99");
+assertContains(".github/workflows/crates-release.yml", "- update to reallyme/crypto 0.3.11");
 assertContains(".github/workflows/crates-release.yml", "- update to reallyme/codec 0.3.0");
 assertNotContains(".github/workflows/crates-release.yml", "--generate-notes");
 assertContains(".github/workflows/crates-release.yml", "RELEASE_TAG: ${{ steps.release-tag.outputs.tag }}");
@@ -1308,7 +1308,7 @@ assertCargoMetadataPolicy({
         },
         {
           name: "reallyme-crypto",
-          requirement: "^0.3.10",
+          requirement: "^0.3.11",
           source: "registry",
           defaultFeatures: false,
         },

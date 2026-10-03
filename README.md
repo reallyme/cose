@@ -35,7 +35,7 @@ return `UnsupportedAlgorithm`; signing and encryption APIs are not exported.
 Enable the `wire` feature only for protobuf operation adapters:
 
 ```toml
-reallyme-cose = { version = "0.2.5", features = ["wire"] }
+reallyme-cose = { version = "0.2.6", features = ["wire"] }
 ```
 
 When default features are disabled, pair `wire` with an explicit runtime lane,
@@ -107,7 +107,7 @@ This example generates its key pair with `reallyme-crypto`, so add that direct
 dependency alongside `reallyme-cose`:
 
 ```toml
-reallyme-crypto = { version = "0.3.10", default-features = false, features = ["native", "dispatch", "ed25519"] }
+reallyme-crypto = { version = "0.3.11", default-features = false, features = ["native", "dispatch", "ed25519"] }
 ```
 
 ```rust
@@ -515,20 +515,20 @@ may opt into larger local limits directly; protobuf callers cannot raise their
 parse policy beyond the message envelope cap. Generated ProtoJSON requests have
 a separate 3 MiB input cap to accommodate base64 and field-name overhead.
 
-## 0.2.5 Platform Scope
+## 0.2.6 Platform Scope
 
-The `0.2.5` release is intentionally Rust and protobuf only. Its publishable
+The `0.2.6` release is intentionally Rust and protobuf only. Its publishable
 artifacts are `reallyme-cose-proto` and `reallyme-cose`; the `native` and `wasm`
 features are Rust runtime lanes, not platform SDK packages.
 
-The `0.2.5` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
+The `0.2.6` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
 native C/JNI, or TypeScript/WASM npm packages. Those package formats are not
 part of this release's compatibility or support contract.
 
 The protobuf `swift_prefix` option is generation metadata, not a published
 Swift package. Likewise, `wasm32-unknown-unknown` is a Rust compilation target,
 not an npm package. The exact artifact scope is recorded in
-[`docs/platform-scope-0.2.5.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.2.5.json).
+[`docs/platform-scope-0.2.6.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.2.6.json).
 
 ## Development Checks
 
@@ -565,7 +565,7 @@ commands and runtime limits are documented in
 [the fuzzing guide](https://github.com/reallyme/cose/blob/main/fuzz/README.md).
 
 Release readiness requires crates.io dependencies for the published ReallyMe
-foundational crates: `reallyme-crypto` `^0.3.10` and `reallyme-codec` `^0.3.0`.
+foundational crates: `reallyme-crypto` `^0.3.11` and `reallyme-codec` `^0.3.0`.
 Local `../crypto` or `../codec` path dependencies are not accepted for release.
 
 The gate also checks operation routing, typed errors, sensitive-buffer ownership,
