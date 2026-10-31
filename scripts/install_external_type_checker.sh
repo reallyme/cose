@@ -34,4 +34,4 @@ if [[ "$actual_commit" != "$upstream_commit" ]]; then
 fi
 git -C "$temporary_root/source" apply --unidiff-zero --check "$patch_path"
 git -C "$temporary_root/source" apply --unidiff-zero "$patch_path"
-cargo +1.99.0 install --locked --force --path "$temporary_root/source" --root "$1"
+cargo +1.99.1 install --locked --force --path "$temporary_root/source" --root "$1"
