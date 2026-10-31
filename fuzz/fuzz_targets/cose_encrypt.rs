@@ -82,7 +82,8 @@ fuzz_target!(|data: &[u8]| {
     // Mutate a valid object so libFuzzer reaches recipient/header/KDF/AEAD
     // rejection paths that uniform random bytes would almost never discover.
     let mut mutated = Zeroizing::new(encoded.to_vec());
-    for mutation in data[plaintext_end..].chunks_exact(2) {
+    let (mutations, _) = data[plaintext_end..].as_chunks::<2>();
+    for mutation in mutations {
         if mutated.is_empty() {
             break;
         }

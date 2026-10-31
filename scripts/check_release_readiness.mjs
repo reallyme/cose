@@ -83,8 +83,8 @@ assertContains(".github/dependabot.yml", "github-actions:");
 
 const expectedPackageName = "reallyme-cose";
 const expectedProtoPackageName = "reallyme-cose-proto";
-const expectedVersion = "0.2.7";
-const expectedDevelopmentRustToolchain = "1.99.0";
+const expectedVersion = "0.2.8";
+const expectedDevelopmentRustToolchain = "1.99.1";
 const expectedBufLinuxX86_64Sha256 =
   "8f2986298ad08f0cc1bf999b9797b7c383adf32d7edf0f73d6f1e1a701baeac1";
 const generatedFreshnessMode = process.argv.includes("--generated-freshness");
@@ -132,10 +132,10 @@ const expectedPlatformScope = {
   protobufSwiftMetadataIsPackagingApproval: false,
   wasmRuntimeIsNpmPackagingApproval: false,
 };
-const platformScopePath = "docs/platform-scope-0.2.7.json";
+const platformScopePath = "docs/platform-scope-0.2.8.json";
 const platformScope = readJson(platformScopePath);
 if (!isDeepStrictEqual(platformScope, expectedPlatformScope)) {
-  fail(`${platformScopePath} must exactly match the approved 0.2.7 platform scope`);
+  fail(`${platformScopePath} must exactly match the approved 0.2.8 platform scope`);
 }
 
 const forbiddenPlatformPathPrefixes = [
@@ -166,7 +166,7 @@ for (const trackedFile of loadTrackedFiles()) {
     forbiddenPlatformPaths.has(trackedFile) ||
     forbiddenPlatformManifestNames.has(manifestName)
   ) {
-    fail(`${trackedFile} is outside the approved Rust/protobuf-only 0.2.7 scope`);
+    fail(`${trackedFile} is outside the approved Rust/protobuf-only 0.2.8 scope`);
   }
 }
 
@@ -190,10 +190,10 @@ assertNotMatches(
   /\bcrate-type\s*=\s*\[[^\]]*"(?:cdylib|staticlib)"/su,
   "a platform-native Rust library artifact",
 );
-assertContains("README.md", "## 0.2.7 Platform Scope");
+assertContains("README.md", "## 0.2.8 Platform Scope");
 assertContains(
   "README.md",
-  "The `0.2.7` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
+  "The `0.2.8` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
 );
 
 assertNodeWorkflowJobsPinNode({ nodeVersion: "24" });
@@ -223,14 +223,14 @@ assertNotContains("Cargo.toml", 'path = "../codec');
 assertContains("crates/proto/Cargo.toml", '"buffa/json"');
 assertContains("crates/cose/src/lib.rs", 'reallyme-cose `wire` requires a runtime lane');
 assertContains("Cargo.toml", 'buffa = { version = "0.9.2", features = ["json"] }');
-assertContains("Cargo.toml", 'rust-version = "1.96"');
+assertContains("Cargo.toml", 'rust-version = "1.99"');
 assertContains("rust-toolchain.toml", `channel = "${expectedDevelopmentRustToolchain}"`);
 assertContains(
   "Cargo.toml",
   `reallyme-cose-proto = { version = "${expectedVersion}", path = "crates/proto", default-features = false }`,
 );
 assertContains("Cargo.toml", 'serde = { version = "1.0.229", features = ["derive"] }');
-assertContains("Cargo.toml", 'serde_json = "1.0.151"');
+assertContains("Cargo.toml", 'serde_json = "1.0.154"');
 assertContains("Cargo.toml", 'allocation-counter = "0.8.1"');
 assertContains("Cargo.toml", 'criterion = "0.8.2"');
 assertContains("crates/cose/Cargo.toml", 'name = "operation_performance"');
@@ -1135,8 +1135,8 @@ assertNotContains(
 assertContains(".github/workflows/crates-release.yml", 'gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs"');
 assertNotContains(".github/workflows/crates-release.yml", "git push");
 assertContains(".github/workflows/crates-release.yml", "gh release create");
-assertContains(".github/workflows/crates-release.yml", "- minimum Rust version 1.96");
-assertContains(".github/workflows/crates-release.yml", "- update to reallyme/crypto 0.3.12");
+assertContains(".github/workflows/crates-release.yml", "- minimum Rust version 1.99");
+assertContains(".github/workflows/crates-release.yml", "- update to reallyme/crypto 0.3.16");
 assertContains(".github/workflows/crates-release.yml", "- update to reallyme/codec 0.3.1");
 assertNotContains(".github/workflows/crates-release.yml", "--generate-notes");
 assertContains(".github/workflows/crates-release.yml", "RELEASE_TAG: ${{ steps.release-tag.outputs.tag }}");
@@ -1308,7 +1308,7 @@ assertCargoMetadataPolicy({
         },
         {
           name: "reallyme-crypto",
-          requirement: "^0.3.12",
+          requirement: "^0.3.16",
           source: "registry",
           defaultFeatures: false,
         },
