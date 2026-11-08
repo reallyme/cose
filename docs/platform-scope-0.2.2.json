@@ -1,6 +1,6 @@
 {
   "schema": "reallyme.cose.platform_scope.v1",
-  "spdxCopyrightText": "2026 ReallyMe LLC",
+  "spdxCopyrightText": "2026 ReallyMe Technologies Limited",
   "release": "0.2.2",
   "immediateScope": "rust_and_protobuf",
   "publishableCrates": [

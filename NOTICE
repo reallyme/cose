@@ -1,10 +1,10 @@
-SPDX-FileCopyrightText: 2026 ReallyMe LLC
+SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
 
 
 ReallyMe COSE
-Copyright © 2026 ReallyMe LLC. All rights reserved.
+Copyright © 2026 ReallyMe Technologies Limited. All rights reserved.
 
-This software is developed by ReallyMe LLC and licensed under either the MIT
+This software is developed by ReallyMe Technologies Limited and licensed under either the MIT
 License or the Apache License, Version 2.0, at your option. See LICENSE.
 
 ReallyMe COSE uses reallyme-crypto, reallyme-codec, and other third-party

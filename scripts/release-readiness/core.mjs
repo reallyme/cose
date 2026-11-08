@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 ReallyMe LLC
+// SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
@@ -11,7 +11,7 @@ import { spawnSync } from "node:child_process";
 // This module is the release package's shared policy core. The public runner
 // supplies this exact immutable module to consumers so release-critical checks
 // cannot drift independently from the pinned package revision.
-export const RELEASE_READINESS_VERSION = "0.6.7";
+export const RELEASE_READINESS_VERSION = "0.6.9";
 
 const DEFAULT_FAILURE_PREFIX = "release readiness check failed";
 const MAX_PRODUCTION_SOURCE_LINES = 500;
@@ -1411,7 +1411,7 @@ export function createReleaseReadinessContext(options) {
       exclusions = [],
       requireExclusionsMatched = false,
       requireExclusionReasons = false,
-      copyright = "SPDX-FileCopyrightText: 2026 ReallyMe LLC",
+      copyright = "SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited",
       license = "SPDX-License-Identifier: MIT OR Apache-2.0",
     } = policy;
     for (const [policyName, values] of [
@@ -2976,6 +2976,8 @@ export function createReleaseReadinessContext(options) {
       forbidSubstantiveFacades = true,
       requireTypedThrows = true,
       forbidConcurrencyEscapeHatches = true,
+      vendoredSources = [],
+      auditedConcurrencyBridges = [],
     } = policy;
     assertBooleanPolicyOptions("Swift", {
       forbidSuppressions,
@@ -2987,6 +2989,70 @@ export function createReleaseReadinessContext(options) {
       forbidConcurrencyEscapeHatches,
     });
     assertLanguageConfigurationPolicy("Swift", configuration);
+    if (!Array.isArray(vendoredSources) || !Array.isArray(auditedConcurrencyBridges)) {
+      fail("Swift vendored sources and audited concurrency bridges must be arrays");
+    }
+    const verifiedExternalPrefixes = [];
+    for (const entry of vendoredSources) {
+      const { path, digest, noticePath } = entry ?? {};
+      if (
+        typeof path !== "string" ||
+        !/(?:^|\/)Vendor\/[A-Za-z0-9_.-]+$/u.test(path) ||
+        typeof digest !== "string" ||
+        !/^[0-9a-f]{64}$/u.test(digest) ||
+        typeof noticePath !== "string" ||
+        verifiedExternalPrefixes.includes(path)
+      ) {
+        fail("Swift vendored source declaration must name a unique Vendor directory and SHA-256 digest");
+      }
+      requireTracked(noticePath);
+      assertContains(noticePath, path.slice(path.lastIndexOf("/") + 1));
+      const snapshot = [...snapshotDirectory(path)].sort(([left], [right]) =>
+        left.localeCompare(right),
+      );
+      if (
+        snapshot.length === 0 ||
+        ![...loadTrackedFiles()].some(
+          (file) => file.endsWith(".swift") && pathIsInside(file, path),
+        )
+      ) {
+        fail(`Swift vendored source ${path} must contain tracked Swift source`);
+      }
+      const observed = createHash("sha256").update(JSON.stringify(snapshot)).digest("hex");
+      if (observed !== digest) {
+        fail(`Swift vendored source ${path} differs from its reviewed tree digest`);
+      }
+      verifiedExternalPrefixes.push(path);
+    }
+    const auditedBridges = new Map();
+    const allowedBridgeTokens = new Set([
+      "@unchecked Sendable",
+      "@preconcurrency import NetworkExtension",
+    ]);
+    for (const entry of auditedConcurrencyBridges) {
+      const { path, digest, reason, tokens } = entry ?? {};
+      if (
+        typeof path !== "string" ||
+        typeof digest !== "string" ||
+        !/^[0-9a-f]{64}$/u.test(digest) ||
+        typeof reason !== "string" ||
+        reason.length < 40 ||
+        !Array.isArray(tokens) ||
+        tokens.length === 0 ||
+        tokens.some((token) => !allowedBridgeTokens.has(token)) ||
+        new Set(tokens).size !== tokens.length ||
+        auditedBridges.has(path) ||
+        /(?:^|\/)(?:Tests|[A-Za-z0-9_-]+Tests)\//u.test(path) ||
+        verifiedExternalPrefixes.some((prefix) => pathIsInside(path, prefix))
+      ) {
+        fail("Swift audited concurrency bridge must name a unique file, exact tokens, and review reason");
+      }
+      requireTracked(path);
+      if (fingerprintFile(path) !== digest) {
+        fail(`Swift audited concurrency bridge ${path} differs from its reviewed file digest`);
+      }
+      auditedBridges.set(path, tokens);
+    }
     const isSwiftTest = (path) =>
       /(?:^|\/)(?:Tests|[A-Za-z0-9_-]+Tests)\//u.test(path);
     const state = createSourcePolicyState({
@@ -2996,9 +3062,14 @@ export function createReleaseReadinessContext(options) {
       isTestPath: isSwiftTest,
       // Package.swift is a build manifest validated through configuration
       // policy, not an implementation module subject to source layout rules.
-      isSourcePath: (path) => !/(?:^|\/)Package\.swift$/u.test(path),
+      isSourcePath: (path) =>
+        !/(?:^|\/)Package\.swift$/u.test(path) &&
+        !verifiedExternalPrefixes.some((prefix) => pathIsInside(path, prefix)),
     });
-    const unsafeOperation = /\b(?:try|as)[ \t]*!|[A-Za-z0-9_)\]}][ \t]*!(?!=)/u;
+    // Swift's prefix negation may follow `if`, `guard`, or `while`. A postfix
+    // force unwrap is adjacent to its operand; checking adjacency preserves
+    // the unsafe-operation gate without rejecting ordinary Boolean conditions.
+    const unsafeOperation = /\b(?:try|as)[ \t]*!|[A-Za-z0-9_)\]}]!(?!=)/u;
     const crashOperation = /\b(?:fatalError|preconditionFailure|assertionFailure)[ \t\n]*\(/u;
     const inlineTest = /\bXCTestCase\b|@[A-Za-z0-9_.]*Test\b|\bfunc[ \t]+test[A-Z_]/u;
     const genericError = /\bthrow[ \t\n]+NSError[ \t\n]*\(|\bResult[ \t\n]*<[^>]+,[ \t\n]*(?:any[ \t\n]+)?Error[ \t\n]*>/u;
@@ -3029,15 +3100,22 @@ export function createReleaseReadinessContext(options) {
       if (!isTest && requireTypedThrows && untypedThrows.test(source)) {
         fail(`${path} must use typed throws or a typed Result`);
       }
-      if (
-        !isTest &&
-        forbidConcurrencyEscapeHatches &&
-        /@unchecked[ \t]+Sendable\b|@preconcurrency\b/u.test(source)
-      ) {
-        fail(`${path} contains a forbidden Swift concurrency escape hatch`);
+      if (!isTest && forbidConcurrencyEscapeHatches) {
+        const observed = [...source.matchAll(/@unchecked[ \t]+Sendable\b|@preconcurrency[ \t]+import[ \t]+NetworkExtension\b|@preconcurrency\b/gu)]
+          .map(([token]) => token.replace(/[ \t]+/gu, " "));
+        const allowed = auditedBridges.get(path) ?? [];
+        if (observed.length !== allowed.length ||
+          observed.some((token) => !allowed.includes(token))) {
+          fail(`${path} contains a forbidden Swift concurrency escape hatch`);
+        }
       }
       if (!isTest && isFacade && forbidSubstantiveFacades && substantiveFacade.test(source)) {
         fail(`${path} must remain a declaration-and-re-export-only Swift facade`);
+      }
+    }
+    for (const path of auditedBridges.keys()) {
+      if (!state.sourceFiles.includes(path)) {
+        fail(`Swift audited concurrency bridge ${path} is not governed source`);
       }
     }
     assertLanguageVerificationPolicy(
@@ -3112,7 +3190,14 @@ export function createReleaseReadinessContext(options) {
           }
         }
       }
-      if (!isTest && forbidGenericErrors && genericError.test(source)) {
+      // A typed domain exception may inherit the platform exception base.
+      // Only its no-argument superclass constructor is exempt; direct generic
+      // exception construction remains forbidden and compilation checks syntax.
+      const sourceWithoutExceptionBases = source.replaceAll(
+        /:[ \t]*(?:Exception|RuntimeException)[ \t]*\([ \t]*\)/gu,
+        ": TypedExceptionBase()",
+      );
+      if (!isTest && forbidGenericErrors && genericError.test(sourceWithoutExceptionBases)) {
         fail(`${path} contains a forbidden generic Kotlin error`);
       }
       if (!isTest && forbidLateinit && /\blateinit\b/u.test(source)) {

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// SPDX-FileCopyrightText: 2026 ReallyMe LLC
+// SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
@@ -48,7 +48,7 @@ assertCargoFuzzWorkflowPolicy({
     { job: "scheduled", name: "Install cargo-fuzz" },
   ],
 });
-assertReallyMeVendoredCorePolicy({ version: "0.6.7" });
+assertReallyMeVendoredCorePolicy({ version: "0.6.9" });
 assertRustSourcePolicy({
   roots: ["."],
   generatedPrefixes: ["crates/proto/src/generated"],
@@ -59,7 +59,7 @@ assertRustSourcePolicy({
 assertSpdxHeaders({
   extensions: [".rs", ".mjs", ".js", ".sh", ".py"],
   names: [],
-  copyright: "SPDX-FileCopyrightText: 2026 ReallyMe LLC",
+  copyright: "SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited",
   license: "SPDX-License-Identifier: MIT OR Apache-2.0",
   excludedPrefixes: ["scripts/release-readiness/core.mjs", "crates/proto/src/generated"],
 });
@@ -83,7 +83,7 @@ assertContains(".github/dependabot.yml", "github-actions:");
 
 const expectedPackageName = "reallyme-cose";
 const expectedProtoPackageName = "reallyme-cose-proto";
-const expectedVersion = "0.2.8";
+const expectedVersion = "0.2.9";
 const expectedDevelopmentRustToolchain = "1.99.1";
 const expectedBufLinuxX86_64Sha256 =
   "8f2986298ad08f0cc1bf999b9797b7c383adf32d7edf0f73d6f1e1a701baeac1";
@@ -117,7 +117,7 @@ printf '%s\\n' "$install_dir" >> "$GITHUB_PATH"
 
 const expectedPlatformScope = {
   schema: "reallyme.cose.platform_scope.v1",
-  spdxCopyrightText: "2026 ReallyMe LLC",
+  spdxCopyrightText: "2026 ReallyMe Technologies Limited",
   release: expectedVersion,
   immediateScope: "rust_and_protobuf",
   publishableCrates: [expectedProtoPackageName, expectedPackageName],
@@ -132,10 +132,10 @@ const expectedPlatformScope = {
   protobufSwiftMetadataIsPackagingApproval: false,
   wasmRuntimeIsNpmPackagingApproval: false,
 };
-const platformScopePath = "docs/platform-scope-0.2.8.json";
+const platformScopePath = "docs/platform-scope-0.2.9.json";
 const platformScope = readJson(platformScopePath);
 if (!isDeepStrictEqual(platformScope, expectedPlatformScope)) {
-  fail(`${platformScopePath} must exactly match the approved 0.2.8 platform scope`);
+  fail(`${platformScopePath} must exactly match the approved 0.2.9 platform scope`);
 }
 
 const forbiddenPlatformPathPrefixes = [
@@ -166,7 +166,7 @@ for (const trackedFile of loadTrackedFiles()) {
     forbiddenPlatformPaths.has(trackedFile) ||
     forbiddenPlatformManifestNames.has(manifestName)
   ) {
-    fail(`${trackedFile} is outside the approved Rust/protobuf-only 0.2.8 scope`);
+    fail(`${trackedFile} is outside the approved Rust/protobuf-only 0.2.9 scope`);
   }
 }
 
@@ -190,10 +190,10 @@ assertNotMatches(
   /\bcrate-type\s*=\s*\[[^\]]*"(?:cdylib|staticlib)"/su,
   "a platform-native Rust library artifact",
 );
-assertContains("README.md", "## 0.2.8 Platform Scope");
+assertContains("README.md", "## 0.2.9 Platform Scope");
 assertContains(
   "README.md",
-  "The `0.2.8` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
+  "The `0.2.9` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
 );
 
 assertNodeWorkflowJobsPinNode({ nodeVersion: "24" });
@@ -217,7 +217,7 @@ assertContains("crates/cose/Cargo.toml", '"dep:serde"');
 assertContains("crates/cose/Cargo.toml", '"dep:serde_json"');
 assertContains(
   "Cargo.toml",
-  'reallyme-codec = { version = "0.3.1", default-features = false, features = ["base64url", "cbor", "multikey"] }',
+  'reallyme-codec = { version = "0.3.2", default-features = false, features = ["base64url", "cbor", "multikey"] }',
 );
 assertNotContains("Cargo.toml", 'path = "../codec');
 assertContains("crates/proto/Cargo.toml", '"buffa/json"');
@@ -1118,7 +1118,7 @@ for (const releaseReadinessWorkflow of [
   assertContains(releaseReadinessWorkflow, "repository: reallyme/release-readiness");
   assertContains(
     releaseReadinessWorkflow,
-    "ref: 5c2da5e5d5795c2c895d0dca0819287ee7101207",
+    "ref: 9cf40c7da1def8a8d809af51789284097c572dd5",
   );
   assertContains(releaseReadinessWorkflow, "persist-credentials: false");
 }
@@ -1136,8 +1136,8 @@ assertContains(".github/workflows/crates-release.yml", 'gh api --method POST "re
 assertNotContains(".github/workflows/crates-release.yml", "git push");
 assertContains(".github/workflows/crates-release.yml", "gh release create");
 assertContains(".github/workflows/crates-release.yml", "- minimum Rust version 1.99");
-assertContains(".github/workflows/crates-release.yml", "- update to reallyme/crypto 0.3.16");
-assertContains(".github/workflows/crates-release.yml", "- update to reallyme/codec 0.3.1");
+assertContains(".github/workflows/crates-release.yml", "- update to reallyme/crypto 0.3.17");
+assertContains(".github/workflows/crates-release.yml", "- update to reallyme/codec 0.3.2");
 assertNotContains(".github/workflows/crates-release.yml", "--generate-notes");
 assertContains(".github/workflows/crates-release.yml", "RELEASE_TAG: ${{ steps.release-tag.outputs.tag }}");
 assertNotContains(
@@ -1262,8 +1262,8 @@ assertContains(
   cratesPackagePreflightWorkflow,
   "node .release-readiness/scripts/run-consumer-check.mjs --release-packages",
 );
-assertContains("scripts/run_pinned_release_readiness.mjs", "5c2da5e5d5795c2c895d0dca0819287ee7101207");
-assertContains("scripts/run_pinned_release_readiness.mjs", "d3434554901ea5438bb0dd64f4f7214b9050e95cd1e3d579cc2992f4c662e85a");
+assertContains("scripts/run_pinned_release_readiness.mjs", "9cf40c7da1def8a8d809af51789284097c572dd5");
+assertContains("scripts/run_pinned_release_readiness.mjs", "c65fd51666d3858f33b9447f7e59aa32fb5fcd63e87465bfd8d7cd463a124452");
 assertContains("scripts/verify_release_source.mjs", "main:refs/remotes/origin/main");
 assertContains("scripts/verify_release_source.mjs", "manifest-version-mismatch");
 assertContains("scripts/verify_release_attestation.mjs", 'value.conclusion !== "success"');
@@ -1302,13 +1302,13 @@ assertCargoMetadataPolicy({
       dependencies: [
         {
           name: "reallyme-codec",
-          requirement: "^0.3.1",
+          requirement: "^0.3.2",
           source: "registry",
           defaultFeatures: false,
         },
         {
           name: "reallyme-crypto",
-          requirement: "^0.3.16",
+          requirement: "^0.3.17",
           source: "registry",
           defaultFeatures: false,
         },
