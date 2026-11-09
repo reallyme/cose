@@ -35,7 +35,7 @@ return `UnsupportedAlgorithm`; signing and encryption APIs are not exported.
 Enable the `wire` feature only for protobuf operation adapters:
 
 ```toml
-reallyme-cose = { version = "0.2.9", features = ["wire"] }
+reallyme-cose = { version = "0.2.10", features = ["wire"] }
 ```
 
 When default features are disabled, pair `wire` with an explicit runtime lane,
@@ -233,11 +233,17 @@ are deliberately not public struct-literal surface. Use
 - RFC 9596 protected `typ` header label 16 with bounded text media types or
   unsigned CoAP Content-Format identifiers. Verified metadata returns the
   authenticated `CoseType` value.
-- Profile-specific signing places a bounded RFC 9360 `x5chain` certificate
-  path in protected header label 33 through `CoseSign1EncodeOptions`. The
-  `cose_verify1_with_x5chain` API returns the signed path after signature
-  verification; callers must validate its certificates and trust chain in the
-  resolver. Ordinary verification rejects this extension.
+- Profile-specific signing carries a bounded RFC 9360 `x5chain` certificate
+  path in header label 33 through `CoseSign1EncodeOptions`. Placement defaults
+  to the protected header. Profiles that require the unprotected header, such
+  as mdoc issuer authentication, select
+  `with_x5chain_header_placement(X5ChainHeaderPlacement::Unprotected)`.
+  The protobuf `x5chain_header_placement` option preserves the protected default
+  when unspecified. Duplicate x5chain labels across either header bucket are
+  rejected. The `cose_verify1_with_x5chain` API verifies the signature using
+  the public key returned by the caller's resolver; that resolver must validate
+  the certificates and trust chain before returning the key. Ordinary
+  verification rejects this extension.
 - Ed25519, ES256 (`-7`), ESP256 (`-9`), ESP384 (`-51`), ESP512 (`-52`),
   ES256K (`-47`), ML-DSA-44, ML-DSA-65, and ML-DSA-87 signing using their
   COSE registrations.
@@ -549,20 +555,20 @@ repeated-message merge semantics; ProtoJSON rejects duplicate fields. Callers
 that require one canonical request encoding should choose one lane and enforce
 it before admission.
 
-## 0.2.9 Platform Scope
+## 0.2.10 Platform Scope
 
-The `0.2.9` release is intentionally Rust and protobuf only. Its publishable
+The `0.2.10` release is intentionally Rust and protobuf only. Its publishable
 artifacts are `reallyme-cose-proto` and `reallyme-cose`; the `native` and `wasm`
 features are Rust runtime lanes, not platform SDK packages.
 
-The `0.2.9` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
+The `0.2.10` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
 native C/JNI, or TypeScript/WASM npm packages. Those package formats are not
 part of this release's compatibility or support contract.
 
 The protobuf `swift_prefix` option is generation metadata, not a published
 Swift package. Likewise, `wasm32-unknown-unknown` is a Rust compilation target,
 not an npm package. The exact artifact scope is recorded in
-[`docs/platform-scope-0.2.9.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.2.9.json).
+[`docs/platform-scope-0.2.10.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.2.10.json).
 
 ## Development Checks
 
