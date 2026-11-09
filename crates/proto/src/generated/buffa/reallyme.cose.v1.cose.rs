@@ -1144,6 +1144,178 @@ impl ::buffa::Enumeration for CoseMlKemMode {
         ]
     }
 }
+/// CoseX5ChainHeaderPlacement selects the RFC 9360 header bucket. Application
+/// profiles choose the bucket; ISO/IEC 18013-5 requires UNPROTECTED.
+#[allow(non_camel_case_types)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[repr(i32)]
+pub enum CoseX5ChainHeaderPlacement {
+    COSE_X5_CHAIN_HEADER_PLACEMENT_UNSPECIFIED = 0i32,
+    COSE_X5_CHAIN_HEADER_PLACEMENT_PROTECTED = 1i32,
+    COSE_X5_CHAIN_HEADER_PLACEMENT_UNPROTECTED = 2i32,
+}
+impl CoseX5ChainHeaderPlacement {
+    ///Idiomatic alias for [`Self::COSE_X5_CHAIN_HEADER_PLACEMENT_UNSPECIFIED`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Unspecified: Self = Self::COSE_X5_CHAIN_HEADER_PLACEMENT_UNSPECIFIED;
+    ///Idiomatic alias for [`Self::COSE_X5_CHAIN_HEADER_PLACEMENT_PROTECTED`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Protected: Self = Self::COSE_X5_CHAIN_HEADER_PLACEMENT_PROTECTED;
+    ///Idiomatic alias for [`Self::COSE_X5_CHAIN_HEADER_PLACEMENT_UNPROTECTED`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Unprotected: Self = Self::COSE_X5_CHAIN_HEADER_PLACEMENT_UNPROTECTED;
+}
+impl ::core::default::Default for CoseX5ChainHeaderPlacement {
+    fn default() -> Self {
+        Self::COSE_X5_CHAIN_HEADER_PLACEMENT_UNSPECIFIED
+    }
+}
+impl ::serde::Serialize for CoseX5ChainHeaderPlacement {
+    fn serialize<S: ::serde::Serializer>(
+        &self,
+        s: S,
+    ) -> ::core::result::Result<S::Ok, S::Error> {
+        s.serialize_str(::buffa::Enumeration::proto_name(self))
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CoseX5ChainHeaderPlacement {
+    fn deserialize<D: ::serde::Deserializer<'de>>(
+        d: D,
+    ) -> ::core::result::Result<Self, D::Error> {
+        struct _V;
+        impl ::serde::de::Visitor<'_> for _V {
+            type Value = CoseX5ChainHeaderPlacement;
+            fn expecting(
+                &self,
+                f: &mut ::core::fmt::Formatter<'_>,
+            ) -> ::core::fmt::Result {
+                f.write_str(
+                    concat!(
+                        "a string, integer, or null for ",
+                        stringify!(CoseX5ChainHeaderPlacement)
+                    ),
+                )
+            }
+            fn visit_str<E: ::serde::de::Error>(
+                self,
+                v: &str,
+            ) -> ::core::result::Result<CoseX5ChainHeaderPlacement, E> {
+                <CoseX5ChainHeaderPlacement as ::buffa::Enumeration>::from_proto_name(v)
+                    .ok_or_else(|| { ::serde::de::Error::unknown_variant(v, &[]) })
+            }
+            fn visit_i64<E: ::serde::de::Error>(
+                self,
+                v: i64,
+            ) -> ::core::result::Result<CoseX5ChainHeaderPlacement, E> {
+                let v32 = i32::try_from(v)
+                    .map_err(|_| {
+                        ::serde::de::Error::custom("enum value out of i32 range")
+                    })?;
+                <CoseX5ChainHeaderPlacement as ::buffa::Enumeration>::from_i32(v32)
+                    .ok_or_else(|| {
+                        ::serde::de::Error::custom("unknown enum value")
+                    })
+            }
+            fn visit_u64<E: ::serde::de::Error>(
+                self,
+                v: u64,
+            ) -> ::core::result::Result<CoseX5ChainHeaderPlacement, E> {
+                let v32 = i32::try_from(v)
+                    .map_err(|_| {
+                        ::serde::de::Error::custom("enum value out of i32 range")
+                    })?;
+                <CoseX5ChainHeaderPlacement as ::buffa::Enumeration>::from_i32(v32)
+                    .ok_or_else(|| {
+                        ::serde::de::Error::custom("unknown enum value")
+                    })
+            }
+            fn visit_unit<E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseX5ChainHeaderPlacement, E> {
+                ::core::result::Result::Ok(::core::default::Default::default())
+            }
+        }
+        d.deserialize_any(_V)
+    }
+}
+impl ::buffa::json_helpers::ProtoElemJson for CoseX5ChainHeaderPlacement {
+    fn serialize_proto_json<S: ::serde::Serializer>(
+        v: &Self,
+        s: S,
+    ) -> ::core::result::Result<S::Ok, S::Error> {
+        ::serde::Serialize::serialize(v, s)
+    }
+    fn deserialize_proto_json<'de, D: ::serde::Deserializer<'de>>(
+        d: D,
+    ) -> ::core::result::Result<Self, D::Error> {
+        <Self as ::serde::Deserialize>::deserialize(d)
+    }
+}
+impl ::buffa::Enumeration for CoseX5ChainHeaderPlacement {
+    fn from_i32(value: i32) -> ::core::option::Option<Self> {
+        match value {
+            0i32 => {
+                ::core::option::Option::Some(
+                    Self::COSE_X5_CHAIN_HEADER_PLACEMENT_UNSPECIFIED,
+                )
+            }
+            1i32 => {
+                ::core::option::Option::Some(
+                    Self::COSE_X5_CHAIN_HEADER_PLACEMENT_PROTECTED,
+                )
+            }
+            2i32 => {
+                ::core::option::Option::Some(
+                    Self::COSE_X5_CHAIN_HEADER_PLACEMENT_UNPROTECTED,
+                )
+            }
+            _ => ::core::option::Option::None,
+        }
+    }
+    fn to_i32(&self) -> i32 {
+        *self as i32
+    }
+    fn proto_name(&self) -> &'static str {
+        match self {
+            Self::COSE_X5_CHAIN_HEADER_PLACEMENT_UNSPECIFIED => {
+                "COSE_X5_CHAIN_HEADER_PLACEMENT_UNSPECIFIED"
+            }
+            Self::COSE_X5_CHAIN_HEADER_PLACEMENT_PROTECTED => {
+                "COSE_X5_CHAIN_HEADER_PLACEMENT_PROTECTED"
+            }
+            Self::COSE_X5_CHAIN_HEADER_PLACEMENT_UNPROTECTED => {
+                "COSE_X5_CHAIN_HEADER_PLACEMENT_UNPROTECTED"
+            }
+        }
+    }
+    fn from_proto_name(name: &str) -> ::core::option::Option<Self> {
+        match name {
+            "COSE_X5_CHAIN_HEADER_PLACEMENT_UNSPECIFIED" => {
+                ::core::option::Option::Some(
+                    Self::COSE_X5_CHAIN_HEADER_PLACEMENT_UNSPECIFIED,
+                )
+            }
+            "COSE_X5_CHAIN_HEADER_PLACEMENT_PROTECTED" => {
+                ::core::option::Option::Some(
+                    Self::COSE_X5_CHAIN_HEADER_PLACEMENT_PROTECTED,
+                )
+            }
+            "COSE_X5_CHAIN_HEADER_PLACEMENT_UNPROTECTED" => {
+                ::core::option::Option::Some(
+                    Self::COSE_X5_CHAIN_HEADER_PLACEMENT_UNPROTECTED,
+                )
+            }
+            _ => ::core::option::Option::None,
+        }
+    }
+    fn values() -> &'static [Self] {
+        &[
+            Self::COSE_X5_CHAIN_HEADER_PLACEMENT_UNSPECIFIED,
+            Self::COSE_X5_CHAIN_HEADER_PLACEMENT_PROTECTED,
+            Self::COSE_X5_CHAIN_HEADER_PLACEMENT_UNPROTECTED,
+        ]
+    }
+}
 /// CoseErrorReason is the component-owned reason-code enum for reallyme/cose.
 /// Values are stable public boundary codes; internal Rust errors must map into
 /// one of these before crossing RPC, SDK, FFI, storage, audit, or telemetry
@@ -6863,7 +7035,7 @@ pub struct CoseSign1Options {
         skip_serializing_if = "::buffa::json_helpers::skip_if::is_zero_u64"
     )]
     pub max_cose_sign1_bytes: u64,
-    /// Optional RFC 9360 x5chain placed in unprotected header label 33.
+    /// Optional RFC 9360 x5chain carried in protected or unprotected label 33.
     ///
     /// Field 3: `x5chain`
     #[serde(
@@ -6871,6 +7043,17 @@ pub struct CoseSign1Options {
         skip_serializing_if = "::buffa::json_helpers::skip_if::is_unset_message_field"
     )]
     pub x5chain: ::buffa::MessageField<CoseX5Chain, ::buffa::Inline<CoseX5Chain>>,
+    /// Header bucket for x5chain. UNSPECIFIED preserves the original wire
+    /// contract and selects PROTECTED when x5chain is present.
+    ///
+    /// Field 4: `x5chain_header_placement`
+    #[serde(
+        rename = "x5chainHeaderPlacement",
+        alias = "x5chain_header_placement",
+        with = "::buffa::json_helpers::proto_enum",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_default_enum_value"
+    )]
+    pub x5chain_header_placement: ::buffa::EnumValue<CoseX5ChainHeaderPlacement>,
     #[serde(skip)]
     #[doc(hidden)]
     pub __buffa_unknown_fields: ::buffa::UnknownFields,
@@ -6881,6 +7064,7 @@ impl ::core::fmt::Debug for CoseSign1Options {
             .field("tag", &self.tag)
             .field("max_cose_sign1_bytes", &self.max_cose_sign1_bytes)
             .field("x5chain", &self.x5chain)
+            .field("x5chain_header_placement", &self.x5chain_header_placement)
             .finish()
     }
 }
@@ -6928,6 +7112,12 @@ impl ::buffa::Message for CoseSign1Options {
                 += 1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64
                     + inner_size as u64;
         }
+        {
+            let val = self.x5chain_header_placement.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
         size += self.__buffa_unknown_fields.encoded_len() as u64;
         ::buffa::saturate_size(size)
     }
@@ -6951,6 +7141,12 @@ impl ::buffa::Message for CoseSign1Options {
                 buf,
             );
             self.x5chain.write_to(__cache, buf);
+        }
+        {
+            let val = self.x5chain_header_placement.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(4u32, val, buf);
+            }
         }
         self.__buffa_unknown_fields.write_to(buf);
     }
@@ -6990,6 +7186,15 @@ impl ::buffa::Message for CoseSign1Options {
                     ctx,
                 )?;
             }
+            4u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::Varint,
+                )?;
+                self.x5chain_header_placement = ::buffa::EnumValue::from(
+                    ::buffa::types::decode_int32(buf)?,
+                );
+            }
             _ => {
                 self.__buffa_unknown_fields
                     .push(::buffa::encoding::decode_unknown_field(tag, buf, ctx)?);
@@ -7001,6 +7206,7 @@ impl ::buffa::Message for CoseSign1Options {
         self.tag = false;
         self.max_cose_sign1_bytes = 0u64;
         self.x5chain = ::buffa::MessageField::none();
+        self.x5chain_header_placement = ::buffa::EnumValue::from(0);
         __reallyme_zeroize_unknown_fields(&mut self.__buffa_unknown_fields);
     }
 }

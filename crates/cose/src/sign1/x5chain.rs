@@ -39,7 +39,7 @@ pub(super) fn validate_x5chain(certificates_der: &[Vec<u8>]) -> Result<(), CoseE
     Ok(())
 }
 
-pub(super) fn protected_x5chain(certificates_der: &[Vec<u8>]) -> Option<(Label, Value)> {
+pub(super) fn x5chain_header(certificates_der: &[Vec<u8>]) -> Option<(Label, Value)> {
     if certificates_der.is_empty() {
         return None;
     }

@@ -48,7 +48,7 @@ assertCargoFuzzWorkflowPolicy({
     { job: "scheduled", name: "Install cargo-fuzz" },
   ],
 });
-assertReallyMeVendoredCorePolicy({ version: "0.6.9" });
+assertReallyMeVendoredCorePolicy({ version: "0.7.0" });
 assertRustSourcePolicy({
   roots: ["."],
   generatedPrefixes: ["crates/proto/src/generated"],
@@ -196,7 +196,7 @@ assertContains(
   "The `0.2.9` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
 );
 
-assertNodeWorkflowJobsPinNode({ nodeVersion: "24" });
+assertNodeWorkflowJobsPinNode({ nodeVersion: "26" });
 
 assertContains("Cargo.toml", 'default-members = ["crates/cose"]');
 assertContains("Cargo.toml", 'members = ["crates/cose", "crates/proto"]');
@@ -1072,7 +1072,7 @@ assertContains(
 assertContains(".github/workflows/crates-release.yml", "uses: actions/checkout@");
 assertContains(".github/workflows/crates-release.yml", "uses: actions/setup-node@");
 assertContains(".github/workflows/crates-release.yml", "uses: Swatinem/rust-cache@");
-assertContains(".github/workflows/crates-release.yml", "node-version: '24'");
+assertContains(".github/workflows/crates-release.yml", "node-version: '26'");
 assertContains(
   ".github/workflows/crates-release.yml",
   "ref: ${{ github.sha }}",
@@ -1118,7 +1118,7 @@ for (const releaseReadinessWorkflow of [
   assertContains(releaseReadinessWorkflow, "repository: reallyme/release-readiness");
   assertContains(
     releaseReadinessWorkflow,
-    "ref: 9cf40c7da1def8a8d809af51789284097c572dd5",
+    "ref: 18a6d91d99837e80f92e41fe04effb0b043d754e",
   );
   assertContains(releaseReadinessWorkflow, "persist-credentials: false");
 }
@@ -1243,7 +1243,7 @@ assertContains(
   cratesPackagePreflightWorkflow,
   "reallyme-cose-crates-preflight-${{ inputs.version }}-${{ github.sha }}",
 );
-assertContains(cratesPackagePreflightWorkflow, "node-version: '24'");
+assertContains(cratesPackagePreflightWorkflow, "node-version: '26'");
 assertContains(
   cratesPackagePreflightWorkflow,
   `BUF_LINUX_X86_64_SHA256: ${expectedBufLinuxX86_64Sha256}`,
@@ -1262,8 +1262,8 @@ assertContains(
   cratesPackagePreflightWorkflow,
   "node .release-readiness/scripts/run-consumer-check.mjs --release-packages",
 );
-assertContains("scripts/run_pinned_release_readiness.mjs", "9cf40c7da1def8a8d809af51789284097c572dd5");
-assertContains("scripts/run_pinned_release_readiness.mjs", "c65fd51666d3858f33b9447f7e59aa32fb5fcd63e87465bfd8d7cd463a124452");
+assertContains("scripts/run_pinned_release_readiness.mjs", "18a6d91d99837e80f92e41fe04effb0b043d754e");
+assertContains("scripts/run_pinned_release_readiness.mjs", "7614b0cbf9e36a4653c2fa9008bee0d1e22542de0e4a08a10e640c836a5c93db");
 assertContains("scripts/verify_release_source.mjs", "main:refs/remotes/origin/main");
 assertContains("scripts/verify_release_source.mjs", "manifest-version-mismatch");
 assertContains("scripts/verify_release_attestation.mjs", 'value.conclusion !== "success"');

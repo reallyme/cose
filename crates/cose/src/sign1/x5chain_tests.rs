@@ -11,7 +11,7 @@ use crate::limits::{
 };
 use crate::CoseError;
 
-use super::x5chain::{decode_x5chain, protected_x5chain, validate_x5chain};
+use super::x5chain::{decode_x5chain, validate_x5chain, x5chain_header};
 
 #[test]
 fn rejects_single_certificate_array() {
@@ -48,14 +48,14 @@ fn enforces_certificate_count_before_copying_on_decode() {
 
 #[test]
 fn encodes_single_certificate_as_bstr() -> Result<(), CoseError> {
-    let value = protected_x5chain(&[vec![1, 2, 3]]).ok_or(CoseError::InvalidFormat)?;
+    let value = x5chain_header(&[vec![1, 2, 3]]).ok_or(CoseError::InvalidFormat)?;
     assert_eq!(value, (coset::Label::Int(33), Value::Bytes(vec![1, 2, 3])));
     Ok(())
 }
 
 #[test]
 fn encodes_certificate_path_as_array() -> Result<(), CoseError> {
-    let value = protected_x5chain(&[vec![1], vec![2]]).ok_or(CoseError::InvalidFormat)?;
+    let value = x5chain_header(&[vec![1], vec![2]]).ok_or(CoseError::InvalidFormat)?;
     assert_eq!(
         value,
         (

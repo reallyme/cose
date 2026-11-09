@@ -11,7 +11,7 @@ import { spawnSync } from "node:child_process";
 // This module is the release package's shared policy core. The public runner
 // supplies this exact immutable module to consumers so release-critical checks
 // cannot drift independently from the pinned package revision.
-export const RELEASE_READINESS_VERSION = "0.6.9";
+export const RELEASE_READINESS_VERSION = "0.7.0";
 
 const DEFAULT_FAILURE_PREFIX = "release readiness check failed";
 const MAX_PRODUCTION_SOURCE_LINES = 500;
@@ -3933,7 +3933,7 @@ cargo install protoc-gen-buffa-packaging --version "$BUFFA_VERSION" --locked`,
       "workflow directory",
     );
     const nodeVersion = workflowOptions.nodeVersion ?? null;
-    const minimumNodeMajor = 24;
+    const minimumNodeMajor = 26;
     const isSupportedNodeVersion = (value) => {
       if (typeof value !== "string") {
         return false;

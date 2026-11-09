@@ -19,12 +19,13 @@ use crate::wire::{
     CoseEc2PointEncoding as WireCoseEc2PointEncoding, CoseErrorReason, CoseKemAlgorithm,
     CoseKeyAgreementAlgorithm, CoseSign1Options,
     CoseSignatureAlgorithm as WireCoseSignatureAlgorithm, CoseType as WireCoseType, CoseWireError,
-    CoseWireResult, MAX_COSE_PROTO_MESSAGE_BYTES,
+    CoseWireResult, CoseX5ChainHeaderPlacement as WireX5ChainHeaderPlacement,
+    MAX_COSE_PROTO_MESSAGE_BYTES,
 };
 use crate::{
     CoseContentEncryptionAlgorithm as NativeCoseContentEncryptionAlgorithm, CoseEc2PointEncoding,
     CoseMlKemAlgorithm as NativeCoseMlKemAlgorithm, CosePolicy, CoseSign1EncodeOptions,
-    CoseType as NativeCoseType,
+    CoseType as NativeCoseType, X5ChainHeaderPlacement,
 };
 
 const MAX_WIRE_ALLOWED_SIGNATURE_ALGORITHMS: usize = 32;
@@ -71,13 +72,25 @@ pub(crate) fn encode_options_from_proto(
         } else {
             Vec::new()
         };
+    let x5chain_header_placement = match options.x5chain_header_placement.as_known() {
+        Some(WireX5ChainHeaderPlacement::Unspecified | WireX5ChainHeaderPlacement::Protected) => {
+            X5ChainHeaderPlacement::Protected
+        }
+        Some(WireX5ChainHeaderPlacement::Unprotected) => X5ChainHeaderPlacement::Unprotected,
+        None => {
+            return Err(CoseWireError::primitive_internal(
+                CoseErrorReason::CommonInvalidParameter,
+            ));
+        }
+    };
     Ok(CoseSign1EncodeOptions::new()
         .with_tag(options.tag)
         .with_max_cose_sign1_bytes(optional_limit_to_usize(
             options.max_cose_sign1_bytes,
             MAX_COSE_SIGN1_BYTES,
         )?)
-        .with_x5chain_der(x5chain_der))
+        .with_x5chain_der(x5chain_der)
+        .with_x5chain_header_placement(x5chain_header_placement))
 }
 
 pub(crate) fn policy_from_parts(

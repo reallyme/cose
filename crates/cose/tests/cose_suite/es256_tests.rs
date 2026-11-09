@@ -10,6 +10,7 @@ use reallyme_cose::{
     cose_sign1_with_signature_algorithm_and_external_aad, cose_verify1_with_exact_algorithm,
     cose_verify1_with_policy, cose_verify1_with_x5chain, derive_kid_from_cose_key_public,
     Algorithm, CoseError, CosePolicy, CoseSign1EncodeOptions, CoseSignatureAlgorithm,
+    X5ChainHeaderPlacement,
 };
 
 use super::support::{gen_p256, test_kid};
@@ -233,9 +234,28 @@ fn x5chain_verification_is_explicit_bounded_and_preserves_exact_es256() {
         Some(CoseError::InvalidSignature),
     );
 
-    let mut unprotected_chain: ciborium::value::Value =
+    let unprotected_chain = cose_sign1_with_signature_algorithm_and_external_aad(
+        CoseSignatureAlgorithm::Es256,
+        b"payload",
+        &keypair.private,
+        None,
+        &[],
+        CoseSign1EncodeOptions::new()
+            .with_x5chain_der(vec![LEAF_CERTIFICATE_DER.to_vec()])
+            .with_x5chain_header_placement(X5ChainHeaderPlacement::Unprotected),
+    )
+    .expect("unprotected x5chain COSE_Sign1 must sign");
+    let verified =
+        cose_verify1_with_x5chain(&unprotected_chain, &policy, |algorithm, certificates| {
+            (algorithm == Algorithm::P256 && certificates == expected_certificates.as_slice())
+                .then(|| keypair.public.clone())
+        })
+        .expect("RFC 9360 unprotected x5chain must verify explicitly");
+    assert_eq!(verified.x5chain_der, expected_certificates);
+
+    let mut duplicate_chain: ciborium::value::Value =
         ciborium::de::from_reader(cose.as_slice()).expect("signed COSE must decode");
-    let unprotected_entries = unprotected_chain
+    let unprotected_entries = duplicate_chain
         .as_array_mut()
         .and_then(|fields| fields.get_mut(1))
         .expect("unprotected header must exist");
@@ -243,15 +263,15 @@ fn x5chain_verification_is_explicit_bounded_and_preserves_exact_es256() {
         ciborium::value::Value::Integer(33_i64.into()),
         ciborium::value::Value::Bytes(LEAF_CERTIFICATE_DER.to_vec()),
     )]);
-    let mut unprotected_bytes = Vec::new();
-    ciborium::ser::into_writer(&unprotected_chain, &mut unprotected_bytes)
+    let mut duplicate_bytes = Vec::new();
+    ciborium::ser::into_writer(&duplicate_chain, &mut duplicate_bytes)
         .expect("test COSE must encode");
     assert_eq!(
-        cose_verify1_with_x5chain(&unprotected_bytes, &policy, |_, _| {
+        cose_verify1_with_x5chain(&duplicate_bytes, &policy, |_, _| {
             Some(keypair.public.clone())
         })
         .err(),
-        Some(CoseError::UnprotectedHeaderNotAllowed),
+        Some(CoseError::DuplicateMapLabel),
     );
 }
 

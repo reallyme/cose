@@ -34,7 +34,7 @@ pub use reallyme_cose_proto::generated::proto::reallyme::cose::v1::{
     CoseOperationResult, CosePrimitiveError, CoseProviderError, CoseSign1CreateDetachedRequest,
     CoseSign1CreateRequest, CoseSign1CreateResult, CoseSign1Options,
     CoseSign1VerifyDetachedRequest, CoseSign1VerifyRequest, CoseSign1VerifyResult,
-    CoseSignatureAlgorithm, CoseType, CoseX5Chain,
+    CoseSignatureAlgorithm, CoseType, CoseX5Chain, CoseX5ChainHeaderPlacement,
 };
 
 /// Maximum accepted protobuf message size at the COSE wire boundary.

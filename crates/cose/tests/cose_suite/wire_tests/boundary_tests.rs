@@ -160,6 +160,7 @@ fn proto_sign1_create_limit_cannot_exceed_wire_message_cap() {
         tag: false,
         max_cose_sign1_bytes: u64::try_from(MAX_COSE_PROTO_MESSAGE_BYTES + 1).unwrap_or(u64::MAX),
         x5chain: buffa::MessageField::none(),
+        x5chain_header_placement: buffa::EnumValue::from(0),
         __buffa_unknown_fields: Default::default(),
     });
 

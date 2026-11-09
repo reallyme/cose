@@ -265,6 +265,14 @@ message CoseX5Chain {
   repeated bytes certificates_der = 1;
 }
 
+// CoseX5ChainHeaderPlacement selects the RFC 9360 header bucket. Application
+// profiles choose the bucket; ISO/IEC 18013-5 requires UNPROTECTED.
+enum CoseX5ChainHeaderPlacement {
+  COSE_X5_CHAIN_HEADER_PLACEMENT_UNSPECIFIED = 0;
+  COSE_X5_CHAIN_HEADER_PLACEMENT_PROTECTED = 1;
+  COSE_X5_CHAIN_HEADER_PLACEMENT_UNPROTECTED = 2;
+}
+
 message CoseSign1Options {
   // Emit the registered COSE_Sign1 root tag (18). False emits the untagged
   // COSE_Sign1 structure used by most byte-level SDK APIs.
@@ -272,8 +280,11 @@ message CoseSign1Options {
   // Optional maximum encoded COSE_Sign1 size. A value of 0 uses the crate
   // default.
   uint64 max_cose_sign1_bytes = 2;
-  // Optional RFC 9360 x5chain placed in unprotected header label 33.
+  // Optional RFC 9360 x5chain carried in protected or unprotected label 33.
   CoseX5Chain x5chain = 3;
+  // Header bucket for x5chain. UNSPECIFIED preserves the original wire
+  // contract and selects PROTECTED when x5chain is present.
+  CoseX5ChainHeaderPlacement x5chain_header_placement = 4;
 }
 
 // CoseSign1CreateRequest signs an attached payload.
