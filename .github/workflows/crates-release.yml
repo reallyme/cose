@@ -187,4 +187,4 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --verify-tag \
             --title "$RELEASE_TAG" \
-            --notes $'- minimum Rust version 1.99\n- update to reallyme/crypto 0.3.17\n- update to reallyme/codec 0.3.2'
+            --notes $'- add configurable protected or unprotected x5chain headers for mdoc issuer authentication\n- carry x5chain placement through protobuf while preserving the protected default and rejecting duplicate labels\n- minimum Rust version 1.99\n- update to reallyme/crypto 0.3.17\n- update to reallyme/codec 0.3.2'

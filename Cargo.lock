@@ -1777,7 +1777,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-cose"
-version = "0.2.9"
+version = "0.2.10"
 dependencies = [
  "allocation-counter",
  "buffa",
@@ -1797,7 +1797,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-cose-proto"
-version = "0.2.9"
+version = "0.2.10"
 dependencies = [
  "base64 0.23.1",
  "buffa",
