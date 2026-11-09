@@ -71,11 +71,13 @@ fn decode_cose_sign1_internal(
     // original CBOR tree and the partially constructed COSE object.
     let mut cose = SensitiveCoseSign1::new(CoseSign1::default());
     let mut x5chain_der = Vec::new();
+    let mut saw_x5chain = false;
     decode_protected_header(
         protected_value,
         &mut cose.inner_mut().protected,
         allow_x5chain,
         &mut x5chain_der,
+        &mut saw_x5chain,
     )?;
     decode_sign1_header(
         unprotected_value,
@@ -83,6 +85,7 @@ fn decode_cose_sign1_internal(
         Sign1HeaderBucket::Unprotected,
         allow_x5chain,
         &mut x5chain_der,
+        &mut saw_x5chain,
     )?;
     cose.inner_mut().payload = match payload_value {
         Value::Bytes(payload) => Some(payload.clone()),
@@ -111,6 +114,7 @@ fn decode_protected_header(
     protected: &mut ProtectedHeader,
     allow_x5chain: bool,
     x5chain_der: &mut Vec<Vec<u8>>,
+    saw_x5chain: &mut bool,
 ) -> Result<(), CoseError> {
     let bytes = match value {
         Value::Bytes(bytes) => bytes,
@@ -128,6 +132,7 @@ fn decode_protected_header(
         Sign1HeaderBucket::Protected,
         allow_x5chain,
         x5chain_der,
+        saw_x5chain,
     )
 }
 
@@ -137,6 +142,7 @@ fn decode_sign1_header(
     bucket: Sign1HeaderBucket,
     allow_x5chain: bool,
     x5chain_der: &mut Vec<Vec<u8>>,
+    saw_x5chain: &mut bool,
 ) -> Result<(), CoseError> {
     let entries = match value {
         Value::Map(entries) => entries,
@@ -144,7 +150,6 @@ fn decode_sign1_header(
     };
     let mut saw_algorithm = false;
     let mut saw_kid = false;
-    let mut saw_x5chain = false;
     let mut saw_type = false;
 
     for (label, value) in entries {
@@ -192,16 +197,13 @@ fn decode_sign1_header(
                 cose_type.to_cbor_value(),
             ));
         } else if label == iana::HeaderParameter::X5Chain as i64 {
-            if saw_x5chain {
-                return Err(CoseError::DuplicateMapLabel);
-            }
-            saw_x5chain = true;
             if !allow_x5chain {
                 return Err(CoseError::InvalidFormat);
             }
-            if matches!(bucket, Sign1HeaderBucket::Unprotected) {
-                return Err(CoseError::UnprotectedHeaderNotAllowed);
+            if *saw_x5chain {
+                return Err(CoseError::DuplicateMapLabel);
             }
+            *saw_x5chain = true;
             *x5chain_der = decode_x5chain(value)?;
         } else {
             // This SDK does not expose processing results for content-type,

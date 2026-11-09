@@ -218,6 +218,7 @@ fn generated_private_key_requests_redact_debug_output() {
             tag: true,
             max_cose_sign1_bytes: 0,
             x5chain: buffa::MessageField::none(),
+            x5chain_header_placement: EnumValue::from(0),
             __buffa_unknown_fields: Default::default(),
         }),
         external_aad: Vec::new(),

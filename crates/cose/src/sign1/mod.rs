@@ -11,6 +11,8 @@ mod convert_signature;
 #[cfg(feature = "cose-crypto")]
 mod cose_type;
 #[cfg(feature = "cose-crypto")]
+mod create_headers;
+#[cfg(feature = "cose-crypto")]
 mod decode;
 #[cfg(feature = "cose-crypto")]
 mod exact;
@@ -43,7 +45,7 @@ pub use sign::{
     cose_sign1, cose_sign1_detached, cose_sign1_detached_tagged, cose_sign1_detached_with_options,
     cose_sign1_detached_with_options_and_external_aad, cose_sign1_detached_with_signer,
     cose_sign1_tagged, cose_sign1_with_options, cose_sign1_with_options_and_external_aad,
-    cose_sign1_with_signer, CoseSign1EncodeOptions,
+    cose_sign1_with_signer, CoseSign1EncodeOptions, X5ChainHeaderPlacement,
 };
 #[cfg(feature = "cose-crypto")]
 pub use verify::{

@@ -2,20 +2,17 @@
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use coset::{CoseSign1, Header, Label, ProtectedHeader, RegisteredLabelWithPrivate};
+use coset::{CoseSign1, ProtectedHeader};
 use reallyme_crypto::core::Algorithm;
-use reallyme_crypto::dispatch::sign;
 
 use crate::failure::CoseFailure;
 use crate::{
     encode_cbor::{encode_cbor_value, encode_protected_header},
-    error::sign_error_from_algorithm_error,
     CoseError,
 };
 
-use super::build_sig_structure::build_sig_structure;
-use super::convert_signature::cose_signature_from_backend;
-use super::cose_type::{CoseType, COSE_TYPE_HEADER_LABEL};
+use super::cose_type::CoseType;
+use super::create_headers::{build_protected_header, build_unprotected_header, sign_payload};
 use super::decode::SensitiveCoseSign1;
 use crate::limits::{
     validate_cose_sign1_bytes_with_limit, validate_detached_payload, MAX_COSE_SIGN1_BYTES,
@@ -23,9 +20,8 @@ use crate::limits::{
 use zeroize::Zeroizing;
 
 use super::provider::CoseSigner;
-use super::types::{CoseSign1CreateInput, CoseSign1SigningSource};
-use super::x5chain::{encode_unprotected_header, protected_x5chain, validate_x5chain};
-use crate::algorithm::CoseSignatureAlgorithm;
+use super::types::CoseSign1CreateInput;
+use super::x5chain::{encode_unprotected_header, validate_x5chain};
 
 #[must_use]
 pub(crate) struct CoseSign1CreateOutput {
@@ -38,10 +34,30 @@ impl CoseSign1CreateOutput {
     }
 }
 
+pub(super) fn encode_signing_protected(
+    protected: &ProtectedHeader,
+) -> Result<Zeroizing<Vec<u8>>, CoseError> {
+    let encoded = encode_protected_header(protected)?;
+    Ok(encoded)
+}
+
 #[derive(Clone, Copy)]
 enum Sign1PayloadMode {
     Attached,
     Detached,
+}
+
+/// Header bucket used for an RFC 9360 `x5chain` certificate path.
+///
+/// RFC 9360 permits either bucket. Application profiles must select the
+/// placement they require; for example, ISO/IEC 18013-5 issuer authentication
+/// requires the unprotected bucket.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum X5ChainHeaderPlacement {
+    /// Include `x5chain` in the integrity-protected header map.
+    Protected,
+    /// Include `x5chain` in the unprotected header map.
+    Unprotected,
 }
 
 /// Encoding controls for COSE_Sign1 signing APIs.
@@ -54,8 +70,11 @@ pub struct CoseSign1EncodeOptions {
     /// Maximum encoded COSE_Sign1 size accepted after signing.
     max_cose_sign1_bytes: usize,
 
-    /// RFC 9360 certificate path placed in protected header label 33.
+    /// RFC 9360 certificate path carried in header label 33.
     x5chain_der: Vec<Vec<u8>>,
+
+    /// Header bucket selected for the RFC 9360 certificate path.
+    x5chain_header_placement: X5ChainHeaderPlacement,
 
     /// RFC 9596 type placed in protected header label 16.
     protected_type: Option<CoseType>,
@@ -74,6 +93,7 @@ impl CoseSign1EncodeOptions {
             tag: false,
             max_cose_sign1_bytes: MAX_COSE_SIGN1_BYTES,
             x5chain_der: Vec::new(),
+            x5chain_header_placement: X5ChainHeaderPlacement::Protected,
             protected_type: None,
         }
     }
@@ -84,6 +104,7 @@ impl CoseSign1EncodeOptions {
             tag: true,
             max_cose_sign1_bytes: MAX_COSE_SIGN1_BYTES,
             x5chain_der: Vec::new(),
+            x5chain_header_placement: X5ChainHeaderPlacement::Protected,
             protected_type: None,
         }
     }
@@ -107,6 +128,12 @@ impl CoseSign1EncodeOptions {
         self.x5chain_der.as_slice()
     }
 
+    /// Return the header bucket selected for the RFC 9360 certificate path.
+    #[must_use]
+    pub const fn x5chain_header_placement(&self) -> X5ChainHeaderPlacement {
+        self.x5chain_header_placement
+    }
+
     /// Return the RFC 9596 protected `typ` value.
     #[must_use]
     pub const fn protected_type(&self) -> Option<&CoseType> {
@@ -128,6 +155,15 @@ impl CoseSign1EncodeOptions {
     /// Configure an RFC 9360 leaf-first DER certificate path.
     pub fn with_x5chain_der(mut self, x5chain_der: Vec<Vec<u8>>) -> Self {
         self.x5chain_der = x5chain_der;
+        self
+    }
+
+    /// Select the header bucket for the RFC 9360 certificate path.
+    pub const fn with_x5chain_header_placement(
+        mut self,
+        placement: X5ChainHeaderPlacement,
+    ) -> Self {
+        self.x5chain_header_placement = placement;
         self
     }
 
@@ -397,8 +433,12 @@ fn create_cose_sign1_impl(
             input.kid,
             input.options.protected_type(),
             input.options.x5chain_der(),
+            input.options.x5chain_header_placement(),
         )?,
-        unprotected: Header::default(),
+        unprotected: build_unprotected_header(
+            input.options.x5chain_der(),
+            input.options.x5chain_header_placement(),
+        ),
         ..Default::default()
     });
     cose.inner_mut().signature = sign_payload(
@@ -413,58 +453,6 @@ fn create_cose_sign1_impl(
         Sign1PayloadMode::Detached => None,
     };
     encode_cose_sign1(core::mem::take(cose.inner_mut()), input.options)
-}
-
-fn build_protected_header(
-    alg: CoseSignatureAlgorithm,
-    kid: Option<&[u8]>,
-    cose_type: Option<&CoseType>,
-    x5chain_der: &[Vec<u8>],
-) -> Result<ProtectedHeader, CoseError> {
-    let cose_alg = alg.to_iana();
-    let mut header = Header {
-        alg: Some(RegisteredLabelWithPrivate::Assigned(cose_alg)),
-        key_id: kid.map(<[u8]>::to_vec).unwrap_or_default(),
-        ..Default::default()
-    };
-    if let Some(cose_type) = cose_type {
-        header.rest.push((
-            Label::Int(COSE_TYPE_HEADER_LABEL),
-            cose_type.to_cbor_value(),
-        ));
-    }
-    if let Some(x5chain) = protected_x5chain(x5chain_der) {
-        // RFC 9360 requires integrity protection of the end-entity
-        // certificate. Protect the entire path to avoid ambiguous identities.
-        header.rest.push(x5chain);
-    }
-
-    Ok(ProtectedHeader {
-        header,
-        original_data: None,
-    })
-}
-
-fn sign_payload(
-    alg: Algorithm,
-    signing_source: CoseSign1SigningSource<'_>,
-    protected: &ProtectedHeader,
-    external_aad: &[u8],
-    payload: &[u8],
-) -> Result<Vec<u8>, CoseError> {
-    let protected_bytes = encode_protected_header(protected)?;
-    let to_sign = build_sig_structure(&protected_bytes, external_aad, payload)?;
-
-    let mut backend_signature = match signing_source {
-        CoseSign1SigningSource::PrivateKey(private_key) => Zeroizing::new(
-            sign(alg, private_key, &to_sign).map_err(sign_error_from_algorithm_error)?,
-        ),
-        CoseSign1SigningSource::Provider(provider) => {
-            provider.sign(&to_sign).map_err(CoseError::from)?
-        }
-    };
-    let signature = core::mem::take(&mut *backend_signature);
-    cose_signature_from_backend(alg, signature)
 }
 
 fn encode_cose_sign1(

@@ -7,7 +7,9 @@
 use ciborium::value::Value;
 use coset::{AsCborValue, CoseSign1};
 
-use super::{build_protected_header, encode_cose_sign1, CoseSign1EncodeOptions};
+use super::{
+    build_protected_header, encode_cose_sign1, CoseSign1EncodeOptions, X5ChainHeaderPlacement,
+};
 use crate::encode_cbor::encode_protected_header;
 use crate::sign1::cose_type::CoseType;
 use crate::CoseSignatureAlgorithm;
@@ -17,9 +19,14 @@ const STATUS_LIST_CWT_MEDIA_TYPE: &str = "application/statuslist+cwt";
 #[test]
 fn status_list_type_uses_draft_protected_header_shape() {
     let cose_type = CoseType::Text(STATUS_LIST_CWT_MEDIA_TYPE.to_owned());
-    let protected =
-        build_protected_header(CoseSignatureAlgorithm::Es256, None, Some(&cose_type), &[])
-            .expect("protected header");
+    let protected = build_protected_header(
+        CoseSignatureAlgorithm::Es256,
+        None,
+        Some(&cose_type),
+        &[],
+        X5ChainHeaderPlacement::Protected,
+    )
+    .expect("protected header");
     let encoded = encode_protected_header(&protected).expect("protected header encoding");
 
     // draft-ietf-oauth-status-list-21 uses a two-entry protected map with
@@ -49,8 +56,14 @@ fn sensitive_sign1_encoder_matches_coset_for_every_supported_registration() {
                     // These synthetic signatures isolate serialization from
                     // provider randomness. Published vectors verify the crypto.
                     let cose = CoseSign1 {
-                        protected: build_protected_header(algorithm, kid, None, &[])
-                            .expect("header"),
+                        protected: build_protected_header(
+                            algorithm,
+                            kid,
+                            None,
+                            &[],
+                            X5ChainHeaderPlacement::Protected,
+                        )
+                        .expect("header"),
                         payload: payload.clone(),
                         signature: vec![0x33; 64],
                         ..Default::default()

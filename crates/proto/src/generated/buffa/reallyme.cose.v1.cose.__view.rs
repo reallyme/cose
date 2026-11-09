@@ -6410,11 +6410,18 @@ pub struct CoseSign1OptionsView<'a> {
     ///
     /// Field 2: `max_cose_sign1_bytes`
     pub max_cose_sign1_bytes: u64,
-    /// Optional RFC 9360 x5chain placed in unprotected header label 33.
+    /// Optional RFC 9360 x5chain carried in protected or unprotected label 33.
     ///
     /// Field 3: `x5chain`
     pub x5chain: ::buffa::MessageFieldView<
         super::super::__buffa::view::CoseX5ChainView<'a>,
+    >,
+    /// Header bucket for x5chain. UNSPECIFIED preserves the original wire
+    /// contract and selects PROTECTED when x5chain is present.
+    ///
+    /// Field 4: `x5chain_header_placement`
+    pub x5chain_header_placement: ::buffa::EnumValue<
+        super::super::CoseX5ChainHeaderPlacement,
     >,
     pub __buffa_unknown_fields: ::buffa::UnknownFieldsView<'a>,
 }
@@ -6483,6 +6490,15 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1OptionsView<'a> {
                     }
                 }
             }
+            4u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::Varint,
+                )?;
+                view.x5chain_header_placement = ::buffa::EnumValue::from(
+                    ::buffa::types::decode_int32(&mut cur)?,
+                );
+            }
             _ => {
                 ::buffa::encoding::skip_field_depth(tag, &mut cur, ctx.depth())?;
                 let span_len = before_tag.len() - cur.len();
@@ -6516,6 +6532,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1OptionsView<'a> {
                 }
                 None => ::buffa::MessageField::none(),
             },
+            x5chain_header_placement: self.x5chain_header_placement,
             __buffa_unknown_fields: self.__buffa_unknown_fields.to_owned()?.into(),
             ..::core::default::Default::default()
         })
@@ -6544,6 +6561,12 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseSign1OptionsView<'a> {
                 += 1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64
                     + inner_size as u64;
         }
+        {
+            let val = self.x5chain_header_placement.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
         size += self.__buffa_unknown_fields.encoded_len() as u64;
         ::buffa::saturate_size(size)
     }
@@ -6568,6 +6591,12 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseSign1OptionsView<'a> {
                 buf,
             );
             self.x5chain.write_to(__cache, buf);
+        }
+        {
+            let val = self.x5chain_header_placement.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(4u32, val, buf);
+            }
         }
         self.__buffa_unknown_fields.write_to(buf);
     }
@@ -6604,6 +6633,15 @@ impl<'__a> ::serde::Serialize for CoseSign1OptionsView<'__a> {
             if let ::core::option::Option::Some(__v) = self.x5chain.as_option() {
                 __map.serialize_entry("x5chain", __v)?;
             }
+        }
+        if !::buffa::json_helpers::skip_if::is_default_enum_value(
+            &self.x5chain_header_placement,
+        ) {
+            __map
+                .serialize_entry(
+                    "x5chainHeaderPlacement",
+                    &self.x5chain_header_placement,
+                )?;
         }
         __map.end()
     }
@@ -6714,7 +6752,7 @@ impl CoseSign1OptionsOwnedView {
     pub fn max_cose_sign1_bytes(&self) -> u64 {
         self.0.reborrow().max_cose_sign1_bytes
     }
-    /// Optional RFC 9360 x5chain placed in unprotected header label 33.
+    /// Optional RFC 9360 x5chain carried in protected or unprotected label 33.
     ///
     /// Field 3: `x5chain`
     #[must_use]
@@ -6722,6 +6760,16 @@ impl CoseSign1OptionsOwnedView {
         &self,
     ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseX5ChainView<'_>> {
         &self.0.reborrow().x5chain
+    }
+    /// Header bucket for x5chain. UNSPECIFIED preserves the original wire
+    /// contract and selects PROTECTED when x5chain is present.
+    ///
+    /// Field 4: `x5chain_header_placement`
+    #[must_use]
+    pub fn x5chain_header_placement(
+        &self,
+    ) -> ::buffa::EnumValue<super::super::CoseX5ChainHeaderPlacement> {
+        self.0.reborrow().x5chain_header_placement
     }
 }
 impl ::core::convert::From<::buffa::OwnedView<CoseSign1OptionsView<'static>>>

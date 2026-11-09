@@ -108,7 +108,7 @@ pub use sign1::{
     cose_verify1_with_policy_and_external_aad, cose_verify1_with_x5chain,
     cose_verify1_with_x5chain_and_exact_algorithm, CoseSign1EncodeOptions, CoseSigner,
     CoseSignerError, CoseType, VerifiedCoseSign1, VerifiedCoseSign1WithX5Chain,
-    VerifiedDetachedCoseSign1, MAX_COSE_TYPE_TEXT_BYTES,
+    VerifiedDetachedCoseSign1, X5ChainHeaderPlacement, MAX_COSE_TYPE_TEXT_BYTES,
 };
 
 /// COSE semantic policy enforcement.
