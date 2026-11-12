@@ -58,6 +58,11 @@ pub(crate) fn validate_cose_key_bytes(bytes: &[u8]) -> Result<(), CoseError> {
 }
 
 #[cfg(feature = "cose-crypto")]
+pub(crate) fn validate_iso_cose_key_bytes(bytes: &[u8]) -> Result<(), CoseError> {
+    validate_cbor_bytes(bytes, MAX_COSE_KEY_BYTES, CborItemRole::CoseIsoKeyTop)
+}
+
+#[cfg(feature = "cose-crypto")]
 pub(crate) fn validate_detached_payload(payload: &[u8]) -> Result<(), CoseError> {
     validate_detached_payload_with_limit(payload, MAX_DETACHED_PAYLOAD_BYTES)
 }

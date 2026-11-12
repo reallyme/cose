@@ -52,6 +52,9 @@ pub(super) fn x5chain_header(certificates_der: &[Vec<u8>]) -> Option<(Label, Val
 }
 
 pub(super) fn decode_x5chain(value: &Value) -> Result<Vec<Vec<u8>>, CoseError> {
+    // Validate the complete borrowed chain before copying any certificate.
+    // A malformed later entry must not strand earlier copies on an error path.
+    validate_x5chain_value(value)?;
     let certificates = match value {
         Value::Bytes(certificate) => {
             validate_certificate_size(certificate)?;
@@ -90,7 +93,36 @@ pub(super) fn decode_x5chain(value: &Value) -> Result<Vec<Vec<u8>>, CoseError> {
     Ok(certificates)
 }
 
-fn validate_certificate_size(certificate: &[u8]) -> Result<(), CoseError> {
+pub(crate) fn validate_x5chain_value(value: &Value) -> Result<(), CoseError> {
+    match value {
+        Value::Bytes(certificate) => validate_certificate_size(certificate),
+        Value::Array(values) => {
+            if values.len() < 2 {
+                return Err(CoseError::InvalidFormat);
+            }
+            if values.len() > MAX_COSE_X5CHAIN_CERTIFICATES {
+                return Err(CoseError::ResourceLimitExceeded);
+            }
+            let mut total = 0_usize;
+            for value in values {
+                let Value::Bytes(certificate) = value else {
+                    return Err(CoseError::InvalidFormat);
+                };
+                validate_certificate_size(certificate)?;
+                total = total
+                    .checked_add(certificate.len())
+                    .ok_or(CoseError::ResourceLimitExceeded)?;
+                if total > MAX_COSE_X5CHAIN_TOTAL_BYTES {
+                    return Err(CoseError::ResourceLimitExceeded);
+                }
+            }
+            Ok(())
+        }
+        _ => Err(CoseError::InvalidFormat),
+    }
+}
+
+pub(crate) fn validate_certificate_size(certificate: &[u8]) -> Result<(), CoseError> {
     if certificate.is_empty() {
         return Err(CoseError::InvalidFormat);
     }

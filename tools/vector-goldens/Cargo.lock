@@ -1478,6 +1478,7 @@ version = "0.2.11"
 dependencies = [
  "ciborium",
  "coset",
+ "half",
  "reallyme-codec",
  "reallyme-crypto",
  "secrecy",

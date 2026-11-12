@@ -66,6 +66,8 @@ pub(super) enum CborItemRole {
     CoseKeyTop,
     CoseKeyValue,
     #[cfg(feature = "cose-crypto")]
+    CoseIsoKeyTop,
+    #[cfg(feature = "cose-crypto")]
     CoseSign1Top,
     #[cfg(feature = "cose-crypto")]
     CoseSign1Body,
@@ -115,6 +117,10 @@ fn parse_cbor_item(
 
     #[cfg(feature = "cose-crypto")]
     if role == CborItemRole::ProtectedHeaderMap && major != CBOR_MAP_MAJOR {
+        return Err(CoseError::InvalidFormat);
+    }
+    #[cfg(feature = "cose-crypto")]
+    if role == CborItemRole::CoseIsoKeyTop && major != CBOR_MAP_MAJOR {
         return Err(CoseError::InvalidFormat);
     }
     #[cfg(feature = "cose-crypto")]
@@ -344,7 +350,9 @@ fn validate_collection_length(role: CborItemRole, major: u8, len: usize) -> Resu
     {
         if matches!(
             role,
-            CborItemRole::ProtectedHeaderMap | CborItemRole::HeaderMap
+            CborItemRole::ProtectedHeaderMap
+                | CborItemRole::HeaderMap
+                | CborItemRole::CoseIsoKeyTop
         ) && major == CBOR_MAP_MAJOR
             && len > MAX_COSE_HEADER_PARAMETERS
         {
@@ -407,6 +415,7 @@ fn protected_header_first_item(role: CborItemRole) -> bool {
         | CborItemRole::CoseRecipient => true,
         #[cfg(feature = "cose-crypto")]
         CborItemRole::CoseRecipientList
+        | CborItemRole::CoseIsoKeyTop
         | CborItemRole::ProtectedHeaderMap
         | CborItemRole::HeaderMap => false,
         CborItemRole::Normal | CborItemRole::CoseKeyTop | CborItemRole::CoseKeyValue => false,

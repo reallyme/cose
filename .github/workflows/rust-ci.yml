@@ -167,6 +167,9 @@ jobs:
       - name: Test COSE_Sign1 in the wasm runtime
         run: wasm-pack test --node crates/cose --no-default-features --features wasm --test test_wasm_sign1
 
+      - name: Test explicit container and ISO contracts in the wasm runtime
+        run: wasm-pack test --node crates/cose --no-default-features --features wasm --lib
+
       - name: Checkout release-readiness runner
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

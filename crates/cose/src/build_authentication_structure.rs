@@ -9,7 +9,6 @@ use crate::CoseError;
 const CBOR_DIRECT_ARGUMENT_MAX: usize = 23;
 const CBOR_ONE_BYTE_ARGUMENT_MAX: usize = 0xff;
 const CBOR_TWO_BYTE_ARGUMENT_MAX: usize = 0xffff;
-const CBOR_FOUR_BYTE_ARGUMENT_MAX: usize = 0xffff_ffff;
 
 /// Domain separation contexts supported by the single-authenticator profiles.
 #[derive(Clone, Copy)]
@@ -65,14 +64,14 @@ fn checked_bstr_size(current: usize, payload_len: usize) -> Option<usize> {
         .checked_add(payload_len)
 }
 
-const fn cbor_length_header_size(length: usize) -> usize {
+fn cbor_length_header_size(length: usize) -> usize {
     if length <= CBOR_DIRECT_ARGUMENT_MAX {
         1
     } else if length <= CBOR_ONE_BYTE_ARGUMENT_MAX {
         2
     } else if length <= CBOR_TWO_BYTE_ARGUMENT_MAX {
         3
-    } else if length <= CBOR_FOUR_BYTE_ARGUMENT_MAX {
+    } else if u32::try_from(length).is_ok() {
         5
     } else {
         9

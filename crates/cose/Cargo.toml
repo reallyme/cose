@@ -60,6 +60,7 @@ cose-crypto = [
 buffa = { workspace = true, optional = true }
 ciborium.workspace = true
 coset.workspace = true
+half.workspace = true
 reallyme-codec.workspace = true
 reallyme-cose-proto = { workspace = true, features = ["generated"], optional = true }
 reallyme-crypto.workspace = true
@@ -71,6 +72,9 @@ zeroize.workspace = true
 
 [dev-dependencies]
 hex = "0.4.3"
+p256.workspace = true
+p384.workspace = true
+p521.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 

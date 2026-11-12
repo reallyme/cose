@@ -69,25 +69,27 @@ pub use error::CoseError;
 mod build_authentication_structure;
 mod encode_cbor;
 mod failure;
-
 #[cfg(test)]
 mod failure_tests;
 
+/// Explicit signed-container, certificate, peer-key and opaque-signing contracts.
+#[cfg(feature = "cose-crypto")]
+pub mod containers;
+/// Explicit ISO/IEC 18013-5:2021 signature verification profile.
+#[cfg(feature = "cose-crypto")]
+pub mod iso18013;
 /// Resource limits shared by COSE byte-boundary APIs.
 pub mod limits;
-
-mod zeroize_coset;
-
 /// Detached COSE_Mac0 authentication with explicitly bound HMAC keys.
 #[cfg(feature = "cose-crypto")]
 pub mod mac0;
+mod zeroize_coset;
 #[cfg(feature = "cose-crypto")]
 pub use mac0::{
     cose_verify_mac0_detached, CoseMac0Error, CoseMac0ErrorReason, CoseMac0Limits,
     CoseMac0VerifyRequest, CoseMacAlgorithm, CoseMacKey, VerifiedDetachedCoseMac0,
 };
 
-// --- COSE_Encrypt ---
 #[cfg(feature = "cose-crypto")]
 pub mod encrypt;
 #[cfg(feature = "cose-crypto")]
@@ -102,7 +104,6 @@ pub use encrypt::{
     REALLYME_COSE_ALG_ML_KEM_768_A192KW, REALLYME_COSE_HEADER_EK,
 };
 
-// --- COSE_Sign1 ---
 pub mod sign1;
 #[cfg(feature = "cose-crypto")]
 pub use sign1::{
@@ -126,7 +127,6 @@ pub use sign1::{
 pub mod policy;
 pub use policy::CosePolicy;
 
-// --- COSE_Key ---
 pub mod key;
 pub use key::{
     cose_key_from_private_bytes, cose_key_from_public_bytes,

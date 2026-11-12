@@ -22,7 +22,7 @@ use crate::limits::validate_cose_key_bytes;
 #[cfg(feature = "cose-crypto")]
 use crate::limits::{
     validate_cose_encrypt_bytes, validate_cose_mac0_bytes, validate_cose_sign1_bytes_with_limit,
-    validate_protected_header_bytes,
+    validate_iso_cose_key_bytes, validate_protected_header_bytes,
 };
 use crate::CoseError;
 
@@ -43,6 +43,12 @@ impl SensitiveCborValue {
 
     pub(crate) fn decode_cose_key(bytes: &[u8]) -> Result<Self, CoseError> {
         validate_cose_key_bytes(bytes)?;
+        Self::decode_validated(bytes)
+    }
+
+    #[cfg(feature = "cose-crypto")]
+    pub(crate) fn decode_iso_cose_key(bytes: &[u8]) -> Result<Self, CoseError> {
+        validate_iso_cose_key_bytes(bytes)?;
         Self::decode_validated(bytes)
     }
 

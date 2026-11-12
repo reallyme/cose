@@ -1545,6 +1545,7 @@ dependencies = [
  "buffa",
  "ciborium",
  "coset",
+ "half",
  "reallyme-codec",
  "reallyme-cose-proto",
  "reallyme-crypto",

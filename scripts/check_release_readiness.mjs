@@ -1387,6 +1387,7 @@ const validationCommands = [
     ],
   ],
   ["cargo", ["run", "--locked", "--manifest-path", "tools/vector-audit/Cargo.toml", "--bin", "reallyme-cose-vector-audit", "--", "."]],
+  ["wasm-pack", ["test", "--node", "crates/cose", "--no-default-features", "--features", "wasm", "--lib"]],
   [
     "cargo",
     ["metadata", "--manifest-path", "fuzz/Cargo.toml", "--locked", "--no-deps", "--format-version", "1"],

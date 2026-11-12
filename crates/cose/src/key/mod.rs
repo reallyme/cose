@@ -18,6 +18,8 @@ pub(crate) mod profile;
 #[cfg(feature = "cose-crypto")]
 mod reject_weak_public_key;
 mod validate_material;
+#[cfg(feature = "cose-crypto")]
+pub(crate) use validate_material::validate_public_key;
 
 pub use derive_kid::derive_kid_from_cose_key_public;
 #[cfg(feature = "cose-crypto")]

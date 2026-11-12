@@ -71,6 +71,8 @@ jobs:
         target:
           - cose_sign1
           - cose_mac0
+          - cose_iso18013
+          - cose_containers
           - cose_key
           - multikey_to_cose
           - wire

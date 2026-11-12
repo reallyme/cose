@@ -109,7 +109,7 @@ pub(crate) fn backend_signature_from_cose(
     }
 }
 
-fn der_to_fixed_width(der: &[u8], coordinate_len: usize) -> Result<Vec<u8>, CoseError> {
+pub(crate) fn der_to_fixed_width(der: &[u8], coordinate_len: usize) -> Result<Vec<u8>, CoseError> {
     let sequence_tag = *der.first().ok_or(CoseError::InvalidSignatureEncoding)?;
     if sequence_tag != DER_SEQUENCE_TAG {
         return Err(CoseError::InvalidSignatureEncoding);
@@ -132,7 +132,11 @@ fn der_to_fixed_width(der: &[u8], coordinate_len: usize) -> Result<Vec<u8>, Cose
     let signature_len = coordinate_len
         .checked_mul(2)
         .ok_or(CoseError::InvalidSignature)?;
-    let mut fixed = vec![0_u8; signature_len];
+    let mut fixed = Zeroizing::new(Vec::new());
+    fixed
+        .try_reserve_exact(signature_len)
+        .map_err(|_| CoseError::ResourceLimitExceeded)?;
+    fixed.resize(signature_len, 0);
     let r_start = coordinate_len
         .checked_sub(r.len())
         .ok_or(CoseError::InvalidSignature)?;
@@ -151,10 +155,13 @@ fn der_to_fixed_width(der: &[u8], coordinate_len: usize) -> Result<Vec<u8>, Cose
         .ok_or(CoseError::InvalidSignature)?
         .copy_from_slice(s);
 
-    Ok(fixed)
+    Ok(core::mem::take(&mut *fixed))
 }
 
-fn fixed_width_to_der(signature: &[u8], coordinate_len: usize) -> Result<Vec<u8>, CoseError> {
+pub(crate) fn fixed_width_to_der(
+    signature: &[u8],
+    coordinate_len: usize,
+) -> Result<Vec<u8>, CoseError> {
     let expected_len = coordinate_len
         .checked_mul(2)
         .ok_or(CoseError::InvalidSignature)?;
@@ -179,11 +186,12 @@ fn fixed_width_to_der(signature: &[u8], coordinate_len: usize) -> Result<Vec<u8>
         return Err(CoseError::InvalidSignature);
     }
 
-    let mut der = Vec::with_capacity(
-        content_len
-            .checked_add(3)
-            .ok_or(CoseError::InvalidSignature)?,
-    );
+    let capacity = content_len
+        .checked_add(3)
+        .ok_or(CoseError::InvalidSignature)?;
+    let mut der = Zeroizing::new(Vec::new());
+    der.try_reserve_exact(capacity)
+        .map_err(|_| CoseError::ResourceLimitExceeded)?;
     der.push(DER_SEQUENCE_TAG);
     if content_len > DER_SHORT_FORM_LENGTH_MAX {
         der.push(DER_LONG_FORM_LENGTH_ONE_BYTE);
@@ -193,7 +201,7 @@ fn fixed_width_to_der(signature: &[u8], coordinate_len: usize) -> Result<Vec<u8>
     write_der_integer(&mut der, r)?;
     write_der_integer(&mut der, s)?;
 
-    Ok(der)
+    Ok(core::mem::take(&mut *der))
 }
 
 fn read_der_length(bytes: &[u8], offset: usize) -> Result<(usize, usize), CoseError> {

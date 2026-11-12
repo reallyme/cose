@@ -44,6 +44,18 @@ for example `features = ["native", "wire"]` for native Rust or
 The `wire` feature is intentionally non-additive: enabling `wire` alone fails
 closed because operation adapters must never compile without a selected runtime.
 
+## Explicit signed-container contracts
+
+The `containers` Rust module adds explicit ISO 2021, pinned edition-2 DIS and
+strict RFC 9360 contracts: certificate headers and protected SHA-256 x5t,
+issuer/device/reader and ReaderAuthAll content, signed revocation/VICAL/RICAL
+containers, original peer-key representations, and opaque signing capabilities.
+It preserves exact authenticated bytes and distinct wire registrations. Trust,
+payload schemas, protocol negotiation and HPKE remain external boundaries.
+See the [clause/API/test and provider matrix](https://github.com/reallyme/cose/blob/main/docs/signed-container-contracts.md)
+for source baselines, feature recipes, validation and remaining provider gaps.
+These working-tree additions are not a claim of complete reader conformance.
+
 ## Workspace Layout
 
 The repository follows the same workspace conventions as ReallyMe Crypto and
@@ -314,6 +326,27 @@ COSE_Key yields `MissingKeyMaterial`. A provider's `InvalidMessage` report is
 treated as an operational crypto failure because the COSE layer constructed
 the bounded message supplied to that provider.
 
+## ISO/IEC 18013-5:2021 Signature Verification
+
+The explicit `iso18013` module verifies original ES256 (`-7`), ES384 (`-35`),
+ES512 (`-36`), and EdDSA (`-8`) registrations with named key curves. It keeps
+the modern defaults and exact-registration types unchanged. Each request
+requires an exact algorithm/curve allowlist, a trusted verifier, and an issuer,
+device, or reader content mode. Issuer content is attached; device and reader
+content is detached. External AAD is always empty and protected bytes are
+preserved exactly.
+
+The built-in `Iso18013CryptoVerifier` executes ES256/P-256, ES384/P-384,
+ES512/P-521, and EdDSA/Ed25519 in native and WASM. Other compatible pairs,
+including brainpool and Ed448, fail with `ProviderUnavailable` until a matching
+production provider is supplied through `Iso18013Verifier`. Registration and
+curve recognition do not imply complete ISO reader coverage. Production crypto
+operations remain owned by `reallyme-crypto`.
+
+See the [ISO signature profile and provider matrix](https://github.com/reallyme/cose/blob/main/docs/iso18013-signature-profile.md)
+for key import, exact byte preservation, provider integration, errors, limits,
+independent vectors, and the separate format, trust, and reader responsibilities.
+
 ## Detached COSE_Mac0 Verification
 
 `cose_verify_mac0_detached` implements RFC 9052 §§6.2–6.3 for HMAC 256/64
@@ -567,11 +600,12 @@ The following structures and features are not implemented:
 - COSE_Sign multi-signer structures.
 - Countersignatures.
 - Critical protected headers outside the detached Mac0 profile described above.
-- COSE_Sign1 content-type and extension headers other than RFC 9596 `typ`,
+- Modern COSE_Sign1 content-type and extension headers other than RFC 9596 `typ`,
   because the verified-result API does not expose processing results for those
   semantics.
-- Integrity-sensitive fields in unprotected headers. Sign1 requires protected
-  `alg` and `kid`; Mac0 permits an unprotected `kid` hint without trusting it.
+- Integrity-sensitive fields in unprotected headers. Modern Sign1 requires
+  protected `alg` and `kid`; ISO Sign1 and Mac0 permit an unprotected `kid` hint
+  without trusting it.
 - Indefinite-length CBOR at public byte boundaries.
 - Floating-point COSE_Key extension values. They are rejected rather than
   accepted without full RFC 8949 preferred-width and canonical-NaN validation.

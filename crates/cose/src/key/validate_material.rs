@@ -99,22 +99,19 @@ pub(crate) fn validate_public_key(
         return Ok(());
     }
 
-    let mut signature = match algorithm {
-        Algorithm::Ed25519 => Zeroizing::new(vec![0u8; ED25519_VALIDATION_SIGNATURE_BYTES]),
-        Algorithm::P256 | Algorithm::P384 | Algorithm::P521 => {
-            Zeroizing::new(ECDSA_VALIDATION_SIGNATURE_DER.to_vec())
-        }
+    let signature: &[u8] = match algorithm {
+        Algorithm::Ed25519 => &[0u8; ED25519_VALIDATION_SIGNATURE_BYTES],
+        Algorithm::P256 | Algorithm::P384 | Algorithm::P521 => ECDSA_VALIDATION_SIGNATURE_DER,
         // The secp256k1 backend accepts compact r||s, unlike the NIST-curve
         // backends' DER input. A correctly shaped dummy reaches public-key
         // parsing before failing signature validation.
-        Algorithm::Secp256k1 => Zeroizing::new(vec![0u8; SECP256K1_VALIDATION_SIGNATURE_BYTES]),
-        Algorithm::MlDsa44 => Zeroizing::new(vec![0u8; ML_DSA_44_SIGNATURE_BYTES]),
-        Algorithm::MlDsa65 => Zeroizing::new(vec![0u8; ML_DSA_65_SIGNATURE_BYTES]),
-        Algorithm::MlDsa87 => Zeroizing::new(vec![0u8; ML_DSA_87_SIGNATURE_BYTES]),
+        Algorithm::Secp256k1 => &[0u8; SECP256K1_VALIDATION_SIGNATURE_BYTES],
+        Algorithm::MlDsa44 => &[0u8; ML_DSA_44_SIGNATURE_BYTES],
+        Algorithm::MlDsa65 => &[0u8; ML_DSA_65_SIGNATURE_BYTES],
+        Algorithm::MlDsa87 => &[0u8; ML_DSA_87_SIGNATURE_BYTES],
         _ => return Err(CoseError::UnsupportedAlgorithm),
     };
-    let result = verify(algorithm, public_key, KEY_VALIDATION_MESSAGE, &signature);
-    signature.zeroize();
+    let result = verify(algorithm, public_key, KEY_VALIDATION_MESSAGE, signature);
     match result {
         Ok(()) => Ok(()),
         Err(error) => match verify_error_from_algorithm_error(error) {

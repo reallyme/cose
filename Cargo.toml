@@ -14,12 +14,17 @@ publish = false
 # One reviewed version requirement governs each external dependency across the
 # workspace. Crate-local manifests retain only feature and optionality policy.
 [workspace.dependencies]
+half = { version = "2.7.1", default-features = false }
 allocation-counter = "0.8.1"
 base64 = "0.23.1"
 buffa = { version = "0.9.2", features = ["json"] }
 ciborium = "=0.2.2"
 coset = "0.4.2"
 criterion = "0.8.2"
+# Independent ISO provider-contract tests only; production primitives use reallyme-crypto.
+p256 = { version = "0.14.0", default-features = false, features = ["ecdsa"] }
+p384 = { version = "0.14.0", default-features = false, features = ["ecdsa"] }
+p521 = { version = "0.14.0", default-features = false, features = ["ecdsa"] }
 reallyme-codec = { version = "0.3.2", default-features = false, features = ["base64url", "cbor", "multikey"] }
 reallyme-cose-proto = { version = "0.2.11", path = "crates/proto", default-features = false }
 reallyme-crypto = { version = "0.3.17", default-features = false }

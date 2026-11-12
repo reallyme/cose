@@ -13,6 +13,19 @@ use crate::CoseError;
 
 use super::x5chain::{decode_x5chain, validate_x5chain, x5chain_header};
 
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn malformed_late_certificate_is_rejected_without_copying_earlier_certificates() {
+    let chain = Value::Array(vec![
+        Value::Bytes(vec![1; MAX_COSE_X5CHAIN_CERTIFICATE_BYTES]),
+        Value::Null,
+    ]);
+    let allocation = allocation_counter::measure(|| {
+        assert_eq!(decode_x5chain(&chain), Err(CoseError::InvalidFormat));
+    });
+    assert_eq!(allocation.count_total, 0);
+}
+
 #[test]
 fn rejects_single_certificate_array() {
     assert_eq!(

@@ -21,6 +21,13 @@ serde_json = "1.0.154"
 zeroize = "1.9.1"
 
 [[bin]]
+name = "cose_iso18013"
+path = "fuzz_targets/cose_iso18013.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
 name = "cose_mac0"
 path = "fuzz_targets/cose_mac0.rs"
 test = false
@@ -58,6 +65,13 @@ bench = false
 [[bin]]
 name = "cose_encrypt"
 path = "fuzz_targets/cose_encrypt.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "cose_containers"
+path = "fuzz_targets/cose_containers.rs"
 test = false
 doc = false
 bench = false

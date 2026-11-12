@@ -26,6 +26,12 @@ pub(crate) mod types;
 pub(crate) mod verify;
 #[cfg(feature = "cose-crypto")]
 mod x5chain;
+#[cfg(feature = "cose-crypto")]
+pub(crate) use convert_signature::{
+    backend_signature_from_cose, der_to_fixed_width, fixed_width_to_der,
+};
+#[cfg(feature = "cose-crypto")]
+pub(crate) use x5chain::{validate_certificate_size, validate_x5chain_value};
 #[cfg(test)]
 #[cfg(feature = "cose-crypto")]
 mod x5chain_tests;
