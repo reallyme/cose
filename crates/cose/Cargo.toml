@@ -1,6 +1,6 @@
 [package]
 name = "reallyme-cose"
-version = "0.2.10"
+version = "0.2.11"
 description = "Strict COSE helpers for ReallyMe identity software."
 edition.workspace = true
 rust-version.workspace = true
@@ -33,12 +33,14 @@ wire = [
     "dep:serde_json",
 ]
 cose-crypto = [
+    "dep:secrecy",
     "reallyme-crypto/dispatch",
     "reallyme-crypto/aes",
     "reallyme-crypto/aes-kw",
     "reallyme-crypto/csprng",
     "reallyme-crypto/constant-time",
     "reallyme-crypto/ed25519",
+    "reallyme-crypto/hmac",
     "reallyme-crypto/kmac",
     "reallyme-crypto/ml-kem-512",
     "reallyme-crypto/ml-kem-768",
@@ -61,6 +63,7 @@ coset.workspace = true
 reallyme-codec.workspace = true
 reallyme-cose-proto = { workspace = true, features = ["generated"], optional = true }
 reallyme-crypto.workspace = true
+secrecy = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }
 thiserror.workspace = true

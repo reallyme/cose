@@ -5,6 +5,8 @@ SDKs and applications pass untrusted input to.
 
 ## Targets
 
+- `cose_mac0`: detached COSE_Mac0 parsing, protected headers, explicit AAD,
+  algorithm/key binding, and HMAC verification for registrations 4–7.
 - `cose_sign1`: attached and detached COSE_Sign1 verification parsing, policy,
   resource-limit, and malformed-CBOR rejection.
 - `cose_key`: COSE_Key decode, canonical re-encode, public/private extraction,
@@ -25,6 +27,7 @@ cargo install cargo-fuzz --version 0.13.2 --locked
 rustup toolchain install nightly-2026-09-15 --profile minimal
 cargo +nightly-2026-09-15 fuzz build
 cargo +nightly-2026-09-15 fuzz run cose_sign1 -- -max_total_time=900 -rss_limit_mb=4096
+cargo +nightly-2026-09-15 fuzz run cose_mac0 -- -max_total_time=900 -rss_limit_mb=4096
 cargo +nightly-2026-09-15 fuzz run cose_key -- -max_total_time=900 -rss_limit_mb=4096
 cargo +nightly-2026-09-15 fuzz run multikey_to_cose -- -max_total_time=900 -rss_limit_mb=4096
 cargo +nightly-2026-09-15 fuzz run wire -- -max_total_time=900 -rss_limit_mb=4096

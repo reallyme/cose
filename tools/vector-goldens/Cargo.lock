@@ -1474,12 +1474,13 @@ dependencies = [
 
 [[package]]
 name = "reallyme-cose"
-version = "0.2.10"
+version = "0.2.11"
 dependencies = [
  "ciborium",
  "coset",
  "reallyme-codec",
  "reallyme-crypto",
+ "secrecy",
  "thiserror",
  "zeroize",
 ]

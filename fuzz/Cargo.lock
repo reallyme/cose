@@ -1540,7 +1540,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-cose"
-version = "0.2.10"
+version = "0.2.11"
 dependencies = [
  "buffa",
  "ciborium",
@@ -1548,6 +1548,7 @@ dependencies = [
  "reallyme-codec",
  "reallyme-cose-proto",
  "reallyme-crypto",
+ "secrecy",
  "serde",
  "serde_json",
  "thiserror",
@@ -1568,7 +1569,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-cose-proto"
-version = "0.2.10"
+version = "0.2.11"
 dependencies = [
  "base64 0.23.1",
  "buffa",
