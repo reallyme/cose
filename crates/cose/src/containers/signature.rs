@@ -22,6 +22,18 @@ pub enum SignatureEncoding {
     EdDsa,
 }
 
+impl SignatureEncoding {
+    pub(super) fn validate_family(
+        self,
+        curve: Iso18013SignatureCurve,
+    ) -> Result<(), ContainerError> {
+        match (curve.coordinate_length().is_some(), self) {
+            (true, Self::EcdsaDer | Self::EcdsaFixed) | (false, Self::EdDsa) => Ok(()),
+            _ => Err(Reason::SignatureEncoding.into()),
+        }
+    }
+}
+
 /// Validate exact COSE signature width and ECDSA scalars 1 <= r,s < n.
 ///
 /// No blanket low-S policy is applied. Edwards canonicality and subgroup checks

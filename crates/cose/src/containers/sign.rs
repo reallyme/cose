@@ -100,6 +100,16 @@ pub fn sign_container(
     if !request.allowed_suites.contains(&suite) {
         return Err(Reason::Algorithm.into());
     }
+    let encoded_bytes = super::measure_envelope::measure_envelope(
+        request.protected_headers.len(),
+        request.unprotected_headers.len(),
+        attached.then_some(payload.len()),
+        suite.curve().signature_length()?,
+        tagged,
+    )?;
+    if encoded_bytes > limit {
+        return Err(Reason::Limit.into());
+    }
     request
         .policy
         .check(suite, attached, tagged, request.external_aad)?;
@@ -119,23 +129,27 @@ pub fn sign_container(
     if attached && request.policy.profile != super::ContainerProfile::Rfc9360 {
         super::validate_preferred_cbor(payload)?;
     }
+    let encoding = signer.signature_encoding();
+    encoding.validate_family(suite.curve())?;
+    let mode = signer.input_mode();
+    if let SigningMode::EcdsaPrehash(selected) = mode {
+        if suite.primitive_suite()?.algorithm().ecdsa_hash() != Some(selected) {
+            return Err(Reason::SigningInput.into());
+        }
+    }
+    // Reserve the bounded result before any hardware signing operation. A
+    // request that cannot be emitted must not consume a signing authorization.
+    let mut output = Zeroizing::new(Vec::new());
+    reserve(&mut output, encoded_bytes)?;
     let structure = build_authentication_structure(
         AuthenticationContext::Signature1,
         request.protected_headers,
         request.external_aad,
         payload,
     )?;
-    let produced = match signer.input_mode() {
+    let produced = match mode {
         SigningMode::Message => signer.sign(SigningInput::Message(&structure))?,
         SigningMode::EcdsaPrehash(selected) => {
-            let expected = suite
-                .primitive_suite()?
-                .algorithm()
-                .ecdsa_hash()
-                .ok_or(Reason::SigningInput)?;
-            if selected != expected {
-                return Err(Reason::SigningInput.into());
-            }
             let digest = hash_structure(selected, &structure)?;
             signer.sign(SigningInput::EcdsaPrehash {
                 hash: selected,
@@ -143,10 +157,8 @@ pub fn sign_container(
             })?
         }
     };
-    let signature =
-        super::signature_to_cose(suite.curve(), signer.signature_encoding(), &produced)?;
+    let signature = super::signature_to_cose(suite.curve(), encoding, &produced)?;
     key.verify(&structure, &signature)?;
-    let mut output = Zeroizing::new(Vec::new());
     if tagged {
         head(&mut output, 6, super::decode::COSE_SIGN1_TAG)?;
     }
@@ -161,8 +173,8 @@ pub fn sign_container(
         output.push(0xf6);
     }
     bstr(&mut output, &signature)?;
-    if output.len() > limit {
-        return Err(Reason::Limit.into());
+    if output.len() != encoded_bytes {
+        return Err(Reason::Backend.into());
     }
     Ok(SignedContainer { encoded: output })
 }

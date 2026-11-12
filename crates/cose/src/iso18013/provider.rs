@@ -48,6 +48,12 @@ pub struct Iso18013CryptoVerifier {
 }
 
 impl Iso18013CryptoVerifier {
+    // The container adapter borrows this validated owner rather than retaining
+    // a second identifying public-key buffer solely for receipt construction.
+    pub(crate) fn public_key(&self) -> &[u8] {
+        &self.public_key
+    }
+
     /// Bind a supported suite to validated SEC1 or Ed25519 public key bytes.
     ///
     /// EC2 input must be compressed or uncompressed SEC1 for the named curve.

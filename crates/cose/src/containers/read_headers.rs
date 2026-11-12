@@ -93,7 +93,14 @@ pub(super) fn read_headers<'a>(
                 }
                 Some(2) => return Err(Reason::Critical.into()),
                 Some(3) => {
-                    if value.major != 3 && value.major != 0 {
+                    let valid = match value.major {
+                        0 => true,
+                        3 => crate::limits::valid_media_type(
+                            core::str::from_utf8(value.data).map_err(|_| Reason::Malformed)?,
+                        ),
+                        _ => false,
+                    };
+                    if !valid {
                         return Err(Reason::Malformed.into());
                     }
                 }

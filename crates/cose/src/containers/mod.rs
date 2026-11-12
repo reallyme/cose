@@ -11,6 +11,7 @@
 mod decode;
 mod error;
 mod inspect_key;
+mod measure_envelope;
 mod own_bytes;
 mod peer_curve;
 mod peer_key;

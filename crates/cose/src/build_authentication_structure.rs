@@ -64,6 +64,10 @@ fn checked_bstr_size(current: usize, payload_len: usize) -> Option<usize> {
         .checked_add(payload_len)
 }
 
+pub(crate) fn encoded_bstr_size(payload_len: usize) -> Result<usize, CoseError> {
+    checked_bstr_size(0, payload_len).ok_or(CoseError::ResourceLimitExceeded)
+}
+
 fn cbor_length_header_size(length: usize) -> usize {
     if length <= CBOR_DIRECT_ARGUMENT_MAX {
         1

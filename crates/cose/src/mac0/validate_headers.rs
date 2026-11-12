@@ -2,6 +2,7 @@
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+use crate::limits::valid_media_type;
 use ciborium::value::Value;
 
 use super::{CoseMac0Error, CoseMac0ErrorReason, CoseMacAlgorithm};
@@ -13,7 +14,6 @@ const KEY_ID_LABEL: i64 = 4;
 const IV_LABEL: i64 = 5;
 const PARTIAL_IV_LABEL: i64 = 6;
 const COUNTER_SIGNATURE_LABEL: i64 = 7;
-const MAX_MEDIA_TYPE_NAME_BYTES: usize = 127;
 
 type HeaderEntry = (Value, Value);
 
@@ -99,29 +99,6 @@ fn validate_common_value(label: &Value, value: &Value) -> Result<(), CoseMac0Err
         }
         _ => Ok(()),
     }
-}
-
-fn valid_media_type(text: &str) -> bool {
-    // RFC 9052 uses the restricted RFC 6838 type/subtype syntax here. This
-    // profile accepts bare media types, without MIME parameters or wildcards.
-    let Some((kind, subtype)) = text.split_once('/') else {
-        return false;
-    };
-    [kind, subtype].into_iter().all(|name| {
-        !name.is_empty()
-            && name.len() <= MAX_MEDIA_TYPE_NAME_BYTES
-            && name
-                .as_bytes()
-                .first()
-                .is_some_and(u8::is_ascii_alphanumeric)
-            && name.bytes().all(|byte| {
-                byte.is_ascii_alphanumeric()
-                    || matches!(
-                        byte,
-                        b'!' | b'#' | b'$' | b'&' | b'-' | b'^' | b'_' | b'.' | b'+'
-                    )
-            })
-    })
 }
 
 fn validate_critical(value: &Value, protected: &[HeaderEntry]) -> Result<(), CoseMac0Error> {

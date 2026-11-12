@@ -60,21 +60,48 @@ pub fn verify_container(
     if payload.len() > request.limits.payload_bytes.min(MAX_DETACHED_PAYLOAD_BYTES) {
         return Err(Reason::Limit.into());
     }
+    let permitted = request
+        .allowed_suites
+        .iter()
+        .find(|suite| suite.registration().identifier() == envelope.headers.algorithm)
+        .ok_or(Reason::Algorithm)?;
+    // Reject COSE-owned policy and framing failures before invoking an external
+    // certificate boundary, which may involve expensive path validation.
+    request.policy.check(
+        *permitted,
+        envelope.payload.is_some(),
+        envelope.tagged,
+        request.external_aad,
+    )?;
+    let headers = &envelope.headers.certificates;
+    let has_certificate = matches!(&source, VerificationSource::Certificates(_));
+    if !has_certificate && (headers.count != 0 || headers.thumbprint.is_some()) {
+        return Err(Reason::Profile.into());
+    }
+    let provenance = check_placement(request.policy, headers, has_certificate)?;
+    if matches!(
+        request.policy.purpose,
+        ContainerPurpose::IssuerMso
+            | ContainerPurpose::MsoRevocation
+            | ContainerPurpose::Vical
+            | ContainerPurpose::Rical
+    ) {
+        super::validate_preferred_cbor(payload)?;
+    }
+    // An exact key curve can be resolved only by the trusted boundary. Before
+    // that work, the signature must at least fit one explicitly permitted pair.
     if !request
         .allowed_suites
         .iter()
-        .any(|s| s.registration().identifier() == envelope.headers.algorithm)
+        .filter(|suite| suite.registration().identifier() == envelope.headers.algorithm)
+        .any(|suite| {
+            super::signature::validate_cose_signature(suite.curve(), envelope.signature).is_ok()
+        })
     {
-        return Err(Reason::Algorithm.into());
+        return Err(Reason::SignatureEncoding.into());
     }
-    let headers = &envelope.headers.certificates;
     let (key, certificate) = match source {
-        VerificationSource::Key(key) => {
-            if headers.count != 0 || headers.thumbprint.is_some() {
-                return Err(Reason::Profile.into());
-            }
-            (key, None)
-        }
+        VerificationSource::Key(key) => (key, None),
         VerificationSource::Certificates(validator) => {
             let selection = validator.resolve(headers, envelope.headers.algorithm)?;
             (selection.key, Some(selection.end_entity_der))
@@ -87,28 +114,12 @@ pub fn verify_container(
     if !request.allowed_suites.contains(&suite) {
         return Err(Reason::Algorithm.into());
     }
-    request.policy.check(
-        suite,
-        envelope.payload.is_some(),
-        envelope.tagged,
-        request.external_aad,
-    )?;
     if key.public_key().is_empty() || key.public_key().len() > MAX_COSE_KEY_BYTES {
         return Err(Reason::Key.into());
     }
     let certificate_digest = certificate
         .map(|der| check_certificate(der, headers))
         .transpose()?;
-    let provenance = check_placement(request.policy, headers, certificate.is_some())?;
-    if matches!(
-        request.policy.purpose,
-        ContainerPurpose::IssuerMso
-            | ContainerPurpose::MsoRevocation
-            | ContainerPurpose::Vical
-            | ContainerPurpose::Rical
-    ) {
-        super::validate_preferred_cbor(payload)?;
-    }
     super::signature::validate_cose_signature(suite.curve(), envelope.signature)?;
     let structure = build_authentication_structure(
         AuthenticationContext::Signature1,

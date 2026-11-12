@@ -16,7 +16,6 @@ const X5CHAIN_LABEL: i64 = 33;
 const IV_LABEL: i64 = 5;
 const PARTIAL_IV_LABEL: i64 = 6;
 const COUNTER_SIGNATURE_LABELS: [i64; 4] = [7, 9, 11, 12];
-const MAX_MEDIA_TYPE_NAME_BYTES: usize = 127;
 type HeaderEntry = (Value, Value);
 
 pub(super) fn validate<'a>(
@@ -95,33 +94,7 @@ fn validate_value(label: &Value, value: &Value) -> Result<(), CoseError> {
 fn validate_content_type(value: &Value) -> Result<(), CoseError> {
     match value {
         Value::Integer(integer) if u64::try_from(*integer).is_ok() => Ok(()),
-        Value::Text(text) => {
-            let Some((kind, subtype)) = text.split_once('/') else {
-                return Err(CoseError::InvalidFormat);
-            };
-            // This profile accepts bare RFC 6838 media types. Parameters and
-            // application content interpretation require a separate policy.
-            let valid = [kind, subtype].into_iter().all(|name| {
-                !name.is_empty()
-                    && name.len() <= MAX_MEDIA_TYPE_NAME_BYTES
-                    && name
-                        .as_bytes()
-                        .first()
-                        .is_some_and(u8::is_ascii_alphanumeric)
-                    && name.bytes().all(|byte| {
-                        byte.is_ascii_alphanumeric()
-                            || matches!(
-                                byte,
-                                b'!' | b'#' | b'$' | b'&' | b'-' | b'^' | b'_' | b'.' | b'+'
-                            )
-                    })
-            });
-            if valid {
-                Ok(())
-            } else {
-                Err(CoseError::InvalidFormat)
-            }
-        }
+        Value::Text(text) if crate::limits::valid_media_type(text) => Ok(()),
         _ => Err(CoseError::InvalidFormat),
     }
 }

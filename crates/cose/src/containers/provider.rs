@@ -29,7 +29,6 @@ pub trait VerificationKey {
 /// Published reallyme-crypto adapter for its supported NIST/Ed25519 pairs.
 pub struct CryptoVerificationKey {
     suite: SignatureSuite,
-    public_key: Zeroizing<Vec<u8>>,
     context: Zeroizing<[u8; 32]>,
     verifier: Iso18013CryptoVerifier,
 }
@@ -44,13 +43,9 @@ impl CryptoVerificationKey {
         public_key: Zeroizing<Vec<u8>>,
         context_id: [u8; 32],
     ) -> Result<Self, ContainerError> {
-        let verifier = Iso18013CryptoVerifier::new(
-            suite.primitive_suite()?,
-            super::own_bytes::copy(&public_key)?,
-        )?;
+        let verifier = Iso18013CryptoVerifier::new(suite.primitive_suite()?, public_key)?;
         Ok(Self {
             suite,
-            public_key,
             context: Zeroizing::new(context_id),
             verifier,
         })
@@ -62,7 +57,7 @@ impl VerificationKey for CryptoVerificationKey {
         self.suite
     }
     fn public_key(&self) -> &[u8] {
-        &self.public_key
+        self.verifier.public_key()
     }
     fn context_id(&self) -> &[u8; 32] {
         &self.context
@@ -75,7 +70,7 @@ impl VerificationKey for CryptoVerificationKey {
             super::validate_cose_signature(self.suite.curve(), signature)?;
             super::own_bytes::copy(signature)?
         };
-        reallyme_crypto::dispatch::verify(algorithm, &self.public_key, message, &backend)
+        reallyme_crypto::dispatch::verify(algorithm, self.verifier.public_key(), message, &backend)
             .map_err(crate::error::verify_error_from_algorithm_error)
             .map_err(Into::into)
     }

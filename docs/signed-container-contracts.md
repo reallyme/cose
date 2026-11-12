@@ -49,7 +49,16 @@ Unknown noncritical headers remain accessible in exact protected/unprotected
 spans; unsupported critical semantics fail closed. Successful receipts own and
 wipe envelope, headers, payload, actual public key, certificate digest and
 verification context. They implement no formatting, cloning or serialization.
-Unprotected header bytes remain explicitly unauthenticated.
+Unprotected header bytes remain explicitly unauthenticated. Known content-type
+text is checked using the shared bare RFC 6838 media-type validator; malformed
+values fail before certificate resolution or signing.
+
+COSE-owned profile, attachment, certificate-placement and permitted signature-format
+checks run before certificate resolution. Creation checks the exact encoded result
+size and declared signer input/encoding contract before signing, and reserves the
+output fallibly before invoking a key capability. The built-in verifier retains
+one zeroizing public-key owner. Regression tests assert that invalid requests do
+not invoke provider callbacks.
 
 `CertificateValidator` receives untrusted discovery headers and the exact
 protected algorithm. It returns the effective validated working key/parameters
@@ -88,7 +97,7 @@ to `crates/cose/src/containers` unless stated otherwise.
 | DIS optional peer parameters | `OptionalKeyPolicy::Cose` enforces alg/key_ops; `IsoPeer` ignores optional positive parameters while retaining required shape and excluding private d | `optional_parameter_policy_private_material_and_usage_mismatches_are_explicit` |
 | DIS 12.6 raw HPKE boundary | `PeerKeyUsage::Agreement` / `HpkeRecipient`, validated named-curve public material independent of a signing registration | P-256 recipient import and point validation execute without alg. HPKE, KEM selection, enc/cipherText and transcript construction are outside COSE |
 | CO-DIS-04; DIS 8.3; RFC 8949 §4.2.1 | `validate_preferred_cbor`: definite lengths, shortest integer/length/tag/float widths, UTF-8, duplicate checks; sorting not required | `encoding_tests.rs`: tags, half/single/double values, NaNs, signed zero, unsorted and compound-key maps, malformed/trailing/deep/oversized input |
-| CO-DIS-04 ownership and resource boundaries | Borrowed parsing; zeroizing final/temporary owners; fallible new-path allocations; fixed `ContainerErrorReason`; checked offsets/capacities | Allocation-free malformed-input test, zeroizing-owner assertions, maximum detached payload, tightened limits, certificate and truncation tests; `cose_containers` fuzz target |
+| CO-DIS-04 ownership and resource boundaries | Borrowed parsing; zeroizing final/temporary owners; fallible new-path allocations; fixed `ContainerErrorReason`; checked offsets/capacities | Allocation-free malformed-input test, zeroizing-owner assertions, maximum detached payload, tightened limits, certificate and truncation tests, `boundary_tests.rs` provider-call and allocation checks; `cose_containers` fuzz target |
 | CO-DIS-05; RFC 9052 Sig_structure | `ContainerSigner`, `sign_container`, finalized exact headers; validated public capability, independent output verification | Non-exporting ECDSA and pure EdDSA test providers; deterministic independent EdDSA answer, message/prehash modes, wrong public key, backend failure, changed finalized content, explicit AAD and double-hash rejection |
 | CO-DIS-05; RFC 9053 §2.1 | Declared `SignatureEncoding`; shared strict DER/fixed-width conversion; scalar bounds, P-521 66-byte and Brainpool P320 40-byte components; Ed448 114-byte signature | `encoding_tests.rs` covers all seven ECDSA curves, high-S acceptance, zero/order scalars, negative/nonminimal/trailing DER and DER/raw/family confusion; independent conversion cases in `peer-keys.json` |
 
@@ -177,14 +186,14 @@ Measured acceptance evidence for this checkout:
 
 | Lane/check | Result |
 | --- | --- |
-| New container tests, native | 22 tests passed |
-| New container tests, WASM/Node | 21 tests passed (allocation-counter test is native-only) |
-| Complete WASM unit suite | 39 tests passed, including the separate earlier ISO tests |
-| Native nextest lane | 290 tests passed |
-| All-features release nextest | 373 tests passed |
-| All-features debug tests including doctests | 375 tests passed |
+| New container tests, native | 29 tests passed |
+| New container tests, WASM/Node | 27 tests passed (two allocation-counter tests are native-only) |
+| Complete WASM unit suite | 45 tests passed, including the separate earlier ISO tests |
+| Native nextest lane | 297 tests passed |
+| All-features release nextest | 380 tests passed |
+| All-features debug tests including doctests | 382 tests passed |
 | Seven installed iOS/Android targets | All-target compile and strict Clippy passed |
-| Seeded bounded container fuzz smoke | 24,218 executions in 21 seconds; no crash |
+| Seeded bounded container fuzz smoke | 18,540 executions in 21 seconds; no crash |
 | Release-readiness, vector audit, dependency/advisory policy | Passed |
 
 Remaining reader work includes role-specific EReaderKey/EDeviceKey compressed

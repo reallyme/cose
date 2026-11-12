@@ -6,6 +6,10 @@
 
 mod profile;
 mod validate;
+#[cfg(feature = "cose-crypto")]
+mod validate_media_type;
+#[cfg(feature = "cose-crypto")]
+pub(crate) use validate_media_type::valid_media_type;
 
 #[cfg(test)]
 mod validate_tests;
