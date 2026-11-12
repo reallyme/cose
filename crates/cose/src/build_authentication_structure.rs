@@ -1,0 +1,120 @@
+// SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
+
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+use zeroize::Zeroizing;
+
+use crate::CoseError;
+
+const CBOR_DIRECT_ARGUMENT_MAX: usize = 23;
+const CBOR_ONE_BYTE_ARGUMENT_MAX: usize = 0xff;
+const CBOR_TWO_BYTE_ARGUMENT_MAX: usize = 0xffff;
+const CBOR_FOUR_BYTE_ARGUMENT_MAX: usize = 0xffff_ffff;
+
+/// Domain separation contexts supported by the single-authenticator profiles.
+#[derive(Clone, Copy)]
+pub(crate) enum AuthenticationContext {
+    Signature1,
+    Mac0,
+}
+
+/// Encode a four-field COSE authentication structure without normalizing protected bytes.
+pub(crate) fn build_authentication_structure(
+    context: AuthenticationContext,
+    protected_bytes: &[u8],
+    external_aad: &[u8],
+    payload: &[u8],
+) -> Result<Zeroizing<Vec<u8>>, CoseError> {
+    const ARRAY_OF_FOUR: u8 = 0x84;
+    const TEXT_MAJOR: u8 = 0x60;
+    // Typed contexts prevent accidental loss of domain separation. Both use
+    // a direct-length text header and are always valid UTF-8.
+    let context: &[u8] = match context {
+        AuthenticationContext::Signature1 => b"Signature1",
+        AuthenticationContext::Mac0 => b"MAC0",
+    };
+    let context_len = u8::try_from(context.len()).map_err(|_| CoseError::InvalidFormat)?;
+
+    let capacity = 1usize
+        .checked_add(1)
+        .and_then(|size| size.checked_add(context.len()))
+        .and_then(|size| checked_bstr_size(size, protected_bytes.len()))
+        .and_then(|size| checked_bstr_size(size, external_aad.len()))
+        .and_then(|size| checked_bstr_size(size, payload.len()))
+        .ok_or(CoseError::ResourceLimitExceeded)?;
+    let mut encoded = Zeroizing::new(Vec::new());
+    encoded
+        .try_reserve_exact(capacity)
+        .map_err(|_| CoseError::ResourceLimitExceeded)?;
+    encoded.push(ARRAY_OF_FOUR);
+    encoded.push(TEXT_MAJOR | context_len);
+    encoded.extend_from_slice(context);
+    append_bstr(&mut encoded, protected_bytes)?;
+    append_bstr(&mut encoded, external_aad)?;
+    append_bstr(&mut encoded, payload)?;
+    Ok(encoded)
+}
+
+#[cfg(test)]
+#[path = "build_authentication_structure_tests.rs"]
+mod tests;
+
+fn checked_bstr_size(current: usize, payload_len: usize) -> Option<usize> {
+    current
+        .checked_add(cbor_length_header_size(payload_len))?
+        .checked_add(payload_len)
+}
+
+const fn cbor_length_header_size(length: usize) -> usize {
+    if length <= CBOR_DIRECT_ARGUMENT_MAX {
+        1
+    } else if length <= CBOR_ONE_BYTE_ARGUMENT_MAX {
+        2
+    } else if length <= CBOR_TWO_BYTE_ARGUMENT_MAX {
+        3
+    } else if length <= CBOR_FOUR_BYTE_ARGUMENT_MAX {
+        5
+    } else {
+        9
+    }
+}
+
+fn append_bstr(output: &mut Vec<u8>, bytes: &[u8]) -> Result<(), CoseError> {
+    const BSTR_MAJOR: u8 = 0x40;
+    match bytes.len() {
+        0..=23 => {
+            let length = u8::try_from(bytes.len()).map_err(|_| CoseError::ResourceLimitExceeded)?;
+            output.push(BSTR_MAJOR | length);
+        }
+        24..=0xff => {
+            output.push(BSTR_MAJOR | 24);
+            output.push(u8::try_from(bytes.len()).map_err(|_| CoseError::ResourceLimitExceeded)?);
+        }
+        0x100..=0xffff => {
+            output.push(BSTR_MAJOR | 25);
+            output.extend_from_slice(
+                &u16::try_from(bytes.len())
+                    .map_err(|_| CoseError::ResourceLimitExceeded)?
+                    .to_be_bytes(),
+            );
+        }
+        0x1_0000..=0xffff_ffff => {
+            output.push(BSTR_MAJOR | 26);
+            output.extend_from_slice(
+                &u32::try_from(bytes.len())
+                    .map_err(|_| CoseError::ResourceLimitExceeded)?
+                    .to_be_bytes(),
+            );
+        }
+        _ => {
+            output.push(BSTR_MAJOR | 27);
+            output.extend_from_slice(
+                &u64::try_from(bytes.len())
+                    .map_err(|_| CoseError::ResourceLimitExceeded)?
+                    .to_be_bytes(),
+            );
+        }
+    }
+    output.extend_from_slice(bytes);
+    Ok(())
+}

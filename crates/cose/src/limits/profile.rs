@@ -11,6 +11,17 @@ use super::validate::{validate_cbor_bytes, CborItemRole};
 /// Maximum accepted encoded COSE_Sign1 size.
 pub const MAX_COSE_SIGN1_BYTES: usize = 65_536;
 
+/// Maximum accepted encoded detached COSE_Mac0 size.
+pub const MAX_COSE_MAC0_BYTES: usize = 65_536;
+
+/// Maximum accepted external AAD size for detached COSE_Mac0 verification.
+pub const MAX_MAC0_EXTERNAL_AAD_BYTES: usize = 65_536;
+
+#[cfg(feature = "cose-crypto")]
+pub(crate) fn validate_cose_mac0_bytes(bytes: &[u8], max_len: usize) -> Result<(), CoseError> {
+    validate_cbor_bytes(bytes, max_len, CborItemRole::CoseMac0Top)
+}
+
 /// Maximum accepted encoded COSE_Key size.
 pub const MAX_COSE_KEY_BYTES: usize = 16_384;
 

@@ -12,7 +12,7 @@
 </div>
 
 `reallyme-cose` is a focused COSE layer for identity systems that need
-COSE_Sign1, COSE_Key, deterministic `kid` derivation, and Multikey interop
+COSE_Sign1, detached COSE_Mac0, COSE_Key, deterministic `kid` derivation, and Multikey interop
 without broad COSE structure or algorithm negotiation. It builds on
 `reallyme-crypto` and `reallyme-codec` to provide strict protected-header
 validation, explicit algorithm/key binding, typed non-PII errors, deterministic
@@ -26,7 +26,7 @@ cargo add reallyme-cose
 ```
 
 The default `native` feature enables signing, verification, key validation,
-and ML-KEM encryption through `reallyme-crypto`. For `wasm32-unknown-unknown`,
+detached MAC verification, and ML-KEM encryption through `reallyme-crypto`. For `wasm32-unknown-unknown`,
 use `default-features = false, features = ["wasm"]`.
 Without a runtime lane, the key, Multikey, policy, algorithm-mapping, and CBOR
 helper APIs still compile, but operations requiring cryptographic key validation
@@ -35,7 +35,7 @@ return `UnsupportedAlgorithm`; signing and encryption APIs are not exported.
 Enable the `wire` feature only for protobuf operation adapters:
 
 ```toml
-reallyme-cose = { version = "0.2.10", features = ["wire"] }
+reallyme-cose = { version = "0.2.11", features = ["wire"] }
 ```
 
 When default features are disabled, pair `wire` with an explicit runtime lane,
@@ -65,7 +65,8 @@ vectors/        portable classical and post-quantum conformance vectors
 This crate implements a focused COSE profile over:
 
 - [RFC 9052](https://www.rfc-editor.org/rfc/rfc9052.html), for COSE structures,
-  protected and unprotected header maps, COSE_Sign1, Sig_structure construction,
+  protected and unprotected header maps, COSE_Sign1, detached COSE_Mac0,
+  Sig_structure and MAC_structure construction,
   COSE_Key structure, key identifiers, and CBOR encoding restrictions.
 - [RFC 9053](https://www.rfc-editor.org/rfc/rfc9053.html), for initial COSE
   algorithm identifiers, key types, curve identifiers, and key-parameter labels.
@@ -98,7 +99,7 @@ including nested extension maps. Public keys are normalized before deterministic
 `kid` derivation. Verification intentionally also accepts other map
 orderings permitted by RFC 9052: the received protected-header byte string is
 authenticated exactly as received and is never decoded and re-encoded before
-signature or AEAD verification. Duplicate labels and other profile violations
+signature, MAC, or AEAD verification. Duplicate labels and other profile violations
 still fail closed.
 
 ## Quick Start
@@ -313,6 +314,86 @@ COSE_Key yields `MissingKeyMaterial`. A provider's `InvalidMessage` report is
 treated as an operational crypto failure because the COSE layer constructed
 the bounded message supplied to that provider.
 
+## Detached COSE_Mac0 Verification
+
+`cose_verify_mac0_detached` implements RFC 9052 §§6.2–6.3 for HMAC 256/64
+(`4`), 256/256 (`5`), 384/384 (`6`), and 512/512 (`7`). Both untagged
+messages and a single outer tag `17` are accepted. The payload slot must be
+CBOR null. The expected payload, external AAD (including an empty slice),
+exact algorithm allowlist, and protected direct key are explicit inputs.
+An empty allowlist rejects every algorithm. This API is available in both
+`native` and `wasm`; it has no protobuf operation adapter.
+
+```rust
+use reallyme_cose::{
+    cose_verify_mac0_detached, CoseMac0Error, CoseMac0Limits,
+    CoseMac0VerifyRequest, CoseMacAlgorithm, CoseMacKey, VerifiedDetachedCoseMac0,
+};
+use zeroize::Zeroizing;
+
+fn verify_detached(
+    encoded: &[u8],
+    expected_payload: &[u8],
+    external_aad: &[u8],
+    imported_key: Zeroizing<Vec<u8>>,
+) -> Result<VerifiedDetachedCoseMac0, CoseMac0Error> {
+    let key = CoseMacKey::new(CoseMacAlgorithm::Hmac256_256, imported_key)?;
+    cose_verify_mac0_detached(
+        CoseMac0VerifyRequest {
+            encoded,
+            detached_payload: expected_payload,
+            external_aad,
+            allowed_algorithms: &[CoseMacAlgorithm::Hmac256_256],
+            limits: CoseMac0Limits::default(),
+        },
+        &key,
+    )
+}
+```
+
+Add `zeroize = "1.9.1"` when importing key bytes this way. Direct keys must
+have the full underlying hash output length: 32, 48, or 64 bytes. A 256/64 key
+also requires 32 bytes and is bound specifically to registration `4`; it cannot
+be used for registration `5`. Keys cannot be exported, cloned, or formatted.
+The consumed import buffer, primitive key, and secrecy wrapper wipe on drop.
+
+The verifier authenticates `["MAC0", received_protected_bytes, external_aad,
+expected_payload]` through `reallyme-crypto`. It never normalizes or re-encodes
+the protected byte string. Full tags use the primitive verifier; registration
+`4` uses left truncation and the library's constant-time comparison. Each
+registration requires its exact tag length. AES-CBC-MAC and other unimplemented
+registrations fail closed.
+
+`alg` must be a protected integer. Labels must be unique within and across
+header buckets. `crit` must be protected, nonempty, unique, and reference
+present protected fields; only `alg` and `kid` critical semantics are supported.
+Other noncritical extensions are preserved as authenticated bytes without
+interpreting their application semantics. HMAC IV and countersignature headers
+are rejected. Content types accept unsigned identifiers or bare RFC 6838 media
+types, without MIME parameters. Applications must enforce their own content
+semantics. An unprotected `kid` is only a transport hint: it never selects the
+key and never appears in the authenticated result.
+
+Results expose the authenticated exact algorithm, original protected bytes,
+and protected `kid` only. Their owned buffers wipe on drop and have no formatting
+or serialization implementations. Payloads and keys are never returned. Errors
+contain only a fixed `CoseMac0ErrorReason`, with no input or backend text.
+Callers remain responsible for wiping their original encoded input, payload,
+AAD, and earlier key copies when those contain sensitive data.
+
+Hard limits are 65,536 encoded bytes, 1,048,576 payload bytes, 65,536 AAD bytes,
+32 parameters per header map, 1,024 items per collection, and 32 CBOR nesting
+levels per decoded CBOR boundary. `CoseMac0Limits` can lower the byte limits;
+raising its fields cannot bypass hard maxima. Indefinite lengths, nonpreferred
+integer/length widths, unsupported tags and simple values, malformed structures,
+duplicate labels, and trailing data are rejected before crypto verification.
+
+The MAC tests pin independent COSE Working Group HMAC vectors from
+[revision 53c9d634](https://github.com/cose-wg/Examples/tree/53c9d634333bb4f529d78f5980fffa2667ee2c12)
+for all four registrations. They retain the published tags when detaching the
+payload and separately pin a Python stdlib HMAC vector with external AAD and
+an unsorted protected header map.
+
 ## Protobuf Wire Boundary
 
 The native Rust API remains the primary SDK surface. For service, FFI, generated
@@ -480,22 +561,23 @@ cargo run --manifest-path tools/vector-audit/Cargo.toml --bin reallyme-cose-vect
 
 The following structures and features are not implemented:
 
-- COSE_Mac0, COSE_Mac, and MAC verification.
+- COSE_Mac, attached COSE_Mac0 verification, MAC creation, and AES-CBC-MAC.
 - COSE_Encrypt0.
 - Multi-recipient COSE_Encrypt.
 - COSE_Sign multi-signer structures.
 - Countersignatures.
-- Critical protected headers.
+- Critical protected headers outside the detached Mac0 profile described above.
 - COSE_Sign1 content-type and extension headers other than RFC 9596 `typ`,
   because the verified-result API does not expose processing results for those
   semantics.
-- Integrity-sensitive fields in unprotected headers, including `alg` and `kid`.
+- Integrity-sensitive fields in unprotected headers. Sign1 requires protected
+  `alg` and `kid`; Mac0 permits an unprotected `kid` hint without trusting it.
 - Indefinite-length CBOR at public byte boundaries.
 - Floating-point COSE_Key extension values. They are rejected rather than
   accepted without full RFC 8949 preferred-width and canonical-NaN validation.
 - Undefined and unsupported CBOR simple values; detached payloads use null.
-- CBOR tags other than the matching root COSE_Sign1 (18) or COSE_Encrypt (96)
-  tag. COSE_Key inputs must be untagged.
+- CBOR tags other than the matching root COSE_Mac0 (17), COSE_Sign1 (18),
+  or COSE_Encrypt (96) tag. COSE_Key inputs must be untagged.
 - X-Wing recipient processing. X-Wing-768 remains represented in the protobuf
   algorithm enum so the wire contract can add an explicit profile without
   renumbering; attempts to use it in an unsupported operation fail closed
@@ -555,20 +637,20 @@ repeated-message merge semantics; ProtoJSON rejects duplicate fields. Callers
 that require one canonical request encoding should choose one lane and enforce
 it before admission.
 
-## 0.2.10 Platform Scope
+## 0.2.11 Platform Scope
 
-The `0.2.10` release is intentionally Rust and protobuf only. Its publishable
+The `0.2.11` release is intentionally Rust and protobuf only. Its publishable
 artifacts are `reallyme-cose-proto` and `reallyme-cose`; the `native` and `wasm`
 features are Rust runtime lanes, not platform SDK packages.
 
-The `0.2.10` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
+The `0.2.11` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
 native C/JNI, or TypeScript/WASM npm packages. Those package formats are not
 part of this release's compatibility or support contract.
 
 The protobuf `swift_prefix` option is generation metadata, not a published
 Swift package. Likewise, `wasm32-unknown-unknown` is a Rust compilation target,
 not an npm package. The exact artifact scope is recorded in
-[`docs/platform-scope-0.2.10.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.2.10.json).
+[`docs/platform-scope-0.2.11.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.2.11.json).
 
 ## Development Checks
 

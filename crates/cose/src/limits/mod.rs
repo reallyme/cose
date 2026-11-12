@@ -11,15 +11,16 @@ mod validate;
 mod validate_tests;
 
 pub use profile::{
-    MAX_COSE_ENCRYPT_BYTES, MAX_COSE_KEY_BYTES, MAX_COSE_SIGN1_BYTES,
+    MAX_COSE_ENCRYPT_BYTES, MAX_COSE_KEY_BYTES, MAX_COSE_MAC0_BYTES, MAX_COSE_SIGN1_BYTES,
     MAX_COSE_X5CHAIN_CERTIFICATES, MAX_COSE_X5CHAIN_CERTIFICATE_BYTES,
-    MAX_COSE_X5CHAIN_TOTAL_BYTES, MAX_DETACHED_PAYLOAD_BYTES,
+    MAX_COSE_X5CHAIN_TOTAL_BYTES, MAX_DETACHED_PAYLOAD_BYTES, MAX_MAC0_EXTERNAL_AAD_BYTES,
 };
 
 pub(crate) use profile::validate_cose_key_bytes;
 
 #[cfg(feature = "cose-crypto")]
 pub(crate) use profile::{
-    validate_cose_encrypt_bytes, validate_cose_sign1_bytes_with_limit, validate_detached_payload,
-    validate_detached_payload_with_limit, validate_protected_header_bytes,
+    validate_cose_encrypt_bytes, validate_cose_mac0_bytes, validate_cose_sign1_bytes_with_limit,
+    validate_detached_payload, validate_detached_payload_with_limit,
+    validate_protected_header_bytes,
 };

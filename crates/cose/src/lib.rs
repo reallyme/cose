@@ -4,7 +4,7 @@
 
 //! COSE helpers for ReallyMe identity software.
 //!
-//! The public surface covers COSE_Sign1, COSE_Key, and the ReallyMe ML-KEM
+//! The public surface covers COSE_Sign1, detached COSE_Mac0, COSE_Key, and the ReallyMe ML-KEM
 //! profile for COSE_Encrypt. Other COSE message families fail closed instead
 //! of being partially interpreted.
 //!
@@ -65,6 +65,8 @@ pub use algorithm::CoseSignatureAlgorithm;
 pub mod error;
 pub use error::CoseError;
 
+#[cfg(feature = "cose-crypto")]
+mod build_authentication_structure;
 mod encode_cbor;
 mod failure;
 
@@ -75,6 +77,15 @@ mod failure_tests;
 pub mod limits;
 
 mod zeroize_coset;
+
+/// Detached COSE_Mac0 authentication with explicitly bound HMAC keys.
+#[cfg(feature = "cose-crypto")]
+pub mod mac0;
+#[cfg(feature = "cose-crypto")]
+pub use mac0::{
+    cose_verify_mac0_detached, CoseMac0Error, CoseMac0ErrorReason, CoseMac0Limits,
+    CoseMac0VerifyRequest, CoseMacAlgorithm, CoseMacKey, VerifiedDetachedCoseMac0,
+};
 
 // --- COSE_Encrypt ---
 #[cfg(feature = "cose-crypto")]

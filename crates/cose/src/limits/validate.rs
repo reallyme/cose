@@ -31,6 +31,8 @@ const CBOR_EIGHT_BYTE_LENGTH: u8 = 27;
 #[cfg(feature = "cose-crypto")]
 const COSE_SIGN1_TAG: u64 = 18;
 #[cfg(feature = "cose-crypto")]
+const COSE_MAC0_TAG: u64 = 17;
+#[cfg(feature = "cose-crypto")]
 const COSE_ENCRYPT_TAG: u64 = 96;
 const MAX_CBOR_DEPTH: usize = 32;
 const MAX_CBOR_COLLECTION_ITEMS: usize = 1_024;
@@ -67,6 +69,10 @@ pub(super) enum CborItemRole {
     CoseSign1Top,
     #[cfg(feature = "cose-crypto")]
     CoseSign1Body,
+    #[cfg(feature = "cose-crypto")]
+    CoseMac0Top,
+    #[cfg(feature = "cose-crypto")]
+    CoseMac0Body,
     #[cfg(feature = "cose-crypto")]
     CoseEncryptTop,
     #[cfg(feature = "cose-crypto")]
@@ -115,6 +121,7 @@ fn parse_cbor_item(
     if matches!(
         role,
         CborItemRole::CoseEncryptBody
+            | CborItemRole::CoseMac0Body
             | CborItemRole::CoseRecipientList
             | CborItemRole::CoseRecipient
     ) && major != CBOR_ARRAY_MAJOR
@@ -124,6 +131,11 @@ fn parse_cbor_item(
     #[cfg(feature = "cose-crypto")]
     if role == CborItemRole::CoseEncryptTop && major != CBOR_ARRAY_MAJOR && major != CBOR_TAG_MAJOR
     {
+        return Err(CoseError::InvalidFormat);
+    }
+
+    #[cfg(feature = "cose-crypto")]
+    if role == CborItemRole::CoseMac0Top && major != CBOR_ARRAY_MAJOR && major != CBOR_TAG_MAJOR {
         return Err(CoseError::InvalidFormat);
     }
 
@@ -340,7 +352,10 @@ fn validate_collection_length(role: CborItemRole, major: u8, len: usize) -> Resu
         }
         if matches!(
             role,
-            CborItemRole::CoseSign1Top | CborItemRole::CoseSign1Body
+            CborItemRole::CoseSign1Top
+                | CborItemRole::CoseSign1Body
+                | CborItemRole::CoseMac0Top
+                | CborItemRole::CoseMac0Body
         ) && (major != CBOR_ARRAY_MAJOR || len != 4)
         {
             return Err(CoseError::InvalidFormat);
@@ -371,6 +386,8 @@ fn tag_child_role(role: CborItemRole, tag: u64) -> Result<CborItemRole, CoseErro
         #[cfg(feature = "cose-crypto")]
         CborItemRole::CoseSign1Top if tag == COSE_SIGN1_TAG => Ok(CborItemRole::CoseSign1Body),
         #[cfg(feature = "cose-crypto")]
+        CborItemRole::CoseMac0Top if tag == COSE_MAC0_TAG => Ok(CborItemRole::CoseMac0Body),
+        #[cfg(feature = "cose-crypto")]
         CborItemRole::CoseEncryptTop if tag == COSE_ENCRYPT_TAG => {
             Ok(CborItemRole::CoseEncryptBody)
         }
@@ -383,6 +400,8 @@ fn protected_header_first_item(role: CborItemRole) -> bool {
         #[cfg(feature = "cose-crypto")]
         CborItemRole::CoseSign1Top
         | CborItemRole::CoseSign1Body
+        | CborItemRole::CoseMac0Top
+        | CborItemRole::CoseMac0Body
         | CborItemRole::CoseEncryptTop
         | CborItemRole::CoseEncryptBody
         | CborItemRole::CoseRecipient => true,
@@ -407,6 +426,8 @@ fn array_child_role(role: CborItemRole, index: usize) -> CborItemRole {
         #[cfg(feature = "cose-crypto")]
         CborItemRole::CoseSign1Top
         | CborItemRole::CoseSign1Body
+        | CborItemRole::CoseMac0Top
+        | CborItemRole::CoseMac0Body
         | CborItemRole::CoseEncryptTop
         | CborItemRole::CoseEncryptBody
         | CborItemRole::CoseRecipient

@@ -70,6 +70,7 @@ jobs:
       matrix:
         target:
           - cose_sign1
+          - cose_mac0
           - cose_key
           - multikey_to_cose
           - wire
