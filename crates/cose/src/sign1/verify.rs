@@ -30,6 +30,15 @@ use crate::algorithm::CoseSignatureAlgorithm;
 #[path = "verify_authentication_gate_proof_tests.rs"]
 mod verification;
 
+#[cfg(test)]
+#[cfg(not(kani))]
+#[path = "verify_x5chain_wire_tests.rs"]
+mod x5chain_wire_tests;
+
+#[cfg(kani)]
+#[path = "verify_x5chain_wire_tests.rs"]
+mod x5chain_wire_tests;
+
 /// Verified COSE_Sign1 attached payload and protected-header metadata.
 pub use crate::generated_contract::VerifiedCoseSign1;
 

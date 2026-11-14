@@ -234,6 +234,7 @@ fn es256_sign1_roundtrip_reports_exact_registration_and_policy_distinguishes_it(
 #[test]
 fn x5chain_verification_is_explicit_bounded_and_preserves_exact_es256() {
     const LEAF_CERTIFICATE_DER: &[u8] = &[0x30, 0x03, 0x02, 0x01, 0x01];
+    const OTHER_CERTIFICATE_DER: &[u8] = &[0x30, 0x03, 0x02, 0x01, 0x02];
 
     let keypair = gen_p256();
     let cose = cose_sign1_with_signature_algorithm_and_external_aad(
@@ -407,18 +408,23 @@ fn x5chain_verification_is_explicit_bounded_and_preserves_exact_es256() {
         .expect("unprotected header must exist");
     *unprotected_entries = ciborium::value::Value::Map(vec![(
         ciborium::value::Value::Integer(33_i64.into()),
-        ciborium::value::Value::Bytes(LEAF_CERTIFICATE_DER.to_vec()),
+        ciborium::value::Value::Bytes(OTHER_CERTIFICATE_DER.to_vec()),
     )]);
     let mut duplicate_bytes = Vec::new();
     ciborium::ser::into_writer(&duplicate_chain, &mut duplicate_bytes)
         .expect("test COSE must encode");
-    assert_eq!(
-        cose_verify1_with_x5chain(&duplicate_bytes, &policy, |_, _| {
+    // Allow either placement so the trust boundary is tested independently of placement policy.
+    let mut duplicate_trust_called = false;
+    let rejected = reallyme_cose::cose_verify1_with_x5chain_and_exact_algorithm(
+        &duplicate_bytes,
+        &unprotected_policy,
+        |_, _| {
+            duplicate_trust_called = true;
             Some(keypair.public.clone())
-        })
-        .err(),
-        Some(CoseError::DuplicateMapLabel),
+        },
     );
+    assert_eq!(rejected.err(), Some(CoseError::DuplicateMapLabel));
+    assert!(!duplicate_trust_called);
 }
 
 #[test]
