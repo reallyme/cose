@@ -17,12 +17,12 @@ const KID: u8 = 0x31;
 const AAD: u8 = 0x42;
 const PAYLOAD: u8 = 0x53;
 const SIGNATURE_FIXTURE_BYTE: u8 = 0x64;
-const SIGNATURE_FIXTURE_CHUNK: usize = 16;
+const SIGNATURE_FIXTURE_CHUNK: usize = 8;
 #[allow(dead_code, reason = "Kani resolves stubs after Rust linting")]
 const SIGNATURE: [u8; 64] = [SIGNATURE_FIXTURE_BYTE; 64];
 
 #[kani::proof]
-#[kani::unwind(25)]
+#[kani::unwind(12)]
 #[kani::stub(super::decode_cose_sign1, decode_fixture)]
 #[kani::stub(super::validate_cose_sign1_policy, validate_fixture_policy)]
 #[kani::stub(
@@ -75,7 +75,7 @@ fn attached_sign1_releases_payload_only_after_verification() {
 }
 
 #[kani::proof]
-#[kani::unwind(25)]
+#[kani::unwind(12)]
 #[kani::stub(super::decode_cose_sign1, decode_fixture)]
 #[kani::stub(super::validate_cose_sign1_policy, validate_fixture_policy)]
 #[kani::stub(
@@ -126,8 +126,8 @@ fn detached_sign1_releases_metadata_only_after_verification() {
     );
 }
 
-// Abstract wire parsing into one already parsed Ed25519 object per payload
-// mode. The production verification, policy and authenticated encoder run.
+// Model wire parsing as a decoded Ed25519 object with symbolic payload
+// presence. Production verification still controls how that object is used.
 #[allow(dead_code, reason = "Kani resolves stubs after Rust linting")]
 fn decode_fixture(encoded: &[u8], _limit: usize) -> Result<DecodedCoseSign1, CoseError> {
     let mut cose = CoseSign1::default();
@@ -232,8 +232,8 @@ fn verify_fixture(
     }
 }
 
-// Chunked comparison covers the full 64 bytes without forcing the backend's
-// generic memcmp loop above the bound needed to check the verification flow.
+// Eight comparisons of eight bytes cover the entire signature while keeping
+// both the iterator and the byte comparison within the harness unwind bound.
 #[allow(dead_code, reason = "Kani resolves stubs after Rust linting")]
 fn assert_fixture_signature(signature: &[u8]) {
     assert!(signature.len() == SIGNATURE.len());
