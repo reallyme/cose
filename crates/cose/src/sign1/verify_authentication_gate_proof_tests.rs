@@ -13,6 +13,9 @@ use super::{
 };
 use crate::{Algorithm, CoseError, CosePolicy, CoseSignatureAlgorithm};
 
+#[path = "verify_sig_structure_backend_proof_tests.rs"]
+mod boundary_backend;
+
 #[cfg(feature = "wire")]
 #[path = "verify_p256_dispatch_proof_tests.rs"]
 mod p256_dispatch;
