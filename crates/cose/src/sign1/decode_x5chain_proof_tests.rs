@@ -1,9 +1,65 @@
 // SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use super::{claim_x5chain_label, CoseError, Sign1HeaderBucket, X5ChainHeaderPlacement};
+use core::mem::ManuallyDrop;
+
+use ciborium::value::Value;
+
+use super::{
+    claim_x5chain_label, sign1_fields, CoseError, Sign1HeaderBucket, X5ChainHeaderPlacement,
+};
 
 const X5CHAIN_WIRE_LABEL: i64 = 33;
+const SIGN1_WIRE_TAG: u64 = 18;
+
+#[kani::proof]
+#[kani::unwind(6)]
+fn x5chain_wire_sign1_tag_preserves_the_header_bucket_positions() {
+    let has_tag: bool = kani::any();
+    let tag = if kani::any() {
+        SIGN1_WIRE_TAG
+    } else {
+        kani::any()
+    };
+    let complete: bool = kani::any();
+    // Separate witnesses let the proof detect a field swap when removing the
+    // tag. The semantic checks on each field run after selecting the array.
+    let mut items = vec![Value::Bool(false), Value::Bool(true), Value::Null];
+    if complete {
+        items.push(Value::Integer(1.into()));
+    }
+    let body = Value::Array(items);
+    let envelope = ManuallyDrop::new(if has_tag {
+        Value::Tag(tag, Box::new(body))
+    } else {
+        body
+    });
+    let fields = sign1_fields(&envelope);
+    let supported_tag = !has_tag || tag == SIGN1_WIRE_TAG;
+    if complete && supported_tag {
+        let Ok(([protected, unprotected, payload, signature], tagged)) = fields else {
+            assert!(
+                false,
+                "a supported Sign1 envelope must expose its four fields"
+            );
+            return;
+        };
+        assert!(tagged == has_tag);
+        assert!(matches!(protected, Value::Bool(false)));
+        assert!(matches!(unprotected, Value::Bool(true)));
+        assert!(matches!(payload, Value::Null));
+        assert!(matches!(signature, Value::Integer(value) if i64::try_from(*value) == Ok(1)));
+    } else {
+        assert!(matches!(fields, Err(CoseError::InvalidFormat)));
+    }
+    kani::cover!(has_tag && tag == SIGN1_WIRE_TAG && fields.is_ok(), "tag 18");
+    kani::cover!(!has_tag && fields.is_ok(), "untagged Sign1");
+    kani::cover!(complete && !supported_tag && fields.is_err(), "wrong tag");
+    kani::cover!(
+        !complete && has_tag && supported_tag && fields.is_err(),
+        "incomplete tagged array"
+    );
+}
 
 #[kani::proof]
 fn x5chain_wire_label_33_selects_the_bucket_and_can_only_be_claimed_once() {

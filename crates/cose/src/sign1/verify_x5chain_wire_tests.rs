@@ -13,6 +13,20 @@ use super::{
 const PROTECTED_CERTIFICATE: u8 = 0x51;
 const UNPROTECTED_CERTIFICATE: u8 = 0x62;
 
+// Tag 18 precedes the Sign1 array. Use distinct certificate lengths and a
+// non-sorted sequence so a reversal, sort, or flattening is observable.
+#[cfg(test)]
+const TAGGED_PROTECTED_CHAIN: &[u8] =
+    b"\xd2\x84\x4b\xa2\x01\x32\x18\x21\x82\x41\x62\x42\x51\x52\xa0\x41\x53\x41\x64";
+#[cfg(test)]
+const TAGGED_UNPROTECTED_CHAIN: &[u8] =
+    b"\xd2\x84\x43\xa1\x01\x32\xa1\x18\x21\x83\x41\x62\x42\x51\x52\x41\x63\x41\x53\x41\x64";
+const TAGGED_DUPLICATE_CHAIN: &[u8] = b"\xd2\x84\x4b\xa2\x01\x32\x18\x21\x82\x41\x62\x42\x51\x52\
+      \xa1\x18\x21\x82\x41\x71\x41\x72\x41\x53\x41\x64";
+#[cfg(test)]
+const TAGGED_MALFORMED_CHAIN: &[u8] =
+    b"\xd2\x84\x43\xa1\x01\x32\xa1\x18\x21\x82\x41\x62\xf6\x41\x53\x41\x64";
+
 // Literal CBOR keeps the fixtures independent of the Sign1 encoder. The
 // protected bstr encodes a map with alg = -19 (Ed25519) and optional label 33.
 // The unprotected map carries only label 33 when present.
@@ -119,25 +133,94 @@ fn x5chain_wire_fixtures_decode_and_gate_trust() {
     }
 }
 
+#[cfg(test)]
+#[test]
+fn x5chain_tagged_certificate_arrays_reach_trust_in_wire_order() -> Result<(), CoseError> {
+    let policy = CosePolicy::default()
+        .with_require_tagged_sign1(true)
+        .with_allow_unprotected_x5chain(true);
+    let first_two: &[&[u8]] = &[&[0x62], &[0x51, 0x52]];
+    let all_three: &[&[u8]] = &[&[0x62], &[0x51, 0x52], &[0x63]];
+    for (wire, placement, expected) in [
+        (
+            TAGGED_PROTECTED_CHAIN,
+            X5ChainHeaderPlacement::Protected,
+            first_two,
+        ),
+        (
+            TAGGED_UNPROTECTED_CHAIN,
+            X5ChainHeaderPlacement::Unprotected,
+            all_three,
+        ),
+    ] {
+        let decoded = decode_cose_sign1_with_x5chain(wire, wire.len())?;
+        assert!(decoded.tagged);
+        assert_eq!(decoded.x5chain_placement, Some(placement));
+
+        let mut trust_called = false;
+        let result = cose_verify1_with_x5chain_and_exact_algorithm(wire, &policy, |alg, chain| {
+            trust_called = true;
+            assert_eq!(alg, CoseSignatureAlgorithm::Ed25519);
+            assert_eq!(chain.len(), expected.len());
+            for (certificate, wire_certificate) in chain.iter().zip(expected) {
+                assert_eq!(certificate.as_slice(), *wire_certificate);
+            }
+            None
+        });
+        assert!(trust_called);
+        assert_eq!(result.err(), Some(CoseError::KeyNotResolved));
+    }
+
+    let (_, untagged) = TAGGED_PROTECTED_CHAIN
+        .split_first()
+        .ok_or(CoseError::InvalidFormat)?;
+    let wrong_tag = [&[0xd3], untagged].concat();
+    for (wire, expected_error) in [
+        (untagged, CoseError::InvalidFormat),
+        (wrong_tag.as_slice(), CoseError::UnexpectedCborTag),
+        (TAGGED_DUPLICATE_CHAIN, CoseError::DuplicateMapLabel),
+        (TAGGED_MALFORMED_CHAIN, CoseError::InvalidFormat),
+    ] {
+        let mut trust_called = false;
+        let result = cose_verify1_with_x5chain_and_exact_algorithm(wire, &policy, |_, _| {
+            trust_called = true;
+            None
+        });
+        assert_eq!(result.err(), Some(expected_error));
+        assert!(!trust_called);
+    }
+    Ok(())
+}
+
 #[cfg(kani)]
 mod proof {
     use super::super::VerifiedDetachedCoseSign1;
     use super::{
         verify_fixture, wire_fixture, CoseError, CosePolicy, CoseSignatureAlgorithm,
-        DecodedCoseSign1WithX5Chain, X5ChainHeaderPlacement,
+        DecodedCoseSign1WithX5Chain, X5ChainHeaderPlacement, TAGGED_DUPLICATE_CHAIN,
     };
 
     #[kani::proof]
-    #[kani::unwind(20)]
+    #[kani::unwind(28)]
     #[kani::stub(super::super::decode_cose_sign1_with_x5chain, reject_duplicate)]
     #[kani::stub(super::super::verify_x5chain_signature, unexpected_verification)]
     fn x5chain_wire_duplicate_error_stops_before_trust_resolution() {
-        let (error, trust_called) = verify_fixture(wire_fixture(true, true), true);
+        let tagged: bool = kani::any();
+        let wire = if tagged {
+            TAGGED_DUPLICATE_CHAIN
+        } else {
+            wire_fixture(true, true)
+        };
+        let (error, trust_called) = verify_fixture(wire, true);
         assert!(error == Some(CoseError::DuplicateMapLabel));
         assert!(!trust_called);
         kani::cover!(
-            error == Some(CoseError::DuplicateMapLabel) && !trust_called,
-            "duplicate decoder error stops trust"
+            !tagged && error == Some(CoseError::DuplicateMapLabel) && !trust_called,
+            "untagged duplicate decoder error stops trust"
+        );
+        kani::cover!(
+            tagged && error == Some(CoseError::DuplicateMapLabel) && !trust_called,
+            "tagged duplicate decoder error stops trust"
         );
     }
 
@@ -148,7 +231,7 @@ mod proof {
         wire: &[u8],
         max_len: usize,
     ) -> Result<DecodedCoseSign1WithX5Chain, CoseError> {
-        assert!(wire == wire_fixture(true, true));
+        assert!(wire == wire_fixture(true, true) || wire == TAGGED_DUPLICATE_CHAIN);
         assert!(wire.len() <= max_len);
         Err(CoseError::DuplicateMapLabel)
     }

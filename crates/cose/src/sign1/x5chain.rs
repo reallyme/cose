@@ -14,6 +14,10 @@ use crate::CoseError;
 
 const X5CHAIN_LABEL: i64 = iana::HeaderParameter::X5Chain as i64;
 
+#[cfg(kani)]
+#[path = "x5chain_array_proof_tests.rs"]
+mod array_proofs;
+
 pub(super) fn validate_x5chain<B: AsRef<[u8]>>(certificates_der: &[B]) -> Result<(), CoseError> {
     if certificates_der.is_empty() {
         return Ok(());
@@ -63,15 +67,22 @@ pub(super) fn decode_x5chain(value: &Value) -> Result<Vec<Vec<u8>>, CoseError> {
     validate_x5chain_value(value)?;
     match value {
         Value::Bytes(certificate) => Ok(vec![certificate.clone()]),
-        Value::Array(values) => values
-            .iter()
-            .map(|value| match value {
-                Value::Bytes(certificate) => Ok(certificate.clone()),
-                _ => Err(CoseError::InvalidFormat),
-            })
+        Value::Array(values) => x5chain_array_entries(values)
+            .map(|certificate| certificate.map(<[u8]>::to_vec))
             .collect(),
         _ => Err(CoseError::InvalidFormat),
     }
+}
+
+// Use the same ordered traversal for validation and copying so both passes
+// interpret the certificate positions and element types identically.
+fn x5chain_array_entries(values: &[Value]) -> impl Iterator<Item = Result<&[u8], CoseError>> {
+    values.iter().map(|value| {
+        value
+            .as_bytes()
+            .map(Vec::as_slice)
+            .ok_or(CoseError::InvalidFormat)
+    })
 }
 
 pub(crate) fn validate_x5chain_value(value: &Value) -> Result<(), CoseError> {
@@ -85,10 +96,8 @@ pub(crate) fn validate_x5chain_value(value: &Value) -> Result<(), CoseError> {
                 return Err(CoseError::ResourceLimitExceeded);
             }
             let mut total = 0_usize;
-            for value in values {
-                let Value::Bytes(certificate) = value else {
-                    return Err(CoseError::InvalidFormat);
-                };
+            for certificate in x5chain_array_entries(values) {
+                let certificate = certificate?;
                 validate_certificate_size(certificate)?;
                 total = total
                     .checked_add(certificate.len())

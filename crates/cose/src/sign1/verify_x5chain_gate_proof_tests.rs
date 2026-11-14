@@ -8,8 +8,9 @@ use coset::{iana, CoseSign1, ProtectedHeader, RegisteredLabelWithPrivate};
 use zeroize::Zeroizing;
 
 use super::super::super::decode::{DecodedCoseSign1WithX5Chain, SensitiveCoseSign1};
-use super::super::{verify_x5chain_signature, X5ChainHeaderPlacement};
+use super::super::{verify_x5chain_signature, VerifiedDetachedCoseSign1, X5ChainHeaderPlacement};
 use super::{Algorithm, CoseError, CosePolicy, CoseSignatureAlgorithm, KID, PAYLOAD, SIGNATURE};
+use super::{CoseFailure, CoseSign1KeyResolution};
 
 const PROTECTED: u8 = 1;
 const UNPROTECTED: u8 = 2;
@@ -27,6 +28,88 @@ const PROTECTED_CHAIN_HEADER: [u8; 10] = [
     CERTIFICATE,
 ];
 const UNPROTECTED_CHAIN_HEADER: [u8; 6] = [0xa2, 0x04, 0x41, KID, 0x01, 0x32];
+
+#[kani::proof]
+#[kani::unwind(8)]
+#[kani::stub(super::super::verify_cose_signature, resolve_ordered_fixture)]
+fn x5chain_tagged_resolver_preserves_decoded_certificate_order() {
+    let protected: bool = kani::any();
+    let has_third: bool = kani::any();
+    let first: [u8; 2] = kani::any();
+    let second: [u8; 2] = kani::any();
+    let third: [u8; 2] = kani::any();
+    let certificates = if has_third {
+        vec![first.to_vec(), second.to_vec(), third.to_vec()]
+    } else {
+        vec![first.to_vec(), second.to_vec()]
+    };
+    let placement = if protected {
+        X5ChainHeaderPlacement::Protected
+    } else {
+        X5ChainHeaderPlacement::Unprotected
+    };
+    let mut cose = CoseSign1::default();
+    cose.payload = Some(vec![PAYLOAD]);
+    // The production verifier borrows the decoded chain. Keep recursive
+    // cleanup of the synthetic data outside the order proof.
+    let decoded = ManuallyDrop::new(DecodedCoseSign1WithX5Chain {
+        cose: SensitiveCoseSign1::new(cose),
+        x5chain_der: Zeroizing::new(certificates),
+        x5chain_placement: Some(placement),
+        tagged: true,
+    });
+    let policy = CosePolicy::default()
+        .with_require_tagged_sign1(true)
+        .with_allow_unprotected_x5chain(true);
+    let trust_called = Cell::new(false);
+    let result = verify_x5chain_signature(&decoded, &policy, |algorithm, certificates| {
+        trust_called.set(true);
+        assert!(algorithm == CoseSignatureAlgorithm::Ed25519);
+        let ordered = match (has_third, certificates) {
+            (false, [a, b]) => a.as_slice() == first && b.as_slice() == second,
+            (true, [a, b, c]) => {
+                a.as_slice() == first && b.as_slice() == second && c.as_slice() == third
+            }
+            _ => false,
+        };
+        assert!(ordered);
+        None
+    });
+
+    assert!(trust_called.get());
+    assert!(matches!(result, Err(CoseError::KeyNotResolved)));
+    kani::cover!(
+        protected && !has_third && first > second && trust_called.get(),
+        "protected two-certificate descending order"
+    );
+    kani::cover!(
+        !protected && has_third && first > second && second < third && trust_called.get(),
+        "unprotected three-certificate array with interior minimum"
+    );
+    kani::cover!(
+        first == second && trust_called.get(),
+        "equal entries stay in both positions"
+    );
+}
+
+// Exercise the adapter's actual resolver closure. The separate trust-gate
+// proof checks where the shared signature verifier calls that closure.
+#[allow(dead_code, reason = "Kani resolves stubs after Rust linting")]
+fn resolve_ordered_fixture(
+    _cose: &CoseSign1,
+    tagged: bool,
+    _aad: &[u8],
+    _payload: &[u8],
+    policy: &CosePolicy,
+    resolver: impl FnOnce(CoseSignatureAlgorithm, &[u8]) -> CoseSign1KeyResolution,
+) -> Result<VerifiedDetachedCoseSign1, CoseFailure> {
+    assert!(tagged && policy.require_tagged_sign1());
+    assert!(matches!(
+        resolver(CoseSignatureAlgorithm::Ed25519, &[]),
+        CoseSign1KeyResolution::NotResolved
+    ));
+    Err(CoseFailure::from(CoseError::KeyNotResolved))
+}
 
 #[kani::proof]
 #[kani::unwind(12)]

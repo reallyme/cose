@@ -19,6 +19,8 @@ use super::cose_type::{CoseType, COSE_TYPE_HEADER_LABEL};
 use super::sign::X5ChainHeaderPlacement;
 use super::x5chain::decode_x5chain;
 
+const COSE_SIGN1_TAG: u64 = iana::CborTag::CoseSign1 as u64;
+
 #[cfg(test)]
 #[path = "verify_header_policy_tests.rs"]
 mod tests;
@@ -65,19 +67,8 @@ fn decode_cose_sign1_internal(
     allow_x5chain: bool,
 ) -> Result<DecodedCoseSign1WithX5Chain, CoseError> {
     let decoded = SensitiveCborValue::decode_cose_sign1(cose_bytes, max_len)?;
-    let tagged = matches!(decoded.value(), Value::Tag(18, _));
-    let body = match decoded.value() {
-        Value::Tag(18, body) => body.as_ref(),
-        value => value,
-    };
-    let items = match body {
-        Value::Array(items) => items,
-        _ => return Err(CoseError::InvalidFormat),
-    };
-    let [protected_value, unprotected_value, payload_value, signature_value] = items.as_slice()
-    else {
-        return Err(CoseError::InvalidFormat);
-    };
+    let ([protected_value, unprotected_value, payload_value, signature_value], tagged) =
+        sign1_fields(decoded.value())?;
 
     // Establish the recursive wipe owner before cloning any semantic field.
     // Every rejected header or field type below therefore clears both the
@@ -117,6 +108,20 @@ fn decode_cose_sign1_internal(
         x5chain_placement,
         tagged,
     })
+}
+
+fn sign1_fields(value: &Value) -> Result<([&Value; 4], bool), CoseError> {
+    let (body, tagged) = match value {
+        Value::Tag(COSE_SIGN1_TAG, body) => (body.as_ref(), true),
+        value => (value, false),
+    };
+    let Value::Array(items) = body else {
+        return Err(CoseError::InvalidFormat);
+    };
+    let [protected, unprotected, payload, signature] = items.as_slice() else {
+        return Err(CoseError::InvalidFormat);
+    };
+    Ok(([protected, unprotected, payload, signature], tagged))
 }
 
 #[derive(Clone, Copy)]
