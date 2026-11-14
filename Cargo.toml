@@ -44,6 +44,7 @@ overflow-checks = true
 [workspace.lints.rust]
 unsafe_code = "deny"
 missing_docs = "warn"
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(kani)"] }
 
 [workspace.lints.clippy]
 dbg_macro = "deny"

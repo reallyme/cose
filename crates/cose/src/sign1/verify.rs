@@ -7,13 +7,12 @@ use coset::CoseSign1;
 use reallyme_crypto::core::Algorithm;
 use reallyme_crypto::dispatch::verify;
 
-use crate::encode_cbor::encode_protected_header;
 use crate::error::verify_error_from_algorithm_error;
 use crate::failure::CoseFailure;
 use crate::policy::{validate_cose_sign1_policy, CosePolicy};
 use crate::CoseError;
 
-use super::build_sig_structure::build_sig_structure;
+use super::build_sig_structure::build_received_sig_structure;
 use super::convert_signature::backend_signature_from_cose;
 use super::cose_type::CoseType;
 use super::decode::{
@@ -425,8 +424,7 @@ fn verify_cose_signature(
 
     // RFC 9052 §4.4: the Sig_structure must carry the protected header bstr
     // exactly as received, not a re-encoding of the parsed header.
-    let protected_bytes = encode_protected_header(&cose.protected)?;
-    let to_verify = build_sig_structure(&protected_bytes, external_aad, payload)?;
+    let to_verify = build_received_sig_structure(&cose.protected, external_aad, payload)?;
     let backend_signature = backend_signature_from_cose(alg, &cose.signature)?;
 
     verify(alg, &public_key, &to_verify, &backend_signature)

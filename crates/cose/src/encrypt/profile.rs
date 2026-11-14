@@ -16,6 +16,10 @@ use super::types::{
     CoseContentEncryptionAlgorithm, CoseMlKemAlgorithm, CoseMlKemMode, CoseMlKemProfile,
 };
 
+#[cfg(kani)]
+#[path = "verify_ml_kem_profile_proof_tests.rs"]
+mod verification;
+
 pub(crate) const ML_KEM_PRIVATE_SEED_LENGTH: usize = 64;
 pub(crate) const ML_KEM_KID_LENGTH: usize = 32;
 pub(crate) const ML_KEM_512_PUBLIC_KEY_LENGTH: usize = 800;

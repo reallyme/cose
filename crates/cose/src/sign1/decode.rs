@@ -19,6 +19,10 @@ use super::cose_type::{CoseType, COSE_TYPE_HEADER_LABEL};
 use super::sign::X5ChainHeaderPlacement;
 use super::x5chain::decode_x5chain;
 
+#[cfg(test)]
+#[path = "verify_header_policy_tests.rs"]
+mod tests;
+
 /// Decode untagged COSE_Sign1 bytes, or bytes carrying the registered
 /// COSE_Sign1 tag (18) already allowed by the byte-boundary tag policy.
 pub(super) fn decode_cose_sign1(

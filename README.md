@@ -744,6 +744,8 @@ crate publication additionally requires its package-preflight checks. Locally,
 the pinned upstream copy before running the same gate (requires network access). Fuzzing
 commands and runtime limits are documented in
 [the fuzzing guide](https://github.com/reallyme/cose/blob/main/fuzz/README.md).
+The [formal verification guide](https://github.com/reallyme/cose/blob/main/docs/formal-verification.md)
+documents the Kani checks, their input bounds, and how to run them locally.
 
 Release readiness requires crates.io dependencies for the published ReallyMe
 foundational crates: `reallyme-crypto` `^0.3.17` and `reallyme-codec` `^0.3.2`.
