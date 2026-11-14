@@ -345,6 +345,25 @@ fn x5chain_verification_is_explicit_bounded_and_preserves_exact_es256() {
         X5ChainHeaderPlacement::Unprotected
     );
 
+    for (encoded, placement_policy) in [
+        (cose.as_slice(), &policy),
+        (unprotected_chain.as_slice(), &unprotected_policy),
+    ] {
+        let mut trust_called = false;
+        let rejected = reallyme_cose::cose_verify1_with_x5chain_and_exact_algorithm(
+            encoded,
+            placement_policy,
+            |algorithm, certificates| {
+                trust_called = true;
+                assert_eq!(algorithm, CoseSignatureAlgorithm::Es256);
+                assert_eq!(certificates, expected_certificates.as_slice());
+                None
+            },
+        );
+        assert!(trust_called);
+        assert_eq!(rejected.err(), Some(CoseError::KeyNotResolved));
+    }
+
     // A third party can add an unprotected path to a message signed without
     // one. The default policy must not attribute that path to the signer.
     let without_chain = cose_sign1_with_signature_algorithm(

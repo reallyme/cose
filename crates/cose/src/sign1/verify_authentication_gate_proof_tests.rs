@@ -17,6 +17,9 @@ use crate::{Algorithm, CoseError, CosePolicy, CoseSignatureAlgorithm};
 #[path = "verify_p256_dispatch_proof_tests.rs"]
 mod p256_dispatch;
 
+#[path = "verify_x5chain_gate_proof_tests.rs"]
+mod x5chain;
+
 const KID: u8 = 0x31;
 const AAD: u8 = 0x42;
 const PAYLOAD: u8 = 0x53;
