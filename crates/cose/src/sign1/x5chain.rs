@@ -13,6 +13,7 @@ use crate::limits::{
 use crate::CoseError;
 
 const X5CHAIN_LABEL: i64 = iana::HeaderParameter::X5Chain as i64;
+const MIN_X5CHAIN_ARRAY_CERTIFICATES: usize = 2;
 
 #[cfg(kani)]
 #[path = "x5chain_array_proof_tests.rs"]
@@ -65,6 +66,10 @@ pub(super) fn decode_x5chain(value: &Value) -> Result<Vec<Vec<u8>>, CoseError> {
     // Validate the complete borrowed chain before copying any certificate.
     // A malformed later entry must not strand earlier copies on an error path.
     validate_x5chain_value(value)?;
+    copy_validated_x5chain(value)
+}
+
+fn copy_validated_x5chain(value: &Value) -> Result<Vec<Vec<u8>>, CoseError> {
     match value {
         Value::Bytes(certificate) => Ok(vec![certificate.clone()]),
         Value::Array(values) => x5chain_array_entries(values)
@@ -76,7 +81,9 @@ pub(super) fn decode_x5chain(value: &Value) -> Result<Vec<Vec<u8>>, CoseError> {
 
 // Use the same ordered traversal for validation and copying so both passes
 // interpret the certificate positions and element types identically.
-fn x5chain_array_entries(values: &[Value]) -> impl Iterator<Item = Result<&[u8], CoseError>> {
+fn x5chain_array_entries(
+    values: &[Value],
+) -> impl ExactSizeIterator<Item = Result<&[u8], CoseError>> {
     values.iter().map(|value| {
         value
             .as_bytes()
@@ -88,35 +95,47 @@ fn x5chain_array_entries(values: &[Value]) -> impl Iterator<Item = Result<&[u8],
 pub(crate) fn validate_x5chain_value(value: &Value) -> Result<(), CoseError> {
     match value {
         Value::Bytes(certificate) => validate_certificate_size(certificate),
-        Value::Array(values) => {
-            if values.len() < 2 {
-                return Err(CoseError::InvalidFormat);
-            }
-            if values.len() > MAX_COSE_X5CHAIN_CERTIFICATES {
-                return Err(CoseError::ResourceLimitExceeded);
-            }
-            let mut total = 0_usize;
-            for certificate in x5chain_array_entries(values) {
-                let certificate = certificate?;
-                validate_certificate_size(certificate)?;
-                total = total
-                    .checked_add(certificate.len())
-                    .ok_or(CoseError::ResourceLimitExceeded)?;
-                if total > MAX_COSE_X5CHAIN_TOTAL_BYTES {
-                    return Err(CoseError::ResourceLimitExceeded);
-                }
-            }
-            Ok(())
-        }
+        Value::Array(values) => validate_x5chain_array_sizes(
+            x5chain_array_entries(values).map(|entry| entry.map(<[u8]>::len)),
+        ),
         _ => Err(CoseError::InvalidFormat),
     }
 }
 
-pub(crate) fn validate_certificate_size(certificate: &[u8]) -> Result<(), CoseError> {
-    if certificate.is_empty() {
+// Array admission depends on the shape and length of each parsed entry.
+// Validate those before the decoder allocates the owned certificate path.
+fn validate_x5chain_array_sizes(
+    sizes: impl ExactSizeIterator<Item = Result<usize, CoseError>>,
+) -> Result<(), CoseError> {
+    if sizes.len() < MIN_X5CHAIN_ARRAY_CERTIFICATES {
         return Err(CoseError::InvalidFormat);
     }
-    if certificate.len() > MAX_COSE_X5CHAIN_CERTIFICATE_BYTES {
+    if sizes.len() > MAX_COSE_X5CHAIN_CERTIFICATES {
+        return Err(CoseError::ResourceLimitExceeded);
+    }
+    let mut total = 0_usize;
+    for size in sizes {
+        let size = size?;
+        validate_certificate_len(size)?;
+        total = total
+            .checked_add(size)
+            .ok_or(CoseError::ResourceLimitExceeded)?;
+        if total > MAX_COSE_X5CHAIN_TOTAL_BYTES {
+            return Err(CoseError::ResourceLimitExceeded);
+        }
+    }
+    Ok(())
+}
+
+pub(crate) fn validate_certificate_size(certificate: &[u8]) -> Result<(), CoseError> {
+    validate_certificate_len(certificate.len())
+}
+
+fn validate_certificate_len(size: usize) -> Result<(), CoseError> {
+    if size == 0 {
+        return Err(CoseError::InvalidFormat);
+    }
+    if size > MAX_COSE_X5CHAIN_CERTIFICATE_BYTES {
         return Err(CoseError::ResourceLimitExceeded);
     }
     Ok(())

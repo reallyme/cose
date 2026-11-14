@@ -4,10 +4,17 @@
 use core::cell::Cell;
 
 #[cfg(test)]
+use ciborium::value::Value;
+
+#[cfg(test)]
 use super::decode_cose_sign1_with_x5chain;
 use super::{
     cose_verify1_with_x5chain_and_exact_algorithm, CoseError, CosePolicy, CoseSignatureAlgorithm,
     DecodedCoseSign1WithX5Chain, X5ChainHeaderPlacement,
+};
+#[cfg(test)]
+use crate::limits::{
+    MAX_COSE_X5CHAIN_CERTIFICATES, MAX_COSE_X5CHAIN_CERTIFICATE_BYTES, MAX_COSE_X5CHAIN_TOTAL_BYTES,
 };
 
 const PROTECTED_CERTIFICATE: u8 = 0x51;
@@ -181,23 +188,139 @@ fn x5chain_tagged_certificate_arrays_reach_trust_in_wire_order() -> Result<(), C
         (TAGGED_DUPLICATE_CHAIN, CoseError::DuplicateMapLabel),
         (TAGGED_MALFORMED_CHAIN, CoseError::InvalidFormat),
     ] {
-        let mut trust_called = false;
-        let result = cose_verify1_with_x5chain_and_exact_algorithm(wire, &policy, |_, _| {
-            trust_called = true;
-            None
-        });
-        assert_eq!(result.err(), Some(expected_error));
-        assert!(!trust_called);
+        assert_eq!(
+            verify_refusing_trust(wire, &policy),
+            (Some(expected_error), false)
+        );
     }
     Ok(())
+}
+
+fn verify_refusing_trust(wire: &[u8], policy: &CosePolicy) -> (Option<CoseError>, bool) {
+    let mut trust_called = false;
+    let result = cose_verify1_with_x5chain_and_exact_algorithm(wire, policy, |_, _| {
+        trust_called = true;
+        None
+    });
+    (result.err(), trust_called)
+}
+
+#[cfg(test)]
+#[test]
+fn x5chain_wire_array_bounds_are_enforced_before_trust() -> Result<(), CoseError> {
+    let next_count = MAX_COSE_X5CHAIN_CERTIFICATES
+        .checked_add(1)
+        .ok_or(CoseError::ResourceLimitExceeded)?;
+    let next_size = MAX_COSE_X5CHAIN_CERTIFICATE_BYTES
+        .checked_add(1)
+        .ok_or(CoseError::ResourceLimitExceeded)?;
+    let budget_entry_size = MAX_COSE_X5CHAIN_TOTAL_BYTES
+        .checked_div(MAX_COSE_X5CHAIN_CERTIFICATES)
+        .ok_or(CoseError::InvalidFormat)?;
+    let over_budget_entry_size = budget_entry_size
+        .checked_add(1)
+        .ok_or(CoseError::ResourceLimitExceeded)?;
+    // These two paths differ by one byte, with each entry inside its own
+    // size limit. This isolates the aggregate check from the other limits.
+    assert_eq!(
+        budget_entry_size.checked_mul(MAX_COSE_X5CHAIN_CERTIFICATES),
+        Some(MAX_COSE_X5CHAIN_TOTAL_BYTES)
+    );
+    assert!(over_budget_entry_size <= MAX_COSE_X5CHAIN_CERTIFICATE_BYTES);
+    let exact_budget = vec![certificate_fixture(budget_entry_size); MAX_COSE_X5CHAIN_CERTIFICATES];
+    let mut over_budget = exact_budget.clone();
+    *over_budget.last_mut().ok_or(CoseError::InvalidFormat)? =
+        certificate_fixture(over_budget_entry_size);
+    let cases = [
+        (vec![], CoseError::InvalidFormat),
+        (vec![certificate_fixture(1)], CoseError::InvalidFormat),
+        (vec![certificate_fixture(1); 2], CoseError::KeyNotResolved),
+        (
+            vec![certificate_fixture(1); next_count],
+            CoseError::ResourceLimitExceeded,
+        ),
+        (
+            vec![certificate_fixture(1), certificate_fixture(0)],
+            CoseError::InvalidFormat,
+        ),
+        (
+            vec![certificate_fixture(1), Value::Null],
+            CoseError::InvalidFormat,
+        ),
+        (
+            vec![
+                certificate_fixture(1),
+                certificate_fixture(MAX_COSE_X5CHAIN_CERTIFICATE_BYTES),
+            ],
+            CoseError::KeyNotResolved,
+        ),
+        (
+            vec![certificate_fixture(1), certificate_fixture(next_size)],
+            CoseError::ResourceLimitExceeded,
+        ),
+        (exact_budget, CoseError::KeyNotResolved),
+        (over_budget, CoseError::ResourceLimitExceeded),
+    ];
+    let policy = CosePolicy::default()
+        .with_require_tagged_sign1(true)
+        .with_allow_unprotected_x5chain(true);
+    for (chain, expected) in cases {
+        for protected in [true, false] {
+            let wire = encode_tagged_chain_fixture(chain.clone(), protected)?;
+            // Allow the full wire object so CBOR framing bytes cannot make
+            // the general Sign1 ceiling mask the certificate-byte limit.
+            let wire_policy = policy.clone().with_max_cose_sign1_bytes(wire.len());
+            assert_eq!(wire_policy.max_cose_sign1_bytes(), wire.len());
+            assert_eq!(
+                verify_refusing_trust(&wire, &wire_policy),
+                (Some(expected), expected == CoseError::KeyNotResolved)
+            );
+        }
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+fn certificate_fixture(size: usize) -> Value {
+    Value::Bytes(vec![0x51; size])
+}
+
+// Serialize the independent wire fixture without the Sign1 encoder. Its
+// chain checks would reject the malformed inputs before they reach verification.
+#[cfg(test)]
+fn encode_tagged_chain_fixture(
+    certificates: Vec<Value>,
+    protected: bool,
+) -> Result<Vec<u8>, CoseError> {
+    let algorithm = (Value::Integer(1.into()), Value::Integer((-19).into()));
+    let chain = (Value::Integer(33.into()), Value::Array(certificates));
+    let (protected_entries, unprotected_entries) = if protected {
+        (vec![algorithm, chain], Vec::new())
+    } else {
+        (vec![algorithm], vec![chain])
+    };
+    let mut protected_bytes = Vec::new();
+    ciborium::ser::into_writer(&Value::Map(protected_entries), &mut protected_bytes)
+        .map_err(|_| CoseError::Cbor)?;
+    let body = Value::Array(vec![
+        Value::Bytes(protected_bytes),
+        Value::Map(unprotected_entries),
+        Value::Bytes(vec![0x53]),
+        Value::Bytes(vec![0x64]),
+    ]);
+    let mut wire = Vec::new();
+    ciborium::ser::into_writer(&Value::Tag(18, Box::new(body)), &mut wire)
+        .map_err(|_| CoseError::Cbor)?;
+    Ok(wire)
 }
 
 #[cfg(kani)]
 mod proof {
     use super::super::VerifiedDetachedCoseSign1;
     use super::{
-        verify_fixture, wire_fixture, CoseError, CosePolicy, CoseSignatureAlgorithm,
-        DecodedCoseSign1WithX5Chain, X5ChainHeaderPlacement, TAGGED_DUPLICATE_CHAIN,
+        verify_fixture, verify_refusing_trust, wire_fixture, CoseError, CosePolicy,
+        CoseSignatureAlgorithm, DecodedCoseSign1WithX5Chain, X5ChainHeaderPlacement,
+        TAGGED_DUPLICATE_CHAIN,
     };
 
     #[kani::proof]
@@ -224,6 +347,50 @@ mod proof {
         );
     }
 
+    #[kani::proof]
+    #[kani::unwind(5)]
+    #[kani::stub(super::super::decode_cose_sign1_with_x5chain, reject_invalid_array)]
+    #[kani::stub(super::super::verify_x5chain_signature, unexpected_verification)]
+    fn x5chain_wire_array_decoder_errors_stop_before_trust() {
+        let oversized: bool = kani::any();
+        let decoder_witness = [u8::from(oversized)];
+        let policy = CosePolicy::default().with_allow_unprotected_x5chain(true);
+        let (error, trust_called) = verify_refusing_trust(&decoder_witness, &policy);
+        let expected = if oversized {
+            CoseError::ResourceLimitExceeded
+        } else {
+            CoseError::InvalidFormat
+        };
+        assert!(error == Some(expected));
+        assert!(!trust_called);
+        kani::cover!(
+            !oversized && error == Some(CoseError::InvalidFormat),
+            "malformed array stops before trust"
+        );
+        kani::cover!(
+            oversized && error == Some(CoseError::ResourceLimitExceeded),
+            "oversized array stops before trust"
+        );
+    }
+
+    // The array proofs establish these semantic errors. Model the decoding
+    // boundary here so the verifier is checked independently of CBOR parsing.
+    #[allow(dead_code, reason = "Kani resolves stubs after Rust linting")]
+    fn reject_invalid_array(
+        witness: &[u8],
+        max_len: usize,
+    ) -> Result<DecodedCoseSign1WithX5Chain, CoseError> {
+        assert!(witness.len() <= max_len);
+        match witness {
+            [0] => Err(CoseError::InvalidFormat),
+            [1] => Err(CoseError::ResourceLimitExceeded),
+            _ => {
+                assert!(false, "expected one typed array error witness");
+                Err(CoseError::InvalidFormat)
+            }
+        }
+    }
+
     // The bucket decoder proof establishes this error for a chain in each
     // bucket. Check the original wire bytes reach the decoder boundary.
     #[allow(dead_code, reason = "Kani resolves stubs after Rust linting")]
@@ -244,7 +411,7 @@ mod proof {
     ) -> Result<(VerifiedDetachedCoseSign1, X5ChainHeaderPlacement), CoseError> {
         assert!(
             false,
-            "duplicate chains must stop before the verification stage"
+            "rejected chains must stop before the verification stage"
         );
         Err(CoseError::InvalidSignature)
     }
