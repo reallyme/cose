@@ -6,8 +6,9 @@
 use reallyme_cose::{
     cose_key_from_public_bytes, cose_key_from_signature_private_bytes,
     cose_key_from_signature_public_bytes, cose_key_from_slice, cose_key_signature_algorithm,
-    cose_key_to_public_bytes, cose_key_to_vec, cose_sign1_with_signature_algorithm,
-    cose_sign1_with_signature_algorithm_and_external_aad, cose_verify1_with_exact_algorithm,
+    cose_key_to_public_bytes, cose_key_to_vec, cose_sign1_detached_with_signature_algorithm,
+    cose_sign1_with_signature_algorithm, cose_sign1_with_signature_algorithm_and_external_aad,
+    cose_verify1_detached_with_exact_algorithm, cose_verify1_with_exact_algorithm,
     cose_verify1_with_policy, cose_verify1_with_x5chain, derive_kid_from_cose_key_public,
     Algorithm, CoseError, CosePolicy, CoseSign1EncodeOptions, CoseSignatureAlgorithm,
     X5ChainHeaderPlacement,
@@ -45,6 +46,72 @@ fn exact_resolver_does_not_reuse_an_es256_key_for_esp256() {
             assert!(matches!(result, Err(CoseError::KeyNotResolved)));
         }
     }
+}
+
+#[test]
+fn detached_exact_resolver_keeps_registrations_separate_for_the_same_kid() -> Result<(), CoseError>
+{
+    let (es256_public, es256_private) =
+        reallyme_crypto::dispatch::generate_keypair(Algorithm::P256)
+            .map_err(|_| CoseError::InvalidKeyMaterial)?;
+    let (esp256_public, esp256_private) =
+        reallyme_crypto::dispatch::generate_keypair(Algorithm::P256)
+            .map_err(|_| CoseError::InvalidKeyMaterial)?;
+    let payload = b"detached payload";
+    let kid = test_kid();
+    let policy = CosePolicy::default();
+
+    for (registration, other, private, other_public) in [
+        (
+            CoseSignatureAlgorithm::Es256,
+            CoseSignatureAlgorithm::Esp256,
+            es256_private.as_slice(),
+            &esp256_public,
+        ),
+        (
+            CoseSignatureAlgorithm::Esp256,
+            CoseSignatureAlgorithm::Es256,
+            esp256_private.as_slice(),
+            &es256_public,
+        ),
+    ] {
+        let signed = cose_sign1_detached_with_signature_algorithm(
+            registration,
+            payload,
+            private,
+            Some(kid),
+        )?;
+        let result = cose_verify1_detached_with_exact_algorithm(
+            &signed,
+            payload,
+            &[],
+            &policy,
+            |requested, requested_kid| {
+                assert_eq!(requested_kid, kid);
+                match requested {
+                    CoseSignatureAlgorithm::Es256 => Some(es256_public.clone()),
+                    CoseSignatureAlgorithm::Esp256 => Some(esp256_public.clone()),
+                    _ => None,
+                }
+            },
+        )?;
+        assert_eq!(result.cose_algorithm, registration);
+        assert_eq!(result.alg, Algorithm::P256);
+        assert_eq!(result.kid.as_slice(), kid);
+
+        let result = cose_verify1_detached_with_exact_algorithm(
+            &signed,
+            payload,
+            &[],
+            &policy,
+            |requested, requested_kid| {
+                assert_eq!(requested_kid, kid);
+                (requested == other).then(|| other_public.clone())
+            },
+        );
+        assert!(matches!(result, Err(CoseError::KeyNotResolved)));
+    }
+    Ok(())
 }
 
 #[test]

@@ -13,6 +13,10 @@ use super::{
 };
 use crate::{Algorithm, CoseError, CosePolicy, CoseSignatureAlgorithm};
 
+#[cfg(feature = "wire")]
+#[path = "verify_p256_dispatch_proof_tests.rs"]
+mod p256_dispatch;
+
 const KID: u8 = 0x31;
 const AAD: u8 = 0x42;
 const PAYLOAD: u8 = 0x53;
