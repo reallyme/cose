@@ -2,6 +2,7 @@
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+use crate::algorithm::CoseSignatureAlgorithm;
 use crate::failure::CoseFailure;
 #[cfg(feature = "cose-crypto")]
 use crate::key::convert::canonical_ml_kem_public_key_bytes;
@@ -15,6 +16,9 @@ use reallyme_codec::cbor::sha2_256_content_hash;
 #[cfg(feature = "cose-crypto")]
 use zeroize::Zeroize;
 use zeroize::Zeroizing;
+
+#[path = "encode_p256_kid_preimage.rs"]
+mod p256_preimage;
 
 #[must_use]
 pub(crate) struct CoseKeyKidOutput {
@@ -46,19 +50,33 @@ pub(crate) fn derive_cose_key_public_kid(
     let signature_algorithm =
         cose_key_signature_algorithm(input.key()).map_err(CoseFailure::from)?;
     let public_bytes = extract_cose_key_public(input)?.into_zeroizing();
-    let public_key = match signature_algorithm {
-        Some(signature_algorithm) => {
-            construct_cose_key_from_signature_public(signature_algorithm, &public_bytes)?.into_key()
+    let digest = Zeroizing::new(match signature_algorithm {
+        Some(signature @ (CoseSignatureAlgorithm::Es256 | CoseSignatureAlgorithm::Esp256)) => {
+            // EC2 extraction validates the key and returns compressed SEC1
+            // bytes. The P-256 encoder accepts only that public projection.
+            let point = public_bytes
+                .as_slice()
+                .try_into()
+                .map_err(|_| CoseFailure::from(CoseError::InvalidKeyMaterial))?;
+            p256_preimage::hash_p256_kid(signature, point)?
         }
-        None => construct_cose_key_from_public(CoseKeyFromPublicBytesInput::new(
-            algorithm,
-            &public_bytes,
-        ))?
-        .into_key(),
-    };
-    let canonical = encode_cose_key(CoseKeyRefInput::new(&public_key))?.into_zeroizing();
+        signature => {
+            let public_key = match signature {
+                Some(signature) => {
+                    construct_cose_key_from_signature_public(signature, &public_bytes)?.into_key()
+                }
+                None => construct_cose_key_from_public(CoseKeyFromPublicBytesInput::new(
+                    algorithm,
+                    &public_bytes,
+                ))?
+                .into_key(),
+            };
+            let canonical = encode_cose_key(CoseKeyRefInput::new(&public_key))?.into_zeroizing();
+            sha2_256_content_hash(&canonical)
+        }
+    });
     Ok(CoseKeyKidOutput {
-        kid: Zeroizing::new(sha2_256_content_hash(&canonical).to_vec()),
+        kid: Zeroizing::new(digest.to_vec()),
         #[cfg(feature = "wire")]
         signature_algorithm,
     })
