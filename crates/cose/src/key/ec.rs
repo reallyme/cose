@@ -4,15 +4,20 @@
 
 //! Elliptic-curve COSE_Key profile and point conversion helpers.
 
-use coset::{iana, CoseKeyBuilder};
+use ciborium::value::Value;
+use coset::{iana, CoseKeyBuilder, Label};
 use reallyme_crypto::core::Algorithm;
 
 use crate::algorithm::CoseSignatureAlgorithm;
 use crate::CoseError;
 
 use super::encoding::CoseEc2PointEncoding;
-use super::profile::{get_param_bytes, get_param_value};
+use super::profile::find_param_value;
 use super::validate_material::validate_public_key;
+
+#[cfg(kani)]
+#[path = "verify_ec2_public_extraction_proof_tests.rs"]
+mod verification;
 
 const COMPRESSED_POINT_PREFIX_BYTES: usize = 1;
 const COMPRESSED_POINT_EVEN_PREFIX: u8 = 0x02;
@@ -293,13 +298,15 @@ fn validate_supplied_point(
     validate_public_key(algorithm, &sec1)
 }
 
-pub(crate) fn ec2_public_bytes_from_key(
-    key: &coset::CoseKey,
+pub(super) fn ec2_public_bytes_from_params(
+    params: &[(Label, Value)],
     profile: Ec2Profile,
 ) -> Result<Vec<u8>, CoseError> {
-    let x = get_param_bytes(key, iana::Ec2KeyParameter::X as i64)
+    let x = find_param_value(params, iana::Ec2KeyParameter::X as i64)
+        .and_then(Value::as_bytes)
+        .map(Vec::as_slice)
         .ok_or(CoseError::MissingKeyMaterial)?;
-    let y = get_param_value(key, iana::Ec2KeyParameter::Y as i64)
+    let y = find_param_value(params, iana::Ec2KeyParameter::Y as i64)
         .ok_or(CoseError::MissingKeyMaterial)?;
     let mut public_key = Vec::with_capacity(compressed_point_len(profile)?);
     if let Some(y_sign) = y.as_bool() {

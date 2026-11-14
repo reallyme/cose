@@ -13,7 +13,7 @@ use crate::{CoseError, CoseKey};
 
 use super::akp::{akp_profile_from_cose_algorithm, algorithm_for_akp_profile, AkpProfile};
 use super::ec::{
-    algorithm_for_ec2_profile, ec2_profile_from_curve, ec2_public_bytes_from_key, Ec2Profile,
+    algorithm_for_ec2_profile, ec2_profile_from_curve, ec2_public_bytes_from_params, Ec2Profile,
 };
 use super::validate_material::{validate_private_public_pair, validate_public_key};
 
@@ -172,7 +172,7 @@ fn validate_ec2_profile(key: &coset::CoseKey) -> Result<KeyProfile, CoseError> {
     validate_key_operations(key, private_key.is_some(), true)?;
     if has_public_point {
         let algorithm = algorithm_for_ec2_profile(profile)?;
-        let public_key = ec2_public_bytes_from_key(key, profile)?;
+        let public_key = ec2_public_bytes_from_params(&key.params, profile)?;
         validate_public_key(algorithm, &public_key)?;
         if let Some(private_key) = private_key {
             validate_private_public_pair(algorithm, private_key, &public_key)?;
@@ -296,10 +296,16 @@ fn validate_key_operations(
 }
 
 pub(crate) fn get_param_value(key: &coset::CoseKey, label: i64) -> Option<&Value> {
-    key.params
+    find_param_value(&key.params, label)
+}
+
+pub(super) fn find_param_value(params: &[(Label, Value)], label: i64) -> Option<&Value> {
+    params
         .iter()
-        .find(|(candidate, _)| *candidate == Label::Int(label))
-        .map(|(_, value)| value)
+        .find_map(|(candidate, value)| match candidate {
+            Label::Int(candidate) if *candidate == label => Some(value),
+            _ => None,
+        })
 }
 
 pub(crate) fn get_param_bytes(key: &coset::CoseKey, label: i64) -> Option<&[u8]> {

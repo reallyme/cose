@@ -5,8 +5,9 @@
 
 use reallyme_cose::{
     cose_key_from_private_bytes, cose_key_from_public_bytes, cose_key_from_signature_private_bytes,
-    cose_key_from_signature_public_bytes_with_encoding, cose_key_to_vec,
-    derive_kid_from_cose_key_public, CoseEc2PointEncoding, CoseError, CoseSignatureAlgorithm,
+    cose_key_from_signature_public_bytes_with_encoding, cose_key_from_slice,
+    cose_key_to_public_bytes, cose_key_to_vec, derive_kid_from_cose_key_public,
+    CoseEc2PointEncoding, CoseError, CoseSignatureAlgorithm,
 };
 use zeroize::Zeroizing;
 
@@ -66,12 +67,18 @@ fn p256_kid_matches_independent_public_preimage_for_each_registration() -> Resul
     ] {
         let private_key =
             cose_key_from_signature_private_bytes(algorithm, private.as_slice(), Some(&public))?;
+        assert_eq!(cose_key_to_public_bytes(&private_key)?.as_slice(), public);
+        assert_eq!(
+            hex::encode(derive_kid_from_cose_key_public(&private_key)?),
+            expected
+        );
         for encoding in [
             CoseEc2PointEncoding::Compressed,
             CoseEc2PointEncoding::FullCoordinates,
         ] {
             let public_key =
                 cose_key_from_signature_public_bytes_with_encoding(algorithm, &public, encoding)?;
+            assert_eq!(cose_key_to_public_bytes(&public_key)?.as_slice(), public);
             if encoding == CoseEc2PointEncoding::Compressed {
                 let canonical = cose_key_to_vec(&public_key)?;
                 assert_eq!(
@@ -84,9 +91,48 @@ fn p256_kid_matches_independent_public_preimage_for_each_registration() -> Resul
                 expected
             );
         }
+    }
+    Ok(())
+}
+
+#[test]
+fn parsed_p256_full_coordinate_private_key_yields_only_its_public_point() -> Result<(), CoseError> {
+    // Canonical EC2 map of the generator with full coordinates and d = 1.
+    // Assemble under a wipe owner because the stock private-key constructor
+    // deliberately normalizes to a compact representation.
+    const FULL_PRIVATE_KEY_BYTES: usize = 112;
+    let mut d = Zeroizing::new([0_u8; 32]);
+    d[31] = 1;
+    let y = [
+        0x4f, 0xe3, 0x42, 0xe2, 0xfe, 0x1a, 0x7f, 0x9b, 0x8e, 0xe7, 0xeb, 0x4a, 0x7c, 0x0f, 0x9e,
+        0x16, 0x2b, 0xce, 0x33, 0x57, 0x6b, 0x31, 0x5e, 0xce, 0xcb, 0xb6, 0x40, 0x68, 0x37, 0xbf,
+        0x51, 0xf5,
+    ];
+    for (algorithm, id) in [
+        (CoseSignatureAlgorithm::Es256, 0x26),
+        (CoseSignatureAlgorithm::Esp256, 0x28),
+    ] {
+        let mut encoded = Zeroizing::new(Vec::with_capacity(FULL_PRIVATE_KEY_BYTES));
+        encoded.extend_from_slice(&[0xa6, 0x01, 0x02, 0x03, id, 0x20, 0x01, 0x21, 0x58, 0x20]);
+        encoded.extend_from_slice(&P256_GENERATOR_COMPRESSED[1..]);
+        encoded.extend_from_slice(&[0x22, 0x58, 0x20]);
+        encoded.extend_from_slice(&y);
+        encoded.extend_from_slice(&[0x23, 0x58, 0x20]);
+        encoded.extend_from_slice(d.as_slice());
+        assert_eq!(encoded.len(), FULL_PRIVATE_KEY_BYTES);
+        let key = cose_key_from_slice(&encoded)?;
         assert_eq!(
-            hex::encode(derive_kid_from_cose_key_public(&private_key)?),
-            expected
+            cose_key_to_public_bytes(&key)?.as_slice(),
+            P256_GENERATOR_COMPRESSED
+        );
+        let public = cose_key_from_signature_public_bytes_with_encoding(
+            algorithm,
+            &P256_GENERATOR_COMPRESSED,
+            CoseEc2PointEncoding::Compressed,
+        )?;
+        assert_eq!(
+            derive_kid_from_cose_key_public(&key)?.as_slice(),
+            derive_kid_from_cose_key_public(&public)?.as_slice()
         );
     }
     Ok(())

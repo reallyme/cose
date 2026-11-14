@@ -18,7 +18,7 @@ use crate::{CoseError, CoseKey};
 use super::akp::{akp_key, akp_profile, algorithm_for_akp_profile};
 use super::ec::{
     algorithm_for_ec2_profile, canonical_ec_public_key, ec2_profile,
-    ec2_profile_for_signature_algorithm, ec2_public_bytes_from_key, ec2_public_key_builder,
+    ec2_profile_for_signature_algorithm, ec2_public_bytes_from_params, ec2_public_key_builder,
     ec_public_key_for_encoding,
 };
 use super::encoding::CoseEc2PointEncoding;
@@ -375,7 +375,7 @@ fn extract_cose_key_public_impl(key: &CoseKey) -> Result<Vec<u8>, CoseError> {
             Ok(public_key.to_vec())
         }
         KeyProfile::Ec2(profile) => {
-            let public_key = ec2_public_bytes_from_key(key.inner(), profile)?;
+            let public_key = ec2_public_bytes_from_params(&key.inner().params, profile)?;
             validate_public_key(algorithm_for_ec2_profile(profile)?, &public_key)?;
             Ok(public_key)
         }
