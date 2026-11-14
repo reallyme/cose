@@ -24,6 +24,11 @@ use crate::limits::validate_detached_payload_with_limit;
 use zeroize::Zeroizing;
 
 use crate::algorithm::CoseSignatureAlgorithm;
+
+#[cfg(kani)]
+#[path = "verify_authentication_gate_proof_tests.rs"]
+mod verification;
+
 /// Verified COSE_Sign1 attached payload and protected-header metadata.
 pub use crate::generated_contract::VerifiedCoseSign1;
 
@@ -427,8 +432,7 @@ fn verify_cose_signature(
     let to_verify = build_received_sig_structure(&cose.protected, external_aad, payload)?;
     let backend_signature = backend_signature_from_cose(alg, &cose.signature)?;
 
-    verify(alg, &public_key, &to_verify, &backend_signature)
-        .map_err(verify_error_from_algorithm_error)?;
+    verify_signature_with_backend(alg, &public_key, &to_verify, &backend_signature)?;
 
     Ok(VerifiedDetachedCoseSign1 {
         alg,
@@ -436,4 +440,15 @@ fn verify_cose_signature(
         kid: Zeroizing::new(kid.to_vec()),
         cose_type,
     })
+}
+
+// Translate provider errors at the boundary so the verification flow can be
+// checked against a typed provider result independent of the provider version.
+fn verify_signature_with_backend(
+    algorithm: Algorithm,
+    public_key: &[u8],
+    message: &[u8],
+    signature: &[u8],
+) -> Result<(), CoseError> {
+    verify(algorithm, public_key, message, signature).map_err(verify_error_from_algorithm_error)
 }

@@ -68,8 +68,8 @@ pub(crate) fn derive_cose_key_public_kid(
 ///
 /// The public key is validated and normalized before encoding, so compressed,
 /// raw-coordinate, and uncompressed SEC1 inputs for the same EC point produce
-/// one identifier. The canonical public key includes its algorithm binding;
-/// the same bytes under a different COSE algorithm therefore cannot collide.
+/// one identifier. The canonical public key includes its algorithm binding,
+/// so a different COSE algorithm changes the bytes passed to SHA-256.
 ///
 /// # Errors
 ///

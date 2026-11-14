@@ -46,7 +46,7 @@ jobs:
           sha256sum Cargo.lock > "$RUNNER_TEMP/workspace-lock.sha256"
           results="$RUNNER_TEMP/verification.json"
           CARGO_NET_OFFLINE=true cargo kani --package reallyme-cose --lib --no-default-features --features native \
-            --output-format terse -Z unstable-options --harness-timeout 360s --export-json "$results"
+            --output-format terse -Z stubbing -Z unstable-options --harness-timeout 360s --export-json "$results"
           sha256sum --check --strict "$RUNNER_TEMP/workspace-lock.sha256"
           # Unmet cover goals alone do not fail the verifier. Require the
           # positive and negative scenarios declared by every harness.

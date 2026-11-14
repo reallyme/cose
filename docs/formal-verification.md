@@ -13,6 +13,7 @@ inputs, real cryptographic providers, and the byte-entry points.
 | Signature registration | Each supported numeric wire ID selects its exact registration and primitive. Legacy curve-dependent, unknown, and private-use IDs fail modern selection. | All `i64` values, against an independent IANA registration table. |
 | Sign1 policy | Restricted policies require exact COSE registration membership, including for ES256 and ESP256. | Every generated selector against every ordered allowlist of zero to two generated selectors, including duplicates. |
 | Sign1 authenticated bytes | The verifier's input builder preserves the original protected bstr, external AAD, and payload, in order and with the `Signature1` context. It rejects a missing original bstr. | An out-of-order protected map with a symbolic `kid`, and symbolic one-byte AAD and payload. |
+| Sign1 authentication gate | Attached and detached verification enforce payload placement before resolving the protected algorithm and `kid`. The verification flow passes the received protected bytes, AAD and intended payload to the structure builder, then forwards the builder output, resolved key and signature to the backend. Only backend acceptance releases authenticated metadata and, for attached verification, the payload. | An Ed25519 fixture with symbolic embedded-payload presence and backend acceptance. Stubs model wire decoding, protected-byte preflight, policy, the structure builder, signature conversion, fixture wiping and cryptographic verification. |
 | Authentication lengths | CBOR byte-string sizing accounts for the correct prefix width and fails on overflow. | Every pair of 64-bit `usize` inputs to the size helper. |
 | ML-KEM recipient registration | Each private-use ID selects the documented mode, parameter set, wire lengths, and optional AES-KW registration and key length. Unknown private-use IDs fail closed. | All `i64` values supplied as private-use labels. |
 
@@ -29,7 +30,7 @@ object, and the RFC 9052 encoding of an out-of-order protected map with varied
 
 | Priority | Area | Method and acceptance condition |
 | --- | --- | --- |
-| 1 | Sign1 verification | Model the cryptographic verifier at its dispatch boundary to check the resolver receives the exact protected algorithm and `kid`, attached and detached paths select the intended payload, and a failed verification yields neither payload nor authenticated metadata. Extend proofs to longer allowlists, larger signed fields, duplicate wire labels, and the certificate-bearing profile. |
+| 1 | Sign1 verification | Extend the authentication gate to cover resolver failures, exact ES256 and ESP256 dispatch, and the certificate-bearing profile. Extend proofs to longer allowlists, larger signed fields, and duplicate wire labels. |
 | 2 | COSE_Key and `kid` | Check public-only canonical preimages against independent encodings across key families. Prove private-field exclusion and selector preservation at the production normalization boundary. Exercise equivalent full and compact EC2 points with valid generated keys and established vectors. Distinct algorithm bindings must have distinct preimages. Digest uniqueness relies on SHA-256's collision resistance. |
 | 3 | ML-KEM composition | Check the production KDF context against an independent byte specification. Model key derivation, decapsulation, unwrap, and AES-GCM through typed results at the crypto boundary. Prove both recipient identity checks precede decapsulation and plaintext is returned only after required key establishment and content authentication. The unprotected encapsulation ciphertext affects authentication through the established key. |
 | 4 | Mac0 and signature representation | Check the `MAC0` context, detached payload, AAD, protected headers, HMAC registration and exact tag length. Verify DER/raw conversion against width and canonical DER rules while preserving the existing NIST-curve verification semantics. Evaluate constant-time comparison with a leakage-aware method. |
@@ -54,7 +55,7 @@ cargo install --locked kani-verifier --version '=0.68.0'
 cargo kani setup
 cargo fetch --locked
 CARGO_NET_OFFLINE=true cargo kani --package reallyme-cose --lib --no-default-features --features native \
-  --output-format terse -Z unstable-options --harness-timeout 360s \
+  --output-format terse -Z stubbing -Z unstable-options --harness-timeout 360s \
   --export-json target/formal-verification.json
 ```
 
