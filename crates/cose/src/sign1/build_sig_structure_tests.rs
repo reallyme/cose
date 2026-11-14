@@ -2,6 +2,7 @@
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+use ciborium::value::Value;
 use coset::{Header, ProtectedHeader};
 
 use super::{build_received_sig_structure, build_sig_structure};
@@ -61,4 +62,59 @@ fn check_received_structure(kid: u8, aad: u8, payload: u8) -> Result<(), CoseErr
     expected[22] = payload;
     assert_eq!(encoded.as_slice(), expected);
     Ok(())
+}
+
+#[test]
+fn received_signature1_fields_match_independent_cbor_at_mixed_boundaries() -> Result<(), CoseError>
+{
+    const FIELD_LENGTHS: [usize; 4] = [23, 24, 255, 256];
+
+    for (protected_len, kid_len) in [(23, 18), (24, 19), (255, 249), (256, 250)] {
+        // The key ID comes before alg on the wire. Its own length prefix
+        // widens for the two larger fixtures.
+        let protected = encode_fixture(&Value::Map(vec![
+            (
+                Value::Integer(4.into()),
+                Value::Bytes(patterned_bytes(kid_len, 0x33)),
+            ),
+            (Value::Integer(1.into()), Value::Integer((-19).into())),
+        ]))?;
+        assert_eq!(protected.len(), protected_len);
+        let received = ProtectedHeader {
+            original_data: Some(protected.clone()),
+            header: Header::default(),
+        };
+
+        for aad_len in FIELD_LENGTHS {
+            for payload_len in FIELD_LENGTHS {
+                let aad = patterned_bytes(aad_len, 0x55);
+                let payload = patterned_bytes(payload_len, 0xaa);
+                let encoded = build_received_sig_structure(&received, &aad, &payload)?;
+                let expected = encode_fixture(&Value::Array(vec![
+                    Value::Text("Signature1".into()),
+                    Value::Bytes(protected.clone()),
+                    Value::Bytes(aad),
+                    Value::Bytes(payload),
+                ]))?;
+                assert_eq!(
+                    *encoded, expected,
+                    "field lengths {protected_len}, {aad_len}, {payload_len}"
+                );
+            }
+        }
+    }
+    Ok(())
+}
+
+fn patterned_bytes(length: usize, mask: u8) -> Vec<u8> {
+    (u8::MIN..=u8::MAX)
+        .take(length)
+        .map(|byte| byte ^ mask)
+        .collect()
+}
+
+fn encode_fixture(value: &Value) -> Result<Vec<u8>, CoseError> {
+    let mut bytes = Vec::new();
+    ciborium::ser::into_writer(value, &mut bytes).map_err(|_| CoseError::Cbor)?;
+    Ok(bytes)
 }
