@@ -213,7 +213,11 @@ fn x5chain_verification_is_explicit_bounded_and_preserves_exact_es256() {
     .expect("explicit x5chain profile must verify");
     assert_eq!(verified.payload.as_slice(), b"payload");
     assert_eq!(verified.cose_algorithm, CoseSignatureAlgorithm::Es256);
-    assert_eq!(verified.x5chain_der, expected_certificates);
+    assert_eq!(*verified.x5chain_der, expected_certificates);
+    assert_eq!(
+        verified.x5chain_header_placement,
+        X5ChainHeaderPlacement::Protected
+    );
 
     let mut tampered = cose.to_vec();
     let certificate_offset = tampered
@@ -245,13 +249,69 @@ fn x5chain_verification_is_explicit_bounded_and_preserves_exact_es256() {
             .with_x5chain_header_placement(X5ChainHeaderPlacement::Unprotected),
     )
     .expect("unprotected x5chain COSE_Sign1 must sign");
-    let verified =
-        cose_verify1_with_x5chain(&unprotected_chain, &policy, |algorithm, certificates| {
+    let mut resolver_called = false;
+    assert_eq!(
+        cose_verify1_with_x5chain(&unprotected_chain, &policy, |_, _| {
+            resolver_called = true;
+            Some(keypair.public.clone())
+        })
+        .err(),
+        Some(CoseError::UnprotectedHeaderNotAllowed),
+    );
+    assert!(
+        !resolver_called,
+        "placement must be rejected before trust resolution"
+    );
+    let unprotected_policy = policy.clone().with_allow_unprotected_x5chain(true);
+    let verified = cose_verify1_with_x5chain(
+        &unprotected_chain,
+        &unprotected_policy,
+        |algorithm, certificates| {
             (algorithm == Algorithm::P256 && certificates == expected_certificates.as_slice())
                 .then(|| keypair.public.clone())
+        },
+    )
+    .expect("RFC 9360 unprotected x5chain must verify when explicitly enabled");
+    assert_eq!(*verified.x5chain_der, expected_certificates);
+    assert_eq!(
+        verified.x5chain_header_placement,
+        X5ChainHeaderPlacement::Unprotected
+    );
+
+    // A third party can add an unprotected path to a message signed without
+    // one. The default policy must not attribute that path to the signer.
+    let without_chain = cose_sign1_with_signature_algorithm(
+        CoseSignatureAlgorithm::Es256,
+        b"payload",
+        &keypair.private,
+        None,
+    )
+    .expect("ES256 COSE_Sign1 must sign");
+    let mut injected: ciborium::value::Value =
+        ciborium::de::from_reader(without_chain.as_slice()).expect("signed COSE must decode");
+    *injected
+        .as_array_mut()
+        .and_then(|fields| fields.get_mut(1))
+        .expect("unprotected header must exist") = ciborium::value::Value::Map(vec![(
+        ciborium::value::Value::Integer(33_i64.into()),
+        ciborium::value::Value::Bytes(LEAF_CERTIFICATE_DER.to_vec()),
+    )]);
+    let mut injected_bytes = Vec::new();
+    ciborium::ser::into_writer(&injected, &mut injected_bytes).expect("test COSE must encode");
+    assert_eq!(
+        cose_verify1_with_x5chain(&injected_bytes, &policy, |_, _| {
+            Some(keypair.public.clone())
         })
-        .expect("RFC 9360 unprotected x5chain must verify explicitly");
-    assert_eq!(verified.x5chain_der, expected_certificates);
+        .err(),
+        Some(CoseError::UnprotectedHeaderNotAllowed),
+    );
+    assert_eq!(
+        cose_verify1_with_x5chain(&without_chain, &unprotected_policy, |_, _| {
+            Some(keypair.public.clone())
+        })
+        .err(),
+        Some(CoseError::InvalidFormat),
+    );
 
     let mut duplicate_chain: ciborium::value::Value =
         ciborium::de::from_reader(cose.as_slice()).expect("signed COSE must decode");

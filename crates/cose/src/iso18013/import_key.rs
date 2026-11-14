@@ -14,6 +14,7 @@ const KEY_TYPE_LABEL: i64 = 1;
 const KEY_ID_LABEL: i64 = 2;
 const ALGORITHM_LABEL: i64 = 3;
 const KEY_OPERATIONS_LABEL: i64 = 4;
+const BASE_IV_LABEL: i64 = 5;
 const CURVE_LABEL: i64 = -1;
 const X_LABEL: i64 = -2;
 const Y_LABEL: i64 = -3;
@@ -41,6 +42,11 @@ pub(super) fn import(
             KEY_TYPE_LABEL | ALGORITHM_LABEL | CURVE_LABEL | X_LABEL | Y_LABEL => {}
             KEY_OPERATIONS_LABEL => validate_operations(value)?,
             KEY_ID_LABEL if matches!(value, Value::Bytes(_)) => {}
+            BASE_IV_LABEL => {
+                // Base IV is metadata. Only the public point is passed to the
+                // verifier, with no IV-specific size requirement on this key.
+                bytes(value)?;
+            }
             // This is a public verification-key boundary. Private parameters
             // and unrelated key-family extensions must not become usable keys.
             _ => return Err(CoseError::InvalidKeyMaterial),

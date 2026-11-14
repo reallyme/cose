@@ -24,7 +24,6 @@ pub(crate) fn from_result(result: CoseWireResult<CoseOperationResult>) -> CoseOp
     };
     CoseOperationResponseV2 {
         outcome: Some(outcome),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
@@ -40,7 +39,7 @@ pub(crate) fn encode_or_error(response: &CoseOperationResponseV2) -> Zeroizing<V
     };
     if encoded.len() > maximum {
         return encode_protobuf(&from_result(Err(CoseWireError::backend_internal(
-            CoseErrorReason::CommonResourceLimitExceeded,
+            CoseErrorReason::BackendResourceLimitExceeded,
         ))));
     }
     encoded
@@ -59,7 +58,7 @@ pub(crate) fn decode(bytes: &[u8]) -> Result<CoseOperationResponseV2, CoseOperat
     let maximum = maximum_response_bytes().map_err(from_error)?;
     if bytes.len() > maximum {
         return Err(from_result(Err(CoseWireError::backend_internal(
-            CoseErrorReason::CommonResourceLimitExceeded,
+            CoseErrorReason::BackendResourceLimitExceeded,
         ))));
     }
 
@@ -101,6 +100,8 @@ fn validate_result(result: &CoseOperationResult) -> CoseWireResult<()> {
         Some(
             CoseOperationResultBranch::Sign1Create(_)
             | CoseOperationResultBranch::Sign1CreateDetached(_)
+            | CoseOperationResultBranch::Sign1CreateProfile(_)
+            | CoseOperationResultBranch::Sign1CreateDetachedProfile(_)
             | CoseOperationResultBranch::KeyToMultikey(_)
             | CoseOperationResultBranch::MlKemEncryptDirect(_)
             | CoseOperationResultBranch::MlKemEncryptKeyWrap(_),
@@ -114,7 +115,7 @@ fn validate_result(result: &CoseOperationResult) -> CoseWireResult<()> {
             | CoseOperationResultBranch::KeyDerivePublicKid(message)
             | CoseOperationResultBranch::MultikeyToCoseKey(message),
         ) => {
-            if message.has_signature_algorithm {
+            if message.signature_algorithm != CoseSignatureAlgorithm::Unspecified {
                 message
                     .signature_algorithm
                     .as_known()
@@ -125,10 +126,74 @@ fn validate_result(result: &CoseOperationResult) -> CoseWireResult<()> {
         }
         Some(
             CoseOperationResultBranch::Sign1Verify(message)
-            | CoseOperationResultBranch::Sign1VerifyDetached(message),
+            | CoseOperationResultBranch::Sign1VerifyDetached(message)
+            | CoseOperationResultBranch::Sign1VerifyProfile(message),
         ) => sign1_metadata_is_valid(message),
         Some(CoseOperationResultBranch::MlKemDecrypt(message)) => {
             decrypt_metadata_is_valid(message)
+        }
+        Some(
+            CoseOperationResultBranch::AgreementKeyCreate(value)
+            | CoseOperationResultBranch::AgreementKeyParse(value),
+        ) => super::profile_response::agreement(value),
+        Some(CoseOperationResultBranch::ContractInfo(value)) => {
+            value.constants.len() == crate::generated_contract::CONSTANTS.len()
+                && value
+                    .constants
+                    .iter()
+                    .zip(crate::generated_contract::CONSTANTS)
+                    .all(|(entry, (constant, number))| {
+                        entry.constant == *constant && entry.value == *number
+                    })
+        }
+        Some(CoseOperationResultBranch::Mac0VerifyDetached(value)) => {
+            super::profile_response::mac0(value)
+        }
+        Some(CoseOperationResultBranch::IsoSign1Verify(value)) => {
+            super::profile_response::iso(value)
+        }
+        Some(CoseOperationResultBranch::ContainerVerify(value)) => {
+            super::profile_response::container(value)
+        }
+        Some(CoseOperationResultBranch::PeerKeyInspect(value)) => {
+            !value.validated && super::profile_response::peer(value)
+        }
+        Some(CoseOperationResultBranch::PeerKeyValidate(value)) => {
+            value.validated && super::profile_response::peer(value)
+        }
+        Some(CoseOperationResultBranch::VerificationKeyImport(value)) => {
+            super::profile_response::working_key(value)
+        }
+        Some(CoseOperationResultBranch::SignatureSuiteInfo(value)) => {
+            super::profile_response::suite_info(value)
+        }
+        Some(
+            CoseOperationResultBranch::ContainerSign(value)
+            | CoseOperationResultBranch::SignatureToCose(value)
+            | CoseOperationResultBranch::SignatureToDer(value),
+        ) => {
+            !value.encoded.is_empty() && value.encoded.len() <= crate::limits::MAX_COSE_SIGN1_BYTES
+        }
+        Some(
+            CoseOperationResultBranch::SignatureValidate(_)
+            | CoseOperationResultBranch::PreferredCborValidate(_),
+        ) => true,
+        Some(CoseOperationResultBranch::Sign1VerifyX5chain(value)) => {
+            value
+                .verified
+                .as_option()
+                .is_some_and(sign1_metadata_is_valid)
+                && value
+                    .x5chain
+                    .as_option()
+                    .is_some_and(|chain| !chain.certificates_der.is_empty())
+                && matches!(
+                    value.placement.as_known(),
+                    Some(
+                        crate::wire::CoseX5ChainHeaderPlacement::Protected
+                            | crate::wire::CoseX5ChainHeaderPlacement::Unprotected
+                    )
+                )
         }
         None => false,
     };
@@ -143,6 +208,63 @@ fn result_matches_request(request: &CoseOperationRequest, result: &CoseOperation
     matches!(
         (request.operation.as_ref(), result.result.as_ref()),
         (
+            Some(cose_operation_request::Operation::Sign1CreateProfile(_)),
+            Some(CoseOperationResultBranch::Sign1CreateProfile(_))
+        ) | (
+            Some(cose_operation_request::Operation::Sign1CreateDetachedProfile(_)),
+            Some(CoseOperationResultBranch::Sign1CreateDetachedProfile(_))
+        ) | (
+            Some(cose_operation_request::Operation::Sign1VerifyProfile(_)),
+            Some(CoseOperationResultBranch::Sign1VerifyProfile(_))
+        ) | (
+            Some(cose_operation_request::Operation::Sign1VerifyX5chain(_)),
+            Some(CoseOperationResultBranch::Sign1VerifyX5chain(_))
+        ) | (
+            Some(cose_operation_request::Operation::AgreementKeyCreate(_)),
+            Some(CoseOperationResultBranch::AgreementKeyCreate(_))
+        ) | (
+            Some(cose_operation_request::Operation::AgreementKeyParse(_)),
+            Some(CoseOperationResultBranch::AgreementKeyParse(_))
+        ) | (
+            Some(cose_operation_request::Operation::Mac0VerifyDetached(_)),
+            Some(CoseOperationResultBranch::Mac0VerifyDetached(_))
+        ) | (
+            Some(cose_operation_request::Operation::IsoSign1Verify(_)),
+            Some(CoseOperationResultBranch::IsoSign1Verify(_))
+        ) | (
+            Some(cose_operation_request::Operation::ContainerVerify(_)),
+            Some(CoseOperationResultBranch::ContainerVerify(_))
+        ) | (
+            Some(cose_operation_request::Operation::ContainerSign(_)),
+            Some(CoseOperationResultBranch::ContainerSign(_))
+        ) | (
+            Some(cose_operation_request::Operation::PeerKeyInspect(_)),
+            Some(CoseOperationResultBranch::PeerKeyInspect(_))
+        ) | (
+            Some(cose_operation_request::Operation::PeerKeyValidate(_)),
+            Some(CoseOperationResultBranch::PeerKeyValidate(_))
+        ) | (
+            Some(cose_operation_request::Operation::SignatureToCose(_)),
+            Some(CoseOperationResultBranch::SignatureToCose(_))
+        ) | (
+            Some(cose_operation_request::Operation::SignatureToDer(_)),
+            Some(CoseOperationResultBranch::SignatureToDer(_))
+        ) | (
+            Some(cose_operation_request::Operation::SignatureValidate(_)),
+            Some(CoseOperationResultBranch::SignatureValidate(_))
+        ) | (
+            Some(cose_operation_request::Operation::SignatureSuiteInfo(_)),
+            Some(CoseOperationResultBranch::SignatureSuiteInfo(_))
+        ) | (
+            Some(cose_operation_request::Operation::VerificationKeyImport(_)),
+            Some(CoseOperationResultBranch::VerificationKeyImport(_))
+        ) | (
+            Some(cose_operation_request::Operation::ContractInfo(_)),
+            Some(CoseOperationResultBranch::ContractInfo(_))
+        ) | (
+            Some(cose_operation_request::Operation::PreferredCborValidate(_)),
+            Some(CoseOperationResultBranch::PreferredCborValidate(_))
+        ) | (
             Some(cose_operation_request::Operation::Sign1Create(_)),
             Some(CoseOperationResultBranch::Sign1Create(_)),
         ) | (
@@ -191,6 +313,8 @@ fn result_matches_request(request: &CoseOperationRequest, result: &CoseOperation
     )
 }
 
+// Published legacy selectors remain valid metadata for older callers.
+#[allow(deprecated)]
 fn signature_algorithm_is_valid(value: EnumValue<CoseSignatureAlgorithm>) -> bool {
     matches!(
         value.as_known(),
@@ -226,7 +350,7 @@ fn sign1_metadata_is_valid(result: &crate::wire::CoseSign1VerifyResult) -> bool 
     let Some(compatibility) = result.algorithm.as_known() else {
         return false;
     };
-    if !result.has_exact_signature_algorithm {
+    if result.exact_signature_algorithm == CoseSignatureAlgorithm::Unspecified {
         return result.exact_signature_algorithm.to_i32() == 0;
     }
     let Some(exact) = result.exact_signature_algorithm.as_known() else {
@@ -252,6 +376,8 @@ const fn exact_signature_algorithm_is_valid(algorithm: CoseSignatureAlgorithm) -
     )
 }
 
+// Published legacy selectors remain valid metadata for older callers.
+#[allow(deprecated)]
 const fn signature_algorithms_share_primitive(
     compatibility: CoseSignatureAlgorithm,
     exact: CoseSignatureAlgorithm,
@@ -314,8 +440,11 @@ fn maximum_response_bytes() -> CoseWireResult<usize> {
 }
 
 const fn response_boundary_error(error: CoseWireError) -> CoseWireError {
-    if matches!(error.reason(), CoseErrorReason::CommonResourceLimitExceeded) {
-        CoseWireError::backend_internal(CoseErrorReason::CommonResourceLimitExceeded)
+    if matches!(
+        error.reason(),
+        CoseErrorReason::BackendResourceLimitExceeded
+    ) {
+        CoseWireError::backend_internal(CoseErrorReason::BackendResourceLimitExceeded)
     } else {
         malformed_response_error()
     }

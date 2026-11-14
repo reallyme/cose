@@ -46,8 +46,8 @@ fn maximum_detached_payload_and_exact_application_limits_verify() -> Result<(), 
         Iso18013Sign1Content::DeviceDetached(&payload),
         &allowed,
     );
-    input.limits.max_encoded_bytes = encoded.len();
-    input.limits.max_payload_bytes = payload.len();
+    input.limits.encoded_bytes = encoded.len();
+    input.limits.payload_bytes = payload.len();
     let verified = cose_verify_iso18013_sign1(input, &verifier)?;
     assert_eq!(verified.protected_key_id(), None);
     let mut input = request(
@@ -55,7 +55,7 @@ fn maximum_detached_payload_and_exact_application_limits_verify() -> Result<(), 
         Iso18013Sign1Content::DeviceDetached(&payload),
         &allowed,
     );
-    input.limits.max_encoded_bytes = encoded.len() - 1;
+    input.limits.encoded_bytes = encoded.len() - 1;
     assert_error(
         cose_verify_iso18013_sign1(input, &verifier),
         CoseError::ResourceLimitExceeded,

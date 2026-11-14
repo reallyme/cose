@@ -4,9 +4,7 @@
 
 //! COSE helpers for ReallyMe identity software.
 //!
-//! The public surface covers COSE_Sign1, detached COSE_Mac0, COSE_Key, and the ReallyMe ML-KEM
-//! profile for COSE_Encrypt. Other COSE message families fail closed instead
-//! of being partially interpreted.
+//! COSE operations are defined by protobuf and generated with Buffa.
 //!
 //! # Example
 //!
@@ -71,6 +69,7 @@ mod encode_cbor;
 mod failure;
 #[cfg(test)]
 mod failure_tests;
+mod generated_contract;
 
 /// Explicit signed-container, certificate, peer-key and opaque-signing contracts.
 #[cfg(feature = "cose-crypto")]
@@ -144,6 +143,8 @@ pub use multikey::{cose_key_to_multikey, multikey_to_cose_key};
 #[cfg(feature = "wire")]
 mod operation_contract;
 
+#[cfg(feature = "wire")]
+pub mod api;
 /// Protobuf-ready request, result, and error adapters.
 #[cfg(feature = "wire")]
 pub mod wire;

@@ -260,13 +260,11 @@ fn proto_encrypt_request(public_key: &[u8], kid: &[u8]) -> ProtoEncryptRequest {
     ProtoEncryptRequest {
         kem_algorithm: EnumValue::from(CoseKemAlgorithm::MlKem512),
         content_algorithm: EnumValue::from(ProtoContentAlgorithm::Aes128Gcm),
-        recipient_public_key: public_key.to_vec(),
-        recipient_kid: kid.to_vec(),
-        plaintext: PLAINTEXT.to_vec(),
-        external_aad: EXTERNAL_AAD.to_vec(),
-        supp_priv_info: SUPP_PRIV_INFO.to_vec(),
-        has_supp_priv_info: true,
-        __buffa_unknown_fields: Default::default(),
+        recipient_public_key: public_key.to_vec().into(),
+        recipient_kid: kid.to_vec().into(),
+        plaintext: PLAINTEXT.to_vec().into(),
+        external_aad: EXTERNAL_AAD.to_vec().into(),
+        supp_priv_info: Some(SUPP_PRIV_INFO.to_vec().into()),
     }
 }
 
@@ -277,13 +275,11 @@ fn proto_decrypt_request(
     external_aad: &[u8],
 ) -> ProtoDecryptRequest {
     ProtoDecryptRequest {
-        cose_encrypt: cose_encrypt.to_vec(),
-        recipient_private_key: private_key.to_vec(),
-        expected_recipient_kid: kid.to_vec(),
-        external_aad: external_aad.to_vec(),
-        supp_priv_info: SUPP_PRIV_INFO.to_vec(),
-        has_supp_priv_info: true,
-        __buffa_unknown_fields: Default::default(),
+        cose_encrypt: cose_encrypt.to_vec().into(),
+        recipient_private_key: private_key.to_vec().into(),
+        expected_recipient_kid: kid.to_vec().into(),
+        external_aad: external_aad.to_vec().into(),
+        supp_priv_info: Some(SUPP_PRIV_INFO.to_vec().into()),
     }
 }
 
@@ -339,7 +335,7 @@ fn execute_encrypt_json(operation: Operation) -> Zeroizing<Vec<u8>> {
 fn decode_encrypt_result(payload: Zeroizing<Vec<u8>>) -> Zeroizing<Vec<u8>> {
     let mut result = CoseMlKemEncryptResult::decode_from_slice(&payload)
         .expect("ML-KEM encrypt result must decode");
-    Zeroizing::new(core::mem::take(&mut result.cose_encrypt))
+    core::mem::take(&mut result.cose_encrypt).into_zeroizing()
 }
 
 fn execute_decrypt_both(
@@ -422,6 +418,5 @@ fn assert_native_error<T>(result: Result<T, CoseError>, expected: CoseError) {
 fn operation_request(operation: Operation) -> CoseOperationRequest {
     CoseOperationRequest {
         operation: Some(operation),
-        __buffa_unknown_fields: Default::default(),
     }
 }

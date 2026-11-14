@@ -163,7 +163,7 @@ fn portable_cose_sign1_vectors_verify() {
                         "{}",
                         case.id
                     );
-                    assert_eq!(verified.x5chain_der, expected_chain, "{}", case.id);
+                    assert_eq!(*verified.x5chain_der, expected_chain, "{}", case.id);
                 })
             }
             "verify_attached"
@@ -171,7 +171,8 @@ fn portable_cose_sign1_vectors_verify() {
             {
                 let mut policy = CosePolicy::new();
                 if let Some(cose_type) = &case.protected_type {
-                    policy = policy.with_expected_type(CoseType::Text(cose_type.clone()));
+                    policy =
+                        policy.with_expected_type(CoseType::MediaType(cose_type.clone().into()));
                 }
                 cose_verify1_with_policy_and_external_aad(
                     &cose,

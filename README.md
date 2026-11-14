@@ -25,17 +25,20 @@ protocol implementations.
 cargo add reallyme-cose
 ```
 
-The default `native` feature enables signing, verification, key validation,
-detached MAC verification, and ML-KEM encryption through `reallyme-crypto`. For `wasm32-unknown-unknown`,
+The default `native` feature enables the Buffa-generated operation contract,
+signing, verification, key validation, detached MAC verification, and ML-KEM
+encryption through `reallyme-crypto`. For `wasm32-unknown-unknown`,
 use `default-features = false, features = ["wasm"]`.
 Without a runtime lane, the key, Multikey, policy, algorithm-mapping, and CBOR
 helper APIs still compile, but operations requiring cryptographic key validation
 return `UnsupportedAlgorithm`; signing and encryption APIs are not exported.
 
-Enable the `wire` feature only for protobuf operation adapters:
+Both runtime lanes include the generated contract and its typed, protobuf and
+ProtoJSON entrypoints. The explicit `wire` feature remains available for existing
+feature recipes:
 
 ```toml
-reallyme-cose = { version = "0.2.11", features = ["wire"] }
+reallyme-cose = { version = "0.3.0", features = ["wire"] }
 ```
 
 When default features are disabled, pair `wire` with an explicit runtime lane,
@@ -106,8 +109,12 @@ include `exact_signature_algorithm` while retaining the existing `algorithm`
 field and its numeric behavior for older clients. Generated SDKs therefore do not need to reparse CBOR or infer
 an algorithm from the curve.
 
-COSE_Key parsing and encoding require RFC 8949 core deterministic map ordering,
-including nested extension maps. Public keys are normalized before deterministic
+The generic signing COSE_Key parser and encoder require RFC 8949 core
+deterministic map ordering, including nested extension maps. The separate
+[`AgreementKey` contract](https://github.com/reallyme/cose/blob/main/docs/agreement-keys.md) accepts unsorted unique public
+COSE_Key maps, preserves their exact bytes, and constructs agreement keys without
+a signature algorithm. Callers select explicit curve and point-encoding policies;
+reader/device role assignment remains outside COSE. Public keys are normalized before deterministic
 `kid` derivation. Verification intentionally also accepts other map
 orderings permitted by RFC 9052: the received protected-header byte string is
 authenticated exactly as received and is never decoded and re-encoded before
@@ -167,7 +174,7 @@ let cose = cose_sign1_with_options(
     &private_key,
     Some(kid),
     CoseSign1EncodeOptions::tagged()
-        .with_protected_type(CoseType::Text("application/statuslist+cwt".to_owned()))
+        .with_protected_type(CoseType::MediaType("application/statuslist+cwt".to_owned()))
         .with_max_cose_sign1_bytes(512 * 1024),
 )?;
 ```
@@ -192,7 +199,7 @@ let verified = cose_verify1_with_policy(&cose, &policy, |algorithm, requested_ki
 assert_eq!(verified.alg, Algorithm::Ed25519);
 assert_eq!(
     verified.cose_type,
-    Some(reallyme_cose::CoseType::Text(
+    Some(reallyme_cose::CoseType::MediaType(
         "application/statuslist+cwt".to_owned(),
     )),
 );
@@ -255,8 +262,11 @@ are deliberately not public struct-literal surface. Use
   when unspecified. Duplicate x5chain labels across either header bucket are
   rejected. The `cose_verify1_with_x5chain` API verifies the signature using
   the public key returned by the caller's resolver; that resolver must validate
-  the certificates and trust chain before returning the key. Ordinary
-  verification rejects this extension.
+  the certificates and trust chain before returning the key. It accepts only a
+  protected path by default. An unprotected path is not covered by the
+  signature, so accepting one requires
+  `CosePolicy::with_allow_unprotected_x5chain(true)`; the verified result
+  reports the placement. Ordinary verification rejects this extension.
 - Ed25519, ES256 (`-7`), ESP256 (`-9`), ESP384 (`-51`), ESP512 (`-52`),
   ES256K (`-47`), ML-DSA-44, ML-DSA-65, and ML-DSA-87 signing using their
   COSE registrations.
@@ -355,7 +365,7 @@ messages and a single outer tag `17` are accepted. The payload slot must be
 CBOR null. The expected payload, external AAD (including an empty slice),
 exact algorithm allowlist, and protected direct key are explicit inputs.
 An empty allowlist rejects every algorithm. This API is available in both
-`native` and `wasm`; it has no protobuf operation adapter.
+`native` and `wasm`; its generated operation is `mac0_verify_detached` (`4000`).
 
 ```rust
 use reallyme_cose::{
@@ -429,17 +439,26 @@ an unsorted protected header map.
 
 ## Protobuf Wire Boundary
 
-The native Rust API remains the primary SDK surface. For service, FFI, generated
-SDK, and conformance boundaries, `reallyme-cose` also exposes a generated
-protobuf operation lane: request bytes in, result-envelope bytes out, with
-structured `CoseError` protobuf bytes on failure.
+The protobuf schema defines every public operation. ReallyMe Buffa 0.1.0 generates its
+request/result types, policy selectors, operation discriminants and error codes.
+Use `api::contract` for those definitions and `api::execute` for typed Rust
+execution. `api::execute_with_providers` accepts explicit application-local
+capabilities. `api::execute_with_provider_transport` uses the generated provider
+registry and callback messages for non-Rust implementations. Borrowed Rust readers and callback signatures remain thin adapters
+to the same semantic operations.
+
+See the [operation and migration matrix](https://github.com/reallyme/cose/blob/main/docs/generated-operation-contract.md)
+for all 34 operations, preserved wire identifiers, callback/handle contracts,
+ownership and parity coverage.
+
+The 0.3.0 [presence migration](https://github.com/reallyme/cose/blob/main/docs/protobuf-presence-migration.md)
+replaces manual flags with optional bytes and enum `UNSPECIFIED` values.
 
 The checked-in schema lives at
 `crates/proto/proto/reallyme/cose/v1/cose.proto`. Generated Buffa Rust
 types live in the low-level `reallyme-cose-proto` workspace crate, under
-`crates/proto`; that crate is published only so the optional `wire` feature
-can remain publishable while generated code and its lint posture stay out of the
-handwritten native crate. After editing the schema, regenerate, harden, and
+`crates/proto`; that crate owns the generated public contract separately from the handwritten
+implementation and its lint posture. After editing the schema, regenerate and
 format the generated files using the commands in Development Checks, then keep
 them checked in. COSE does not currently publish Swift, Kotlin, or
 TypeScript packages from this repository. The schema's Swift metadata allows
@@ -448,19 +467,20 @@ generated Swift protobuf consumers to use the same wire contract independently.
 The wire lane has two layers:
 
 - `reallyme-cose-proto` owns generated request, result, and error message
-  types. It is not the normal SDK surface. Its generated Rust is hardened after
+  types and policy selectors. These are the authoritative public definitions.
+  Its generated Rust is hardened after
   `buf generate` so request, result, key, payload, AAD, and `kid` byte fields
   are redacted from `Debug`, zeroized by `clear`, and zeroized on drop. Buffa
   requires generated messages to remain `Clone`; each clone is therefore an
   explicit transient owner with the same wipe-on-drop behavior.
-- `reallyme-cose::wire` owns executable adapters behind the opt-in `wire`
-  feature. Use `wire::execute_operation_proto` for protobuf request bytes or
+- `reallyme-cose::api` provides typed execution; `reallyme-cose::wire` retains
+  executable codec adapters. Both runtime lanes enable these adapters. Use `wire::execute_operation_proto` for protobuf request bytes or
   `wire::execute_operation_proto_json` for generated ProtoJSON requests. Both return a
   binary `CoseOperationResponseV2`, whose outcome is either a structured error
   or an exact operation-specific result variant. Rust-side adapters should use
   `wire::decode_operation_response_for_request`; it rejects a result variant
   that does not match the submitted request. The earlier status-plus-opaque-
-  payload compatibility envelope has been removed. Operation-specific dispatch
+  payload compatibility envelope remains unsupported. Operation-specific dispatch
   remains private so the executable boundary has one request and one response
   model.
 
@@ -473,20 +493,25 @@ as the transport write completes. Likewise, generated `PartialEq` is a schema
 convenience and is not a constant-time secret comparison primitive.
 
 ProtoJSON is provided only by the generated Buffa protobuf types. The native
-Rust SDK does not define a second ad hoc JSON representation for COSE requests
-or results. `buf.gen.yaml` enables borrowed Buffa views and generated ProtoJSON;
-the post-generation hardening pass enforces strict unknown-field rejection and
-redacts sensitive byte fields in both owned-message and borrowed-view `Debug`
-implementations; owned
-messages additionally zeroize sensitive buffers on `clear`, drop, and binary
-field replacement. Replacement wiping releases excess retained capacity so
-repeated small fields cannot trigger unbounded repeated wiping of a large buffer.
-Borrowed views cannot erase caller-owned input and therefore do not claim zeroization.
-The executable binary protobuf decoder rejects unknown fields, matching strict
-ProtoJSON semantics and preventing opaque length-delimited values from being
-retained in generated unknown-field storage. Direct users of sensitive
-generated messages also receive recursive unknown-field wiping on `clear` and
-drop.
+Rust SDK has no parallel JSON model. `buf.gen.yaml` enables the complete native
+cleanup profile, strict JSON fields and local guarded byte/string policies.
+Generated messages and oneofs redact Debug and wipe on clear/drop; field owners
+also protect replacement, failed decoding and spare capacity. Guarded repeated
+collections wipe outgrown allocations, including scalar slots.
+
+Borrowed views and owned-view backing buffers remain separate input owners.
+Whole-view JSON export is denied, even for empty views; explicit owned-message
+JSON follows the selected field policies. Serialized JSON/protobuf copies and
+parser input remain caller-owned. The executable decoder rejects unknown wire
+fields before they can be discarded. Direct decoder/transport integrations must
+use `DecodeOptions::reject_unknown_fields()` on the original bounded bytes;
+a default decoder with storage disabled cannot preserve unknown-field evidence.
+
+See the [Buffa security migration matrix](https://github.com/reallyme/cose/blob/main/docs/buffa-migration.md).
+Native cleanup replaces the former generated-source ownership patches. A narrow
+standalone-enum diagnostic guard remains because published 0.1.0 still formats
+numeric input in those errors. Complete migration and release readiness require
+a published generator fix that removes that final source transformation.
 
 ## ReallyMe ML-KEM COSE Profile
 
@@ -671,24 +696,24 @@ repeated-message merge semantics; ProtoJSON rejects duplicate fields. Callers
 that require one canonical request encoding should choose one lane and enforce
 it before admission.
 
-## 0.2.11 Platform Scope
+## 0.3.0 Platform Scope
 
-The `0.2.11` release is intentionally Rust and protobuf only. Its publishable
+The `0.3.0` release is intentionally Rust and protobuf only. Its publishable
 artifacts are `reallyme-cose-proto` and `reallyme-cose`; the `native` and `wasm`
 features are Rust runtime lanes, not platform SDK packages.
 
-The `0.2.11` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
+The `0.3.0` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
 native C/JNI, or TypeScript/WASM npm packages. Those package formats are not
 part of this release's compatibility or support contract.
 
 The protobuf `swift_prefix` option is generation metadata, not a published
 Swift package. Likewise, `wasm32-unknown-unknown` is a Rust compilation target,
 not an npm package. The exact artifact scope is recorded in
-[`docs/platform-scope-0.2.11.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.2.11.json).
+[`docs/platform-scope-0.3.0.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.3.0.json).
 
 ## Development Checks
 
-The workspace declares Rust 1.99 as its minimum supported version; the development
+The workspace declares Rust 1.100 as its minimum supported version; the development
 toolchain is pinned in `rust-toolchain.toml`. Run the repository gate for format,
 feature-matrix, lint, test, allocation, WASM runtime, vector, fuzz-build, and
 dependency checks after installing the pinned external-type checker:
@@ -698,22 +723,22 @@ bash scripts/install_external_type_checker.sh .local-tools
 node scripts/check_release_readiness.mjs
 ```
 
-Protobuf regeneration also requires Buf 1.73.0 and both Buffa 0.9.2 generators.
-After changing the schema or hardening script, regenerate with the pinned tools:
+Protobuf regeneration requires Buf 1.73.0 and the ReallyMe Buffa 0.1.0 tools:
 
 ```sh
-cargo install protoc-gen-buffa --version 0.9.2 --locked
-cargo install protoc-gen-buffa-packaging --version 0.9.2 --locked
-buf lint
-buf generate
-node scripts/harden-generated-cose-proto.mjs
-cargo fmt --package reallyme-cose-proto
+cargo install reallyme-protoc-gen-buffa --version '=0.1.0' --locked
+cargo install reallyme-protoc-gen-buffa-packaging --version '=0.1.0' --locked
+node scripts/generate_cose_contract.mjs
 node scripts/check_release_readiness.mjs --generated-freshness
 ```
 
-The freshness check repeats regeneration and rejects a difference from the
-checked-in generated files. To check hardening without modifying files, use
-`node scripts/harden-generated-cose-proto.mjs --check-idempotent`. CI uses the pinned shared release-readiness runner;
+The generation driver requires exact executable names and versions, lints the
+schema, runs both local plugins, and emits separate schema-derived compatibility
+projections. Cleanup needs no source rewriting. The documented enum diagnostic
+guard is the remaining release blocker. Freshness regenerates into a temporary
+directory and compares every output without repairing the checked-in evidence.
+`node scripts/generate_cose_contract.mjs --check` runs that comparison directly.
+CI uses the pinned shared release-readiness runner;
 crate publication additionally requires its package-preflight checks. Locally,
 `node scripts/run_pinned_release_readiness.mjs` verifies the vendored core against
 the pinned upstream copy before running the same gate (requires network access). Fuzzing

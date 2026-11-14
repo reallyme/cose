@@ -17,6 +17,10 @@ const MAX_COLLECTION: usize = 1_024;
 /// # Errors
 /// Returns fixed encoding, duplicate, malformed, or resource-limit errors.
 pub fn validate_preferred_cbor(encoded: &[u8]) -> Result<(), ContainerError> {
+    validate_preferred_cbor_operation(encoded)
+}
+
+pub(crate) fn validate_preferred_cbor_operation(encoded: &[u8]) -> Result<(), ContainerError> {
     if encoded.len() > crate::limits::MAX_DETACHED_PAYLOAD_BYTES {
         return Err(Reason::Limit.into());
     }

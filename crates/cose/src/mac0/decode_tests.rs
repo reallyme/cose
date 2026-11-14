@@ -205,6 +205,19 @@ fn hmac_rejects_iv_and_countersignature_semantics() {
             CoseMac0ErrorReason::InvalidStructure,
         );
     }
+    for (label, value) in [
+        (5, Value::Bytes(vec![])),
+        (6, Value::Bytes(vec![])),
+        (7, Value::Array(vec![])),
+    ] {
+        let encoded = envelope(
+            &hex("a10105"),
+            Value::Map(vec![(label.into(), value)]),
+            Value::Null,
+            &[0; 32],
+        );
+        assert_reason(verify(&encoded), CoseMac0ErrorReason::InvalidStructure);
+    }
 }
 
 #[test]

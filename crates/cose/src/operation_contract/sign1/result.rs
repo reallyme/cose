@@ -12,9 +12,9 @@ use crate::sign1::sign::CoseSign1CreateOutput;
 use crate::sign1::verify::{VerifiedCoseSign1, VerifiedDetachedCoseSign1};
 use crate::sign1::CoseType as NativeCoseType;
 use crate::wire::{
-    cose_operation_result::Result as OperationResultBranch, cose_type::Value as WireCoseTypeValue,
-    CoseOperationResult, CoseSign1CreateResult, CoseSign1VerifyResult, CoseSignatureAlgorithm,
-    CoseType as WireCoseType, CoseWireResult,
+    cose_operation_result::Result as OperationResultBranch, CoseOperationResult,
+    CoseSign1CreateResult, CoseSign1VerifyResult, CoseSignatureAlgorithm, CoseType as WireCoseType,
+    CoseWireResult,
 };
 
 pub(crate) fn created_attached(output: CoseSign1CreateOutput) -> CoseOperationResult {
@@ -58,75 +58,51 @@ pub(crate) fn verified_detached(
 fn create_message(output: CoseSign1CreateOutput) -> CoseSign1CreateResult {
     let mut cose_sign1 = output.into_zeroizing();
     CoseSign1CreateResult {
-        cose_sign1: core::mem::take(&mut *cose_sign1),
-        __buffa_unknown_fields: Default::default(),
+        cose_sign1: core::mem::take(&mut *cose_sign1).into(),
     }
 }
 
-fn verify_message(
+pub(crate) fn verify_message(
     mut payload: Zeroizing<Vec<u8>>,
     algorithm: NativeCoseSignatureAlgorithm,
     mut kid: Zeroizing<Vec<u8>>,
     cose_type: Option<NativeCoseType>,
 ) -> CoseWireResult<CoseSign1VerifyResult> {
-    let protected_type = match cose_type {
-        Some(NativeCoseType::Text(text)) => MessageField::some(WireCoseType {
-            value: Some(WireCoseTypeValue::MediaType(text)),
-            __buffa_unknown_fields: Default::default(),
-        }),
-        Some(NativeCoseType::Registered(identifier)) => MessageField::some(WireCoseType {
-            value: Some(WireCoseTypeValue::ContentFormat(identifier)),
-            __buffa_unknown_fields: Default::default(),
-        }),
-        None => MessageField::none(),
-    };
+    let protected_type = cose_type.map_or_else(MessageField::none, |value| {
+        MessageField::some(WireCoseType { value: Some(value) })
+    });
     Ok(CoseSign1VerifyResult {
-        payload: core::mem::take(&mut *payload),
+        payload: core::mem::take(&mut *payload).into(),
         algorithm: EnumValue::from(legacy_signature_algorithm_to_proto(algorithm)),
-        kid: core::mem::take(&mut *kid),
+        kid: core::mem::take(&mut *kid).into(),
         exact_signature_algorithm: EnumValue::from(signature_algorithm_to_proto(algorithm)?),
-        has_exact_signature_algorithm: true,
         protected_type,
-        __buffa_unknown_fields: Default::default(),
     })
 }
 
 fn operation_result(result: OperationResultBranch) -> CoseOperationResult {
     CoseOperationResult {
         result: Some(result),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
 pub(crate) fn signature_algorithm_to_proto(
     algorithm: NativeCoseSignatureAlgorithm,
 ) -> CoseWireResult<CoseSignatureAlgorithm> {
-    match algorithm {
-        NativeCoseSignatureAlgorithm::Ed25519 => Ok(CoseSignatureAlgorithm::Ed25519),
-        NativeCoseSignatureAlgorithm::Es256 => Ok(CoseSignatureAlgorithm::Es256),
-        NativeCoseSignatureAlgorithm::Esp256 => Ok(CoseSignatureAlgorithm::Esp256),
-        NativeCoseSignatureAlgorithm::Esp384 => Ok(CoseSignatureAlgorithm::Esp384),
-        NativeCoseSignatureAlgorithm::Esp512 => Ok(CoseSignatureAlgorithm::Esp512),
-        NativeCoseSignatureAlgorithm::Es256K => Ok(CoseSignatureAlgorithm::EcdsaSecp256k1Sha256),
-        NativeCoseSignatureAlgorithm::MlDsa44 => Ok(CoseSignatureAlgorithm::MlDsa44),
-        NativeCoseSignatureAlgorithm::MlDsa65 => Ok(CoseSignatureAlgorithm::MlDsa65),
-        NativeCoseSignatureAlgorithm::MlDsa87 => Ok(CoseSignatureAlgorithm::MlDsa87),
-    }
+    Ok(CoseSignatureAlgorithm::from(algorithm))
 }
 
+// Keep the published compatibility selector alongside the exact registration.
+#[allow(deprecated)]
 fn legacy_signature_algorithm_to_proto(
     algorithm: NativeCoseSignatureAlgorithm,
 ) -> CoseSignatureAlgorithm {
     match algorithm {
-        NativeCoseSignatureAlgorithm::Ed25519 => CoseSignatureAlgorithm::Ed25519,
         NativeCoseSignatureAlgorithm::Es256 | NativeCoseSignatureAlgorithm::Esp256 => {
             CoseSignatureAlgorithm::EcdsaP256Sha256
         }
         NativeCoseSignatureAlgorithm::Esp384 => CoseSignatureAlgorithm::EcdsaP384Sha384,
         NativeCoseSignatureAlgorithm::Esp512 => CoseSignatureAlgorithm::EcdsaP521Sha512,
-        NativeCoseSignatureAlgorithm::Es256K => CoseSignatureAlgorithm::EcdsaSecp256k1Sha256,
-        NativeCoseSignatureAlgorithm::MlDsa44 => CoseSignatureAlgorithm::MlDsa44,
-        NativeCoseSignatureAlgorithm::MlDsa65 => CoseSignatureAlgorithm::MlDsa65,
-        NativeCoseSignatureAlgorithm::MlDsa87 => CoseSignatureAlgorithm::MlDsa87,
+        other => CoseSignatureAlgorithm::from(other),
     }
 }

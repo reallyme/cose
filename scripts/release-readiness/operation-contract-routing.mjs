@@ -105,9 +105,19 @@ export function rustFunctionBody(source, functionName) {
     return null;
   }
   const bodyStart = masked.indexOf("{", matches[0].index + matches[0][0].length);
-  const declarationEnd = masked.indexOf(";", matches[0].index + matches[0][0].length);
-  if (bodyStart === -1 || (declarationEnd !== -1 && declarationEnd < bodyStart)) {
+  if (bodyStart === -1) {
     return null;
+  }
+  // A fixed array parameter/result legitimately contains a semicolon. Only a
+  // top-level semicolon terminates a declaration without a function body.
+  let parentheses = 1;
+  let brackets = 0;
+  for (let index = matches[0].index + matches[0][0].length; index < bodyStart; index += 1) {
+    if (masked[index] === "(") parentheses += 1;
+    else if (masked[index] === ")") parentheses -= 1;
+    else if (masked[index] === "[") brackets += 1;
+    else if (masked[index] === "]") brackets -= 1;
+    else if (masked[index] === ";" && parentheses === 0 && brackets === 0) return null;
   }
   let depth = 0;
   for (let index = bodyStart; index < masked.length; index += 1) {

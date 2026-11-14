@@ -25,7 +25,6 @@ fn signature_identifier(
         algorithm: Some(cose_algorithm_identifier::Algorithm::Signature(
             EnumValue::from(algorithm),
         )),
-        __buffa_unknown_fields: Default::default(),
     })
 }
 
@@ -34,7 +33,6 @@ fn operation_request(request: CoseKeyFromPublicBytesRequest) -> CoseOperationReq
         operation: Some(cose_operation_request::Operation::KeyFromPublicBytes(
             Box::new(request),
         )),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
@@ -49,7 +47,7 @@ fn assert_invalid_parameter(request: &CoseOperationRequest) {
     let output = execute(request);
     assert_eq!(output.status(), OperationOutputStatus::CoseError);
     let error = decode_cose_error(output.bytes()).expect("structured COSE error");
-    let Some(cose_error_proto::Error::Primitive(primitive)) = error.error else {
+    let Some(cose_error_proto::Error::Primitive(primitive)) = error.error.as_ref() else {
         panic!("point-encoding policy must fail as a primitive error");
     };
     assert_eq!(
@@ -63,9 +61,8 @@ fn es256_wire_contract_selects_full_affine_coordinates() {
     let key = gen_p256();
     let request = operation_request(CoseKeyFromPublicBytesRequest {
         algorithm: signature_identifier(CoseSignatureAlgorithm::Es256),
-        public_key: key.public,
+        public_key: key.public.into(),
         ec2_point_encoding: EnumValue::from(CoseEc2PointEncoding::FullCoordinates),
-        __buffa_unknown_fields: Default::default(),
     });
 
     let binary_output = execute(&request);
@@ -95,16 +92,14 @@ fn ec2_point_encoding_rejects_unknown_and_non_ec2_values() {
     let key = gen_p256();
     assert_invalid_parameter(&operation_request(CoseKeyFromPublicBytesRequest {
         algorithm: signature_identifier(CoseSignatureAlgorithm::Es256),
-        public_key: key.public,
+        public_key: key.public.into(),
         ec2_point_encoding: EnumValue::from(999_999),
-        __buffa_unknown_fields: Default::default(),
     }));
 
     let ed25519 = gen_ed25519();
     assert_invalid_parameter(&operation_request(CoseKeyFromPublicBytesRequest {
         algorithm: signature_identifier(CoseSignatureAlgorithm::Ed25519),
-        public_key: ed25519.public,
+        public_key: ed25519.public.into(),
         ec2_point_encoding: EnumValue::from(CoseEc2PointEncoding::FullCoordinates),
-        __buffa_unknown_fields: Default::default(),
     }));
 }

@@ -1,6 +1,6 @@
 [package]
 name = "reallyme-cose-proto"
-version = "0.2.11"
+version = "0.3.0"
 description = "Generated protobuf boundary types for ReallyMe COSE."
 edition.workspace = true
 rust-version.workspace = true
@@ -21,12 +21,14 @@ include = [
 
 [features]
 default = ["generated"]
-generated = ["dep:base64", "dep:buffa", "buffa/json", "dep:serde", "dep:zeroize"]
+generated = ["dep:base64", "dep:buffa", "buffa/json", "buffa/zeroize", "dep:secrecy", "dep:serde", "dep:thiserror", "dep:zeroize"]
 
 [dependencies]
 base64 = { workspace = true, optional = true }
 buffa = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
+secrecy = { workspace = true, optional = true }
+thiserror = { workspace = true, optional = true }
 zeroize = { workspace = true, optional = true }
 
 [dev-dependencies]

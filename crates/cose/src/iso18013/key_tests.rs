@@ -92,6 +92,43 @@ fn key_algorithm_curve_type_usage_private_and_point_mismatches_are_typed() -> Re
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 #[test]
+fn ed25519_key_type_width_coordinate_and_low_order_mismatches_are_typed() -> Result<(), CoseError> {
+    let vectors = vectors()?;
+    let vector = vectors
+        .iter()
+        .find(|vector| vector.curve == Iso18013SignatureCurve::Ed25519.identifier())
+        .ok_or(CoseError::InvalidFormat)?;
+    let selected = suite(vector)?;
+    let encoded = hex(&vector.cose_key_hex);
+    assert_eq!(
+        Iso18013CryptoVerifier::from_cose_key(selected, &encoded)?.suite(),
+        selected
+    );
+    for (label, value) in [
+        (1, 2.into()),
+        (-2, Value::Bytes(vec![0x11; 31])),
+        (-2, Value::Bytes(vec![0x11; 33])),
+        (-3, Value::Bytes(vec![0x11; 32])),
+        (-3, Value::Bool(false)),
+    ] {
+        let invalid = replace_key_field(&encoded, label, value)?;
+        assert_error(
+            Iso18013CryptoVerifier::from_cose_key(selected, &invalid),
+            CoseError::InvalidKeyMaterial,
+        );
+    }
+    // The Edwards identity has order one and must not become a verifier.
+    let mut identity = vec![0; 32];
+    identity[0] = 1;
+    assert_error(
+        Iso18013CryptoVerifier::new(selected, Zeroizing::new(identity)),
+        CoseError::InvalidKeyMaterial,
+    );
+    Ok(())
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
 fn registered_unimplemented_curves_never_alias_a_same_size_nist_curve() -> Result<(), CoseError> {
     for curve in [
         Iso18013SignatureCurve::BrainpoolP256r1,
@@ -116,7 +153,14 @@ fn registered_unimplemented_curves_never_alias_a_same_size_nist_curve() -> Resul
             curve
         );
     }
-    for identifier in [0, 4, 5, 8, 255, 260, -65537] {
+    for identifier in [4, 5, 8] {
+        let recognized = Iso18013SignatureCurve::from_identifier(identifier)?;
+        assert_error(
+            Iso18013SignatureSuite::new(Iso18013SignatureAlgorithm::Es256, recognized),
+            CoseError::UnsupportedAlgorithm,
+        );
+    }
+    for identifier in [0, 255, 260, -65537] {
         assert_error(
             Iso18013SignatureCurve::from_identifier(identifier),
             CoseError::UnsupportedAlgorithm,

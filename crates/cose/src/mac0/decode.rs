@@ -31,8 +31,11 @@ pub(super) fn decode(bytes: &[u8], max_len: usize) -> Result<DecodedMac0, CoseMa
     else {
         return Err(CoseMac0ErrorReason::InvalidStructure.into());
     };
-    if !matches!(payload, Value::Null) {
-        return Err(CoseMac0ErrorReason::DetachedPayloadRequired.into());
+    // RFC 9052 permits only a byte string or null in the payload slot.
+    match payload {
+        Value::Null => {}
+        Value::Bytes(_) => return Err(CoseMac0ErrorReason::DetachedPayloadRequired.into()),
+        _ => return Err(CoseMac0ErrorReason::InvalidStructure.into()),
     }
 
     // Empty protected buckets are valid CBOR/COSE, but this direct-key profile

@@ -72,9 +72,9 @@ pub(crate) fn from_private_bytes_result(
             return Err(error);
         }
     };
-    let private_key = Zeroizing::new(core::mem::take(&mut request.private_key));
+    let private_key = core::mem::take(&mut request.private_key).into_zeroizing();
     let public_key = Zeroizing::new(core::mem::take(&mut request.public_key));
-    let public_key = request.has_public_key.then_some(public_key.as_slice());
+    let public_key = public_key.as_deref();
     let output = match algorithm {
         KeyAlgorithmInput::Signature(algorithm) => {
             construct_cose_key_from_signature_private(algorithm, &private_key, public_key)
@@ -126,14 +126,14 @@ pub(crate) fn to_multikey_result(
 pub(crate) fn multikey_to_key_result(
     mut request: CoseMultikeyToCoseKeyRequest,
 ) -> CoseWireResult<CoseOperationResult> {
-    let multikey = Zeroizing::new(core::mem::take(&mut request.multikey));
+    let multikey = core::mem::take(&mut request.multikey).into_zeroizing();
     let output = convert_multikey_to_cose_key(MultikeyInput::new(&multikey))
         .map_err(boundary_error_from_failure)?;
     result::from_multikey_key(output)
 }
 
 fn parse_request_key(mut request: CoseKeyBytesRequest) -> CoseWireResult<crate::CoseKey> {
-    let encoded_key = Zeroizing::new(core::mem::take(&mut request.cose_key));
+    let encoded_key = core::mem::take(&mut request.cose_key).into_zeroizing();
     parse_cose_key(CoseKeyParseInput::new(&encoded_key))
         .map(CoseKeyParseOutput::into_key)
         .map_err(boundary_error_from_failure)

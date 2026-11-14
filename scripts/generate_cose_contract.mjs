@@ -1,0 +1,108 @@
+#!/usr/bin/env node
+// SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+import {spawnSync} from "node:child_process";
+import {cpSync,existsSync,mkdirSync,mkdtempSync,readdirSync,readFileSync,rmSync,writeFileSync} from "node:fs";
+import {tmpdir} from "node:os";
+import {dirname,join,resolve} from "node:path";
+import {fileURLToPath} from "node:url";
+import {generateErrorAliases,nativeContractFiles} from "./generate_native_contract.mjs";
+import {equalityExtensions} from "./schema_contract.mjs";
+import {sanitizeEnumDiagnostics} from "./sanitize_enum_diagnostics.mjs";
+
+export const generatedPaths = [
+  "crates/proto/src/generated", "crates/proto/src/contract_extensions.rs",
+  "crates/cose/src/generated_contract",
+];
+const schemaPath = "crates/proto/proto/reallyme/cose/v1/cose.proto";
+
+function run(command,args,cwd) {
+  const result=spawnSync(command,args,{cwd,encoding:"utf8"});
+  if(result.error!==undefined || result.status!==0) throw new TypeError(`contract generation command failed: ${command}\n${result.stderr ?? ""}`);
+  return result.stdout.trim();
+}
+
+export function checkGeneratorVersions(root) {
+  for(const [tool,version] of [
+    ["buf","1.73.0"],
+    ["protoc-gen-reallyme-buffa","protoc-gen-reallyme-buffa 0.1.0"],
+    ["protoc-gen-reallyme-buffa-packaging","protoc-gen-reallyme-buffa-packaging 0.1.0"],
+  ]) {
+    if(run(tool,["--version"],root)!==version) throw new TypeError(`unsupported generator name or version: ${tool}`);
+  }
+}
+
+export function filesUnder(root,path) {
+  if(!existsSync(join(root,path))) return [];
+  return readdirSync(join(root,path),{withFileTypes:true}).flatMap(entry=>
+    entry.isDirectory()?filesUnder(root,join(path,entry.name)):[join(path,entry.name)]);
+}
+
+function generateInPlace(root) {
+  checkGeneratorVersions(root);
+  run("buf",["lint"],root);
+  run("buf",["generate"],root);
+  const enumSource=join(root,"crates/proto/src/generated/buffa/reallyme.cose.v1.cose.rs");
+  writeFileSync(enumSource,sanitizeEnumDiagnostics(readFileSync(enumSource,"utf8")));
+  const schema=readFileSync(join(root,schemaPath),"utf8");
+  // These are schema-derived compatibility projections, not edits to Buffa
+  // output. Keeping the companion separate makes regeneration auditable.
+  const extensions=`// SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+// Generated from cose.proto; this companion does not modify Buffa output.
+
+use crate::generated::proto::reallyme::cose::v1::{CoseErrorReason,CoseSign1Options,CoseType,cose_type};
+${generateErrorAliases(schema).proto}
+${equalityExtensions(schema)}
+`;
+  const files=nativeContractFiles(root,schema);
+  files.set(join(root,"crates/proto/src/contract_extensions.rs"),extensions);
+  for(const [path,source] of files) {mkdirSync(dirname(path),{recursive:true});writeFileSync(path,source);}
+  const rust=generatedPaths.flatMap(path=>path.endsWith(".rs")?[path]:filesUnder(root,path)).filter(path=>path.endsWith(".rs"));
+  run("rustfmt",["--edition","2021","--config","skip_children=true",...rust],root);
+}
+
+function inStaging(root,callback) {
+  const temporary=mkdtempSync(join(tmpdir(),"cose-contract-freshness-"));
+  try {
+    for(const path of ["buf.yaml","buf.gen.yaml","rust-toolchain.toml","crates/proto/proto"]) {
+      mkdirSync(dirname(join(temporary,path)),{recursive:true});
+      cpSync(join(root,path),join(temporary,path),{recursive:true});
+    }
+    generateInPlace(temporary);
+    callback(temporary);
+  } finally {rmSync(temporary,{recursive:true,force:true});}
+}
+
+export function generate(root) {
+  inStaging(root,temporary=>{
+    // Validate the complete native generation before replacing any checked-in
+    // artifact. A bad selector or companion cannot leave partly updated output.
+    const outputs=generatedPaths.flatMap(path=>path.endsWith(".rs")?[path]:filesUnder(temporary,path))
+      .map(path=>[path,readFileSync(join(temporary,path))]);
+    for(const [path,bytes] of outputs) {
+      mkdirSync(dirname(join(root,path)),{recursive:true});writeFileSync(join(root,path),bytes);
+    }
+  });
+}
+
+export function checkFreshness(root) {
+  inStaging(root,temporary=>{
+    for(const path of generatedPaths) {
+      const wanted=path.endsWith(".rs")?[path]:filesUnder(temporary,path).sort();
+      const actual=path.endsWith(".rs")?[path]:filesUnder(root,path).sort();
+      if(JSON.stringify(wanted)!==JSON.stringify(actual)) throw new TypeError("generated contract file set differs");
+      for(const file of wanted) {
+        if(!readFileSync(join(temporary,file)).equals(readFileSync(join(root,file)))) throw new TypeError(`stale generated contract: ${file}`);
+      }
+    }
+  });
+}
+
+if(process.argv[1]!==undefined && resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
+  const args=process.argv.slice(2);
+  if(args.length>1 || (args.length===1 && args[0]!=="--check")) throw new TypeError("unsupported generation mode");
+  if(args[0]==="--check") checkFreshness(process.cwd()); else generate(process.cwd());
+}

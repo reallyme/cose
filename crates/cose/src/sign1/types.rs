@@ -50,23 +50,23 @@ impl<'a> CoseSign1CreateInput<'a> {
         })
     }
 
-    pub(crate) const fn with_signature_algorithm(
+    pub(crate) fn with_signature_algorithm(
         algorithm: CoseSignatureAlgorithm,
         payload: &'a [u8],
         private_key: &'a [u8],
         kid: Option<&'a [u8]>,
         external_aad: &'a [u8],
         options: CoseSign1EncodeOptions,
-    ) -> Self {
-        Self {
-            algorithm: algorithm.crypto_algorithm(),
+    ) -> Result<Self, CoseError> {
+        Ok(Self {
+            algorithm: algorithm.crypto_algorithm()?,
             cose_algorithm: algorithm,
             payload,
             signing_source: CoseSign1SigningSource::PrivateKey(private_key),
             kid,
             external_aad,
             options,
-        }
+        })
     }
 
     pub(crate) fn with_signer(
@@ -76,9 +76,9 @@ impl<'a> CoseSign1CreateInput<'a> {
         external_aad: &'a [u8],
         options: CoseSign1EncodeOptions,
     ) -> Result<Self, CoseError> {
-        let cose_algorithm = signer.cose_algorithm().map_err(CoseError::from)?;
+        let cose_algorithm = signer.cose_algorithm()?;
         let algorithm = signer.algorithm();
-        if cose_algorithm.crypto_algorithm() != algorithm {
+        if cose_algorithm.crypto_algorithm()? != algorithm {
             return Err(CoseError::UnsupportedAlgorithm);
         }
         Ok(Self {

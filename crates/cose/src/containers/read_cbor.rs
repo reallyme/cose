@@ -16,7 +16,7 @@ pub(super) struct Item<'a> {
 }
 
 impl<'a> Item<'a> {
-    pub fn integer(self) -> Result<i64, ContainerError> {
+    pub(super) fn integer(self) -> Result<i64, ContainerError> {
         let n = i64::try_from(self.argument).map_err(|_| Reason::Malformed)?;
         match self.major {
             0 => Ok(n),
@@ -28,21 +28,21 @@ impl<'a> Item<'a> {
         }
     }
 
-    pub fn bytes(self) -> Result<&'a [u8], ContainerError> {
+    pub(super) fn bytes(self) -> Result<&'a [u8], ContainerError> {
         if self.major != 2 {
             return Err(Reason::Malformed.into());
         }
         Ok(self.data)
     }
 
-    pub fn count(self, major: u8) -> Result<usize, ContainerError> {
+    pub(super) fn count(self, major: u8) -> Result<usize, ContainerError> {
         if self.major != major {
             return Err(Reason::Malformed.into());
         }
         usize::try_from(self.argument).map_err(|_| Reason::Limit.into())
     }
 
-    pub fn cursor(self) -> Cursor<'a> {
+    pub(super) fn cursor(self) -> Cursor<'a> {
         Cursor {
             remaining: self.data,
         }
@@ -56,12 +56,12 @@ pub(super) struct Cursor<'a> {
 impl<'a> Cursor<'a> {
     // Only used after the complete bounded preflight, so traversal allocates no
     // trees and cannot expose a successful prefix of malformed input.
-    pub fn next(&mut self) -> Result<Item<'a>, ContainerError> {
+    pub(super) fn next(&mut self) -> Result<Item<'a>, ContainerError> {
         let mut remaining_work = MAX_SCAN_WORK;
         self.next_with_budget(&mut remaining_work)
     }
 
-    pub fn next_with_budget(
+    pub(super) fn next_with_budget(
         &mut self,
         remaining_work: &mut usize,
     ) -> Result<Item<'a>, ContainerError> {

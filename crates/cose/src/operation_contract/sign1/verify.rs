@@ -21,10 +21,10 @@ use crate::wire::{
 pub(crate) fn attached_result(
     mut request: CoseSign1VerifyRequest,
 ) -> CoseWireResult<CoseOperationResult> {
-    let cose_sign1 = Zeroizing::new(core::mem::take(&mut request.cose_sign1));
-    let public_key = Zeroizing::new(core::mem::take(&mut request.public_key));
-    let external_aad = Zeroizing::new(core::mem::take(&mut request.external_aad));
-    let expected_kid = Zeroizing::new(core::mem::take(&mut request.expected_kid));
+    let cose_sign1 = core::mem::take(&mut request.cose_sign1).into_zeroizing();
+    let public_key = core::mem::take(&mut request.public_key).into_zeroizing();
+    let external_aad = core::mem::take(&mut request.external_aad).into_zeroizing();
+    let expected_kid = core::mem::take(&mut request.expected_kid).into_zeroizing();
     let key_algorithm = expected_key_algorithm(request.public_key_algorithm)?;
     let policy = policy_from_parts(
         request.max_cose_sign1_bytes,
@@ -53,11 +53,11 @@ pub(crate) fn attached_result(
 pub(crate) fn detached_result(
     mut request: CoseSign1VerifyDetachedRequest,
 ) -> CoseWireResult<CoseOperationResult> {
-    let cose_sign1 = Zeroizing::new(core::mem::take(&mut request.cose_sign1));
-    let payload = Zeroizing::new(core::mem::take(&mut request.payload));
-    let public_key = Zeroizing::new(core::mem::take(&mut request.public_key));
-    let external_aad = Zeroizing::new(core::mem::take(&mut request.external_aad));
-    let expected_kid = Zeroizing::new(core::mem::take(&mut request.expected_kid));
+    let cose_sign1 = core::mem::take(&mut request.cose_sign1).into_zeroizing();
+    let payload = core::mem::take(&mut request.payload).into_zeroizing();
+    let public_key = core::mem::take(&mut request.public_key).into_zeroizing();
+    let external_aad = core::mem::take(&mut request.external_aad).into_zeroizing();
+    let expected_kid = core::mem::take(&mut request.expected_kid).into_zeroizing();
     let key_algorithm = expected_key_algorithm(request.public_key_algorithm)?;
     let policy = policy_from_parts(
         request.max_cose_sign1_bytes,
@@ -102,7 +102,7 @@ fn resolve_request_key(
     }
 }
 
-fn expected_key_algorithm(
+pub(super) fn expected_key_algorithm(
     value: buffa::EnumValue<WireSignatureAlgorithm>,
 ) -> CoseWireResult<Option<crate::CoseSignatureAlgorithm>> {
     if value.as_known() == Some(WireSignatureAlgorithm::Unspecified) {

@@ -72,7 +72,6 @@ impl VerificationKey for CryptoVerificationKey {
         };
         reallyme_crypto::dispatch::verify(algorithm, self.verifier.public_key(), message, &backend)
             .map_err(crate::error::verify_error_from_algorithm_error)
-            .map_err(Into::into)
     }
 }
 impl ZeroizeOnDrop for CryptoVerificationKey {}
@@ -106,9 +105,4 @@ pub trait CertificateValidator {
 }
 
 /// Explicit key source, preventing an included certificate from replacing a key.
-pub enum VerificationSource<'a> {
-    /// A separately validated public key; certificate headers must be absent.
-    Key(&'a dyn VerificationKey),
-    /// Certificate policy returning the actual effective key and selected DER.
-    Certificates(&'a dyn CertificateValidator),
-}
+pub use crate::generated_contract::VerificationSource;

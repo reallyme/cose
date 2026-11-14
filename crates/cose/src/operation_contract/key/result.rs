@@ -66,8 +66,7 @@ pub(crate) fn multikey(output: CoseMultikeyOutput) -> CoseOperationResult {
     let mut value = output.into_zeroizing();
     operation_result(OperationResultBranch::KeyToMultikey(Box::new(
         CoseMultikeyResult {
-            multikey: core::mem::take(&mut *value),
-            __buffa_unknown_fields: Default::default(),
+            multikey: core::mem::take(&mut *value).into(),
         },
     )))
 }
@@ -88,10 +87,8 @@ fn encode_key(key: crate::CoseKey) -> CoseWireResult<CoseKeyBytesResult> {
 
 fn key_bytes_message(mut bytes: Zeroizing<Vec<u8>>) -> CoseKeyBytesResult {
     CoseKeyBytesResult {
-        key_bytes: core::mem::take(&mut *bytes),
+        key_bytes: core::mem::take(&mut *bytes).into(),
         signature_algorithm: EnumValue::from(0),
-        has_signature_algorithm: false,
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
@@ -106,13 +103,11 @@ fn key_bytes_message_with_algorithm(
     message.signature_algorithm = EnumValue::from(
         crate::operation_contract::sign1::result::signature_algorithm_to_proto(algorithm)?,
     );
-    message.has_signature_algorithm = true;
     Ok(message)
 }
 
 fn operation_result(result: OperationResultBranch) -> CoseOperationResult {
     CoseOperationResult {
         result: Some(result),
-        __buffa_unknown_fields: Default::default(),
     }
 }

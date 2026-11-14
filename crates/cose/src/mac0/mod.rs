@@ -18,9 +18,11 @@ mod verify;
 
 pub use algorithm::CoseMacAlgorithm;
 pub use error::{CoseMac0Error, CoseMac0ErrorReason};
-pub use key::CoseMacKey;
+pub use key::{CoseMacKey, CoseMacVerifier};
 pub use types::{CoseMac0Limits, CoseMac0VerifyRequest, VerifiedDetachedCoseMac0};
 pub use verify::cose_verify_mac0_detached;
+
+pub(crate) use verify::verify_mac0_operation;
 
 #[cfg(test)]
 mod tests;

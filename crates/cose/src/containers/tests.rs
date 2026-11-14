@@ -1,6 +1,12 @@
 // SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+#[path = "agreement_tests.rs"]
+mod agreement;
+#[path = "agreement_boundary_tests.rs"]
+mod agreement_boundary;
+#[path = "agreement_support_tests.rs"]
+mod agreement_support;
 #[path = "boundary_tests.rs"]
 mod boundary;
 #[path = "encoding_tests.rs"]

@@ -27,11 +27,11 @@ fn ed25519_identifier(
         algorithm: Some(cose_algorithm_identifier::Algorithm::Signature(
             EnumValue::from(CoseSignatureAlgorithm::Ed25519),
         )),
-        __buffa_unknown_fields: Default::default(),
     })
 }
 
 #[test]
+#[allow(deprecated)] // Exercise published compatibility selectors.
 fn family_scoped_algorithm_numbers_match_the_crypto_boundary() {
     assert_eq!(CoseSignatureAlgorithm::Ed25519 as i32, 100);
     assert_eq!(CoseSignatureAlgorithm::EcdsaP256Sha256 as i32, 200);
@@ -59,9 +59,8 @@ fn family_scoped_algorithm_numbers_match_the_crypto_boundary() {
 fn ec2_point_encoding_proto_json_is_explicit_and_strict() {
     let request = CoseKeyFromPublicBytesRequest {
         algorithm: Default::default(),
-        public_key: Vec::new(),
+        public_key: Vec::new().into(),
         ec2_point_encoding: EnumValue::from(CoseEc2PointEncoding::FullCoordinates),
-        __buffa_unknown_fields: Default::default(),
     };
     let Ok(json) = serde_json::to_value(&request) else {
         panic!("point encoding must serialize");
@@ -116,9 +115,7 @@ fn cose_error_wire_contract_is_stable() {
     let error = CoseError {
         error: Some(cose_error::Error::Primitive(Box::new(CosePrimitiveError {
             reason: EnumValue::from(CoseErrorReason::COSE_ERROR_REASON_SIGN1_INVALID_SIGNATURE),
-            __buffa_unknown_fields: Default::default(),
         }))),
-        __buffa_unknown_fields: Default::default(),
     };
 
     assert_eq!(error.encode_to_vec(), [0x0a, 0x03, 0x08, 0xa4, 0x03]);
@@ -128,10 +125,8 @@ fn cose_error_wire_contract_is_stable() {
 fn key_bytes_result_uses_unambiguous_proto_json_and_view_accessors(
 ) -> Result<(), buffa::DecodeError> {
     let result = CoseKeyBytesResult {
-        key_bytes: vec![241, 242, 243, 244],
+        key_bytes: vec![241, 242, 243, 244].into(),
         signature_algorithm: EnumValue::from(CoseSignatureAlgorithm::Es256),
-        has_signature_algorithm: true,
-        __buffa_unknown_fields: Default::default(),
     };
 
     let json = serde_json::to_string(&result).unwrap_or_else(|error| {
@@ -139,7 +134,7 @@ fn key_bytes_result_uses_unambiguous_proto_json_and_view_accessors(
     });
     assert_eq!(
         json,
-        r#"{"keyBytes":"8fLz9A==","signatureAlgorithm":"COSE_SIGNATURE_ALGORITHM_ES256","hasSignatureAlgorithm":true}"#,
+        r#"{"keyBytes":"8fLz9A==","signatureAlgorithm":"COSE_SIGNATURE_ALGORITHM_ES256"}"#,
     );
 
     let view = CoseKeyBytesResultOwnedView::from_owned(&result)?;
@@ -148,7 +143,7 @@ fn key_bytes_result_uses_unambiguous_proto_json_and_view_accessors(
         view.signature_algorithm().as_known(),
         Some(CoseSignatureAlgorithm::Es256),
     );
-    assert!(view.has_signature_algorithm());
+
     Ok(())
 }
 
@@ -183,16 +178,16 @@ fn generated_proto_json_enum_range_errors_do_not_reflect_untrusted_values() {
 #[test]
 fn generated_owned_views_redact_retained_protobuf_buffers() -> Result<(), buffa::DecodeError> {
     let result = CoseMlKemDecryptResult {
-        plaintext: vec![251, 252, 253, 254],
+        profile: Default::default(),
+        plaintext: vec![251, 252, 253, 254].into(),
         content_algorithm: Default::default(),
         kem_algorithm: Default::default(),
         mode: Default::default(),
-        recipient_kid: vec![241, 242, 243, 244],
-        __buffa_unknown_fields: Default::default(),
+        recipient_kid: vec![241, 242, 243, 244].into(),
     };
     let view = CoseMlKemDecryptResultOwnedView::from_owned(&result)?;
     let debug = format!("{view:?}");
-    assert!(debug.contains("<redacted>"));
+    assert!(debug.to_ascii_lowercase().contains("redacted"));
     assert!(!debug.contains("251"));
     assert!(!debug.contains("252"));
     assert!(!debug.contains("253"));
@@ -210,40 +205,35 @@ fn generated_private_key_requests_redact_debug_output() {
 
     let attached = CoseSign1CreateRequest {
         algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
-        payload: b"payload".to_vec(),
-        private_key: private_key.clone(),
-        kid: b"kid".to_vec(),
-        has_kid: true,
+        payload: b"payload".to_vec().into(),
+        private_key: private_key.clone().into(),
+        kid: Some(b"kid".to_vec().into()),
         options: buffa::MessageField::some(CoseSign1Options {
+            protected_type: Default::default(),
+            limits: Default::default(),
             tag: true,
             max_cose_sign1_bytes: 0,
             x5chain: buffa::MessageField::none(),
             x5chain_header_placement: EnumValue::from(0),
-            __buffa_unknown_fields: Default::default(),
         }),
-        external_aad: Vec::new(),
-        __buffa_unknown_fields: Default::default(),
+        external_aad: Vec::new().into(),
     };
     assert_redacts_private_key(format!("{attached:?}"));
 
     let detached = CoseSign1CreateDetachedRequest {
         algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
-        payload: b"payload".to_vec(),
-        private_key: private_key.clone(),
-        kid: b"kid".to_vec(),
-        has_kid: true,
+        payload: b"payload".to_vec().into(),
+        private_key: private_key.clone().into(),
+        kid: Some(b"kid".to_vec().into()),
         options: buffa::MessageField::none(),
-        external_aad: Vec::new(),
-        __buffa_unknown_fields: Default::default(),
+        external_aad: Vec::new().into(),
     };
     assert_redacts_private_key(format!("{detached:?}"));
 
     let key = CoseKeyFromPrivateBytesRequest {
         algorithm: ed25519_identifier(),
-        private_key,
-        public_key: Vec::new(),
-        has_public_key: false,
-        __buffa_unknown_fields: Default::default(),
+        private_key: private_key.into(),
+        public_key: None,
     };
     assert_redacts_private_key(format!("{key:?}"));
 }
@@ -251,19 +241,17 @@ fn generated_private_key_requests_redact_debug_output() {
 #[test]
 fn generated_byte_fields_redact_debug_output() {
     let cose_sign1 = CoseSign1CreateResult {
-        cose_sign1: vec![241, 242, 243, 244],
-        __buffa_unknown_fields: Default::default(),
+        cose_sign1: vec![241, 242, 243, 244].into(),
     };
     assert_redacts_bytes(format!("{cose_sign1:?}"), "cose_sign1");
 
     let verified = CoseSign1VerifyResult {
-        payload: vec![241, 242, 243, 244],
+        payload: vec![241, 242, 243, 244].into(),
         algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
-        kid: vec![245, 246, 247, 248],
+        kid: vec![245, 246, 247, 248].into(),
         exact_signature_algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
-        has_exact_signature_algorithm: true,
+
         protected_type: buffa::MessageField::none(),
-        __buffa_unknown_fields: Default::default(),
     };
     let verified_debug = format!("{verified:?}");
     assert_redacts_bytes(verified_debug.clone(), "payload");
@@ -273,61 +261,54 @@ fn generated_byte_fields_redact_debug_output() {
     assert!(
         verified_json.contains("\"exactSignatureAlgorithm\":\"COSE_SIGNATURE_ALGORITHM_ED25519\"")
     );
-    assert!(verified_json.contains("\"hasExactSignatureAlgorithm\":true"));
     let verified_roundtrip: CoseSign1VerifyResult = serde_json::from_str(&verified_json)
         .unwrap_or_else(|error| panic!("verified result must deserialize: {error}"));
     assert_eq!(
         verified_roundtrip.exact_signature_algorithm.as_known(),
         Some(CoseSignatureAlgorithm::Ed25519),
     );
-    assert!(verified_roundtrip.has_exact_signature_algorithm);
 
     let key_request = CoseKeyBytesRequest {
-        cose_key: vec![241, 242, 243, 244],
-        __buffa_unknown_fields: Default::default(),
+        cose_key: vec![241, 242, 243, 244].into(),
     };
     assert_redacts_bytes(format!("{key_request:?}"), "cose_key");
 
     let key_result = CoseKeyBytesResult {
-        key_bytes: vec![241, 242, 243, 244],
+        key_bytes: vec![241, 242, 243, 244].into(),
         signature_algorithm: EnumValue::from(0),
-        has_signature_algorithm: false,
-        __buffa_unknown_fields: Default::default(),
     };
     assert_redacts_bytes(format!("{key_result:?}"), "key_bytes");
 
     let verify = CoseSign1VerifyRequest {
-        cose_sign1: vec![241, 242, 243, 244],
-        public_key: vec![241, 242, 243, 244],
+        cose_sign1: vec![241, 242, 243, 244].into(),
+        public_key: vec![241, 242, 243, 244].into(),
         max_cose_sign1_bytes: 0,
         max_detached_payload_bytes: 0,
         require_kid: true,
-        allowed_algorithms: Vec::new(),
-        external_aad: vec![241, 242, 243, 244],
-        expected_kid: vec![245, 246, 247, 248],
+        allowed_algorithms: Vec::new().into(),
+        external_aad: vec![241, 242, 243, 244].into(),
+        expected_kid: vec![245, 246, 247, 248].into(),
         require_tagged_sign1: false,
         expected_type: buffa::MessageField::none(),
         public_key_algorithm: EnumValue::from(0),
-        __buffa_unknown_fields: Default::default(),
     };
     let verify_debug = format!("{verify:?}");
     assert_redacts_bytes(verify_debug.clone(), "external_aad");
     assert_redacts_bytes(verify_debug, "expected_kid");
 
     let detached_verify = CoseSign1VerifyDetachedRequest {
-        cose_sign1: vec![241, 242, 243, 244],
-        payload: vec![241, 242, 243, 244],
-        public_key: vec![241, 242, 243, 244],
+        cose_sign1: vec![241, 242, 243, 244].into(),
+        payload: vec![241, 242, 243, 244].into(),
+        public_key: vec![241, 242, 243, 244].into(),
         max_cose_sign1_bytes: 0,
         max_detached_payload_bytes: 0,
         require_kid: true,
-        allowed_algorithms: Vec::new(),
-        external_aad: vec![241, 242, 243, 244],
-        expected_kid: vec![245, 246, 247, 248],
+        allowed_algorithms: Vec::new().into(),
+        external_aad: vec![241, 242, 243, 244].into(),
+        expected_kid: vec![245, 246, 247, 248].into(),
         require_tagged_sign1: false,
         expected_type: buffa::MessageField::none(),
         public_key_algorithm: EnumValue::from(0),
-        __buffa_unknown_fields: Default::default(),
     };
     let detached_verify_debug = format!("{detached_verify:?}");
     assert_redacts_bytes(detached_verify_debug.clone(), "external_aad");
@@ -348,8 +329,7 @@ fn generated_multikey_strings_redact_owned_and_view_debug_output() -> Result<(),
     assert_redacts_string(format!("{view:?}"), MULTIKEY);
 
     let result = CoseMultikeyResult {
-        multikey: MULTIKEY.to_owned(),
-        __buffa_unknown_fields: Default::default(),
+        multikey: MULTIKEY.to_owned().into(),
     };
     assert_redacts_string(format!("{result:?}"), MULTIKEY);
     Ok(())
@@ -361,7 +341,7 @@ fn assert_redacts_private_key(debug: String) {
 
 fn assert_redacts_bytes(debug: String, field_name: &str) {
     assert!(debug.contains(field_name));
-    assert!(debug.contains("<redacted>"));
+    assert!(debug.to_ascii_lowercase().contains("redacted"));
     assert!(!debug.contains("251"));
     assert!(!debug.contains("252"));
     assert!(!debug.contains("253"));
@@ -377,6 +357,6 @@ fn assert_redacts_bytes(debug: String, field_name: &str) {
 }
 
 fn assert_redacts_string(debug: String, value: &str) {
-    assert!(debug.contains("<redacted>"));
+    assert!(debug.to_ascii_lowercase().contains("redacted"));
     assert!(!debug.contains(value));
 }

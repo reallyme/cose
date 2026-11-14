@@ -5,27 +5,11 @@ use super::{ContainerError, SignatureEncoding, VerificationKey};
 use crate::iso18013::Iso18013EcdsaHash;
 use zeroize::Zeroizing;
 
-/// Explicit input contract, preventing message/prehash or ECDSA/EdDSA confusion.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum SigningMode {
-    /// Provider hashes the complete message for ECDSA, or performs pure EdDSA.
-    Message,
-    /// COSE hashes the complete Sig_structure exactly once with this ECDSA hash.
-    EcdsaPrehash(Iso18013EcdsaHash),
-}
+/// Closed callback view generated from protobuf.
+pub use crate::generated_contract::SigningMode;
 
 /// Borrowed finalized input; a prehash never masquerades as an ordinary message.
-pub enum SigningInput<'a> {
-    /// Exact full RFC 9052 Sig_structure.
-    Message(&'a [u8]),
-    /// Exactly one digest of Sig_structure, with explicit hash identity.
-    EcdsaPrehash {
-        /// Selected registration's ECDSA hash.
-        hash: Iso18013EcdsaHash,
-        /// Exact digest, not a message to hash again.
-        digest: &'a [u8],
-    },
-}
+pub use crate::generated_contract::SigningInput;
 
 /// Opaque non-exporting signing capability with a stable public-key binding.
 ///
@@ -43,4 +27,29 @@ pub trait ContainerSigner {
     /// # Errors
     /// Returns fixed key, provider, input-mode or backend failures.
     fn sign(&self, input: SigningInput<'_>) -> Result<Zeroizing<Vec<u8>>, ContainerError>;
+}
+
+impl
+    TryFrom<
+        &reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseProviderSignerDescription,
+    > for SigningMode
+{
+    type Error = ContainerError;
+    fn try_from(
+        value:&reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseProviderSignerDescription,
+    ) -> Result<Self, Self::Error> {
+        use reallyme_cose_proto::generated::proto::reallyme::cose::v1::{
+            CoseHashAlgorithm, CoseSigningMode,
+        };
+        match value.signing_mode.as_known() {
+            Some(CoseSigningMode::Message) if value.prehash == CoseHashAlgorithm::Unspecified => {
+                Ok(Self::Message)
+            }
+            Some(CoseSigningMode::EcdsaPrehash) => Ok(Self::EcdsaPrehash(
+                Iso18013EcdsaHash::try_from(value.prehash)
+                    .map_err(|_| super::ContainerErrorReason::SigningInput)?,
+            )),
+            _ => Err(super::ContainerErrorReason::SigningInput.into()),
+        }
+    }
 }

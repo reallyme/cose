@@ -179,7 +179,7 @@ fn sign_case(case: &Case, detached: bool) -> Result<Vec<u8>, RegenerateError> {
         let aad = decode_hex(case.external_aad_hex.as_deref().unwrap_or(""))?;
         let mut options = CoseSign1EncodeOptions::new();
         if let Some(cose_type) = &case.protected_type {
-            options = options.with_protected_type(CoseType::Text(cose_type.clone()));
+            options = options.with_protected_type(CoseType::MediaType(cose_type.clone().into()));
         }
         if let Some(chain) = &case.x5chain_der_hex {
             let certificates = chain

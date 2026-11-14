@@ -2,11 +2,20 @@
 
 version: v2
 plugins:
-  - local: protoc-gen-buffa
+  - local: protoc-gen-reallyme-buffa
     out: crates/proto/src/generated/buffa
+    strategy: all
     opt:
       - views=true
       - json=true
-  - local: protoc-gen-buffa-packaging
+      - deny_unknown_json_fields=true
+      - unknown_fields=false
+      - zeroize_in=.reallyme.cose.v1
+      - bytes_type_custom_in=.reallyme.cose.v1=crate::SecretBytes
+      - string_type_custom_in=.reallyme.cose.v1=crate::SecretString
+      - json_policy_type=crate::SecretBytes
+      - json_policy_type=crate::SecretString
+      - deny_view_json=.reallyme.cose.v1
+  - local: protoc-gen-reallyme-buffa-packaging
     out: crates/proto/src/generated/buffa
     strategy: all

@@ -201,10 +201,10 @@ pub fn decode_operation_output(bytes: &[u8]) -> Result<OperationOutput, Operatio
 fn operation_output_from_response(
     mut response: reallyme_cose::wire::CoseOperationResponseV2,
 ) -> OperationOutput {
-    match response.outcome.take() {
+    match response.outcome.as_mut() {
         Some(cose_operation_response_v2::Outcome::Result(result)) => OperationOutput {
             status: OperationOutputStatus::Result,
-            bytes: encode_result_branch(*result),
+            bytes: encode_result_branch(core::mem::take(&mut **result)),
         },
         Some(cose_operation_response_v2::Outcome::Error(error)) => OperationOutput {
             status: OperationOutputStatus::CoseError,
@@ -219,7 +219,7 @@ fn operation_output_from_response(
 
 #[cfg(feature = "wire")]
 fn encode_result_branch(mut result: reallyme_cose::wire::CoseOperationResult) -> Vec<u8> {
-    match result.result.take() {
+    match result.result.as_mut() {
         Some(cose_operation_result::Result::Sign1Create(message))
         | Some(cose_operation_result::Result::Sign1CreateDetached(message)) => {
             message.encode_to_vec()
@@ -243,6 +243,31 @@ fn encode_result_branch(mut result: reallyme_cose::wire::CoseOperationResult) ->
             message.encode_to_vec()
         }
         Some(cose_operation_result::Result::MlKemDecrypt(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::IsoSign1Verify(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::ContainerVerify(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::ContainerSign(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::SignatureToCose(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::SignatureToDer(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::SignatureValidate(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::SignatureSuiteInfo(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::Sign1CreateProfile(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::Sign1CreateDetachedProfile(message)) => {
+            message.encode_to_vec()
+        }
+        Some(cose_operation_result::Result::Sign1VerifyProfile(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::Sign1VerifyX5chain(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::AgreementKeyCreate(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::AgreementKeyParse(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::PeerKeyInspect(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::PeerKeyValidate(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::VerificationKeyImport(message)) => {
+            message.encode_to_vec()
+        }
+        Some(cose_operation_result::Result::Mac0VerifyDetached(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::PreferredCborValidate(message)) => {
+            message.encode_to_vec()
+        }
+        Some(cose_operation_result::Result::ContractInfo(value)) => value.encode_to_vec(),
         None => Vec::new(),
     }
 }

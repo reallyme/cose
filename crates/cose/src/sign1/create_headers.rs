@@ -2,6 +2,7 @@
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+use crate::sign1::cose_type::CoseTypeExt;
 use coset::{Header, Label, ProtectedHeader, RegisteredLabelWithPrivate};
 use reallyme_crypto::{core::Algorithm, dispatch::sign};
 use zeroize::Zeroizing;
@@ -21,10 +22,10 @@ pub(super) fn build_protected_header(
     alg: CoseSignatureAlgorithm,
     kid: Option<&[u8]>,
     cose_type: Option<&CoseType>,
-    x5chain_der: &[Vec<u8>],
+    x5chain_der: &[reallyme_cose_proto::SecretBytes],
     x5chain_header_placement: X5ChainHeaderPlacement,
 ) -> Result<ProtectedHeader, CoseError> {
-    let cose_alg = alg.to_iana();
+    let cose_alg = alg.to_iana()?;
     let mut header = Header {
         alg: Some(RegisteredLabelWithPrivate::Assigned(cose_alg)),
         key_id: kid.map(<[u8]>::to_vec).unwrap_or_default(),
@@ -51,7 +52,7 @@ pub(super) fn build_protected_header(
 }
 
 pub(super) fn build_unprotected_header(
-    x5chain_der: &[Vec<u8>],
+    x5chain_der: &[reallyme_cose_proto::SecretBytes],
     x5chain_header_placement: X5ChainHeaderPlacement,
 ) -> Header {
     let mut header = Header::default();
@@ -80,9 +81,7 @@ pub(super) fn sign_payload(
         CoseSign1SigningSource::PrivateKey(private_key) => Zeroizing::new(
             sign(alg, private_key, &to_sign).map_err(sign_error_from_algorithm_error)?,
         ),
-        CoseSign1SigningSource::Provider(provider) => {
-            provider.sign(&to_sign).map_err(CoseError::from)?
-        }
+        CoseSign1SigningSource::Provider(provider) => provider.sign(&to_sign)?,
     };
     let signature = core::mem::take(&mut *backend_signature);
     cose_signature_from_backend(alg, signature)

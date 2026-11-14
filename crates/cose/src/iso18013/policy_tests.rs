@@ -34,7 +34,7 @@ impl Iso18013Verifier for AttemptVerifier {
 fn registrations_and_curve_families_remain_distinct_and_opt_in() -> Result<(), CoseError> {
     for identifier in [-35, -36, -8] {
         assert_error(
-            CoseSignatureAlgorithm::from_identifier(identifier),
+            CoseSignatureAlgorithm::from_identifier(identifier)?.crypto_algorithm(),
             CoseError::UnsupportedAlgorithm,
         );
         assert_eq!(
@@ -42,11 +42,39 @@ fn registrations_and_curve_families_remain_distinct_and_opt_in() -> Result<(), C
             identifier
         );
     }
-    for identifier in [-9, -19, -51, -52, -53, -265] {
+    for identifier in [-9, -19, -51, -52] {
         assert_error(
-            Iso18013SignatureAlgorithm::from_identifier(identifier),
+            Iso18013SignatureSuite::new(
+                Iso18013SignatureAlgorithm::from_identifier(identifier)?,
+                Iso18013SignatureCurve::P256,
+            ),
             CoseError::UnsupportedAlgorithm,
         );
+        let selected = crate::containers::SignatureSuite::modern(
+            CoseSignatureAlgorithm::from_identifier(identifier)?,
+        )?;
+        let verifier = AttemptVerifier {
+            suite: selected,
+            calls: Cell::new(0),
+        };
+        let encoded = envelope(
+            &encode(Value::Map(vec![(1.into(), identifier.into())])),
+            Value::Map(vec![]),
+            None,
+            &vec![1; selected.curve().signature_length()?],
+        );
+        assert_error(
+            cose_verify_iso18013_sign1(
+                request(
+                    &encoded,
+                    Iso18013Sign1Content::ReaderDetached(b"reader"),
+                    &[selected],
+                ),
+                &verifier,
+            ),
+            CoseError::UnsupportedAlgorithm,
+        );
+        assert_eq!(verifier.calls.get(), 0);
     }
     for algorithm in [
         Iso18013SignatureAlgorithm::Es256,
@@ -187,7 +215,7 @@ fn role_shapes_tags_and_payload_limits_are_enforced() -> Result<(), CoseError> {
         Iso18013Sign1Content::DeviceDetached(&payload),
         &allowed,
     );
-    limited.limits.max_payload_bytes = payload.len() - 1;
+    limited.limits.payload_bytes = payload.len() - 1;
     assert_error(
         cose_verify_iso18013_sign1(limited, &verifier),
         CoseError::ResourceLimitExceeded,
@@ -266,6 +294,45 @@ fn duplicate_unprotected_and_critical_headers_fail_closed() -> Result<(), CoseEr
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 #[test]
+fn empty_protected_missing_and_non_integer_algorithms_fail_closed() -> Result<(), CoseError> {
+    let vectors = vectors()?;
+    let vector = vectors.first().ok_or(CoseError::InvalidFormat)?;
+    let selected = suite(vector)?;
+    let allowed = [selected];
+    let verifier = AttemptVerifier {
+        suite: selected,
+        calls: Cell::new(0),
+    };
+    let payload = hex(&vector.payload_hex);
+    for protected in [
+        Vec::new(),
+        hex("a1044161"),
+        encode(Value::Map(vec![(1.into(), Value::Text("ES256".into()))])),
+    ] {
+        let encoded = envelope(
+            &protected,
+            Value::Map(vec![]),
+            None,
+            &hex(&vector.signature_hex),
+        );
+        assert_error(
+            cose_verify_iso18013_sign1(
+                request(
+                    &encoded,
+                    Iso18013Sign1Content::DeviceDetached(&payload),
+                    &allowed,
+                ),
+                &verifier,
+            ),
+            CoseError::UnsupportedAlgorithm,
+        );
+    }
+    assert_eq!(verifier.calls.get(), 0);
+    Ok(())
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
 fn byte_limits_and_signature_lengths_fail_before_provider_execution() -> Result<(), CoseError> {
     let vectors = vectors()?;
     let vector = vectors.first().ok_or(CoseError::InvalidFormat)?;
@@ -302,8 +369,8 @@ fn byte_limits_and_signature_lengths_fail_before_provider_execution() -> Result<
             Iso18013Sign1Content::DeviceDetached(payload),
             &allowed,
         );
-        input.limits.max_encoded_bytes = usize::MAX;
-        input.limits.max_payload_bytes = usize::MAX;
+        input.limits.encoded_bytes = usize::MAX;
+        input.limits.payload_bytes = usize::MAX;
         assert_error(
             cose_verify_iso18013_sign1(input, &verifier),
             CoseError::ResourceLimitExceeded,

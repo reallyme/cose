@@ -11,122 +11,37 @@ use reallyme_crypto::core::{
 #[cfg(feature = "cose-crypto")]
 use reallyme_crypto::dispatch::AlgorithmError;
 
-/// Error type for COSE encoding, signing, verification, key, and policy operations.
+/// Fixed generated reason retained without diagnostic or input allocation.
 #[non_exhaustive]
-#[derive(Debug, Error, PartialEq, Eq)]
-pub enum CoseError {
-    /// CBOR serialization or parsing failed.
-    #[error("cbor encoding/decoding error")]
-    Cbor,
+#[derive(Clone, Copy, Debug, Error, PartialEq, Eq)]
+#[error("COSE failure: {reason:?}")]
+pub struct CoseError {
+    reason: CoseErrorReason,
+}
 
-    /// The requested algorithm is not supported by the current COSE mapping.
-    #[error("unsupported algorithm")]
-    UnsupportedAlgorithm,
+pub use reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseErrorReason;
 
-    /// A COSE_Sign1 object did not contain an attached payload where one was required.
-    #[error("missing payload")]
-    MissingPayload,
+impl CoseError {
+    /// Return the authoritative generated reason without loss of precision.
+    #[must_use]
+    pub const fn reason(self) -> CoseErrorReason {
+        self.reason
+    }
+    /// Construct a domain failure from a validated generated reason.
+    pub(crate) const fn from_reason(reason: CoseErrorReason) -> Self {
+        Self {
+            reason: match reason {
+                CoseErrorReason::Unspecified => CoseErrorReason::BackendInternal,
+                other => other,
+            },
+        }
+    }
+}
 
-    /// Signature verification failed for otherwise well-formed signature bytes.
-    #[error("invalid signature")]
-    InvalidSignature,
-
-    /// Signature bytes were not encoded according to the selected COSE
-    /// algorithm's wire format.
-    #[error("invalid signature encoding")]
-    InvalidSignatureEncoding,
-
-    /// The configured cryptographic backend rejected the operation.
-    #[error("crypto error")]
-    Crypto,
-
-    /// The requested cryptographic provider is unavailable in this runtime.
-    #[error("cryptographic provider unavailable")]
-    ProviderUnavailable,
-
-    /// A Multikey value was malformed or could not be converted safely.
-    #[error("invalid multikey")]
-    InvalidMultikey,
-
-    /// Required public or private key bytes were absent.
-    #[error("missing key material")]
-    MissingKeyMaterial,
-
-    /// Key bytes were present but did not match the expected COSE key shape.
-    #[error("invalid key material")]
-    InvalidKeyMaterial,
-
-    /// A policy required `kid` / key_id but the COSE object did not provide one.
-    #[error("missing kid")]
-    MissingKid,
-
-    /// A `kid` was present, but the caller's resolver did not return a key.
-    #[error("key not resolved")]
-    KeyNotResolved,
-
-    /// The COSE object is structurally invalid for the requested operation.
-    #[error("invalid COSE format")]
-    InvalidFormat,
-
-    /// Encoded input exceeded the crate's deterministic resource limits.
-    #[error("resource limit exceeded")]
-    ResourceLimitExceeded,
-
-    /// Encoded input used indefinite-length or otherwise non-canonical CBOR.
-    #[error("non-canonical CBOR")]
-    NonCanonicalCbor,
-
-    /// Encoded input used CBOR tags outside this crate's supported profile.
-    #[error("unexpected CBOR tag")]
-    UnexpectedCborTag,
-
-    /// Encoded input repeated a CBOR map label where uniqueness is required.
-    #[error("duplicate CBOR map label")]
-    DuplicateMapLabel,
-
-    /// A critical protected header was present but is not supported.
-    #[error("unsupported critical header")]
-    UnsupportedCriticalHeader,
-
-    /// An unprotected header carried fields that must be integrity protected.
-    #[error("unprotected header not allowed")]
-    UnprotectedHeaderNotAllowed,
-
-    /// Private key material was required but absent.
-    #[error("missing private key material")]
-    MissingPrivateKey,
-
-    /// A COSE encryption object did not contain an attached ciphertext.
-    #[error("missing ciphertext")]
-    MissingCiphertext,
-
-    /// A COSE encryption object used an invalid or misplaced IV.
-    #[error("invalid IV")]
-    InvalidIv,
-
-    /// A COSE encryption object did not contain exactly one supported recipient.
-    #[error("invalid recipient")]
-    InvalidRecipient,
-
-    /// The recipient did not contain the ML-KEM encapsulated key header.
-    #[error("missing encapsulated key")]
-    MissingEncapsulatedKey,
-
-    /// The ML-KEM encapsulated key was malformed for the selected parameter set.
-    #[error("invalid encapsulated key")]
-    InvalidEncapsulatedKey,
-
-    /// The authenticated ciphertext, external AAD, or derived key did not verify.
-    #[error("authentication failed")]
-    AuthenticationFailed,
-
-    /// AES Key Wrap integrity verification failed for the recipient CEK.
-    #[error("key unwrap failed")]
-    KeyUnwrapFailed,
-
-    /// A required key identifier was present but did not match the selected key.
-    #[error("kid mismatch")]
-    KidMismatch,
+impl From<CoseErrorReason> for CoseError {
+    fn from(reason: CoseErrorReason) -> Self {
+        Self::from_reason(reason)
+    }
 }
 
 #[cfg(feature = "cose-crypto")]

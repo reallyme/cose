@@ -124,8 +124,51 @@ fn independent_original_and_modern_registrations_execute_without_substitution(
                 },
                 VerificationSource::Key(&wrong),
             ),
-            Reason::Key,
+            Reason::KeyAlgorithmMismatch,
         );
+    }
+    Ok(())
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
+fn generated_suite_projection_cannot_bypass_container_profile_authorization(
+) -> Result<(), ContainerError> {
+    use crate::api::contract as wire;
+    for (algorithm, curve, profile, purpose, expected) in [
+        (
+            wire::CoseSignatureAlgorithm::Es256,
+            wire::CoseNamedCurve::P384,
+            ContainerProfile::Iso2021,
+            ContainerPurpose::ReaderAuthentication,
+            Reason::Algorithm,
+        ),
+        (
+            wire::CoseSignatureAlgorithm::Esp256,
+            wire::CoseNamedCurve::P384,
+            ContainerProfile::Rfc9360,
+            ContainerPurpose::Generic,
+            Reason::KeyAlgorithmMismatch,
+        ),
+        (
+            wire::CoseSignatureAlgorithm::EcdsaSecp256k1Sha256,
+            wire::CoseNamedCurve::Secp256k1,
+            ContainerProfile::Rfc9360,
+            ContainerPurpose::Generic,
+            Reason::Algorithm,
+        ),
+    ] {
+        let raw = wire::CoseSignatureSuite {
+            registration: algorithm.into(),
+            curve: curve.into(),
+        };
+        let projected = SignatureSuite::try_from(&raw)?;
+        let policy = ContainerPolicy {
+            profile,
+            purpose,
+            envelope: EnvelopePolicy::Untagged,
+        };
+        assert_error(policy.check(projected, false, false, &[]), expected);
     }
     Ok(())
 }

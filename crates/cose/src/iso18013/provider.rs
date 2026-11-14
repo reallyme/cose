@@ -63,10 +63,12 @@ impl Iso18013CryptoVerifier {
     ///
     /// Returns [`CoseError::ProviderUnavailable`] for unimplemented pairs and
     /// [`CoseError::InvalidKeyMaterial`] for invalid point or subgroup encodings.
+    /// Non-ISO registrations return [`CoseError::UnsupportedAlgorithm`].
     pub fn new(
         suite: Iso18013SignatureSuite,
         public_key: Zeroizing<Vec<u8>>,
     ) -> Result<Self, CoseError> {
+        let suite = Iso18013SignatureSuite::new(suite.algorithm(), suite.curve())?;
         let algorithm = suite.crypto_algorithm()?;
         if let Some(width) = suite.curve().coordinate_length() {
             let compressed = width
@@ -93,12 +95,16 @@ impl Iso18013CryptoVerifier {
 
     /// Import a bounded COSE public verification key with explicit suite binding.
     ///
+    /// An optional Base IV must be a byte string and has no effect on verification.
+    /// The caller retains the original COSE_Key encoding.
+    ///
     /// # Errors
     ///
     /// Returns [`CoseError`] for malformed or excessive encoding, wrong key
     /// type, curve, algorithm or key operations, private material, invalid
     /// points, or unavailable providers. The modern COSE_Key API is unchanged.
     pub fn from_cose_key(suite: Iso18013SignatureSuite, encoded: &[u8]) -> Result<Self, CoseError> {
+        let suite = Iso18013SignatureSuite::new(suite.algorithm(), suite.curve())?;
         super::import_key::import(suite, encoded)
     }
 }

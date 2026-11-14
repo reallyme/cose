@@ -25,8 +25,7 @@ fn wire_public_key_registration_must_match_protected_algorithm() {
         CoseSignatureAlgorithm::Es256,
         b"payload".to_vec(),
         key.private,
-        b"kid".to_vec(),
-        true,
+        Some(b"kid".to_vec()),
     );
     let signed = execute_cose_sign1_create_request(&create.encode_to_vec());
     assert_eq!(signed.status(), OperationOutputStatus::Result);
@@ -35,7 +34,7 @@ fn wire_public_key_registration_must_match_protected_algorithm() {
 
     let mut verify =
         sign1_verify_request(core::mem::take(&mut result.cose_sign1), key.public, true);
-    verify.allowed_algorithms = vec![EnumValue::from(CoseSignatureAlgorithm::Es256)];
+    verify.allowed_algorithms = vec![EnumValue::from(CoseSignatureAlgorithm::Es256)].into();
     verify.public_key_algorithm = EnumValue::from(CoseSignatureAlgorithm::Esp256);
     let output = execute_cose_sign1_verify_request(&verify.encode_to_vec());
     assert_error_reason(&output, CoseErrorReason::CommonUnsupportedAlgorithm);
@@ -48,8 +47,7 @@ fn wire_signing_rejects_a_present_empty_kid() {
         CoseSignatureAlgorithm::Ed25519,
         b"payload".to_vec(),
         key.private,
-        Vec::new(),
-        true,
+        Some(Vec::new()),
     );
     let output = execute_cose_sign1_create_request(&request.encode_to_vec());
     assert_error_reason(&output, CoseErrorReason::CommonInvalidFormat);
@@ -66,39 +64,50 @@ fn wire_require_kid_rejects_an_omitted_kid() {
 }
 
 #[test]
-fn wire_encrypt_and_decrypt_reject_false_supp_priv_info_flags_with_bytes() {
+fn wire_encrypt_and_decrypt_reject_retired_presence_flags() {
     let encrypt = CoseMlKemEncryptRequest {
         kem_algorithm: EnumValue::from(CoseKemAlgorithm::MlKem512),
         content_algorithm: EnumValue::from(CoseContentEncryptionAlgorithm::Aes128Gcm),
-        recipient_public_key: Vec::new(),
-        recipient_kid: Vec::new(),
-        plaintext: Vec::new(),
-        external_aad: Vec::new(),
-        supp_priv_info: b"unexpected".to_vec(),
-        has_supp_priv_info: false,
-        __buffa_unknown_fields: Default::default(),
+        recipient_public_key: Vec::new().into(),
+        recipient_kid: Vec::new().into(),
+        plaintext: Vec::new().into(),
+        external_aad: Vec::new().into(),
+        supp_priv_info: Some(b"private-context".to_vec().into()),
     };
-    let encrypted = execute_operation_bytes(
-        &operation_request(CoseOperationRequestBranch::MlKemEncryptDirect(Box::new(
-            encrypt,
-        )))
-        .encode_to_vec(),
-    );
+    let mut legacy = encrypt.encode_to_vec();
+    legacy.extend_from_slice(&[0x40, 0x01]);
+    let encrypted = execute_operation_bytes(&legacy_operation(
+        operation_request(CoseOperationRequestBranch::MlKemEncryptDirect(
+            Box::default(),
+        )),
+        &legacy,
+    ));
     assert_eq!(encrypted.status(), OperationOutputStatus::CoseError);
-    assert_error_reason(&encrypted, CoseErrorReason::CommonInvalidParameter);
+    assert_error_reason(&encrypted, CoseErrorReason::CommonMalformedProtobuf);
 
     let decrypt = CoseMlKemDecryptRequest {
-        cose_encrypt: Vec::new(),
-        recipient_private_key: Vec::new(),
-        expected_recipient_kid: Vec::new(),
-        external_aad: Vec::new(),
-        supp_priv_info: b"unexpected".to_vec(),
-        has_supp_priv_info: false,
-        __buffa_unknown_fields: Default::default(),
+        cose_encrypt: Vec::new().into(),
+        recipient_private_key: Vec::new().into(),
+        expected_recipient_kid: Vec::new().into(),
+        external_aad: Vec::new().into(),
+        supp_priv_info: Some(b"private-context".to_vec().into()),
     };
-    let decrypted = execute_operation_bytes(
-        &operation_request(CoseOperationRequestBranch::MlKemDecrypt(Box::new(decrypt)))
-            .encode_to_vec(),
-    );
-    assert_error_reason(&decrypted, CoseErrorReason::CommonInvalidParameter);
+    let mut legacy = decrypt.encode_to_vec();
+    legacy.extend_from_slice(&[0x30, 0x01]);
+    let decrypted = execute_operation_bytes(&legacy_operation(
+        operation_request(CoseOperationRequestBranch::MlKemDecrypt(Box::default())),
+        &legacy,
+    ));
+    assert_error_reason(&decrypted, CoseErrorReason::CommonMalformedProtobuf);
+}
+
+// Keep the offending bytes through admission: decoding and re-encoding a
+// message with unknown storage disabled would discard the retired flag.
+fn legacy_operation(request: reallyme_cose::wire::CoseOperationRequest, child: &[u8]) -> Vec<u8> {
+    let mut encoded = request.encode_to_vec();
+    assert_eq!(encoded.pop(), Some(0));
+    assert!(child.len() < 128);
+    encoded.push(u8::try_from(child.len()).expect("bounded fixture length"));
+    encoded.extend_from_slice(child);
+    encoded
 }

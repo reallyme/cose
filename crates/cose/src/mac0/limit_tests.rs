@@ -42,16 +42,16 @@ fn caller_byte_limits_accept_the_boundary_and_reject_one_over() -> Result<(), Co
     let encoded = detached(&protected, &tag(&protected, b"payload", b"aad"));
     let key = CoseMacKey::new(ALGORITHM, Zeroizing::new(KEY.to_vec()))?;
     let mut input = request(&encoded, b"payload", b"aad");
-    input.limits.max_encoded_bytes = encoded.len();
-    input.limits.max_payload_bytes = 7;
-    input.limits.max_external_aad_bytes = 3;
+    input.limits.encoded_bytes = encoded.len();
+    input.limits.payload_bytes = 7;
+    input.limits.external_aad_bytes = 3;
     cose_verify_mac0_detached(input, &key)?;
     for field in 0..3 {
         let mut input = request(&encoded, b"payload", b"aad");
         match field {
-            0 => input.limits.max_encoded_bytes = encoded.len() - 1,
-            1 => input.limits.max_payload_bytes = 6,
-            _ => input.limits.max_external_aad_bytes = 2,
+            0 => input.limits.encoded_bytes = encoded.len() - 1,
+            1 => input.limits.payload_bytes = 6,
+            _ => input.limits.external_aad_bytes = 2,
         }
         assert_reason(
             cose_verify_mac0_detached(input, &key),
@@ -70,9 +70,9 @@ fn hard_limits_cannot_be_raised_and_fail_before_parsing() -> Result<(), CoseMac0
         (vec![], vec![], vec![0; MAX_MAC0_EXTERNAL_AAD_BYTES + 1]),
     ] {
         let mut input = request(&encoded, &payload, &aad);
-        input.limits.max_encoded_bytes = usize::MAX;
-        input.limits.max_payload_bytes = usize::MAX;
-        input.limits.max_external_aad_bytes = usize::MAX;
+        input.limits.encoded_bytes = usize::MAX;
+        input.limits.payload_bytes = usize::MAX;
+        input.limits.external_aad_bytes = usize::MAX;
         assert_reason(
             cose_verify_mac0_detached(input, &key),
             CoseMac0ErrorReason::ResourceLimitExceeded,

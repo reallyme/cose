@@ -69,17 +69,20 @@ fn working_group_vectors_verify_for_all_hmac_registrations() -> Result<(), CoseM
                 CoseMac0ErrorReason::AuthenticationFailed,
             );
 
-            let mut changed_tag = hex(tag_hex);
-            for byte in &mut changed_tag {
-                *byte ^= 1;
+            // Every tag byte participates, including each byte of the
+            // truncated HMAC 256/64 tag compared by this crate.
+            let expected_tag = hex(tag_hex);
+            for index in 0..expected_tag.len() {
+                let mut changed_tag = expected_tag.clone();
+                changed_tag[index] ^= 1;
+                let changed = detached(&protected, &changed_tag);
+                let mut input = request(&changed, WG_PAYLOAD, &[]);
+                input.allowed_algorithms = std::slice::from_ref(&algorithm);
+                assert_reason(
+                    cose_verify_mac0_detached(input, &key),
+                    CoseMac0ErrorReason::AuthenticationFailed,
+                );
             }
-            let changed = detached(&protected, &changed_tag);
-            let mut input = request(&changed, WG_PAYLOAD, &[]);
-            input.allowed_algorithms = std::slice::from_ref(&algorithm);
-            assert_reason(
-                cose_verify_mac0_detached(input, &key),
-                CoseMac0ErrorReason::AuthenticationFailed,
-            );
         }
     }
     let message = build_authentication_structure(
@@ -214,6 +217,26 @@ fn exact_allowlist_and_exact_key_binding_fail_closed() -> Result<(), CoseMac0Err
         verify(&attached),
         CoseMac0ErrorReason::DetachedPayloadRequired,
     );
+    let mut tagged_attached = attached.clone();
+    tagged_attached.insert(0, 0xd1);
+    assert_reason(
+        verify(&tagged_attached),
+        CoseMac0ErrorReason::DetachedPayloadRequired,
+    );
+    for payload in [
+        Value::Integer(0.into()),
+        Value::Text("payload".into()),
+        Value::Array(vec![]),
+        Value::Map(vec![]),
+    ] {
+        let wrong_type = encode(Value::Array(vec![
+            Value::Bytes(hex("a10105")),
+            Value::Map(vec![]),
+            payload,
+            Value::Bytes(vec![0; 32]),
+        ]));
+        assert_reason(verify(&wrong_type), CoseMac0ErrorReason::InvalidStructure);
+    }
     Ok(())
 }
 

@@ -3,9 +3,9 @@
 
 use super::own_bytes::copy;
 use super::{
-    ContainerContent, ContainerError, ContainerErrorReason as Reason, ContainerLimits,
-    ContainerPolicy, ContainerProfile, ContainerPurpose, EndEntityIntegrity, HeaderProvenance,
-    SignatureSuite, VerificationSource, VerifiedContainer,
+    ContainerContent, ContainerError, ContainerErrorReason as Reason, ContainerPolicy,
+    ContainerProfile, ContainerPurpose, EndEntityIntegrity, HeaderProvenance, VerificationSource,
+    VerifiedContainer,
 };
 use crate::build_authentication_structure::{
     build_authentication_structure, AuthenticationContext,
@@ -19,20 +19,7 @@ use reallyme_crypto::operations::{constant_time, hash};
 use zeroize::Zeroizing;
 
 /// All bounded inputs and explicit policy for a single verification.
-pub struct ContainerVerifyRequest<'a> {
-    /// Received encoded Sign1 bytes.
-    pub encoded: &'a [u8],
-    /// Attached or exact caller-supplied detached content.
-    pub content: ContainerContent<'a>,
-    /// Explicit AAD; ISO contracts require empty bytes.
-    pub external_aad: &'a [u8],
-    /// Source baseline, purpose and envelope policy.
-    pub policy: ContainerPolicy,
-    /// Exact algorithm/curve allowlist; an empty list permits nothing.
-    pub allowed_suites: &'a [SignatureSuite],
-    /// Caller-tightenable limits.
-    pub limits: ContainerLimits,
-}
+pub use crate::generated_contract::ContainerVerifyRequest;
 
 /// Authenticate a bounded opaque container with exact received protected bytes.
 ///
@@ -46,6 +33,14 @@ pub fn verify_container(
     request: ContainerVerifyRequest<'_>,
     source: VerificationSource<'_>,
 ) -> Result<VerifiedContainer, ContainerError> {
+    verify_container_operation(request, source)
+}
+
+pub(crate) fn verify_container_operation(
+    request: ContainerVerifyRequest<'_>,
+    source: VerificationSource<'_>,
+) -> Result<VerifiedContainer, ContainerError> {
+    super::validate_allowlists::container_suites(request.allowed_suites)?;
     check_limits(&request)?;
     let envelope = super::decode::decode(request.encoded)?;
     let payload = match request.content {
@@ -109,7 +104,7 @@ pub fn verify_container(
     };
     let suite = key.suite();
     if suite.registration().identifier() != envelope.headers.algorithm {
-        return Err(Reason::Key.into());
+        return Err(Reason::KeyAlgorithmMismatch.into());
     }
     if !request.allowed_suites.contains(&suite) {
         return Err(Reason::Algorithm.into());

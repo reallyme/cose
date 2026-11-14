@@ -40,9 +40,8 @@ fn remaining_key_family_operations_match_native_binary_and_proto_json() {
     let constructed_public = execute_key_bytes(Operation::KeyFromPublicBytes(Box::new(
         CoseKeyFromPublicBytesRequest {
             algorithm: ed25519_identifier(),
-            public_key: public_key.to_vec(),
+            public_key: public_key.to_vec().into(),
             ec2_point_encoding: Default::default(),
-            __buffa_unknown_fields: Default::default(),
         },
     )));
     assert_eq!(constructed_public.as_slice(), encoded_public.as_slice());
@@ -54,10 +53,8 @@ fn remaining_key_family_operations_match_native_binary_and_proto_json() {
     let constructed_private = execute_key_bytes(Operation::KeyFromPrivateBytes(Box::new(
         CoseKeyFromPrivateBytesRequest {
             algorithm: ed25519_identifier(),
-            private_key: private_key.to_vec(),
-            public_key: public_key.to_vec(),
-            has_public_key: true,
-            __buffa_unknown_fields: Default::default(),
+            private_key: private_key.to_vec().into(),
+            public_key: Some(public_key.to_vec().into()),
         },
     )));
     assert_eq!(constructed_private.as_slice(), encoded_private.as_slice());
@@ -94,8 +91,7 @@ fn remaining_key_family_operations_match_native_binary_and_proto_json() {
         cose_key_to_vec(&native_from_multikey).expect("Multikey key must encode");
     let converted_key = execute_key_bytes(Operation::MultikeyToCoseKey(Box::new(
         CoseMultikeyToCoseKeyRequest {
-            multikey: native_multikey.to_string(),
-            __buffa_unknown_fields: Default::default(),
+            multikey: native_multikey.to_string().into(),
         },
     )));
     assert_eq!(converted_key.as_slice(), native_from_multikey.as_slice());
@@ -113,9 +109,8 @@ fn remaining_key_family_failures_preserve_exact_branch_and_reason() {
     assert_error(
         Operation::KeyFromPublicBytes(Box::new(CoseKeyFromPublicBytesRequest {
             algorithm: ed25519_identifier(),
-            public_key: vec![0_u8; 31],
+            public_key: vec![0_u8; 31].into(),
             ec2_point_encoding: Default::default(),
-            __buffa_unknown_fields: Default::default(),
         })),
         ErrorBranch::Primitive,
         CoseErrorReason::KeyInvalidKeyMaterial,
@@ -123,10 +118,8 @@ fn remaining_key_family_failures_preserve_exact_branch_and_reason() {
     assert_error(
         Operation::KeyFromPrivateBytes(Box::new(CoseKeyFromPrivateBytesRequest {
             algorithm: ed25519_identifier(),
-            private_key: private_key.to_vec(),
-            public_key: Vec::new(),
-            has_public_key: false,
-            __buffa_unknown_fields: Default::default(),
+            private_key: private_key.to_vec().into(),
+            public_key: None,
         })),
         ErrorBranch::Primitive,
         CoseErrorReason::KeyMissingKeyMaterial,
@@ -138,8 +131,7 @@ fn remaining_key_family_failures_preserve_exact_branch_and_reason() {
     );
     assert_error(
         Operation::MultikeyToCoseKey(Box::new(CoseMultikeyToCoseKeyRequest {
-            multikey: "not-a-multikey".to_owned(),
-            __buffa_unknown_fields: Default::default(),
+            multikey: "not-a-multikey".to_owned().into(),
         })),
         ErrorBranch::Primitive,
         CoseErrorReason::MultikeyInvalidMultikey,
@@ -150,11 +142,9 @@ fn remaining_key_family_failures_preserve_exact_branch_and_reason() {
                 algorithm: Some(cose_algorithm_identifier::Algorithm::Kem(EnumValue::from(
                     CoseKemAlgorithm::XWing768,
                 ))),
-                __buffa_unknown_fields: Default::default(),
             }),
-            public_key: public_key.to_vec(),
+            public_key: public_key.to_vec().into(),
             ec2_point_encoding: Default::default(),
-            __buffa_unknown_fields: Default::default(),
         })),
         ErrorBranch::Provider,
         CoseErrorReason::CommonUnsupportedAlgorithm,
@@ -167,21 +157,18 @@ fn ed25519_identifier(
         algorithm: Some(cose_algorithm_identifier::Algorithm::Signature(
             EnumValue::from(CoseSignatureAlgorithm::Ed25519),
         )),
-        __buffa_unknown_fields: Default::default(),
     })
 }
 
 fn key_request(encoded: &[u8]) -> CoseKeyBytesRequest {
     CoseKeyBytesRequest {
-        cose_key: encoded.to_vec(),
-        __buffa_unknown_fields: Default::default(),
+        cose_key: encoded.to_vec().into(),
     }
 }
 
 fn operation_request(operation: Operation) -> CoseOperationRequest {
     CoseOperationRequest {
         operation: Some(operation),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
@@ -189,14 +176,14 @@ fn execute_key_bytes(operation: Operation) -> Zeroizing<Vec<u8>> {
     let payload = execute(operation);
     let mut result = CoseKeyBytesResult::decode_from_slice(&payload)
         .expect("key-family result must decode as CoseKeyBytesResult");
-    Zeroizing::new(core::mem::take(&mut result.key_bytes))
+    core::mem::take(&mut result.key_bytes).into_zeroizing()
 }
 
 fn execute_multikey(operation: Operation) -> Zeroizing<String> {
     let payload = execute(operation);
     let mut result = CoseMultikeyResult::decode_from_slice(&payload)
         .expect("key-family result must decode as CoseMultikeyResult");
-    Zeroizing::new(core::mem::take(&mut result.multikey))
+    core::mem::take(&mut result.multikey).into_zeroizing()
 }
 
 fn execute(operation: Operation) -> Zeroizing<Vec<u8>> {

@@ -39,7 +39,13 @@ pub(super) fn validate<'a>(
                 };
                 let identifier =
                     i64::try_from(*identifier).map_err(|_| CoseError::UnsupportedAlgorithm)?;
-                algorithm = Some(Iso18013SignatureAlgorithm::from_identifier(identifier)?);
+                let selected = Iso18013SignatureAlgorithm::from_identifier(identifier)?;
+                // Recognition is shared with modern COSE. This entrypoint still
+                // authorizes only the original ISO registrations, before any provider.
+                if !selected.is_iso() {
+                    return Err(CoseError::UnsupportedAlgorithm);
+                }
+                algorithm = Some(selected);
             }
             Some(KEY_ID_LABEL) => {
                 let Value::Bytes(bytes) = value else {

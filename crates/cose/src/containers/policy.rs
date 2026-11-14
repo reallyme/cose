@@ -1,71 +1,22 @@
 // SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use super::{
-    ContainerError, ContainerErrorReason as Reason, SignatureRegistration, SignatureSuite,
-};
+use super::{ContainerError, ContainerErrorReason as Reason, SignatureSuite};
 
-/// Source baseline selected explicitly; no draft behavior changes modern defaults.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum ContainerProfile {
-    /// Strict RFC 9360 end-entity integrity with modern registrations.
-    Rfc9360,
-    /// ISO/IEC 18013-5:2021 compatibility, including unprotected chains.
-    Iso2021,
-    /// Hash-pinned edition-2 DIS snapshot documented in the profile matrix.
-    IsoEdition2Dis,
-}
+/// Closed compatibility view generated from the protobuf selector.
+pub use crate::generated_contract::ContainerProfile;
 
-/// Opaque content purpose. Payload grammar, negotiation and trust stay outside COSE.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum ContainerPurpose {
-    /// Generic signed content under strict RFC 9360 policy.
-    Generic,
-    /// Attached issuer MSO bytes, including their original tag-24 encoding.
-    IssuerMso,
-    /// Detached device authentication bytes.
-    DeviceAuthentication,
-    /// Detached single-request reader authentication bytes.
-    ReaderAuthentication,
-    /// Detached whole-request authentication bytes in caller-supplied order.
-    ReaderAuthenticationAll,
-    /// Attached signed MSO revocation list; schema and freshness are external.
-    MsoRevocation,
-    /// Optional VICAL attached container with unprotected x5chain.
-    Vical,
-    /// Informative RICAL attached container with protected x5chain.
-    Rical,
-}
+/// Closed compatibility view generated from the protobuf selector.
+pub use crate::generated_contract::ContainerPurpose;
 
-/// Exact envelope acceptance, independently of payload attachment.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum EnvelopePolicy {
-    /// Require the untagged four-element array.
-    Untagged,
-    /// Require tag 18 around the four-element array.
-    Tagged,
-    /// Explicitly allow either form for a generic container.
-    Either,
-}
+/// Closed compatibility view generated from the protobuf selector.
+pub use crate::generated_contract::EnvelopePolicy;
 
 /// Attached/detached content selection is never inferred from null or empty data.
-pub enum ContainerContent<'a> {
-    /// Use the exact attached byte-string payload.
-    Attached,
-    /// Require null on the wire and authenticate these exact external bytes.
-    Detached(&'a [u8]),
-}
+pub use crate::generated_contract::ContainerContent;
 
-/// Explicit per-call contract. There are deliberately no permissive defaults.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct ContainerPolicy {
-    /// Source baseline.
-    pub profile: ContainerProfile,
-    /// Distinct application purpose.
-    pub purpose: ContainerPurpose,
-    /// Exact accepted envelope form.
-    pub envelope: EnvelopePolicy,
-}
+/// Closed native view generated from the authoritative message.
+pub use crate::generated_contract::ContainerPolicy;
 
 impl ContainerPolicy {
     pub(super) fn check(
@@ -81,16 +32,23 @@ impl ContainerPolicy {
         ) {
             return Err(Reason::Profile.into());
         }
-        match (self.profile, suite.registration()) {
-            (ContainerProfile::Rfc9360, SignatureRegistration::Modern(_))
-                if self.purpose == ContainerPurpose::Generic =>
+        // A generated suite is a value projection, not authorization. Recheck
+        // its tuple so generated values and retained constructors obey the same
+        // selected profile, without changing the existing profile-error order.
+        match self.profile {
+            ContainerProfile::Rfc9360
+                if !suite.registration().is_iso() && self.purpose == ContainerPurpose::Generic =>
             {
-                return Ok(())
+                if SignatureSuite::modern(suite.registration())? != suite {
+                    return Err(Reason::KeyAlgorithmMismatch.into());
+                }
+                return Ok(());
             }
-            (
-                ContainerProfile::Iso2021 | ContainerProfile::IsoEdition2Dis,
-                SignatureRegistration::Iso(_),
-            ) => {}
+            ContainerProfile::Iso2021 | ContainerProfile::IsoEdition2Dis
+                if suite.registration().is_iso() =>
+            {
+                SignatureSuite::iso(suite.registration(), suite.curve())?;
+            }
             _ => return Err(Reason::Profile.into()),
         }
         if !aad.is_empty() || tagged || self.envelope != EnvelopePolicy::Untagged {
@@ -120,23 +78,5 @@ impl ContainerPolicy {
     }
 }
 
-/// Caller-tightenable resource ceilings. Hard crate ceilings still apply.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct ContainerLimits {
-    /// Maximum encoded envelope bytes (hard maximum 65,536).
-    pub encoded_bytes: usize,
-    /// Maximum payload bytes (hard maximum 1,048,576).
-    pub payload_bytes: usize,
-    /// Maximum external AAD bytes (hard maximum 65,536).
-    pub external_aad_bytes: usize,
-}
-
-impl Default for ContainerLimits {
-    fn default() -> Self {
-        Self {
-            encoded_bytes: crate::limits::MAX_COSE_SIGN1_BYTES,
-            payload_bytes: crate::limits::MAX_DETACHED_PAYLOAD_BYTES,
-            external_aad_bytes: crate::limits::MAX_COSE_SIGN1_BYTES,
-        }
-    }
-}
+/// Compatibility name for the generated checked byte-limit view.
+pub use crate::generated_contract::ContainerLimits;

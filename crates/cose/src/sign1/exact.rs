@@ -59,7 +59,7 @@ pub fn cose_sign1_with_signature_algorithm_and_external_aad(
         kid,
         external_aad,
         options,
-    ))
+    )?)
     .map(CoseSign1CreateOutput::into_zeroizing)
     .map_err(CoseFailure::into_native_error)
 }
@@ -108,7 +108,7 @@ pub fn cose_sign1_detached_with_signature_algorithm_and_external_aad(
         kid,
         external_aad,
         options,
-    ))
+    )?)
     .map(CoseSign1CreateOutput::into_zeroizing)
     .map_err(CoseFailure::into_native_error)
 }

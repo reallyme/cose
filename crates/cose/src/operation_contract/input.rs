@@ -4,9 +4,9 @@
 
 //! Conversion of generated request values into native domain inputs.
 
+use crate::sign1::cose_type::CoseTypeExt;
 use buffa::EnumValue;
 use reallyme_cose_proto::generated::proto::reallyme::cose::v1::__buffa::oneof::cose_algorithm_identifier::Algorithm as CoseAlgorithmIdentifierBranch;
-use reallyme_cose_proto::generated::proto::reallyme::cose::v1::__buffa::oneof::cose_type::Value as WireCoseTypeValue;
 use reallyme_crypto::core::Algorithm;
 
 use crate::algorithm::CoseSignatureAlgorithm as NativeCoseSignatureAlgorithm;
@@ -25,22 +25,10 @@ use crate::wire::{
 use crate::{
     CoseContentEncryptionAlgorithm as NativeCoseContentEncryptionAlgorithm, CoseEc2PointEncoding,
     CoseMlKemAlgorithm as NativeCoseMlKemAlgorithm, CosePolicy, CoseSign1EncodeOptions,
-    CoseType as NativeCoseType, X5ChainHeaderPlacement,
+    X5ChainHeaderPlacement,
 };
 
 const MAX_WIRE_ALLOWED_SIGNATURE_ALGORITHMS: usize = 32;
-
-pub(crate) fn validate_supp_priv_info_flag(
-    has_supp_priv_info: bool,
-    supp_priv_info: &[u8],
-) -> CoseWireResult<()> {
-    if !has_supp_priv_info && !supp_priv_info.is_empty() {
-        return Err(CoseWireError::primitive_internal(
-            CoseErrorReason::CommonInvalidParameter,
-        ));
-    }
-    Ok(())
-}
 
 pub(crate) fn encode_options_from_proto(
     options: Option<&mut CoseSign1Options>,
@@ -70,7 +58,7 @@ pub(crate) fn encode_options_from_proto(
             }
             core::mem::take(&mut chain.certificates_der)
         } else {
-            Vec::new()
+            Default::default()
         };
     let x5chain_header_placement = match options.x5chain_header_placement.as_known() {
         Some(WireX5ChainHeaderPlacement::Unspecified | WireX5ChainHeaderPlacement::Protected) => {
@@ -83,14 +71,34 @@ pub(crate) fn encode_options_from_proto(
             ));
         }
     };
-    Ok(CoseSign1EncodeOptions::new()
+    let mut result = CoseSign1EncodeOptions::new()
         .with_tag(options.tag)
         .with_max_cose_sign1_bytes(optional_limit_to_usize(
             options.max_cose_sign1_bytes,
             MAX_COSE_SIGN1_BYTES,
         )?)
-        .with_x5chain_der(x5chain_der)
-        .with_x5chain_header_placement(x5chain_header_placement))
+        .with_guarded_x5chain(x5chain_der)
+        .with_x5chain_header_placement(x5chain_header_placement);
+    if let Some(limits) = options.limits.as_option() {
+        result = result.with_max_cose_sign1_bytes(
+            super::profile_input::bounded_length(
+                limits.encoded_bytes,
+                MAX_COSE_PROTO_MESSAGE_BYTES,
+            )
+            .map_err(|error| CoseWireError::from_reason(error.reason()))?,
+        );
+    }
+    if let Some(value) = options
+        .protected_type
+        .as_option_mut()
+        .and_then(|value| value.value.take())
+    {
+        value
+            .validate()
+            .map_err(|error| CoseWireError::from_reason(error.reason()))?;
+        result = result.with_protected_type(value);
+    }
+    Ok(result)
 }
 
 pub(crate) fn policy_from_parts(
@@ -133,10 +141,7 @@ pub(crate) fn policy_from_parts(
             .ok_or(CoseWireError::primitive_internal(
                 CoseErrorReason::CommonInvalidParameter,
             ))?;
-        let native_type = match value {
-            WireCoseTypeValue::MediaType(text) => NativeCoseType::Text(text.clone()),
-            WireCoseTypeValue::ContentFormat(identifier) => NativeCoseType::Registered(*identifier),
-        };
+        let native_type = value.clone();
         native_type.validate().map_err(|_| {
             CoseWireError::primitive_internal(CoseErrorReason::CommonInvalidParameter)
         })?;
@@ -162,31 +167,12 @@ fn optional_limit_to_usize(value: u64, default: usize) -> CoseWireResult<usize> 
 pub(crate) fn signature_algorithm_from_proto(
     value: EnumValue<WireCoseSignatureAlgorithm>,
 ) -> CoseWireResult<NativeCoseSignatureAlgorithm> {
-    let algorithm = value.as_known().ok_or(CoseWireError::primitive_internal(
-        CoseErrorReason::CommonInvalidParameter,
-    ))?;
-    match algorithm {
-        WireCoseSignatureAlgorithm::Ed25519 => Ok(NativeCoseSignatureAlgorithm::Ed25519),
-        WireCoseSignatureAlgorithm::EcdsaP256Sha256 | WireCoseSignatureAlgorithm::Esp256 => {
-            Ok(NativeCoseSignatureAlgorithm::Esp256)
-        }
-        WireCoseSignatureAlgorithm::Es256 => Ok(NativeCoseSignatureAlgorithm::Es256),
-        WireCoseSignatureAlgorithm::EcdsaP384Sha384 | WireCoseSignatureAlgorithm::Esp384 => {
-            Ok(NativeCoseSignatureAlgorithm::Esp384)
-        }
-        WireCoseSignatureAlgorithm::EcdsaP521Sha512 | WireCoseSignatureAlgorithm::Esp512 => {
-            Ok(NativeCoseSignatureAlgorithm::Esp512)
-        }
-        WireCoseSignatureAlgorithm::EcdsaSecp256k1Sha256 => {
-            Ok(NativeCoseSignatureAlgorithm::Es256K)
-        }
-        WireCoseSignatureAlgorithm::MlDsa44 => Ok(NativeCoseSignatureAlgorithm::MlDsa44),
-        WireCoseSignatureAlgorithm::MlDsa65 => Ok(NativeCoseSignatureAlgorithm::MlDsa65),
-        WireCoseSignatureAlgorithm::MlDsa87 => Ok(NativeCoseSignatureAlgorithm::MlDsa87),
-        WireCoseSignatureAlgorithm::Unspecified => Err(CoseWireError::primitive_internal(
-            CoseErrorReason::CommonInvalidParameter,
-        )),
-    }
+    let algorithm = NativeCoseSignatureAlgorithm::try_from(value)
+        .map_err(|error| CoseWireError::from_reason(error.reason()))?;
+    algorithm
+        .crypto_algorithm()
+        .map_err(|error| CoseWireError::from_reason(error.reason()))?;
+    Ok(algorithm)
 }
 
 pub(crate) enum KeyAlgorithmInput {
@@ -214,16 +200,12 @@ impl KeyAlgorithmInput {
 pub(crate) fn ec2_point_encoding_from_proto(
     value: EnumValue<WireCoseEc2PointEncoding>,
 ) -> CoseWireResult<Option<CoseEc2PointEncoding>> {
-    match value.as_known() {
-        Some(WireCoseEc2PointEncoding::Unspecified) => Ok(None),
-        Some(WireCoseEc2PointEncoding::Compressed) => Ok(Some(CoseEc2PointEncoding::Compressed)),
-        Some(WireCoseEc2PointEncoding::FullCoordinates) => {
-            Ok(Some(CoseEc2PointEncoding::FullCoordinates))
-        }
-        None => Err(CoseWireError::primitive_internal(
-            CoseErrorReason::CommonInvalidParameter,
-        )),
+    if value == WireCoseEc2PointEncoding::Unspecified {
+        return Ok(None);
     }
+    CoseEc2PointEncoding::try_from(value)
+        .map(Some)
+        .map_err(Into::into)
 }
 
 pub(crate) fn validate_ec2_point_encoding(
@@ -292,40 +274,16 @@ fn kem_algorithm_from_proto(value: EnumValue<CoseKemAlgorithm>) -> CoseWireResul
 pub(crate) fn ml_kem_algorithm_from_proto(
     value: EnumValue<CoseKemAlgorithm>,
 ) -> CoseWireResult<NativeCoseMlKemAlgorithm> {
-    let algorithm = value.as_known().ok_or(CoseWireError::primitive_internal(
-        CoseErrorReason::CommonInvalidParameter,
-    ))?;
-    match algorithm {
-        CoseKemAlgorithm::MlKem512 => Ok(NativeCoseMlKemAlgorithm::MlKem512),
-        CoseKemAlgorithm::MlKem768 => Ok(NativeCoseMlKemAlgorithm::MlKem768),
-        CoseKemAlgorithm::MlKem1024 => Ok(NativeCoseMlKemAlgorithm::MlKem1024),
-        CoseKemAlgorithm::Unspecified => Err(CoseWireError::primitive_internal(
-            CoseErrorReason::CommonInvalidParameter,
-        )),
-        _ => Err(CoseWireError::provider_internal(
+    if value == CoseKemAlgorithm::XWing768 {
+        return Err(CoseWireError::provider_internal(
             CoseErrorReason::CommonUnsupportedAlgorithm,
-        )),
+        ));
     }
+    NativeCoseMlKemAlgorithm::try_from(value).map_err(Into::into)
 }
 
 pub(crate) fn content_algorithm_from_proto(
     value: EnumValue<CoseContentEncryptionAlgorithm>,
 ) -> CoseWireResult<NativeCoseContentEncryptionAlgorithm> {
-    let algorithm = value.as_known().ok_or(CoseWireError::primitive_internal(
-        CoseErrorReason::CommonInvalidParameter,
-    ))?;
-    match algorithm {
-        CoseContentEncryptionAlgorithm::Aes128Gcm => {
-            Ok(NativeCoseContentEncryptionAlgorithm::Aes128Gcm)
-        }
-        CoseContentEncryptionAlgorithm::Aes192Gcm => {
-            Ok(NativeCoseContentEncryptionAlgorithm::Aes192Gcm)
-        }
-        CoseContentEncryptionAlgorithm::Aes256Gcm => {
-            Ok(NativeCoseContentEncryptionAlgorithm::Aes256Gcm)
-        }
-        CoseContentEncryptionAlgorithm::Unspecified => Err(CoseWireError::primitive_internal(
-            CoseErrorReason::CommonInvalidParameter,
-        )),
-    }
+    NativeCoseContentEncryptionAlgorithm::try_from(value).map_err(Into::into)
 }

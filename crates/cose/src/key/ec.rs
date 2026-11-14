@@ -41,28 +41,31 @@ pub(crate) fn ec2_profile_for_signature_algorithm(
     match algorithm {
         CoseSignatureAlgorithm::Es256 | CoseSignatureAlgorithm::Esp256 => Ok(Ec2Profile {
             curve: iana::EllipticCurve::P_256,
-            alg: algorithm.to_iana(),
+            alg: algorithm.to_iana()?,
             coordinate_len: P256_COORDINATE_BYTES,
         }),
         CoseSignatureAlgorithm::Esp384 => Ok(Ec2Profile {
             curve: iana::EllipticCurve::P_384,
-            alg: algorithm.to_iana(),
+            alg: algorithm.to_iana()?,
             coordinate_len: P384_COORDINATE_BYTES,
         }),
         CoseSignatureAlgorithm::Esp512 => Ok(Ec2Profile {
             curve: iana::EllipticCurve::P_521,
-            alg: algorithm.to_iana(),
+            alg: algorithm.to_iana()?,
             coordinate_len: P521_COORDINATE_BYTES,
         }),
         CoseSignatureAlgorithm::Es256K => Ok(Ec2Profile {
             curve: iana::EllipticCurve::Secp256k1,
-            alg: algorithm.to_iana(),
+            alg: algorithm.to_iana()?,
             coordinate_len: P256_COORDINATE_BYTES,
         }),
         CoseSignatureAlgorithm::Ed25519
         | CoseSignatureAlgorithm::MlDsa44
         | CoseSignatureAlgorithm::MlDsa65
-        | CoseSignatureAlgorithm::MlDsa87 => Err(CoseError::UnsupportedAlgorithm),
+        | CoseSignatureAlgorithm::MlDsa87
+        | CoseSignatureAlgorithm::Es384
+        | CoseSignatureAlgorithm::Es512
+        | CoseSignatureAlgorithm::EdDsa => Err(CoseError::UnsupportedAlgorithm),
     }
 }
 
@@ -219,6 +222,7 @@ pub(crate) fn ec_public_key_for_encoding(
     match encoding {
         CoseEc2PointEncoding::Compressed => Ok(canonical),
         CoseEc2PointEncoding::FullCoordinates => expand_canonical_ec_point(profile, &canonical),
+        CoseEc2PointEncoding::Okp => Err(CoseError::InvalidFormat),
     }
 }
 

@@ -11,19 +11,11 @@ use zeroize::Zeroizing;
 // supported coordinate is at most 66 bytes, so INTEGER lengths stay short-form.
 const MAX_ECDSA_DER_OVERHEAD_BYTES: usize = 9;
 
-/// Declared provider encoding, independent of signature byte length.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum SignatureEncoding {
-    /// Strict minimal ASN.1 ECDSA-Sig-Value.
-    EcdsaDer,
-    /// Exact padded COSE ECDSA r || s.
-    EcdsaFixed,
-    /// Pure EdDSA compressed R || S encoding.
-    EdDsa,
-}
+/// Closed compatibility view generated from the protobuf selector.
+pub use crate::generated_contract::SignatureEncoding;
 
 impl SignatureEncoding {
-    pub(super) fn validate_family(
+    pub(crate) fn validate_family(
         self,
         curve: Iso18013SignatureCurve,
     ) -> Result<(), ContainerError> {
@@ -42,6 +34,13 @@ impl SignatureEncoding {
 /// # Errors
 /// Returns `SignatureEncoding` for invalid widths or ECDSA scalar values.
 pub fn validate_cose_signature(
+    curve: Iso18013SignatureCurve,
+    signature: &[u8],
+) -> Result<(), ContainerError> {
+    validate_cose_signature_operation(curve, signature)
+}
+
+pub(crate) fn validate_cose_signature_operation(
     curve: Iso18013SignatureCurve,
     signature: &[u8],
 ) -> Result<(), ContainerError> {
@@ -64,6 +63,14 @@ pub fn validate_cose_signature(
 /// # Errors
 /// Returns fixed encoding or allocation failures; never guesses DER by length.
 pub fn signature_to_cose(
+    curve: Iso18013SignatureCurve,
+    encoding: SignatureEncoding,
+    signature: &[u8],
+) -> Result<Zeroizing<Vec<u8>>, ContainerError> {
+    signature_to_cose_operation(curve, encoding, signature)
+}
+
+pub(crate) fn signature_to_cose_operation(
     curve: Iso18013SignatureCurve,
     encoding: SignatureEncoding,
     signature: &[u8],
@@ -95,6 +102,13 @@ pub fn signature_to_cose(
 /// # Errors
 /// Returns fixed scalar, width, family, DER or allocation failures.
 pub fn cose_signature_to_der(
+    curve: Iso18013SignatureCurve,
+    signature: &[u8],
+) -> Result<Zeroizing<Vec<u8>>, ContainerError> {
+    cose_signature_to_der_operation(curve, signature)
+}
+
+pub(crate) fn cose_signature_to_der_operation(
     curve: Iso18013SignatureCurve,
     signature: &[u8],
 ) -> Result<Zeroizing<Vec<u8>>, ContainerError> {

@@ -9,7 +9,7 @@ mod build_sig_structure;
 #[cfg(feature = "cose-crypto")]
 mod convert_signature;
 #[cfg(feature = "cose-crypto")]
-mod cose_type;
+pub(crate) mod cose_type;
 #[cfg(feature = "cose-crypto")]
 mod create_headers;
 #[cfg(feature = "cose-crypto")]
@@ -18,6 +18,8 @@ mod decode;
 mod exact;
 #[cfg(feature = "cose-crypto")]
 mod provider;
+#[cfg(feature = "cose-crypto")]
+mod resolve_key;
 #[cfg(feature = "cose-crypto")]
 pub(crate) mod sign;
 #[cfg(feature = "cose-crypto")]

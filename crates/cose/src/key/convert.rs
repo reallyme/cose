@@ -136,7 +136,7 @@ pub(crate) fn construct_cose_key_from_signature_public(
     algorithm: CoseSignatureAlgorithm,
     public_key: &[u8],
 ) -> Result<CoseKeyOwnerOutput, CoseFailure> {
-    construct_cose_key_from_public_impl(algorithm.crypto_algorithm(), Some(algorithm), public_key)
+    construct_cose_key_from_public_impl(algorithm.crypto_algorithm()?, Some(algorithm), public_key)
         .map(|key| CoseKeyOwnerOutput { key })
         .map_err(CoseFailure::from)
 }
@@ -165,7 +165,7 @@ pub(crate) fn construct_cose_key_from_signature_private(
     public_key: Option<&[u8]>,
 ) -> Result<CoseKeyOwnerOutput, CoseFailure> {
     construct_cose_key_from_private_impl(
-        algorithm.crypto_algorithm(),
+        algorithm.crypto_algorithm()?,
         Some(algorithm),
         private_key,
         public_key,
@@ -297,7 +297,7 @@ fn construct_cose_key_from_public_impl(
                 }
                 None => ec2_profile(algorithm)?,
             };
-            if signature_algorithm.is_some_and(|value| value.crypto_algorithm() != algorithm) {
+            if signature_algorithm.is_some_and(|value| value.crypto_algorithm() != Ok(algorithm)) {
                 return Err(CoseError::UnsupportedAlgorithm);
             }
             let canonical = canonical_ec_public_key(profile, public_key)?;
@@ -330,7 +330,7 @@ fn construct_cose_key_from_signature_public_with_encoding_impl(
     encoding: CoseEc2PointEncoding,
 ) -> Result<CoseKey, CoseError> {
     construct_cose_key_from_public_with_encoding_impl(
-        algorithm.crypto_algorithm(),
+        algorithm.crypto_algorithm()?,
         Some(algorithm),
         public_key,
         encoding,
@@ -347,7 +347,7 @@ fn construct_cose_key_from_public_with_encoding_impl(
         Some(signature_algorithm) => ec2_profile_for_signature_algorithm(signature_algorithm)?,
         None => ec2_profile(algorithm)?,
     };
-    if signature_algorithm.is_some_and(|value| value.crypto_algorithm() != algorithm) {
+    if signature_algorithm.is_some_and(|value| value.crypto_algorithm() != Ok(algorithm)) {
         return Err(CoseError::UnsupportedAlgorithm);
     }
     let selected = ec_public_key_for_encoding(profile, public_key, encoding)?;
@@ -439,7 +439,7 @@ fn construct_cose_key_from_private_impl(
                 }
                 None => ec2_profile(algorithm)?,
             };
-            if signature_algorithm.is_some_and(|value| value.crypto_algorithm() != algorithm) {
+            if signature_algorithm.is_some_and(|value| value.crypto_algorithm() != Ok(algorithm)) {
                 return Err(CoseError::UnsupportedAlgorithm);
             }
             if private_key.len() != profile.coordinate_len {

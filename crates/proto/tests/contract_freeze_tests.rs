@@ -13,6 +13,7 @@ use reallyme_cose_proto::generated::proto::reallyme::cose::v1::{
         cose_algorithm_identifier, cose_operation_request, cose_operation_response_v2,
         cose_operation_result,
     },
+    CoseAgreementKeyCreateRequest, CoseAgreementKeyParseRequest, CoseAgreementKeyResult,
     CoseAlgorithmIdentifier, CoseContentEncryptionAlgorithm, CoseEc2PointEncoding, CoseErrorReason,
     CoseKemAlgorithm, CoseKeyAgreementAlgorithm, CoseKeyBytesRequest, CoseKeyBytesResult,
     CoseKeyFromPrivateBytesRequest, CoseKeyFromPublicBytesRequest, CoseMlKemDecryptRequest,
@@ -29,6 +30,14 @@ type OperationResult = cose_operation_result::Result;
 #[test]
 fn operation_oneof_field_numbers_are_frozen() {
     for (operation, field_number) in [
+        (
+            Operation::AgreementKeyCreate(Box::<CoseAgreementKeyCreateRequest>::default()),
+            2008,
+        ),
+        (
+            Operation::AgreementKeyParse(Box::<CoseAgreementKeyParseRequest>::default()),
+            2009,
+        ),
         (
             Operation::Sign1Create(Box::<CoseSign1CreateRequest>::default()),
             1000,
@@ -98,6 +107,14 @@ fn operation_oneof_field_numbers_are_frozen() {
 fn version_two_response_field_numbers_are_frozen() {
     for (result, field_number) in [
         (
+            OperationResult::AgreementKeyCreate(Box::<CoseAgreementKeyResult>::default()),
+            2008,
+        ),
+        (
+            OperationResult::AgreementKeyParse(Box::<CoseAgreementKeyResult>::default()),
+            2009,
+        ),
+        (
             OperationResult::Sign1Create(Box::<CoseSign1CreateResult>::default()),
             1000,
         ),
@@ -163,13 +180,11 @@ fn version_two_response_field_numbers_are_frozen() {
 
     let result_response = CoseOperationResponseV2 {
         outcome: Some(cose_operation_response_v2::Outcome::Result(Box::default())),
-        __buffa_unknown_fields: Default::default(),
     };
     assert_eq!(result_response.encode_to_vec(), [0x0a, 0x00]);
 
     let error_response = CoseOperationResponseV2 {
         outcome: Some(cose_operation_response_v2::Outcome::Error(Box::default())),
-        __buffa_unknown_fields: Default::default(),
     };
     assert_eq!(error_response.encode_to_vec(), [0x12, 0x00]);
     assert_eq!(
@@ -184,7 +199,6 @@ fn algorithm_identifier_oneof_field_numbers_are_frozen() {
         algorithm: Some(cose_algorithm_identifier::Algorithm::Signature(
             EnumValue::from(CoseSignatureAlgorithm::Ed25519),
         )),
-        __buffa_unknown_fields: Default::default(),
     };
     assert_eq!(signature.encode_to_vec(), [0x08, 0x64]);
 
@@ -192,7 +206,6 @@ fn algorithm_identifier_oneof_field_numbers_are_frozen() {
         algorithm: Some(cose_algorithm_identifier::Algorithm::KeyAgreement(
             EnumValue::from(CoseKeyAgreementAlgorithm::X25519),
         )),
-        __buffa_unknown_fields: Default::default(),
     };
     assert_eq!(key_agreement.encode_to_vec(), [0x10, 0x64]);
 
@@ -200,35 +213,30 @@ fn algorithm_identifier_oneof_field_numbers_are_frozen() {
         algorithm: Some(cose_algorithm_identifier::Algorithm::Kem(EnumValue::from(
             CoseKemAlgorithm::MlKem512,
         ))),
-        __buffa_unknown_fields: Default::default(),
     };
     assert_eq!(kem.encode_to_vec(), [0x18, 0xe8, 0x07]);
 }
 
 #[test]
+#[allow(deprecated)] // Exercise published compatibility selectors.
 fn sign1_exact_algorithm_result_fields_are_frozen() {
     let result = CoseSign1VerifyResult {
-        payload: Vec::new(),
+        payload: Vec::new().into(),
         algorithm: EnumValue::from(CoseSignatureAlgorithm::EcdsaP256Sha256),
-        kid: Vec::new(),
+        kid: Vec::new().into(),
         exact_signature_algorithm: EnumValue::from(CoseSignatureAlgorithm::Es256),
-        has_exact_signature_algorithm: true,
+
         protected_type: buffa::MessageField::none(),
-        __buffa_unknown_fields: Default::default(),
     };
-    assert_eq!(
-        result.encode_to_vec(),
-        [0x10, 0xc8, 0x01, 0x20, 0xc9, 0x01, 0x28, 0x01],
-    );
+    assert_eq!(result.encode_to_vec(), [0x10, 0xc8, 0x01, 0x20, 0xc9, 0x01],);
 }
 
 #[test]
 fn public_key_ec2_point_encoding_field_is_frozen() {
     let request = CoseKeyFromPublicBytesRequest {
         algorithm: Default::default(),
-        public_key: Vec::new(),
+        public_key: Vec::new().into(),
         ec2_point_encoding: EnumValue::from(CoseEc2PointEncoding::FullCoordinates),
-        __buffa_unknown_fields: Default::default(),
     };
     assert_eq!(request.encode_to_vec(), [0x18, 0x02]);
 }
@@ -242,6 +250,7 @@ fn operation_request_type_name_is_frozen() {
 }
 
 #[test]
+#[allow(deprecated)] // Exercise published compatibility selectors.
 fn algorithm_and_mode_numbers_are_frozen() {
     for (actual, expected) in [
         (CoseSignatureAlgorithm::Unspecified as i32, 0),
@@ -334,7 +343,6 @@ fn error_reason_numbers_are_frozen() {
 fn assert_operation_field_number(operation: Operation, field_number: u32) {
     let request = CoseOperationRequest {
         operation: Some(operation),
-        __buffa_unknown_fields: Default::default(),
     };
     let mut expected = protobuf_length_delimited_field_key(field_number);
     expected.push(0);
@@ -344,7 +352,6 @@ fn assert_operation_field_number(operation: Operation, field_number: u32) {
 fn assert_result_field_number(result: OperationResult, field_number: u32) {
     let result = CoseOperationResult {
         result: Some(result),
-        __buffa_unknown_fields: Default::default(),
     };
     let mut expected = protobuf_length_delimited_field_key(field_number);
     expected.push(0);

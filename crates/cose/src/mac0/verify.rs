@@ -29,20 +29,25 @@ pub fn cose_verify_mac0_detached(
     request: CoseMac0VerifyRequest<'_>,
     key: &CoseMacKey,
 ) -> Result<VerifiedDetachedCoseMac0, CoseMac0Error> {
+    verify_mac0_operation(request, key)
+}
+
+pub(crate) fn verify_mac0_operation(
+    request: CoseMac0VerifyRequest<'_>,
+    key: &dyn super::CoseMacVerifier,
+) -> Result<VerifiedDetachedCoseMac0, CoseMac0Error> {
     let limits = request.limits;
-    if request.encoded.len() > limits.max_encoded_bytes.min(MAX_COSE_MAC0_BYTES)
-        || request.detached_payload.len() > limits.max_payload_bytes.min(MAX_DETACHED_PAYLOAD_BYTES)
-        || request.external_aad.len()
-            > limits
-                .max_external_aad_bytes
-                .min(MAX_MAC0_EXTERNAL_AAD_BYTES)
+    if request.allowed_algorithms.len() > crate::generated_contract::values::MAX_ALLOWLIST_ENTRIES
+        || request.encoded.len() > limits.encoded_bytes.min(MAX_COSE_MAC0_BYTES)
+        || request.detached_payload.len() > limits.payload_bytes.min(MAX_DETACHED_PAYLOAD_BYTES)
+        || request.external_aad.len() > limits.external_aad_bytes.min(MAX_MAC0_EXTERNAL_AAD_BYTES)
     {
         return Err(CoseMac0ErrorReason::ResourceLimitExceeded.into());
     }
 
     let decoded = decode(
         request.encoded,
-        limits.max_encoded_bytes.min(MAX_COSE_MAC0_BYTES),
+        limits.encoded_bytes.min(MAX_COSE_MAC0_BYTES),
     )?;
     let algorithm = decoded.metadata.algorithm;
     if !request.allowed_algorithms.contains(&algorithm) {

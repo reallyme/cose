@@ -4,11 +4,13 @@
 #![no_main]
 
 use libfuzzer_sys::fuzz_target;
+use reallyme_cose::api::contract;
 use reallyme_cose::containers::{
     inspect_peer_key, signature_to_cose, validate_preferred_cbor, verify_container,
-    ContainerContent, ContainerLimits, ContainerPolicy, ContainerProfile, ContainerPurpose,
-    ContainerVerifyRequest, CryptoVerificationKey, EnvelopePolicy, OptionalKeyPolicy, PeerKeyUsage,
-    SignatureEncoding, SignatureSuite, VerificationSource,
+    AgreementEc2EncodingPolicy, AgreementKey, AgreementKeyPolicy, ContainerContent,
+    ContainerLimits, ContainerPolicy, ContainerPurpose, ContainerVerifyRequest,
+    CryptoAgreementKeyProvider, CryptoVerificationKey, OptionalKeyPolicy, PeerCurve, PeerKeyUsage,
+    PeerPointEncoding, SignatureEncoding, SignatureSuite, VerificationSource,
 };
 use reallyme_cose::iso18013::{Iso18013SignatureAlgorithm, Iso18013SignatureCurve};
 use zeroize::Zeroizing;
@@ -23,6 +25,24 @@ const PUBLIC_KEY: [u8; 33] = [
 fuzz_target!(|data: &[u8]| {
     let _ = validate_preferred_cbor(data);
     let _ = inspect_peer_key(data, PeerKeyUsage::Agreement, OptionalKeyPolicy::Cose);
+    for encoding in [
+        AgreementEc2EncodingPolicy::FullCoordinatesOnly,
+        AgreementEc2EncodingPolicy::FullOrCompressed,
+    ] {
+        let policy = AgreementKeyPolicy {
+            allowed_curves: &[PeerCurve::P256, PeerCurve::X25519],
+            optional_parameters: OptionalKeyPolicy::Cose,
+            ec2_encoding: encoding,
+        };
+        let _ = AgreementKey::from_slice(data, policy, &CryptoAgreementKeyProvider);
+        let _ = AgreementKey::from_public_key(
+            PeerCurve::P256,
+            data,
+            PeerPointEncoding::Ec2YSign,
+            policy,
+            &CryptoAgreementKeyProvider,
+        );
+    }
     let _ = inspect_peer_key(
         data,
         PeerKeyUsage::HpkeRecipient,
@@ -55,16 +75,19 @@ fuzz_target!(|data: &[u8]| {
         (ContainerPurpose::Vical, ContainerContent::Attached),
         (ContainerPurpose::Rical, ContainerContent::Attached),
     ] {
+        let Ok(policy) = ContainerPolicy::try_from(&contract::CoseContainerPolicy {
+            profile: contract::CoseContainerProfile::IsoEdition2Dis.into(),
+            purpose: contract::CoseContainerPurpose::from(purpose).into(),
+            envelope: contract::CoseEnvelopePolicy::Untagged.into(),
+        }) else {
+            return;
+        };
         let _ = verify_container(
             ContainerVerifyRequest {
                 encoded: data,
                 content,
                 external_aad: &[],
-                policy: ContainerPolicy {
-                    profile: ContainerProfile::IsoEdition2Dis,
-                    purpose,
-                    envelope: EnvelopePolicy::Untagged,
-                },
+                policy,
                 allowed_suites: &[suite],
                 limits: ContainerLimits::default(),
             },

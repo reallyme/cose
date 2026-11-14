@@ -18,7 +18,7 @@ const STATUS_LIST_CWT_MEDIA_TYPE: &str = "application/statuslist+cwt";
 
 #[test]
 fn status_list_type_uses_draft_protected_header_shape() {
-    let cose_type = CoseType::Text(STATUS_LIST_CWT_MEDIA_TYPE.to_owned());
+    let cose_type = CoseType::MediaType(STATUS_LIST_CWT_MEDIA_TYPE.to_owned().into());
     let protected = build_protected_header(
         CoseSignatureAlgorithm::Es256,
         None,

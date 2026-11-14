@@ -2,7 +2,7 @@
 
 The `containers` module adds explicit COSE contracts for ISO 2021, the pinned
 edition-2 DIS snapshot, and a strict RFC 9360 subset. These additions are
-unreleased changes in the working `reallyme-cose` 0.2.11 tree. The earlier
+unreleased changes in the working `reallyme-cose` 0.3.0 tree. The earlier
 [ISO signature-registration work](iso18013-signature-profile.md) and detached
 Mac0 primitive remain separate APIs and separate acceptance evidence.
 
@@ -78,8 +78,10 @@ Annex B certificate policies belong in separate injected validators.
 
 ## Clause-to-API and test matrix
 
-All APIs below require one runtime lane: `native` or `wasm`. They need neither
-protobuf `wire` nor sibling repository changes. Paths in this table are relative
+All APIs below require one runtime lane: `native` or `wasm`, which includes the
+Buffa-generated operation contract. No sibling repository changes are required.
+The [operation matrix](generated-operation-contract.md) maps the retained
+borrowed signatures to their generated requests/results. Paths in this table are relative
 to `crates/cose/src/containers` unless stated otherwise.
 
 | Requirement / clauses | API and enforced contract | Execution evidence |
@@ -94,7 +96,7 @@ to `crates/cose/src/containers` unless stated otherwise.
 | Informative Annex F.3.2 | `Rical`: attached CBOR, protected chain, empty AAD; explicit opt-in | Independent signed RICAL case; unprotected-chain substitution rejected by contract |
 | CO-DIS-03; DIS 12.3.4/12.4.6; RFC 8152 registrations | `SignatureSuite::iso` enforces the ISO algorithm/curve pairs; `SignatureSuite::modern` keeps fully specified IDs distinct | `signature-suites.json` has thirteen independently signed cases; `suite_tests.rs` executes supported pairs and rejects registration substitution; absent providers return `Provider` |
 | DIS 12.7.2 table 17; 2021 table 22 | `PeerCurve`, `inspect_peer_key`, `InspectedPeerKey::validate`; all eleven registered mappings; original COSE_Key and point encoding retained | `peer-keys.json`, `peer_tests.rs`: exact IDs/widths/kty/usage, full/compressed points, private/unknown negative parameters rejected before copying, typed provider gaps |
-| DIS optional peer parameters | `OptionalKeyPolicy::Cose` enforces alg/key_ops; `IsoPeer` ignores optional positive parameters while retaining required shape and excluding private d | `optional_parameter_policy_private_material_and_usage_mismatches_are_explicit` |
+| DIS optional peer parameters | `OptionalKeyPolicy::Cose` enforces alg/key_ops; signature keys accept byte-string Base IV (label 5), retained only in exact key bytes, with no signature-verification role. `IsoPeer` ignores optional positive parameters while retaining required shape and excluding private d | `optional_parameter_policy_private_material_and_usage_mismatches_are_explicit`; `contract_peer_base_iv_tests.rs` covers native/protobuf/JSON parity, independent signature answers, malformed values and retained restrictions; `peer_key_owner.rs` observes wiping on drop and validation failure |
 | DIS 12.6 raw HPKE boundary | `PeerKeyUsage::Agreement` / `HpkeRecipient`, validated named-curve public material independent of a signing registration | P-256 recipient import and point validation execute without alg. HPKE, KEM selection, enc/cipherText and transcript construction are outside COSE |
 | CO-DIS-04; DIS 8.3; RFC 8949 §4.2.1 | `validate_preferred_cbor`: definite lengths, shortest integer/length/tag/float widths, UTF-8, duplicate checks; sorting not required | `encoding_tests.rs`: tags, half/single/double values, NaNs, signed zero, unsorted and compound-key maps, malformed/trailing/deep/oversized input |
 | CO-DIS-04 ownership and resource boundaries | Borrowed parsing; zeroizing final/temporary owners; fallible new-path allocations; fixed `ContainerErrorReason`; checked offsets/capacities | Allocation-free malformed-input test, zeroizing-owner assertions, maximum detached payload, tightened limits, certificate and truncation tests, `boundary_tests.rs` provider-call and allocation checks; `cose_containers` fuzz target |
@@ -143,8 +145,8 @@ must implement certificate validation and bind its stable context identity.
 
 | Package | Exact resolved version |
 | --- | --- |
-| reallyme-cose | 0.2.11 (working tree additions, unpublished) |
-| reallyme-cose-proto | 0.2.11 (schema unchanged) |
+| reallyme-cose | 0.3.0 (unreleased) |
+| reallyme-cose-proto | 0.3.0 (complete generated operation contract) |
 | reallyme-crypto | 0.3.17 |
 | reallyme-codec | 0.3.2 |
 | half (CBOR float-width checks only) | 2.7.1 |
@@ -154,17 +156,17 @@ through `reallyme-crypto`. Independent crypto dependencies appear only in tests.
 
 ```toml
 # Native Rust, including iOS/Android adapters:
-reallyme-cose = { version = "0.2.11", default-features = false, features = ["native"] }
+reallyme-cose = { version = "0.3.0", default-features = false, features = ["native"] }
 # wasm32-unknown-unknown instead uses features = ["wasm"].
 ```
 
 These recipes describe this checkout. Published 0.2.11 does not contain the
-unreleased additions; registry consumers need a subsequent release.
+unreleased additions; registry consumers need the 0.3.0 release.
 
 These are the minimal current feature recipes, not new narrow primitive
 features. Their dependency breadth does not establish provider or reader
-operation coverage. `wire` remains optional; these Rust-only contracts do not
-add protobuf operations or mobile SDK packages.
+operation coverage. Both runtime lanes now include `wire`; these contracts have generated protobuf
+operations and add no mobile SDK packages.
 
 ## Validation and remaining integration
 
@@ -182,7 +184,8 @@ per-target `CC_<target_with_underscores>` and `AR_<target_with_underscores>`
 variables (API 24). These are compile/lint checks, not execution on devices.
 Native/WASM execution and exact final counts are reported with the change.
 
-Measured acceptance evidence for this checkout:
+Initial signed-container validation baseline, before the 0.3.0 operation-contract
+refactor (current results are in the [operation matrix](generated-operation-contract.md)):
 
 | Lane/check | Result |
 | --- | --- |
@@ -196,8 +199,12 @@ Measured acceptance evidence for this checkout:
 | Seeded bounded container fuzz smoke | 18,540 executions in 21 seconds; no crash |
 | Release-readiness, vector audit, dependency/advisory policy | Passed |
 
-Remaining reader work includes role-specific EReaderKey/EDeviceKey compressed
-point policy, ordered ReaderAuthAll content construction and permission,
+The separate [agreement-key contract](agreement-keys.md) now enforces explicit
+full-coordinate/compression policies and provides public agreement construction
+without a signature algorithm. The caller assigns EReaderKey/EDeviceKey roles.
+
+Remaining reader work includes selecting those role-specific key policies,
+ordered ReaderAuthAll content construction and permission,
 certificate path/authority policy, CWT/status-list/VICAL/RICAL schemas and
 freshness, HPKE integration, response-status/document rules, complete ISO format
 preflight, and ZKP contracts. None of those are accepted merely by obtaining a

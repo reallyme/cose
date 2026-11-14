@@ -2,6 +2,7 @@
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+use crate::sign1::cose_type::CoseTypeExt;
 use coset::CoseSign1;
 use reallyme_crypto::core::Algorithm;
 use reallyme_crypto::dispatch::verify;
@@ -18,71 +19,20 @@ use super::cose_type::CoseType;
 use super::decode::{
     decode_cose_sign1, decode_cose_sign1_with_x5chain, validate_cose_sign1_structure,
 };
+use super::sign::X5ChainHeaderPlacement;
 use super::types::{CoseSign1DetachedVerifyInput, CoseSign1KeyResolution, CoseSign1VerifyInput};
 use crate::limits::validate_detached_payload_with_limit;
 use zeroize::Zeroizing;
 
 use crate::algorithm::CoseSignatureAlgorithm;
 /// Verified COSE_Sign1 attached payload and protected-header metadata.
-#[must_use]
-#[non_exhaustive]
-pub struct VerifiedCoseSign1 {
-    /// Verified attached payload bytes.
-    pub payload: Zeroizing<Vec<u8>>,
-
-    /// Verified protected-header algorithm.
-    pub alg: Algorithm,
-
-    /// Exact verified COSE signature-algorithm registration.
-    pub cose_algorithm: CoseSignatureAlgorithm,
-
-    /// Verified protected-header key identifier.
-    pub kid: Zeroizing<Vec<u8>>,
-
-    /// Authenticated RFC 9596 protected `typ` value, when present.
-    pub cose_type: Option<CoseType>,
-}
+pub use crate::generated_contract::VerifiedCoseSign1;
 
 /// Verified COSE_Sign1 protected-header metadata for detached payloads.
-#[must_use]
-#[non_exhaustive]
-pub struct VerifiedDetachedCoseSign1 {
-    /// Verified protected-header algorithm.
-    pub alg: Algorithm,
-
-    /// Exact verified COSE signature-algorithm registration.
-    pub cose_algorithm: CoseSignatureAlgorithm,
-
-    /// Verified protected-header key identifier.
-    pub kid: Zeroizing<Vec<u8>>,
-
-    /// Authenticated RFC 9596 protected `typ` value, when present.
-    pub cose_type: Option<CoseType>,
-}
+pub use crate::generated_contract::VerifiedDetachedCoseSign1;
 
 /// Verified COSE_Sign1 payload and RFC 9360 certificate path.
-#[must_use]
-#[non_exhaustive]
-pub struct VerifiedCoseSign1WithX5Chain {
-    /// Verified attached payload bytes.
-    pub payload: Zeroizing<Vec<u8>>,
-
-    /// Verified protected-header algorithm.
-    pub alg: Algorithm,
-
-    /// Exact verified COSE signature-algorithm registration.
-    pub cose_algorithm: CoseSignatureAlgorithm,
-
-    /// Verified protected-header key identifier.
-    pub kid: Zeroizing<Vec<u8>>,
-
-    /// Authenticated RFC 9596 protected `typ` value, when present.
-    pub cose_type: Option<CoseType>,
-
-    /// Signed, bounded RFC 9360 leaf-first DER certificate path. The resolver
-    /// remains responsible for certificate and trust-path validation.
-    pub x5chain_der: Vec<Vec<u8>>,
-}
+pub use crate::generated_contract::VerifiedCoseSign1WithX5Chain;
 
 /// Verify COSE_Sign1 with an attached payload.
 ///
@@ -140,10 +90,7 @@ pub fn cose_verify1_with_policy_and_external_aad(
 ) -> Result<VerifiedCoseSign1, CoseError> {
     verify_cose_sign1(
         CoseSign1VerifyInput::new(cose_bytes, external_aad, policy),
-        |algorithm, kid| match public_key_resolver(algorithm.crypto_algorithm(), kid) {
-            Some(public_key) => CoseSign1KeyResolution::Resolved(Zeroizing::new(public_key)),
-            None => CoseSign1KeyResolution::NotResolved,
-        },
+        |algorithm, kid| super::resolve_key::primitive(algorithm, kid, &public_key_resolver),
     )
     .map_err(CoseFailure::into_native_error)
 }
@@ -177,26 +124,37 @@ pub fn cose_verify1_with_exact_algorithm(
 ///
 /// The ordinary verification APIs continue to reject unprotected extensions.
 /// This profile-specific entry point requires a non-empty, bounded path in
-/// protected label 33 and supplies it to the caller's trust resolver before
-/// signature verification. The resolver must validate certificate semantics,
-/// trust, and the end-entity public key.
+/// label 33 and supplies it to the caller's trust resolver before signature
+/// verification. The resolver must validate certificate semantics, trust, and
+/// the end-entity public key.
+///
+/// The path must be in the protected header unless the policy explicitly
+/// enables [`CosePolicy::with_allow_unprotected_x5chain`]. An unprotected path
+/// is not covered by the signature.
 ///
 /// # Errors
 ///
 /// Returns [`CoseError`] when the COSE structure, certificate path, policy,
-/// trust resolution, key material, or signature is invalid.
+/// trust resolution, key material, or signature is invalid. Returns
+/// [`CoseError::UnprotectedHeaderNotAllowed`] for an unprotected path that the
+/// policy does not accept.
 pub fn cose_verify1_with_x5chain(
     cose_bytes: &[u8],
     policy: &CosePolicy,
     public_key_resolver: impl FnOnce(Algorithm, &[Vec<u8>]) -> Option<Vec<u8>>,
 ) -> Result<VerifiedCoseSign1WithX5Chain, CoseError> {
     cose_verify1_with_x5chain_and_exact_algorithm(cose_bytes, policy, |algorithm, certificates| {
-        public_key_resolver(algorithm.crypto_algorithm(), certificates)
+        algorithm
+            .crypto_algorithm()
+            .ok()
+            .and_then(|primitive| public_key_resolver(primitive, certificates))
     })
 }
 
 /// Verify an attached certificate-bearing COSE_Sign1 with exact algorithm
 /// registration supplied to the trust resolver.
+///
+/// Header placement follows [`cose_verify1_with_x5chain`].
 ///
 /// # Errors
 ///
@@ -207,12 +165,25 @@ pub fn cose_verify1_with_x5chain_and_exact_algorithm(
     policy: &CosePolicy,
     public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[Vec<u8>]) -> Option<Vec<u8>>,
 ) -> Result<VerifiedCoseSign1WithX5Chain, CoseError> {
+    verify_cose_sign1_x5chain(cose_bytes, policy, public_key_resolver)
+}
+
+pub(crate) fn verify_cose_sign1_x5chain(
+    cose_bytes: &[u8],
+    policy: &CosePolicy,
+    public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[Vec<u8>]) -> Option<Vec<u8>>,
+) -> Result<VerifiedCoseSign1WithX5Chain, CoseError> {
     let decoded = decode_cose_sign1_with_x5chain(cose_bytes, policy.max_cose_sign1_bytes())?;
     let mut cose = decoded.cose;
     let x5chain_der = decoded.x5chain_der;
-    if x5chain_der.is_empty() {
-        return Err(CoseError::InvalidFormat);
-    }
+    let x5chain_header_placement = match decoded.x5chain_placement {
+        None => return Err(CoseError::InvalidFormat),
+        Some(_) if x5chain_der.is_empty() => return Err(CoseError::InvalidFormat),
+        Some(X5ChainHeaderPlacement::Unprotected) if !policy.allow_unprotected_x5chain() => {
+            return Err(CoseError::UnprotectedHeaderNotAllowed);
+        }
+        Some(placement) => placement,
+    };
     let payload = cose
         .inner()
         .payload
@@ -242,6 +213,7 @@ pub fn cose_verify1_with_x5chain_and_exact_algorithm(
         kid: metadata.kid,
         cose_type: metadata.cose_type,
         x5chain_der,
+        x5chain_header_placement,
     })
 }
 
@@ -320,10 +292,7 @@ pub fn cose_verify1_detached_with_policy_and_external_aad(
 ) -> Result<VerifiedDetachedCoseSign1, CoseError> {
     verify_detached_cose_sign1(
         CoseSign1DetachedVerifyInput::new(cose_bytes, payload, external_aad, policy),
-        |algorithm, kid| match public_key_resolver(algorithm.crypto_algorithm(), kid) {
-            Some(public_key) => CoseSign1KeyResolution::Resolved(Zeroizing::new(public_key)),
-            None => CoseSign1KeyResolution::NotResolved,
-        },
+        |algorithm, kid| super::resolve_key::primitive(algorithm, kid, &public_key_resolver),
     )
     .map_err(CoseFailure::into_native_error)
 }
@@ -432,7 +401,7 @@ fn verify_cose_signature(
         .as_ref()
         .ok_or(CoseError::UnsupportedAlgorithm)?;
     let cose_algorithm = crate::key::map_algorithm::cose_to_signature_algorithm(cose_alg)?;
-    let alg = cose_algorithm.crypto_algorithm();
+    let alg = cose_algorithm.crypto_algorithm()?;
 
     let kid: &[u8] = &cose.protected.header.key_id;
     let cose_type = CoseType::from_protected_header(&cose.protected.header)?;

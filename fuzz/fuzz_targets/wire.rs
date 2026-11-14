@@ -36,20 +36,17 @@ fuzz_target!(|data: &[u8]| {
     execute(Operation::KeyFromPublicBytes(Box::new(
         CoseKeyFromPublicBytesRequest {
             algorithm: signature_identifier(signature_algorithm),
-            public_key: data.to_vec(),
+            public_key: data.to_vec().into(),
             ec2_point_encoding: EnumValue::from(
                 data.first().copied().map(i32::from).unwrap_or_default(),
             ),
-            __buffa_unknown_fields: Default::default(),
         },
     )));
     execute(Operation::KeyFromPrivateBytes(Box::new(
         CoseKeyFromPrivateBytesRequest {
             algorithm: signature_identifier(signature_algorithm),
-            private_key: data.to_vec(),
-            public_key: data.to_vec(),
-            has_public_key: true,
-            __buffa_unknown_fields: Default::default(),
+            private_key: data.to_vec().into(),
+            public_key: Some(data.to_vec().into()),
         },
     )));
     execute(Operation::KeyToPublicBytes(Box::new(key_request(data))));
@@ -60,8 +57,7 @@ fuzz_target!(|data: &[u8]| {
     if let Ok(multikey) = core::str::from_utf8(data) {
         execute(Operation::MultikeyToCoseKey(Box::new(
             CoseMultikeyToCoseKeyRequest {
-                multikey: multikey.to_owned(),
-                __buffa_unknown_fields: Default::default(),
+                multikey: multikey.to_owned().into(),
             },
         )));
     }
@@ -97,38 +93,32 @@ fn ml_kem_encrypt_request(data: &[u8]) -> CoseMlKemEncryptRequest {
     CoseMlKemEncryptRequest {
         kem_algorithm: EnumValue::from(CoseKemAlgorithm::MlKem512),
         content_algorithm: EnumValue::from(CoseContentEncryptionAlgorithm::Aes128Gcm),
-        recipient_public_key: data.to_vec(),
-        recipient_kid: data.to_vec(),
-        plaintext: data.to_vec(),
-        external_aad: data.to_vec(),
-        supp_priv_info: data.to_vec(),
-        has_supp_priv_info: true,
-        __buffa_unknown_fields: Default::default(),
+        recipient_public_key: data.to_vec().into(),
+        recipient_kid: data.to_vec().into(),
+        plaintext: data.to_vec().into(),
+        external_aad: data.to_vec().into(),
+        supp_priv_info: Some(data.to_vec().into()),
     }
 }
 
 fn ml_kem_decrypt_request(data: &[u8]) -> CoseMlKemDecryptRequest {
     CoseMlKemDecryptRequest {
-        cose_encrypt: data.to_vec(),
-        recipient_private_key: data.to_vec(),
-        expected_recipient_kid: data.to_vec(),
-        external_aad: data.to_vec(),
-        supp_priv_info: data.to_vec(),
-        has_supp_priv_info: true,
-        __buffa_unknown_fields: Default::default(),
+        cose_encrypt: data.to_vec().into(),
+        recipient_private_key: data.to_vec().into(),
+        expected_recipient_kid: data.to_vec().into(),
+        external_aad: data.to_vec().into(),
+        supp_priv_info: Some(data.to_vec().into()),
     }
 }
 
 fn sign1_create_request(data: &[u8], algorithm: CoseSignatureAlgorithm) -> CoseSign1CreateRequest {
     CoseSign1CreateRequest {
         algorithm: EnumValue::from(algorithm),
-        payload: data.to_vec(),
-        private_key: data.to_vec(),
-        kid: data.to_vec(),
-        has_kid: true,
+        payload: data.to_vec().into(),
+        private_key: data.to_vec().into(),
+        kid: Some(data.to_vec().into()),
         options: Default::default(),
-        external_aad: data.to_vec(),
-        __buffa_unknown_fields: Default::default(),
+        external_aad: data.to_vec().into(),
     }
 }
 
@@ -138,30 +128,27 @@ fn sign1_create_detached_request(
 ) -> CoseSign1CreateDetachedRequest {
     CoseSign1CreateDetachedRequest {
         algorithm: EnumValue::from(algorithm),
-        payload: data.to_vec(),
-        private_key: data.to_vec(),
-        kid: data.to_vec(),
-        has_kid: true,
+        payload: data.to_vec().into(),
+        private_key: data.to_vec().into(),
+        kid: Some(data.to_vec().into()),
         options: Default::default(),
-        external_aad: data.to_vec(),
-        __buffa_unknown_fields: Default::default(),
+        external_aad: data.to_vec().into(),
     }
 }
 
 fn sign1_verify_request(data: &[u8], algorithm: CoseSignatureAlgorithm) -> CoseSign1VerifyRequest {
     CoseSign1VerifyRequest {
-        cose_sign1: data.to_vec(),
-        public_key: data.to_vec(),
+        cose_sign1: data.to_vec().into(),
+        public_key: data.to_vec().into(),
         max_cose_sign1_bytes: 0,
         max_detached_payload_bytes: 0,
         require_kid: false,
-        allowed_algorithms: vec![EnumValue::from(algorithm)],
-        external_aad: data.to_vec(),
-        expected_kid: Vec::new(),
+        allowed_algorithms: vec![EnumValue::from(algorithm)].into(),
+        external_aad: data.to_vec().into(),
+        expected_kid: Vec::new().into(),
         require_tagged_sign1: data.first().is_some_and(|byte| byte & 1 == 1),
         expected_type: buffa::MessageField::none(),
         public_key_algorithm: EnumValue::from(algorithm),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
@@ -170,26 +157,24 @@ fn sign1_verify_detached_request(
     algorithm: CoseSignatureAlgorithm,
 ) -> CoseSign1VerifyDetachedRequest {
     CoseSign1VerifyDetachedRequest {
-        cose_sign1: data.to_vec(),
-        payload: data.to_vec(),
-        public_key: data.to_vec(),
+        cose_sign1: data.to_vec().into(),
+        payload: data.to_vec().into(),
+        public_key: data.to_vec().into(),
         max_cose_sign1_bytes: 0,
         max_detached_payload_bytes: 0,
         require_kid: false,
-        allowed_algorithms: vec![EnumValue::from(algorithm)],
-        external_aad: data.to_vec(),
-        expected_kid: Vec::new(),
+        allowed_algorithms: vec![EnumValue::from(algorithm)].into(),
+        external_aad: data.to_vec().into(),
+        expected_kid: Vec::new().into(),
         require_tagged_sign1: data.first().is_some_and(|byte| byte & 1 == 1),
         expected_type: buffa::MessageField::none(),
         public_key_algorithm: EnumValue::from(algorithm),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
 fn key_request(data: &[u8]) -> CoseKeyBytesRequest {
     CoseKeyBytesRequest {
-        cose_key: data.to_vec(),
-        __buffa_unknown_fields: Default::default(),
+        cose_key: data.to_vec().into(),
     }
 }
 
@@ -200,10 +185,10 @@ fn signature_identifier(
         algorithm: Some(cose_algorithm_identifier::Algorithm::Signature(
             EnumValue::from(algorithm),
         )),
-        __buffa_unknown_fields: Default::default(),
     })
 }
 
+#[allow(deprecated)] // Exercise the published compatibility selectors.
 fn signature_algorithm(data: &[u8]) -> CoseSignatureAlgorithm {
     match data.first().copied().unwrap_or_default() % 12 {
         0 => CoseSignatureAlgorithm::Ed25519,
@@ -224,7 +209,6 @@ fn signature_algorithm(data: &[u8]) -> CoseSignatureAlgorithm {
 fn execute(operation: Operation) {
     let request = CoseOperationRequest {
         operation: Some(operation),
-        __buffa_unknown_fields: Default::default(),
     };
     let encoded_request = Zeroizing::new(request.encode_to_vec());
     let result = reallyme_cose::wire::execute_operation_proto(&encoded_request);

@@ -36,8 +36,8 @@ test("a missing operation-contract route cannot hide behind another dispatcher b
   const violations = violationsAfter("crates/cose/src/operation_contract/execute.rs", (source) =>
     replaceOnce(
       source,
-      "super::key::parse::result(*request)",
-      "super::key::convert::to_public_bytes_result(*request)",
+      "super::key::parse::result(core::mem::take(&mut **request))",
+      "super::key::convert::to_public_bytes_result(core::mem::take(&mut **request))",
     ),
   );
   assert.match(violations.join("\n"), /KeyParse must call .*key::parse::result exactly once; found 0/u);
@@ -47,14 +47,14 @@ test("swapped dispatcher adapters are rejected even when both calls remain prese
   const violations = violationsAfter("crates/cose/src/operation_contract/execute.rs", (source) =>
     source
       .replace(
-        "super::sign1::create::attached_result(*request)",
+        "super::sign1::create::attached_result(core::mem::take(&mut **request))",
         "__SWAPPED_ATTACHED_ADAPTER__",
       )
       .replace(
-        "super::sign1::create::detached_result(*request)",
-        "super::sign1::create::attached_result(*request)",
+        "super::sign1::create::detached_result(core::mem::take(&mut **request))",
+        "super::sign1::create::attached_result(core::mem::take(&mut **request))",
       )
-      .replace("__SWAPPED_ATTACHED_ADAPTER__", "super::sign1::create::detached_result(*request)"),
+      .replace("__SWAPPED_ATTACHED_ADAPTER__", "super::sign1::create::detached_result(core::mem::take(&mut **request))"),
   );
   assert.match(violations.join("\n"), /Sign1Create must invoke .*attached_result in its own match arm/u);
 });

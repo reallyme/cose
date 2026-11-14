@@ -2,6 +2,7 @@
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+use crate::sign1::cose_type::CoseTypeExt;
 use coset::{CoseSign1, ProtectedHeader};
 use reallyme_crypto::core::Algorithm;
 
@@ -47,37 +48,14 @@ enum Sign1PayloadMode {
     Detached,
 }
 
-/// Header bucket used for an RFC 9360 `x5chain` certificate path.
-///
-/// RFC 9360 permits either bucket. Application profiles must select the
-/// placement they require; for example, ISO/IEC 18013-5 issuer authentication
-/// requires the unprotected bucket.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum X5ChainHeaderPlacement {
-    /// Include `x5chain` in the integrity-protected header map.
-    Protected,
-    /// Include `x5chain` in the unprotected header map.
-    Unprotected,
-}
+/// Closed compatibility view generated from the protobuf selector.
+pub use crate::generated_contract::X5ChainHeaderPlacement;
 
-/// Encoding controls for COSE_Sign1 signing APIs.
+/// Native convenience builder over the generated encoding-options message.
 #[must_use]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct CoseSign1EncodeOptions {
-    /// Emit the registered COSE_Sign1 root tag (18).
-    tag: bool,
-
-    /// Maximum encoded COSE_Sign1 size accepted after signing.
-    max_cose_sign1_bytes: usize,
-
-    /// RFC 9360 certificate path carried in header label 33.
-    x5chain_der: Vec<Vec<u8>>,
-
-    /// Header bucket selected for the RFC 9360 certificate path.
-    x5chain_header_placement: X5ChainHeaderPlacement,
-
-    /// RFC 9596 type placed in protected header label 16.
-    protected_type: Option<CoseType>,
+    contract: crate::api::contract::CoseSign1Options,
 }
 
 impl Default for CoseSign1EncodeOptions {
@@ -85,91 +63,106 @@ impl Default for CoseSign1EncodeOptions {
         Self::new()
     }
 }
-
 impl CoseSign1EncodeOptions {
-    /// Construct the default untagged encoding options.
-    pub const fn new() -> Self {
+    /// Default untagged encoding with protected certificate placement.
+    pub fn new() -> Self {
         Self {
-            tag: false,
-            max_cose_sign1_bytes: MAX_COSE_SIGN1_BYTES,
-            x5chain_der: Vec::new(),
-            x5chain_header_placement: X5ChainHeaderPlacement::Protected,
-            protected_type: None,
+            contract: Default::default(),
         }
     }
-
-    /// Construct options that emit the registered COSE_Sign1 root tag (18).
-    pub const fn tagged() -> Self {
-        Self {
-            tag: true,
-            max_cose_sign1_bytes: MAX_COSE_SIGN1_BYTES,
-            x5chain_der: Vec::new(),
-            x5chain_header_placement: X5ChainHeaderPlacement::Protected,
-            protected_type: None,
+    /// Emit the registered Sign1 tag 18.
+    pub fn tagged() -> Self {
+        Self::new().with_tag(true)
+    }
+    /// The sole generated options owner.
+    pub fn contract(&self) -> &crate::api::contract::CoseSign1Options {
+        &self.contract
+    }
+    /// Whether to emit the root tag.
+    pub fn tag(&self) -> bool {
+        self.contract.tag
+    }
+    /// Maximum encoded size; absent legacy zero retains the historical default.
+    pub fn max_cose_sign1_bytes(&self) -> usize {
+        if let Some(limits) = self.contract.limits.as_option() {
+            return match usize::try_from(limits.encoded_bytes) {
+                Ok(value) => value,
+                Err(_) => usize::MAX,
+            };
+        }
+        if self.contract.max_cose_sign1_bytes == 0 {
+            MAX_COSE_SIGN1_BYTES
+        } else {
+            match usize::try_from(self.contract.max_cose_sign1_bytes) {
+                Ok(value) => value,
+                Err(_) => usize::MAX,
+            }
         }
     }
-
-    /// Return whether the encoded COSE_Sign1 root tag (18) is emitted.
-    #[must_use]
-    pub const fn tag(&self) -> bool {
-        self.tag
+    /// Exact end-entity-first discovery chain.
+    pub fn x5chain_der(&self) -> &[reallyme_cose_proto::SecretBytes] {
+        self.contract
+            .x5chain
+            .as_option()
+            .map_or(&[], |value| &value.certificates_der)
     }
-
-    /// Return the maximum encoded COSE_Sign1 size accepted after signing.
-    /// Payload and external AAD also have independent 1 MiB input limits.
-    #[must_use]
-    pub const fn max_cose_sign1_bytes(&self) -> usize {
-        self.max_cose_sign1_bytes
+    /// Explicit placement, with the historical protected default.
+    pub fn x5chain_header_placement(&self) -> X5ChainHeaderPlacement {
+        match X5ChainHeaderPlacement::try_from(self.contract.x5chain_header_placement) {
+            Ok(value) => value,
+            Err(_) => X5ChainHeaderPlacement::Protected,
+        }
     }
-
-    /// Return the RFC 9360 leaf-first DER certificate path.
-    #[must_use]
-    pub fn x5chain_der(&self) -> &[Vec<u8>] {
-        self.x5chain_der.as_slice()
+    /// Authenticated typ alternative from the generated oneof.
+    pub fn protected_type(&self) -> Option<&CoseType> {
+        self.contract
+            .protected_type
+            .as_option()
+            .and_then(|value| value.value.as_ref())
     }
-
-    /// Return the header bucket selected for the RFC 9360 certificate path.
-    #[must_use]
-    pub const fn x5chain_header_placement(&self) -> X5ChainHeaderPlacement {
-        self.x5chain_header_placement
-    }
-
-    /// Return the RFC 9596 protected `typ` value.
-    #[must_use]
-    pub const fn protected_type(&self) -> Option<&CoseType> {
-        self.protected_type.as_ref()
-    }
-
-    /// Configure whether the registered COSE_Sign1 root tag (18) is emitted.
-    pub const fn with_tag(mut self, tag: bool) -> Self {
-        self.tag = tag;
+    /// Set root-tag emission.
+    pub fn with_tag(mut self, value: bool) -> Self {
+        self.contract.tag = value;
         self
     }
-
-    /// Configure the maximum encoded COSE_Sign1 size accepted after signing.
-    pub const fn with_max_cose_sign1_bytes(mut self, max_cose_sign1_bytes: usize) -> Self {
-        self.max_cose_sign1_bytes = max_cose_sign1_bytes;
+    /// Tighten the output ceiling.
+    pub fn with_max_cose_sign1_bytes(mut self, value: usize) -> Self {
+        self.contract.limits = buffa::MessageField::some(crate::api::contract::CoseByteLimits {
+            encoded_bytes: u64::try_from(value).unwrap_or(u64::MAX),
+            payload_bytes: 0,
+            external_aad_bytes: 0,
+        });
         self
     }
-
-    /// Configure an RFC 9360 leaf-first DER certificate path.
-    pub fn with_x5chain_der(mut self, x5chain_der: Vec<Vec<u8>>) -> Self {
-        self.x5chain_der = x5chain_der;
-        self
+    /// Move exact discovery certificate owners into the generated options.
+    pub fn with_x5chain_der(self, value: Vec<Vec<u8>>) -> Self {
+        let mut owner = Zeroizing::new(value);
+        self.with_guarded_x5chain(
+            owner
+                .iter_mut()
+                .map(|certificate| core::mem::take(certificate).into())
+                .collect(),
+        )
     }
-
-    /// Select the header bucket for the RFC 9360 certificate path.
-    pub const fn with_x5chain_header_placement(
+    pub(crate) fn with_guarded_x5chain(
         mut self,
-        placement: X5ChainHeaderPlacement,
+        value: buffa::sensitive::List<reallyme_cose_proto::SecretBytes>,
     ) -> Self {
-        self.x5chain_header_placement = placement;
+        self.contract.x5chain = buffa::MessageField::some(crate::api::contract::CoseX5Chain {
+            certificates_der: value,
+        });
         self
     }
-
-    /// Configure the RFC 9596 `typ` value in protected header label 16.
-    pub fn with_protected_type(mut self, cose_type: CoseType) -> Self {
-        self.protected_type = Some(cose_type);
+    /// Select the certificate header bucket.
+    pub fn with_x5chain_header_placement(mut self, value: X5ChainHeaderPlacement) -> Self {
+        self.contract.x5chain_header_placement =
+            crate::api::contract::CoseX5ChainHeaderPlacement::from(value).into();
+        self
+    }
+    /// Set protected typ without changing its alternative.
+    pub fn with_protected_type(mut self, value: CoseType) -> Self {
+        self.contract.protected_type =
+            buffa::MessageField::some(crate::api::contract::CoseType { value: Some(value) });
         self
     }
 }
@@ -485,3 +478,5 @@ fn encode_cose_sign1(
 #[cfg(not(target_arch = "wasm32"))]
 #[path = "encode_tests.rs"]
 mod encode_tests;
+
+impl zeroize::ZeroizeOnDrop for CoseSign1EncodeOptions {}

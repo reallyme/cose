@@ -4,16 +4,19 @@
 
 //! Bounded COSE_Sign1 decoding and structural validation.
 
+use crate::sign1::cose_type::CoseTypeExt;
 use ciborium::value::Value;
 use coset::{
     iana, AsCborValue, CoseSign1, Header, Label, ProtectedHeader, RegisteredLabelWithPrivate,
 };
+use zeroize::Zeroizing;
 
 use crate::limits::validate_protected_header_bytes;
 use crate::zeroize_coset::{zeroize_cose_sign1, SensitiveCborValue};
 use crate::CoseError;
 
 use super::cose_type::{CoseType, COSE_TYPE_HEADER_LABEL};
+use super::sign::X5ChainHeaderPlacement;
 use super::x5chain::decode_x5chain;
 
 /// Decode untagged COSE_Sign1 bytes, or bytes carrying the registered
@@ -35,7 +38,9 @@ pub(super) struct DecodedCoseSign1 {
 
 pub(super) struct DecodedCoseSign1WithX5Chain {
     pub(super) cose: SensitiveCoseSign1,
-    pub(super) x5chain_der: Vec<Vec<u8>>,
+    pub(super) x5chain_der: Zeroizing<Vec<Vec<u8>>>,
+    /// Header bucket that carried label 33, or `None` when it was absent.
+    pub(super) x5chain_placement: Option<X5ChainHeaderPlacement>,
     pub(super) tagged: bool,
 }
 
@@ -70,14 +75,16 @@ fn decode_cose_sign1_internal(
     // Every rejected header or field type below therefore clears both the
     // original CBOR tree and the partially constructed COSE object.
     let mut cose = SensitiveCoseSign1::new(CoseSign1::default());
-    let mut x5chain_der = Vec::new();
-    let mut saw_x5chain = false;
+    // Certificate subjects and stable identifiers also need an owner before
+    // later header, payload, key-resolution or signature checks can fail.
+    let mut x5chain_der = Zeroizing::new(Vec::new());
+    let mut x5chain_placement = None;
     decode_protected_header(
         protected_value,
         &mut cose.inner_mut().protected,
         allow_x5chain,
         &mut x5chain_der,
-        &mut saw_x5chain,
+        &mut x5chain_placement,
     )?;
     decode_sign1_header(
         unprotected_value,
@@ -85,7 +92,7 @@ fn decode_cose_sign1_internal(
         Sign1HeaderBucket::Unprotected,
         allow_x5chain,
         &mut x5chain_der,
-        &mut saw_x5chain,
+        &mut x5chain_placement,
     )?;
     cose.inner_mut().payload = match payload_value {
         Value::Bytes(payload) => Some(payload.clone()),
@@ -99,6 +106,7 @@ fn decode_cose_sign1_internal(
     Ok(DecodedCoseSign1WithX5Chain {
         cose,
         x5chain_der,
+        x5chain_placement,
         tagged,
     })
 }
@@ -113,8 +121,8 @@ fn decode_protected_header(
     value: &Value,
     protected: &mut ProtectedHeader,
     allow_x5chain: bool,
-    x5chain_der: &mut Vec<Vec<u8>>,
-    saw_x5chain: &mut bool,
+    x5chain_der: &mut Zeroizing<Vec<Vec<u8>>>,
+    x5chain_placement: &mut Option<X5ChainHeaderPlacement>,
 ) -> Result<(), CoseError> {
     let bytes = match value {
         Value::Bytes(bytes) => bytes,
@@ -132,7 +140,7 @@ fn decode_protected_header(
         Sign1HeaderBucket::Protected,
         allow_x5chain,
         x5chain_der,
-        saw_x5chain,
+        x5chain_placement,
     )
 }
 
@@ -141,8 +149,8 @@ fn decode_sign1_header(
     header: &mut Header,
     bucket: Sign1HeaderBucket,
     allow_x5chain: bool,
-    x5chain_der: &mut Vec<Vec<u8>>,
-    saw_x5chain: &mut bool,
+    x5chain_der: &mut Zeroizing<Vec<Vec<u8>>>,
+    x5chain_placement: &mut Option<X5ChainHeaderPlacement>,
 ) -> Result<(), CoseError> {
     let entries = match value {
         Value::Map(entries) => entries,
@@ -200,11 +208,14 @@ fn decode_sign1_header(
             if !allow_x5chain {
                 return Err(CoseError::InvalidFormat);
             }
-            if *saw_x5chain {
+            if x5chain_placement.is_some() {
                 return Err(CoseError::DuplicateMapLabel);
             }
-            *saw_x5chain = true;
-            *x5chain_der = decode_x5chain(value)?;
+            *x5chain_placement = Some(match bucket {
+                Sign1HeaderBucket::Protected => X5ChainHeaderPlacement::Protected,
+                Sign1HeaderBucket::Unprotected => X5ChainHeaderPlacement::Unprotected,
+            });
+            *x5chain_der = Zeroizing::new(decode_x5chain(value)?);
         } else {
             // This SDK does not expose processing results for content-type,
             // countersignatures, other extension headers, or application-

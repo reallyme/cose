@@ -24,14 +24,14 @@ fn signing_rejects_control_characters_and_out_of_range_registered_types() {
     let key = gen_ed25519();
     for (cose_type, expected) in [
         (
-            CoseType::Text("application/json\n".to_owned()),
+            CoseType::MediaType("application/json\n".to_owned().into()),
             CoseError::InvalidFormat,
         ),
         (
-            CoseType::Text("application/json\u{0085}".to_owned()),
+            CoseType::MediaType("application/json\u{0085}".to_owned().into()),
             CoseError::InvalidFormat,
         ),
-        (CoseType::Registered(65_536), CoseError::InvalidFormat),
+        (CoseType::ContentFormat(65_536), CoseError::InvalidFormat),
     ] {
         let options = CoseSign1EncodeOptions::new().with_protected_type(cose_type);
         assert_eq!(
@@ -45,8 +45,9 @@ fn signing_rejects_control_characters_and_out_of_range_registered_types() {
 fn tagged_sign1_round_trips_authenticated_text_type() {
     let key = gen_ed25519();
     let payload = b"status list claims";
-    let options = CoseSign1EncodeOptions::tagged()
-        .with_protected_type(CoseType::Text(STATUS_LIST_CWT_MEDIA_TYPE.to_owned()));
+    let options = CoseSign1EncodeOptions::tagged().with_protected_type(CoseType::MediaType(
+        STATUS_LIST_CWT_MEDIA_TYPE.to_owned().into(),
+    ));
     let encoded =
         cose_sign1_with_options(key.alg, payload, &key.private, Some(test_kid()), options)
             .expect("typed tagged Sign1 must encode");
@@ -69,7 +70,9 @@ fn tagged_sign1_round_trips_authenticated_text_type() {
     assert_eq!(verified.payload.as_slice(), payload);
     assert_eq!(
         verified.cose_type,
-        Some(CoseType::Text(STATUS_LIST_CWT_MEDIA_TYPE.to_owned()))
+        Some(CoseType::MediaType(
+            STATUS_LIST_CWT_MEDIA_TYPE.to_owned().into()
+        ))
     );
 }
 
@@ -77,7 +80,7 @@ fn tagged_sign1_round_trips_authenticated_text_type() {
 fn tagged_sign1_round_trips_registered_type() {
     let key = gen_ed25519();
     let options = CoseSign1EncodeOptions::tagged()
-        .with_protected_type(CoseType::Registered(STATUS_LIST_CWT_CONTENT_FORMAT));
+        .with_protected_type(CoseType::ContentFormat(STATUS_LIST_CWT_CONTENT_FORMAT));
     let encoded = cose_sign1_with_options(
         key.alg,
         b"status list claims",
@@ -93,7 +96,7 @@ fn tagged_sign1_round_trips_registered_type() {
 
     assert_eq!(
         verified.cose_type,
-        Some(CoseType::Registered(STATUS_LIST_CWT_CONTENT_FORMAT))
+        Some(CoseType::ContentFormat(STATUS_LIST_CWT_CONTENT_FORMAT))
     );
 }
 
@@ -102,7 +105,7 @@ fn detached_sign1_returns_authenticated_type_metadata() {
     let key = gen_ed25519();
     let payload = b"detached status list claims";
     let options = CoseSign1EncodeOptions::tagged()
-        .with_protected_type(CoseType::Registered(STATUS_LIST_CWT_CONTENT_FORMAT));
+        .with_protected_type(CoseType::ContentFormat(STATUS_LIST_CWT_CONTENT_FORMAT));
     let encoded =
         cose_sign1_detached_with_options(key.alg, payload, &key.private, Some(test_kid()), options)
             .expect("detached typed Sign1 must encode");
@@ -115,7 +118,7 @@ fn detached_sign1_returns_authenticated_type_metadata() {
 
     assert_eq!(
         verified.cose_type,
-        Some(CoseType::Registered(STATUS_LIST_CWT_CONTENT_FORMAT))
+        Some(CoseType::ContentFormat(STATUS_LIST_CWT_CONTENT_FORMAT))
     );
 }
 
@@ -127,8 +130,9 @@ fn changing_protected_type_invalidates_signature() {
         b"status list claims",
         &key.private,
         Some(test_kid()),
-        CoseSign1EncodeOptions::tagged()
-            .with_protected_type(CoseType::Text(STATUS_LIST_CWT_MEDIA_TYPE.to_owned())),
+        CoseSign1EncodeOptions::tagged().with_protected_type(CoseType::MediaType(
+            STATUS_LIST_CWT_MEDIA_TYPE.to_owned().into(),
+        )),
     )
     .expect("typed tagged Sign1 must encode");
     let mut cose = CoseSign1::from_tagged_slice(&encoded).expect("tagged Sign1 must parse");
@@ -161,8 +165,9 @@ fn tag_requirement_rejects_untagged_sign1_before_key_resolution() {
         b"status list claims",
         &key.private,
         Some(test_kid()),
-        CoseSign1EncodeOptions::new()
-            .with_protected_type(CoseType::Text(STATUS_LIST_CWT_MEDIA_TYPE.to_owned())),
+        CoseSign1EncodeOptions::new().with_protected_type(CoseType::MediaType(
+            STATUS_LIST_CWT_MEDIA_TYPE.to_owned().into(),
+        )),
     )
     .expect("untagged Sign1 must encode");
     let resolver_called = Cell::new(false);
@@ -187,8 +192,9 @@ fn default_policy_preserves_untagged_compatibility() {
         b"ordinary claims",
         &key.private,
         Some(test_kid()),
-        CoseSign1EncodeOptions::new()
-            .with_protected_type(CoseType::Text("application/example+cwt".to_owned())),
+        CoseSign1EncodeOptions::new().with_protected_type(CoseType::MediaType(
+            "application/example+cwt".to_owned().into(),
+        )),
     )
     .expect("untagged Sign1 must encode");
 
@@ -199,7 +205,9 @@ fn default_policy_preserves_untagged_compatibility() {
 
     assert_eq!(
         verified.cose_type,
-        Some(CoseType::Text("application/example+cwt".to_owned()))
+        Some(CoseType::MediaType(
+            "application/example+cwt".to_owned().into()
+        ))
     );
 }
 
@@ -317,9 +325,12 @@ fn decoder_rejects_empty_and_oversized_text_type() {
 fn signer_rejects_empty_and_oversized_text_type() {
     let key = gen_ed25519();
     for (cose_type, expected) in [
-        (CoseType::Text(String::new()), CoseError::InvalidFormat),
         (
-            CoseType::Text("x".repeat(MAX_COSE_TYPE_TEXT_BYTES + 1)),
+            CoseType::MediaType(String::new().into()),
+            CoseError::InvalidFormat,
+        ),
+        (
+            CoseType::MediaType("x".repeat(MAX_COSE_TYPE_TEXT_BYTES + 1).into()),
             CoseError::ResourceLimitExceeded,
         ),
     ] {

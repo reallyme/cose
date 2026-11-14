@@ -127,7 +127,7 @@ fn sign1_wire_policy_requires_tag_and_exact_protected_type() {
     let private_key = Zeroizing::new(core::mem::take(&mut fixture.private));
     let options = CoseSign1EncodeOptions::new()
         .with_tag(true)
-        .with_protected_type(CoseType::Text(STATUS_TYPE.to_owned()));
+        .with_protected_type(CoseType::MediaType(STATUS_TYPE.to_owned().into()));
     let attached = cose_sign1_with_options_and_external_aad(
         fixture.alg,
         b"typed payload",
@@ -147,8 +147,7 @@ fn sign1_wire_policy_requires_tag_and_exact_protected_type() {
     )
     .expect("typed tagged detached signature must sign");
     let expected_type = WireCoseType {
-        value: Some(WireCoseTypeValue::MediaType(STATUS_TYPE.to_owned())),
-        __buffa_unknown_fields: Default::default(),
+        value: Some(WireCoseTypeValue::MediaType(STATUS_TYPE.to_owned().into())),
     };
 
     let mut attached_request = verify_request(
@@ -178,8 +177,9 @@ fn sign1_wire_policy_requires_tag_and_exact_protected_type() {
     assert!(verified_detached.protected_type.is_set());
 
     attached_request.expected_type = buffa::MessageField::some(WireCoseType {
-        value: Some(WireCoseTypeValue::MediaType("application/other".to_owned())),
-        __buffa_unknown_fields: Default::default(),
+        value: Some(WireCoseTypeValue::MediaType(
+            "application/other".to_owned().into(),
+        )),
     });
     assert_error(
         Operation::Sign1Verify(Box::new(attached_request)),
@@ -193,10 +193,7 @@ fn sign1_wire_policy_requires_tag_and_exact_protected_type() {
         test_kid(),
         vec![CoseSignatureAlgorithm::Ed25519],
     );
-    invalid_type_request.expected_type = buffa::MessageField::some(WireCoseType {
-        value: None,
-        __buffa_unknown_fields: Default::default(),
-    });
+    invalid_type_request.expected_type = buffa::MessageField::some(WireCoseType { value: None });
     assert_error(
         Operation::Sign1Verify(Box::new(invalid_type_request)),
         ErrorBranch::Primitive,
@@ -209,7 +206,8 @@ fn sign1_wire_policy_requires_tag_and_exact_protected_type() {
         &private_key,
         Some(test_kid()),
         EXTERNAL_AAD,
-        CoseSign1EncodeOptions::new().with_protected_type(CoseType::Text(STATUS_TYPE.to_owned())),
+        CoseSign1EncodeOptions::new()
+            .with_protected_type(CoseType::MediaType(STATUS_TYPE.to_owned().into())),
     )
     .expect("untagged typed signature must sign");
     let mut untagged_request = verify_request(
@@ -233,7 +231,7 @@ fn sign1_wire_policy_requires_tag_and_exact_protected_type() {
         EXTERNAL_AAD,
         CoseSign1EncodeOptions::new()
             .with_tag(true)
-            .with_protected_type(CoseType::Registered(50)),
+            .with_protected_type(CoseType::ContentFormat(50)),
     )
     .expect("registered type signature must sign");
     let mut registered_request = verify_request(
@@ -245,7 +243,6 @@ fn sign1_wire_policy_requires_tag_and_exact_protected_type() {
     registered_request.require_tagged_sign1 = true;
     registered_request.expected_type = buffa::MessageField::some(WireCoseType {
         value: Some(WireCoseTypeValue::ContentFormat(50)),
-        __buffa_unknown_fields: Default::default(),
     });
     let registered_result = execute_verify(Operation::Sign1Verify(Box::new(registered_request)));
     assert!(matches!(
@@ -258,6 +255,7 @@ fn sign1_wire_policy_requires_tag_and_exact_protected_type() {
 }
 
 #[test]
+#[allow(deprecated)] // Exercise published compatibility selectors.
 fn sign1_failures_preserve_native_and_exact_wire_semantics() {
     let mut fixture = gen_ed25519();
     let public_key = Zeroizing::new(core::mem::take(&mut fixture.public));
@@ -375,13 +373,11 @@ fn sign1_failures_preserve_native_and_exact_wire_semantics() {
 fn create_request(payload: &[u8], private_key: &[u8], tagged: bool) -> CoseSign1CreateRequest {
     CoseSign1CreateRequest {
         algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
-        payload: payload.to_vec(),
-        private_key: private_key.to_vec(),
-        kid: test_kid().to_vec(),
-        has_kid: true,
+        payload: payload.to_vec().into(),
+        private_key: private_key.to_vec().into(),
+        kid: Some(test_kid().to_vec().into()),
         options: sign_options(tagged),
-        external_aad: EXTERNAL_AAD.to_vec(),
-        __buffa_unknown_fields: Default::default(),
+        external_aad: EXTERNAL_AAD.to_vec().into(),
     }
 }
 
@@ -392,13 +388,11 @@ fn create_detached_request(
 ) -> CoseSign1CreateDetachedRequest {
     CoseSign1CreateDetachedRequest {
         algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
-        payload: payload.to_vec(),
-        private_key: private_key.to_vec(),
-        kid: test_kid().to_vec(),
-        has_kid: true,
+        payload: payload.to_vec().into(),
+        private_key: private_key.to_vec().into(),
+        kid: Some(test_kid().to_vec().into()),
         options: sign_options(tagged),
-        external_aad: EXTERNAL_AAD.to_vec(),
-        __buffa_unknown_fields: Default::default(),
+        external_aad: EXTERNAL_AAD.to_vec().into(),
     }
 }
 
@@ -406,11 +400,12 @@ fn sign_options(
     tagged: bool,
 ) -> buffa::MessageField<CoseSign1Options, buffa::Inline<CoseSign1Options>> {
     buffa::MessageField::some(CoseSign1Options {
+        protected_type: Default::default(),
+        limits: Default::default(),
         tag: tagged,
         max_cose_sign1_bytes: 0,
         x5chain: buffa::MessageField::none(),
         x5chain_header_placement: EnumValue::from(0),
-        __buffa_unknown_fields: Default::default(),
     })
 }
 
@@ -421,8 +416,8 @@ fn verify_request(
     allowed_algorithms: Vec<CoseSignatureAlgorithm>,
 ) -> CoseSign1VerifyRequest {
     CoseSign1VerifyRequest {
-        cose_sign1: cose_sign1.to_vec(),
-        public_key: public_key.to_vec(),
+        cose_sign1: cose_sign1.to_vec().into(),
+        public_key: public_key.to_vec().into(),
         max_cose_sign1_bytes: 0,
         max_detached_payload_bytes: 0,
         require_kid: true,
@@ -430,12 +425,11 @@ fn verify_request(
             .into_iter()
             .map(EnumValue::from)
             .collect(),
-        external_aad: EXTERNAL_AAD.to_vec(),
-        expected_kid: expected_kid.to_vec(),
+        external_aad: EXTERNAL_AAD.to_vec().into(),
+        expected_kid: expected_kid.to_vec().into(),
         require_tagged_sign1: false,
         expected_type: buffa::MessageField::none(),
         public_key_algorithm: EnumValue::from(0),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
@@ -447,9 +441,9 @@ fn verify_detached_request(
     allowed_algorithms: Vec<CoseSignatureAlgorithm>,
 ) -> CoseSign1VerifyDetachedRequest {
     CoseSign1VerifyDetachedRequest {
-        cose_sign1: cose_sign1.to_vec(),
-        payload: payload.to_vec(),
-        public_key: public_key.to_vec(),
+        cose_sign1: cose_sign1.to_vec().into(),
+        payload: payload.to_vec().into(),
+        public_key: public_key.to_vec().into(),
         max_cose_sign1_bytes: 0,
         max_detached_payload_bytes: 0,
         require_kid: true,
@@ -457,12 +451,11 @@ fn verify_detached_request(
             .into_iter()
             .map(EnumValue::from)
             .collect(),
-        external_aad: EXTERNAL_AAD.to_vec(),
-        expected_kid: expected_kid.to_vec(),
+        external_aad: EXTERNAL_AAD.to_vec().into(),
+        expected_kid: expected_kid.to_vec().into(),
         require_tagged_sign1: false,
         expected_type: buffa::MessageField::none(),
         public_key_algorithm: EnumValue::from(0),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
@@ -476,7 +469,7 @@ fn execute_create(operation: Operation) -> Zeroizing<Vec<u8>> {
     let payload = execute(operation);
     let mut result = CoseSign1CreateResult::decode_from_slice(&payload)
         .expect("Sign1 create result must decode");
-    Zeroizing::new(core::mem::take(&mut result.cose_sign1))
+    core::mem::take(&mut result.cose_sign1).into_zeroizing()
 }
 
 fn execute_verify(operation: Operation) -> CoseSign1VerifyResult {
@@ -538,6 +531,5 @@ fn assert_native_error<T>(result: Result<T, CoseError>, expected: CoseError) {
 fn operation_request(operation: Operation) -> CoseOperationRequest {
     CoseOperationRequest {
         operation: Some(operation),
-        __buffa_unknown_fields: Default::default(),
     }
 }

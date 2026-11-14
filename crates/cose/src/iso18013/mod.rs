@@ -7,6 +7,9 @@
 //! Legacy wire registrations are resolved together with named key curves.
 //! Applications authorize exact pairs, supply a trusted verifier, and retain
 //! responsibility for ISO format preflight, certificate trust, and transcripts.
+//! Suite construction checks signature-family compatibility only; the caller's
+//! allowlist decides which algorithm/curve pairs are acceptable. The
+//! `containers` module additionally enforces the ISO algorithm/curve table.
 //! This profile does not broaden the modern Sign1 or COSE_Key defaults.
 //!
 //! ```
@@ -54,6 +57,8 @@ pub use types::{
     Iso18013Sign1Content, Iso18013Sign1Limits, Iso18013Sign1Request, VerifiedIso18013Sign1,
 };
 pub use verify::cose_verify_iso18013_sign1;
+
+pub(crate) use verify::verify_iso18013_operation;
 
 #[cfg(test)]
 mod tests;

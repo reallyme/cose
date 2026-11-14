@@ -188,7 +188,7 @@ fn validate_ec2_key_algorithm(key: &coset::CoseKey, profile: Ec2Profile) -> Resu
     };
     let signature_algorithm = CoseSignatureAlgorithm::from_registered(algorithm)?;
     let expected_crypto_algorithm = algorithm_for_ec2_profile(profile)?;
-    if signature_algorithm.crypto_algorithm() != expected_crypto_algorithm {
+    if signature_algorithm.crypto_algorithm()? != expected_crypto_algorithm {
         return Err(CoseError::UnsupportedAlgorithm);
     }
     Ok(())

@@ -1,6 +1,6 @@
 [package]
 name = "reallyme-cose"
-version = "0.2.11"
+version = "0.3.0"
 description = "Strict COSE helpers for ReallyMe identity software."
 edition.workspace = true
 rust-version.workspace = true
@@ -16,6 +16,7 @@ include = ["/src/**/*.rs", "/Cargo.toml", "/README.md", "/LICENSE", "/NOTICE"]
 # These dependencies deliberately define the cryptographic selector, secret
 # owner, and generated wire contract exposed by the supported public API.
 allowed_external_types = [
+    "buffa::enumeration::EnumValue",
     "crypto_core::algorithm::Algorithm",
     "reallyme_cose_proto::*",
     "zeroize::ZeroizeOnDrop",
@@ -24,15 +25,14 @@ allowed_external_types = [
 
 [features]
 default = ["native"]
-native = ["cose-crypto", "reallyme-crypto/native"]
-wasm = ["cose-crypto", "reallyme-crypto/wasm"]
+native = ["cose-crypto", "wire", "reallyme-crypto/native"]
+wasm = ["cose-crypto", "wire", "reallyme-crypto/wasm"]
 wire = [
-    "dep:buffa",
-    "dep:reallyme-cose-proto",
     "dep:serde",
     "dep:serde_json",
 ]
 cose-crypto = [
+    "dep:half",
     "dep:secrecy",
     "reallyme-crypto/dispatch",
     "reallyme-crypto/aes",
@@ -57,12 +57,12 @@ cose-crypto = [
 ]
 
 [dependencies]
-buffa = { workspace = true, optional = true }
+buffa.workspace = true
 ciborium.workspace = true
 coset.workspace = true
-half.workspace = true
+half = { workspace = true, optional = true }
 reallyme-codec.workspace = true
-reallyme-cose-proto = { workspace = true, features = ["generated"], optional = true }
+reallyme-cose-proto = { workspace = true, features = ["generated"] }
 reallyme-crypto.workspace = true
 secrecy = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }

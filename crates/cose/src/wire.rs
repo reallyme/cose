@@ -24,17 +24,28 @@ pub mod proto {
 pub use reallyme_cose_proto::generated::proto::reallyme::cose::v1::{
     __buffa::oneof::cose_algorithm_identifier, __buffa::oneof::cose_error as cose_error_proto,
     __buffa::oneof::cose_operation_request, __buffa::oneof::cose_operation_response_v2,
-    __buffa::oneof::cose_operation_result, __buffa::oneof::cose_type, CoseAlgorithmIdentifier,
-    CoseBackendError, CoseContentEncryptionAlgorithm, CoseEc2PointEncoding,
-    CoseError as CoseErrorProto, CoseErrorReason, CoseKemAlgorithm, CoseKeyAgreementAlgorithm,
-    CoseKeyBytesRequest, CoseKeyBytesResult, CoseKeyFromPrivateBytesRequest,
-    CoseKeyFromPublicBytesRequest, CoseMlKemDecryptRequest, CoseMlKemDecryptResult,
-    CoseMlKemEncryptRequest, CoseMlKemEncryptResult, CoseMlKemMode, CoseMultikeyResult,
-    CoseMultikeyToCoseKeyRequest, CoseOperationRequest, CoseOperationResponseV2,
-    CoseOperationResult, CosePrimitiveError, CoseProviderError, CoseSign1CreateDetachedRequest,
-    CoseSign1CreateRequest, CoseSign1CreateResult, CoseSign1Options,
-    CoseSign1VerifyDetachedRequest, CoseSign1VerifyRequest, CoseSign1VerifyResult,
-    CoseSignatureAlgorithm, CoseType, CoseX5Chain, CoseX5ChainHeaderPlacement,
+    __buffa::oneof::cose_operation_result, __buffa::oneof::cose_type,
+    CoseAgreementEc2EncodingPolicy, CoseAgreementKeyCreateRequest, CoseAgreementKeyParseRequest,
+    CoseAgreementKeyPolicy, CoseAgreementKeyResult, CoseAgreementOptionalParameters,
+    CoseAlgorithmIdentifier, CoseBackendError, CoseByteLimits, CoseContainerPolicy,
+    CoseContainerProfile, CoseContainerPurpose, CoseContainerSignRequest,
+    CoseContainerVerifyRequest, CoseContainerVerifyResult, CoseContentEncryptionAlgorithm,
+    CoseContentMode, CoseEc2PointEncoding, CoseEndEntityIntegrity, CoseEnvelopePolicy,
+    CoseError as CoseErrorProto, CoseErrorReason, CoseIsoSign1Content, CoseIsoSign1VerifyRequest,
+    CoseIsoSign1VerifyResult, CoseKemAlgorithm, CoseKeyAgreementAlgorithm, CoseKeyBytesRequest,
+    CoseKeyBytesResult, CoseKeyFromPrivateBytesRequest, CoseKeyFromPublicBytesRequest,
+    CoseKeySource, CoseMac0VerifyRequest, CoseMac0VerifyResult, CoseMacAlgorithm,
+    CoseMlKemDecryptRequest, CoseMlKemDecryptResult, CoseMlKemEncryptRequest,
+    CoseMlKemEncryptResult, CoseMlKemMode, CoseMultikeyResult, CoseMultikeyToCoseKeyRequest,
+    CoseNamedCurve, CoseOpaqueBytes, CoseOperationRequest, CoseOperationResponseV2,
+    CoseOperationResult, CosePeerKeyPurpose, CosePeerKeyRequest, CosePeerKeyResult,
+    CosePointEncoding, CosePrimitiveError, CoseProviderError, CoseSign1CreateDetachedRequest,
+    CoseSign1CreateProfileRequest, CoseSign1CreateRequest, CoseSign1CreateResult, CoseSign1Options,
+    CoseSign1VerifyDetachedRequest, CoseSign1VerifyProfileRequest, CoseSign1VerifyRequest,
+    CoseSign1VerifyResult, CoseSign1X5ChainResult, CoseSignatureAlgorithm,
+    CoseSignatureConvertRequest, CoseSignatureEncoding, CoseSignatureSuite, CoseSuiteInfoRequest,
+    CoseSuiteInfoResult, CoseType, CoseValidationResult, CoseVerificationKeyImportRequest,
+    CoseWorkingKey, CoseX5Chain, CoseX5ChainHeaderPlacement,
 };
 
 /// Maximum accepted protobuf message size at the COSE wire boundary.
@@ -42,7 +53,10 @@ pub use reallyme_cose_proto::generated::proto::reallyme::cose::v1::{
 /// The cap covers the largest supported detached-payload operation plus COSE
 /// object and key material overhead. It is deliberately checked before protobuf
 /// decode so hostile length-delimited fields cannot force unbounded allocation.
-pub const MAX_COSE_PROTO_MESSAGE_BYTES: usize = 2_097_152;
+pub use crate::generated_contract::values::MAX_COSE_PROTO_MESSAGE_BYTES;
+pub use reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseNamedCurve as CoseAgreementCurve;
+/// Compatibility name for the canonical generated signature selector.
+pub use reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseSignatureAlgorithm as CoseSignatureRegistration;
 
 // Bound nested protobuf messages independently of their total encoded size.
 const COSE_PROTO_RECURSION_LIMIT: u32 = 64;
@@ -52,7 +66,7 @@ const COSE_PROTO_UNKNOWN_FIELD_LIMIT: usize = 0;
 ///
 /// This leaves room for base64 expansion of the largest accepted protobuf
 /// request plus generated field names and enum strings.
-pub const MAX_COSE_PROTO_JSON_BYTES: usize = 3_145_728;
+pub use crate::generated_contract::values::MAX_COSE_PROTO_JSON_BYTES;
 
 pub(crate) fn encode_protobuf<M: Message>(message: &M) -> Zeroizing<Vec<u8>> {
     Zeroizing::new(message.encode_to_vec())
@@ -87,7 +101,7 @@ where
         // Executable crypto requests use an exact schema contract. Rejecting
         // unknown fields keeps binary protobuf semantics aligned with strict
         // ProtoJSON and prevents arbitrary length-delimited unknown values
-        // from being retained in non-zeroizing generated storage.
+        // from being silently discarded by unknown_fields=false generation.
         .with_unknown_field_limit(COSE_PROTO_UNKNOWN_FIELD_LIMIT)
         .decode_from_slice(bytes)
         .map_err(|_| CoseWireError::primitive_internal(CoseErrorReason::CommonMalformedProtobuf))
@@ -153,6 +167,18 @@ pub(crate) struct CoseWireError {
 }
 
 impl CoseWireError {
+    pub(crate) fn from_reason(reason: CoseErrorReason) -> Self {
+        let reason = match reason {
+            CoseErrorReason::Unspecified => CoseErrorReason::BackendInternal,
+            other => other,
+        };
+        match buffa::Enumeration::to_i32(&reason) {
+            200..=299 => Self::provider_internal(reason),
+            300..=399 => Self::backend_internal(reason),
+            _ => Self::primitive_internal(reason),
+        }
+    }
+
     pub(crate) const fn branch(self) -> CoseWireErrorBranch {
         self.branch
     }
@@ -190,26 +216,18 @@ pub(crate) fn cose_error(error: CoseWireError) -> CoseErrorProto {
     let reason = EnumValue::from(error.reason());
     let branch = match error.branch() {
         CoseWireErrorBranch::Primitive => {
-            CoseErrorBranchProto::Primitive(Box::new(CosePrimitiveError {
-                reason,
-                __buffa_unknown_fields: Default::default(),
-            }))
+            CoseErrorBranchProto::Primitive(Box::new(CosePrimitiveError { reason }))
         }
         CoseWireErrorBranch::Provider => {
-            CoseErrorBranchProto::Provider(Box::new(CoseProviderError {
-                reason,
-                __buffa_unknown_fields: Default::default(),
-            }))
+            CoseErrorBranchProto::Provider(Box::new(CoseProviderError { reason }))
         }
-        CoseWireErrorBranch::Backend => CoseErrorBranchProto::Backend(Box::new(CoseBackendError {
-            reason,
-            __buffa_unknown_fields: Default::default(),
-        })),
+        CoseWireErrorBranch::Backend => {
+            CoseErrorBranchProto::Backend(Box::new(CoseBackendError { reason }))
+        }
     };
 
     CoseErrorProto {
         error: Some(branch),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
@@ -281,54 +299,10 @@ pub(crate) fn validate_cose_error_proto_wire(error: &CoseErrorProto) -> CoseWire
 }
 
 fn reason_is_valid_for_branch(branch: CoseWireErrorBranch, reason: CoseErrorReason) -> bool {
-    match branch {
-        CoseWireErrorBranch::Primitive => matches!(
-            reason,
-            CoseErrorReason::CommonCbor
-                | CoseErrorReason::CommonInvalidFormat
-                | CoseErrorReason::CommonResourceLimitExceeded
-                | CoseErrorReason::CommonNonCanonicalCbor
-                | CoseErrorReason::CommonUnexpectedCborTag
-                | CoseErrorReason::CommonDuplicateMapLabel
-                | CoseErrorReason::CommonMalformedProtobuf
-                | CoseErrorReason::CommonMalformedJson
-                | CoseErrorReason::CommonInvalidParameter
-                | CoseErrorReason::CommonInvalidLength
-                | CoseErrorReason::CommonInvalidEncoding
-                | CoseErrorReason::Sign1MissingPayload
-                | CoseErrorReason::Sign1MissingKid
-                | CoseErrorReason::Sign1KeyNotResolved
-                | CoseErrorReason::Sign1UnsupportedCriticalHeader
-                | CoseErrorReason::Sign1UnprotectedHeaderNotAllowed
-                | CoseErrorReason::Sign1InvalidSignature
-                | CoseErrorReason::Sign1InvalidSignatureEncoding
-                | CoseErrorReason::Sign1KidKeyMismatch
-                | CoseErrorReason::Sign1MissingPrivateKey
-                | CoseErrorReason::KeyMissingKeyMaterial
-                | CoseErrorReason::KeyInvalidKeyMaterial
-                | CoseErrorReason::MultikeyInvalidMultikey
-                | CoseErrorReason::EncryptMissingCiphertext
-                | CoseErrorReason::EncryptInvalidIv
-                | CoseErrorReason::EncryptInvalidRecipient
-                | CoseErrorReason::EncryptMissingEncapsulatedKey
-                | CoseErrorReason::EncryptInvalidEncapsulatedKey
-                | CoseErrorReason::EncryptAuthenticationFailed
-                | CoseErrorReason::EncryptKeyUnwrapFailed
-                | CoseErrorReason::EncryptKidMismatch
-                | CoseErrorReason::EncryptMissingKid
-                | CoseErrorReason::EncryptUnprotectedHeaderNotAllowed
-        ),
-        CoseWireErrorBranch::Provider => matches!(
-            reason,
-            CoseErrorReason::CommonUnsupportedAlgorithm | CoseErrorReason::ProviderUnavailable
-        ),
-        CoseWireErrorBranch::Backend => matches!(
-            reason,
-            CoseErrorReason::CommonResourceLimitExceeded
-                | CoseErrorReason::CommonCryptoFailed
-                | CoseErrorReason::BackendInternal
-        ),
+    if reason == CoseErrorReason::Unspecified {
+        return false;
     }
+    CoseWireError::from_reason(reason).branch() == branch
 }
 
 const fn malformed_error_envelope_error() -> CoseWireError {

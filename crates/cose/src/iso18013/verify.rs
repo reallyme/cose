@@ -29,11 +29,16 @@ pub fn cose_verify_iso18013_sign1(
     request: Iso18013Sign1Request<'_>,
     verifier: &dyn Iso18013Verifier,
 ) -> Result<VerifiedIso18013Sign1, CoseError> {
-    let encoded_limit = request.limits.max_encoded_bytes.min(MAX_COSE_SIGN1_BYTES);
-    let payload_limit = request
-        .limits
-        .max_payload_bytes
-        .min(MAX_DETACHED_PAYLOAD_BYTES);
+    verify_iso18013_operation(request, verifier)
+}
+
+pub(crate) fn verify_iso18013_operation(
+    request: Iso18013Sign1Request<'_>,
+    verifier: &dyn Iso18013Verifier,
+) -> Result<VerifiedIso18013Sign1, CoseError> {
+    crate::containers::validate_allowlists::iso_suites(request.allowed_suites)?;
+    let encoded_limit = request.limits.encoded_bytes.min(MAX_COSE_SIGN1_BYTES);
+    let payload_limit = request.limits.payload_bytes.min(MAX_DETACHED_PAYLOAD_BYTES);
     if request.encoded.len() > encoded_limit {
         return Err(CoseError::ResourceLimitExceeded);
     }

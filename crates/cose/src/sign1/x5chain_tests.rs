@@ -27,6 +27,24 @@ fn malformed_late_certificate_is_rejected_without_copying_earlier_certificates()
 }
 
 #[test]
+fn single_certificate_limit_is_within_the_total_path_limit() {
+    // A lone bstr certificate is checked only against the per-certificate
+    // limit during decoding, so that limit must also satisfy the path total
+    // enforced by the signing-side path validator.
+    assert_eq!(
+        validate_x5chain(&[vec![1; MAX_COSE_X5CHAIN_CERTIFICATE_BYTES]]),
+        Ok(())
+    );
+    let largest = Value::Bytes(vec![1; MAX_COSE_X5CHAIN_CERTIFICATE_BYTES]);
+    assert_eq!(decode_x5chain(&largest).map(|chain| chain.len()), Ok(1));
+    let oversized = Value::Bytes(vec![1; MAX_COSE_X5CHAIN_CERTIFICATE_BYTES + 1]);
+    assert_eq!(
+        decode_x5chain(&oversized),
+        Err(CoseError::ResourceLimitExceeded)
+    );
+}
+
+#[test]
 fn rejects_single_certificate_array() {
     assert_eq!(
         decode_x5chain(&Value::Array(vec![Value::Bytes(vec![1])])),

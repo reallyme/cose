@@ -4,47 +4,25 @@
 use super::own_bytes::{bstr, copy, head, reserve};
 use super::read_cbor::Item;
 use super::{
-    ContainerError, ContainerErrorReason as Reason, ContainerLimits, ContainerPolicy,
-    ContainerSigner, EnvelopePolicy, SignatureSuite, SigningInput, SigningMode,
+    ContainerError, ContainerErrorReason as Reason, ContainerSigner, EnvelopePolicy, SigningInput,
+    SigningMode,
 };
 use crate::build_authentication_structure::{
     build_authentication_structure, AuthenticationContext,
 };
 use crate::iso18013::Iso18013EcdsaHash;
 use reallyme_crypto::operations::hash;
-use zeroize::{ZeroizeOnDrop, Zeroizing};
+use zeroize::Zeroizing;
 
 /// Explicit attached or detached content for creation.
-pub enum SigningContent<'a> {
-    /// Emit an attached byte-string payload without rewriting it.
-    Attached(&'a [u8]),
-    /// Emit null; sign exactly these external bytes.
-    Detached(&'a [u8]),
-}
+pub use crate::generated_contract::SigningContent;
 
 /// Finalized headers and explicit creation contract.
-pub struct ContainerSignRequest<'a> {
-    /// Exact complete protected-map encoding, fixed before provider invocation.
-    pub protected_headers: &'a [u8],
-    /// Exact unprotected-map encoding, including any certificate discovery data.
-    pub unprotected_headers: &'a [u8],
-    /// Exact attached or detached payload.
-    pub content: SigningContent<'a>,
-    /// Explicit external AAD; ISO requires empty bytes.
-    pub external_aad: &'a [u8],
-    /// Selected source, purpose and exact envelope form (Either is rejected).
-    pub policy: ContainerPolicy,
-    /// Exact allowed algorithm/curve tuples.
-    pub allowed_suites: &'a [SignatureSuite],
-    /// Caller-tightenable input/output bounds.
-    pub limits: ContainerLimits,
-}
+pub use crate::generated_contract::ContainerSignRequest;
 
 /// Created bytes, independently verified against the signer's bound public key.
 /// Certificate headers remain caller-supplied data, not certificate trust evidence.
-pub struct SignedContainer {
-    encoded: Zeroizing<Vec<u8>>,
-}
+pub use crate::generated_contract::SignedContainer;
 impl SignedContainer {
     /// Exact encoded Sign1; the owner wipes it on drop.
     #[must_use]
@@ -52,7 +30,6 @@ impl SignedContainer {
         &self.encoded
     }
 }
-impl ZeroizeOnDrop for SignedContainer {}
 
 /// Sign finalized exact Sig_structure through a non-exporting capability.
 ///
@@ -67,6 +44,14 @@ pub fn sign_container(
     request: ContainerSignRequest<'_>,
     signer: &dyn ContainerSigner,
 ) -> Result<SignedContainer, ContainerError> {
+    sign_container_operation(request, signer)
+}
+
+pub(crate) fn sign_container_operation(
+    request: ContainerSignRequest<'_>,
+    signer: &dyn ContainerSigner,
+) -> Result<SignedContainer, ContainerError> {
+    super::validate_allowlists::container_suites(request.allowed_suites)?;
     let key = signer.verification_key();
     let suite = key.suite();
     let (payload, attached) = match request.content {
@@ -119,7 +104,7 @@ pub fn sign_container(
         Item::from_validated(request.unprotected_headers)?,
     )?;
     if headers.algorithm != suite.registration().identifier() {
-        return Err(Reason::Key.into());
+        return Err(Reason::KeyAlgorithmMismatch.into());
     }
     super::verify::check_placement(
         request.policy,

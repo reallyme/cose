@@ -1,51 +1,23 @@
 // SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use super::{ContainerError, PeerCurve, SignatureSuite};
-use zeroize::{ZeroizeOnDrop, Zeroizing};
+use super::{ContainerError, PeerCurve};
+use zeroize::ZeroizeOnDrop;
 
-/// Intended operation, independently of a COSE signing or HPKE KEM identifier.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum PeerKeyUsage {
-    /// Verification under this exact algorithm/curve pair.
-    Signature(SignatureSuite),
-    /// ECDH/XDH peer key; no signature alg label is required or invented.
-    Agreement,
-    /// Recipient key for an externally selected crypto HPKE suite.
-    HpkeRecipient,
-}
+/// Closed callback view generated from protobuf.
+pub use crate::generated_contract::PeerKeyUsage;
 
-/// Optional-parameter interpretation selected explicitly.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum OptionalKeyPolicy {
-    /// Enforce supplied algorithm and key_ops restrictions; reject other fields.
-    Cose,
-    /// ISO peer-key contract: ignore optional positive labels, never private d.
-    IsoPeer,
-}
+/// Closed compatibility view generated from the protobuf selector.
+pub use crate::generated_contract::OptionalKeyPolicy;
 
-/// Received public-point encoding, preserved independently of provider normalization.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum PeerPointEncoding {
-    /// EC2 x and full y coordinates.
-    Ec2Coordinates,
-    /// EC2 x and boolean y sign.
-    Ec2YSign,
-    /// Exact compressed Edwards or Montgomery OKP public bytes.
-    Okp,
-}
+/// Closed compatibility view generated from the protobuf selector.
+pub use crate::generated_contract::CosePointEncoding as PeerPointEncoding;
 
 /// Parsed public representation, not yet a cryptographically validated key.
 ///
 /// Private d is rejected before any encoded bytes are copied. Unknown negative
 /// parameters are rejected too; an inspector never exports private key material.
-pub struct InspectedPeerKey {
-    pub(super) original: Zeroizing<Vec<u8>>,
-    pub(super) material: Zeroizing<Vec<u8>>,
-    pub(super) curve: PeerCurve,
-    pub(super) usage: PeerKeyUsage,
-    pub(super) encoding: PeerPointEncoding,
-}
+pub use crate::generated_contract::InspectedPeerKey;
 
 impl InspectedPeerKey {
     /// Exact received COSE_Key bytes, including the original point representation.
@@ -86,7 +58,6 @@ impl InspectedPeerKey {
         Ok(ValidatedPeerKey { key: self })
     }
 }
-impl ZeroizeOnDrop for InspectedPeerKey {}
 
 /// Cryptographically validated public key plus original wire representation.
 /// HPKE construction and role-specific encoding policy remain with the reader.
@@ -126,18 +97,17 @@ impl PeerKeyValidator for CryptoPeerKeyValidator {
         usage: PeerKeyUsage,
         public_material: &[u8],
     ) -> Result<(), ContainerError> {
-        use crate::iso18013::Iso18013SignatureCurve as Curve;
         use reallyme_crypto::core::Algorithm;
         // Inspection has already checked usage family and key parameter policy.
         super::inspect_key::check_usage(curve, usage)?;
         let algorithm = match curve {
-            PeerCurve::Named(Curve::P256) => Algorithm::P256,
-            PeerCurve::Named(Curve::P384) => Algorithm::P384,
-            PeerCurve::Named(Curve::P521) => Algorithm::P521,
-            PeerCurve::Named(Curve::Ed25519) => Algorithm::Ed25519,
+            PeerCurve::P256 => Algorithm::P256,
+            PeerCurve::P384 => Algorithm::P384,
+            PeerCurve::P521 => Algorithm::P521,
+            PeerCurve::Ed25519 => Algorithm::Ed25519,
             PeerCurve::X25519 => Algorithm::X25519,
             _ => return Err(super::ContainerErrorReason::Provider.into()),
         };
-        crate::key::validate_public_key(algorithm, public_material).map_err(Into::into)
+        crate::key::validate_public_key(algorithm, public_material)
     }
 }

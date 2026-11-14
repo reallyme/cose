@@ -4,13 +4,9 @@
 
 //! COSE algorithm mapping helpers.
 
-#[cfg(feature = "cose-crypto")]
-mod map_from_cose;
 mod ml_kem;
 mod signature;
 
-#[cfg(feature = "cose-crypto")]
-pub(crate) use map_from_cose::algorithm_from_cose_alg;
 pub use ml_kem::{
     REALLYME_COSE_ALG_ML_KEM_1024, REALLYME_COSE_ALG_ML_KEM_1024_A256KW,
     REALLYME_COSE_ALG_ML_KEM_512, REALLYME_COSE_ALG_ML_KEM_512_A128KW,

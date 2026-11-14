@@ -6,13 +6,13 @@
 
 use buffa::{EnumValue, Message};
 use reallyme_cose::wire::{
-    CoseSign1CreateResult, CoseSign1Options, CoseSignatureAlgorithm, CoseX5Chain,
+    CoseErrorReason, CoseSign1CreateResult, CoseSign1Options, CoseSignatureAlgorithm, CoseX5Chain,
     CoseX5ChainHeaderPlacement,
 };
 
 use crate::support::{gen_p256, sample_payload, OperationOutputStatus};
 
-use super::{execute_cose_sign1_create_request, sign1_create_request};
+use super::{assert_error_reason, execute_cose_sign1_create_request, sign1_create_request};
 
 #[test]
 fn sign1_wire_contract_preserves_es256_and_x5chain() {
@@ -23,18 +23,17 @@ fn sign1_wire_contract_preserves_es256_and_x5chain() {
         CoseSignatureAlgorithm::Es256,
         sample_payload(),
         key.private,
-        Vec::new(),
-        false,
+        None,
     );
     create.options = buffa::MessageField::some(CoseSign1Options {
+        protected_type: Default::default(),
+        limits: Default::default(),
         tag: false,
         max_cose_sign1_bytes: 0,
         x5chain: buffa::MessageField::some(CoseX5Chain {
-            certificates_der: vec![LEAF_CERTIFICATE_DER.to_vec()],
-            __buffa_unknown_fields: Default::default(),
+            certificates_der: vec![LEAF_CERTIFICATE_DER.to_vec().into()].into(),
         }),
         x5chain_header_placement: EnumValue::from(CoseX5ChainHeaderPlacement::Unprotected),
-        __buffa_unknown_fields: Default::default(),
     });
 
     let signed = execute_cose_sign1_create_request(&create.encode_to_vec());
@@ -58,6 +57,9 @@ fn sign1_wire_contract_preserves_es256_and_x5chain() {
         label.as_integer().map(i128::from) == Some(1)
             && value.as_integer().map(i128::from) == Some(-7)
     }));
+    assert!(!protected_entries
+        .iter()
+        .any(|(label, _)| label.as_integer().map(i128::from) == Some(33)));
 
     let unprotected_entries = fields
         .get(1)
@@ -84,18 +86,17 @@ fn sign1_wire_unspecified_and_protected_placements_preserve_the_secure_default()
             CoseSignatureAlgorithm::Es256,
             sample_payload(),
             key.private,
-            Vec::new(),
-            false,
+            None,
         );
         create.options = buffa::MessageField::some(CoseSign1Options {
+            protected_type: Default::default(),
+            limits: Default::default(),
             tag: false,
             max_cose_sign1_bytes: 0,
             x5chain: buffa::MessageField::some(CoseX5Chain {
-                certificates_der: vec![LEAF_CERTIFICATE_DER.to_vec()],
-                __buffa_unknown_fields: Default::default(),
+                certificates_der: vec![LEAF_CERTIFICATE_DER.to_vec().into()].into(),
             }),
             x5chain_header_placement: EnumValue::from(placement),
-            __buffa_unknown_fields: Default::default(),
         });
 
         let signed = execute_cose_sign1_create_request(&create.encode_to_vec());
@@ -126,5 +127,33 @@ fn sign1_wire_unspecified_and_protected_placements_preserve_the_secure_default()
             .get(1)
             .and_then(ciborium::value::Value::as_map)
             .is_some_and(|unprotected| unprotected.is_empty()));
+    }
+}
+
+#[test]
+fn sign1_wire_unknown_x5chain_placement_fails_closed() {
+    const LEAF_CERTIFICATE_DER: &[u8] = &[0x30, 0x03, 0x02, 0x01, 0x01];
+
+    for unknown in [3, -1, i32::MAX] {
+        let key = gen_p256();
+        let mut create = sign1_create_request(
+            CoseSignatureAlgorithm::Es256,
+            sample_payload(),
+            key.private,
+            None,
+        );
+        create.options = buffa::MessageField::some(CoseSign1Options {
+            protected_type: Default::default(),
+            limits: Default::default(),
+            tag: false,
+            max_cose_sign1_bytes: 0,
+            x5chain: buffa::MessageField::some(CoseX5Chain {
+                certificates_der: vec![LEAF_CERTIFICATE_DER.to_vec().into()].into(),
+            }),
+            x5chain_header_placement: EnumValue::from(unknown),
+        });
+
+        let signed = execute_cose_sign1_create_request(&create.encode_to_vec());
+        assert_error_reason(&signed, CoseErrorReason::CommonInvalidParameter);
     }
 }

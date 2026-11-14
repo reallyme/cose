@@ -49,7 +49,6 @@ fn signature_identifier(
         algorithm: Some(cose_algorithm_identifier::Algorithm::Signature(
             signature_value(algorithm),
         )),
-        __buffa_unknown_fields: Default::default(),
     })
 }
 
@@ -60,7 +59,6 @@ fn key_agreement_identifier(
         algorithm: Some(cose_algorithm_identifier::Algorithm::KeyAgreement(
             EnumValue::from(algorithm),
         )),
-        __buffa_unknown_fields: Default::default(),
     })
 }
 
@@ -98,18 +96,15 @@ fn sign1_create_request(
     algorithm: CoseSignatureAlgorithm,
     payload: Vec<u8>,
     private_key: Vec<u8>,
-    kid: Vec<u8>,
-    has_kid: bool,
+    kid: Option<Vec<u8>>,
 ) -> CoseSign1CreateRequest {
     CoseSign1CreateRequest {
         algorithm: signature_value(algorithm),
-        payload,
-        private_key,
-        kid,
-        has_kid,
+        payload: payload.into(),
+        private_key: private_key.into(),
+        kid: kid.map(Into::into),
         options: Default::default(),
-        external_aad: Vec::new(),
-        __buffa_unknown_fields: Default::default(),
+        external_aad: Vec::new().into(),
     }
 }
 
@@ -117,69 +112,63 @@ fn sign1_create_detached_request(
     algorithm: CoseSignatureAlgorithm,
     payload: Vec<u8>,
     private_key: Vec<u8>,
-    kid: Vec<u8>,
-    has_kid: bool,
+    kid: Option<Vec<u8>>,
 ) -> CoseSign1CreateDetachedRequest {
     CoseSign1CreateDetachedRequest {
         algorithm: signature_value(algorithm),
-        payload,
-        private_key,
-        kid,
-        has_kid,
+        payload: payload.into(),
+        private_key: private_key.into(),
+        kid: kid.map(Into::into),
         options: Default::default(),
-        external_aad: Vec::new(),
-        __buffa_unknown_fields: Default::default(),
+        external_aad: Vec::new().into(),
     }
 }
 
 fn sign1_verify_request(
-    cose_sign1: Vec<u8>,
+    cose_sign1: impl Into<reallyme_cose_proto::SecretBytes>,
     public_key: Vec<u8>,
     require_kid: bool,
 ) -> CoseSign1VerifyRequest {
     CoseSign1VerifyRequest {
-        cose_sign1,
-        public_key,
+        cose_sign1: cose_sign1.into(),
+        public_key: public_key.into(),
         max_cose_sign1_bytes: 0,
         max_detached_payload_bytes: 0,
         require_kid,
-        allowed_algorithms: vec![signature_value(CoseSignatureAlgorithm::Ed25519)],
-        external_aad: Vec::new(),
-        expected_kid: Vec::new(),
+        allowed_algorithms: vec![signature_value(CoseSignatureAlgorithm::Ed25519)].into(),
+        external_aad: Vec::new().into(),
+        expected_kid: Vec::new().into(),
         require_tagged_sign1: false,
         expected_type: buffa::MessageField::none(),
         public_key_algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
 fn sign1_verify_detached_request(
-    cose_sign1: Vec<u8>,
+    cose_sign1: impl Into<reallyme_cose_proto::SecretBytes>,
     payload: Vec<u8>,
     public_key: Vec<u8>,
     require_kid: bool,
 ) -> CoseSign1VerifyDetachedRequest {
     CoseSign1VerifyDetachedRequest {
-        cose_sign1,
-        payload,
-        public_key,
+        cose_sign1: cose_sign1.into(),
+        payload: payload.into(),
+        public_key: public_key.into(),
         max_cose_sign1_bytes: 0,
         max_detached_payload_bytes: 0,
         require_kid,
-        allowed_algorithms: vec![signature_value(CoseSignatureAlgorithm::Ed25519)],
-        external_aad: Vec::new(),
-        expected_kid: Vec::new(),
+        allowed_algorithms: vec![signature_value(CoseSignatureAlgorithm::Ed25519)].into(),
+        external_aad: Vec::new().into(),
+        expected_kid: Vec::new().into(),
         require_tagged_sign1: false,
         expected_type: buffa::MessageField::none(),
         public_key_algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
 fn operation_request(operation: CoseOperationRequestBranch) -> CoseOperationRequest {
     CoseOperationRequest {
         operation: Some(operation),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
@@ -262,7 +251,6 @@ fn cose_error_oneof_wire_bytes_are_stable() {
         (
             reallyme_cose::wire::cose_error_proto::Error::Primitive(Box::new(CosePrimitiveError {
                 reason: EnumValue::from(CoseErrorReason::Sign1InvalidSignature),
-                __buffa_unknown_fields: Default::default(),
             })),
             &[0x0a, 0x03, 0x08, 0xa4, 0x03][..],
         ),
@@ -270,7 +258,6 @@ fn cose_error_oneof_wire_bytes_are_stable() {
             reallyme_cose::wire::cose_error_proto::Error::Provider(Box::new(
                 reallyme_cose::wire::CoseProviderError {
                     reason: EnumValue::from(CoseErrorReason::CommonUnsupportedAlgorithm),
-                    __buffa_unknown_fields: Default::default(),
                 },
             )),
             &[0x12, 0x03, 0x08, 0xc8, 0x01][..],
@@ -279,7 +266,6 @@ fn cose_error_oneof_wire_bytes_are_stable() {
             reallyme_cose::wire::cose_error_proto::Error::Backend(Box::new(
                 reallyme_cose::wire::CoseBackendError {
                     reason: EnumValue::from(CoseErrorReason::BackendInternal),
-                    __buffa_unknown_fields: Default::default(),
                 },
             )),
             &[0x1a, 0x03, 0x08, 0xad, 0x02][..],
@@ -288,7 +274,6 @@ fn cose_error_oneof_wire_bytes_are_stable() {
     for (branch, expected) in cases {
         let error = CoseErrorProto {
             error: Some(branch),
-            __buffa_unknown_fields: Default::default(),
         };
         assert_eq!(error.encode_to_vec(), expected);
     }
@@ -302,8 +287,7 @@ fn sign1_wire_attached_happy_path_round_trips() {
         CoseSignatureAlgorithm::Ed25519,
         payload.clone(),
         key.private,
-        test_kid().to_vec(),
-        true,
+        Some(test_kid().to_vec()),
     );
     let signed = execute_cose_sign1_create_request(&create.encode_to_vec());
     assert_eq!(signed.status(), OperationOutputStatus::Result);
@@ -328,21 +312,20 @@ fn sign1_wire_external_aad_round_trips_and_wrong_aad_is_invalid_signature() {
         CoseSignatureAlgorithm::Ed25519,
         payload.clone(),
         key.private,
-        test_kid().to_vec(),
-        true,
+        Some(test_kid().to_vec()),
     );
-    create.external_aad = external_aad.clone();
+    create.external_aad = external_aad.clone().into();
     let signed = execute_cose_sign1_create_request(&create.encode_to_vec());
     assert_eq!(signed.status(), OperationOutputStatus::Result);
     let create_result = CoseSign1CreateResult::decode_from_slice(signed.bytes())
         .expect("create result protobuf must decode");
 
     let mut verify = sign1_verify_request(create_result.cose_sign1.clone(), key.public, true);
-    verify.external_aad = external_aad;
+    verify.external_aad = external_aad.into();
     let verified = execute_cose_sign1_verify_request(&verify.encode_to_vec());
     assert_eq!(verified.status(), OperationOutputStatus::Result);
 
-    verify.external_aad = b"wrong-wire-aad".to_vec();
+    verify.external_aad = b"wrong-wire-aad".to_vec().into();
     let rejected = execute_cose_sign1_verify_request(&verify.encode_to_vec());
     assert_error_reason(&rejected, CoseErrorReason::Sign1InvalidSignature);
 }
@@ -354,8 +337,7 @@ fn sign1_wire_expected_kid_binds_the_supplied_public_key() {
         CoseSignatureAlgorithm::Ed25519,
         sample_payload(),
         key.private,
-        test_kid().to_vec(),
-        true,
+        Some(test_kid().to_vec()),
     );
     let signed = execute_cose_sign1_create_request(&create.encode_to_vec());
     assert_eq!(signed.status(), OperationOutputStatus::Result);
@@ -363,11 +345,11 @@ fn sign1_wire_expected_kid_binds_the_supplied_public_key() {
         .expect("create result protobuf must decode");
 
     let mut verify = sign1_verify_request(create_result.cose_sign1.clone(), key.public, true);
-    verify.expected_kid = test_kid().to_vec();
+    verify.expected_kid = test_kid().to_vec().into();
     let verified = execute_cose_sign1_verify_request(&verify.encode_to_vec());
     assert_eq!(verified.status(), OperationOutputStatus::Result);
 
-    verify.expected_kid = b"different-trusted-kid".to_vec();
+    verify.expected_kid = b"different-trusted-kid".to_vec().into();
     let rejected = execute_cose_sign1_verify_request(&verify.encode_to_vec());
     assert_error_branch_and_reason(
         &rejected,
@@ -385,8 +367,7 @@ fn execute_operation_proto_dispatches_attached_sign1_happy_path() {
             CoseSignatureAlgorithm::Ed25519,
             payload.clone(),
             key.private,
-            test_kid().to_vec(),
-            true,
+            Some(test_kid().to_vec()),
         ),
     )));
     let signed = execute_operation_bytes(&create.encode_to_vec());
@@ -413,8 +394,7 @@ fn execute_operation_proto_envelope_bytes_round_trip_status_and_payload() {
             CoseSignatureAlgorithm::Ed25519,
             sample_payload(),
             key.private,
-            test_kid().to_vec(),
-            true,
+            Some(test_kid().to_vec()),
         ),
     )));
 
@@ -438,8 +418,7 @@ fn proto_json_and_binary_operation_match_for_generated_dispatcher() {
             CoseSignatureAlgorithm::Ed25519,
             sample_payload(),
             key.private,
-            test_kid().to_vec(),
-            true,
+            Some(test_kid().to_vec()),
         ),
     )));
 
@@ -453,10 +432,7 @@ fn proto_json_and_binary_operation_match_for_generated_dispatcher() {
 
 #[test]
 fn execute_operation_proto_missing_operation_returns_structured_error() {
-    let request = CoseOperationRequest {
-        operation: None,
-        __buffa_unknown_fields: Default::default(),
-    };
+    let request = CoseOperationRequest { operation: None };
     let output = execute_operation_bytes(&request.encode_to_vec());
     assert_error_branch_and_reason(
         &output,
@@ -470,9 +446,8 @@ fn cose_key_dispatch_accepts_family_scoped_signature_and_key_agreement_selectors
     let ed25519 = gen_ed25519();
     let ed25519_request = CoseKeyFromPublicBytesRequest {
         algorithm: signature_identifier(CoseSignatureAlgorithm::Ed25519),
-        public_key: ed25519.public,
+        public_key: ed25519.public.into(),
         ec2_point_encoding: Default::default(),
-        __buffa_unknown_fields: Default::default(),
     };
     let ed25519_output = execute_operation_bytes(
         &operation_request(CoseOperationRequestBranch::KeyFromPublicBytes(Box::new(
@@ -484,7 +459,10 @@ fn cose_key_dispatch_accepts_family_scoped_signature_and_key_agreement_selectors
     let ed25519_result = CoseKeyBytesResult::decode_from_slice(ed25519_output.bytes())
         .expect("Ed25519 COSE_Key result must decode");
     assert!(!ed25519_result.key_bytes.is_empty());
-    assert!(ed25519_result.has_signature_algorithm);
+    assert_ne!(
+        ed25519_result.signature_algorithm,
+        CoseSignatureAlgorithm::Unspecified
+    );
     assert_eq!(
         ed25519_result.signature_algorithm.as_known(),
         Some(CoseSignatureAlgorithm::Ed25519),
@@ -494,9 +472,8 @@ fn cose_key_dispatch_accepts_family_scoped_signature_and_key_agreement_selectors
         .expect("X25519 test keypair generation must succeed");
     let x25519_request = CoseKeyFromPublicBytesRequest {
         algorithm: key_agreement_identifier(CoseKeyAgreementAlgorithm::X25519),
-        public_key: x25519_public,
+        public_key: x25519_public.into(),
         ec2_point_encoding: Default::default(),
-        __buffa_unknown_fields: Default::default(),
     };
     let x25519_output = execute_operation_bytes(
         &operation_request(CoseOperationRequestBranch::KeyFromPublicBytes(Box::new(
@@ -508,7 +485,10 @@ fn cose_key_dispatch_accepts_family_scoped_signature_and_key_agreement_selectors
     let x25519_result = CoseKeyBytesResult::decode_from_slice(x25519_output.bytes())
         .expect("X25519 COSE_Key result must decode");
     assert!(!x25519_result.key_bytes.is_empty());
-    assert!(!x25519_result.has_signature_algorithm);
+    assert_eq!(
+        x25519_result.signature_algorithm,
+        CoseSignatureAlgorithm::Unspecified
+    );
 }
 
 #[test]
@@ -526,13 +506,11 @@ fn ml_kem_wire_binary_and_proto_json_paths_preserve_authenticated_metadata() {
         let encrypt = CoseMlKemEncryptRequest {
             kem_algorithm: kem_value(CoseKemAlgorithm::MlKem512),
             content_algorithm: EnumValue::from(CoseContentEncryptionAlgorithm::Aes128Gcm),
-            recipient_public_key: public_key,
-            recipient_kid: kid.to_vec(),
-            plaintext: PLAINTEXT.to_vec(),
-            external_aad: EXTERNAL_AAD.to_vec(),
-            supp_priv_info: b"private-context".to_vec(),
-            has_supp_priv_info: true,
-            __buffa_unknown_fields: Default::default(),
+            recipient_public_key: public_key.into(),
+            recipient_kid: kid.to_vec().into(),
+            plaintext: PLAINTEXT.to_vec().into(),
+            external_aad: EXTERNAL_AAD.to_vec().into(),
+            supp_priv_info: Some(b"private-context".to_vec().into()),
         };
         let operation = if expected_mode == CoseMlKemMode::Direct {
             CoseOperationRequestBranch::MlKemEncryptDirect(Box::new(encrypt))
@@ -552,12 +530,10 @@ fn ml_kem_wire_binary_and_proto_json_paths_preserve_authenticated_metadata() {
 
         let decrypt = CoseMlKemDecryptRequest {
             cose_encrypt: core::mem::take(&mut encrypted_result.cose_encrypt),
-            recipient_private_key: private_key.to_vec(),
-            expected_recipient_kid: kid.to_vec(),
-            external_aad: EXTERNAL_AAD.to_vec(),
-            supp_priv_info: b"private-context".to_vec(),
-            has_supp_priv_info: true,
-            __buffa_unknown_fields: Default::default(),
+            recipient_private_key: private_key.to_vec().into(),
+            expected_recipient_kid: kid.to_vec().into(),
+            external_aad: EXTERNAL_AAD.to_vec().into(),
+            supp_priv_info: Some(b"private-context".to_vec().into()),
         };
         let decrypted = execute_operation_bytes(
             &operation_request(CoseOperationRequestBranch::MlKemDecrypt(Box::new(decrypt)))
@@ -593,13 +569,11 @@ fn ml_kem_wire_preserves_private_key_to_kid_mismatch() {
     let encrypt = CoseMlKemEncryptRequest {
         kem_algorithm: kem_value(CoseKemAlgorithm::MlKem512),
         content_algorithm: EnumValue::from(CoseContentEncryptionAlgorithm::Aes128Gcm),
-        recipient_public_key: public_key,
-        recipient_kid: kid.to_vec(),
-        plaintext: b"key binding".to_vec(),
-        external_aad: Vec::new(),
-        supp_priv_info: Vec::new(),
-        has_supp_priv_info: false,
-        __buffa_unknown_fields: Default::default(),
+        recipient_public_key: public_key.into(),
+        recipient_kid: kid.to_vec().into(),
+        plaintext: b"key binding".to_vec().into(),
+        external_aad: Vec::new().into(),
+        supp_priv_info: None,
     };
     let encrypted = execute_operation_bytes(
         &operation_request(CoseOperationRequestBranch::MlKemEncryptDirect(Box::new(
@@ -612,12 +586,10 @@ fn ml_kem_wire_preserves_private_key_to_kid_mismatch() {
         .expect("ML-KEM encrypt result must decode");
     let decrypt = CoseMlKemDecryptRequest {
         cose_encrypt: core::mem::take(&mut encrypted_result.cose_encrypt),
-        recipient_private_key: wrong_private_key.to_vec(),
-        expected_recipient_kid: kid.to_vec(),
-        external_aad: Vec::new(),
-        supp_priv_info: Vec::new(),
-        has_supp_priv_info: false,
-        __buffa_unknown_fields: Default::default(),
+        recipient_private_key: wrong_private_key.to_vec().into(),
+        expected_recipient_kid: kid.to_vec().into(),
+        external_aad: Vec::new().into(),
+        supp_priv_info: None,
     };
     let output = execute_operation_bytes(
         &operation_request(CoseOperationRequestBranch::MlKemDecrypt(Box::new(decrypt)))
@@ -638,13 +610,11 @@ fn ml_kem_wire_preserves_encrypt_specific_missing_kid_reason() {
     let request = CoseMlKemEncryptRequest {
         kem_algorithm: kem_value(CoseKemAlgorithm::MlKem512),
         content_algorithm: EnumValue::from(CoseContentEncryptionAlgorithm::Aes128Gcm),
-        recipient_public_key: public_key,
-        recipient_kid: Vec::new(),
-        plaintext: b"missing kid".to_vec(),
-        external_aad: Vec::new(),
-        supp_priv_info: Vec::new(),
-        has_supp_priv_info: false,
-        __buffa_unknown_fields: Default::default(),
+        recipient_public_key: public_key.into(),
+        recipient_kid: Vec::new().into(),
+        plaintext: b"missing kid".to_vec().into(),
+        external_aad: Vec::new().into(),
+        supp_priv_info: None,
     };
     let output = execute_operation_bytes(
         &operation_request(CoseOperationRequestBranch::MlKemEncryptDirect(Box::new(
@@ -671,13 +641,11 @@ fn ml_kem_wire_preserves_encrypt_specific_unprotected_header_reason() {
     let encrypt = CoseMlKemEncryptRequest {
         kem_algorithm: kem_value(CoseKemAlgorithm::MlKem512),
         content_algorithm: EnumValue::from(CoseContentEncryptionAlgorithm::Aes128Gcm),
-        recipient_public_key: public_key,
-        recipient_kid: kid.to_vec(),
-        plaintext: b"protected algorithm".to_vec(),
-        external_aad: Vec::new(),
-        supp_priv_info: Vec::new(),
-        has_supp_priv_info: false,
-        __buffa_unknown_fields: Default::default(),
+        recipient_public_key: public_key.into(),
+        recipient_kid: kid.to_vec().into(),
+        plaintext: b"protected algorithm".to_vec().into(),
+        external_aad: Vec::new().into(),
+        supp_priv_info: None,
     };
     let encrypted = execute_operation_bytes(
         &operation_request(CoseOperationRequestBranch::MlKemEncryptDirect(Box::new(
@@ -700,13 +668,11 @@ fn ml_kem_wire_preserves_encrypt_specific_unprotected_header_reason() {
         .to_tagged_vec()
         .expect("malformed COSE_Encrypt must encode");
     let decrypt = CoseMlKemDecryptRequest {
-        cose_encrypt: malformed,
-        recipient_private_key: private_key.to_vec(),
-        expected_recipient_kid: kid.to_vec(),
-        external_aad: Vec::new(),
-        supp_priv_info: Vec::new(),
-        has_supp_priv_info: false,
-        __buffa_unknown_fields: Default::default(),
+        cose_encrypt: malformed.into(),
+        recipient_private_key: private_key.to_vec().into(),
+        expected_recipient_kid: kid.to_vec().into(),
+        external_aad: Vec::new().into(),
+        supp_priv_info: None,
     };
     let output = execute_operation_bytes(
         &operation_request(CoseOperationRequestBranch::MlKemDecrypt(Box::new(decrypt)))

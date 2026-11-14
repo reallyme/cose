@@ -4,6 +4,13 @@
 
 //! COSE_Key encoding, extraction, and key identifier derivation.
 
+/// Explicit public agreement keys, separate from signing construction/validation.
+#[cfg(feature = "cose-crypto")]
+pub use crate::containers::{
+    AgreementEc2EncodingPolicy, AgreementKey, AgreementKeyPolicy, AgreementKeyProvider,
+    CryptoAgreementKeyProvider,
+};
+
 mod akp;
 pub(crate) mod convert;
 pub(crate) mod derive_kid;

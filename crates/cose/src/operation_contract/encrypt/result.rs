@@ -34,14 +34,18 @@ pub(crate) fn decrypted(output: DecryptedCoseEncrypt) -> CoseOperationResult {
     let mut recipient_kid = output.kid;
     operation_result(OperationResultBranch::MlKemDecrypt(Box::new(
         CoseMlKemDecryptResult {
-            plaintext: core::mem::take(&mut *plaintext),
+            plaintext: core::mem::take(&mut *plaintext).into(),
             content_algorithm: EnumValue::from(content_algorithm_to_proto(
                 output.content_algorithm,
             )),
             kem_algorithm: EnumValue::from(kem_algorithm_to_proto(output.kem_algorithm)),
             mode: EnumValue::from(mode_to_proto(output.mode)),
-            recipient_kid: core::mem::take(&mut *recipient_kid),
-            __buffa_unknown_fields: Default::default(),
+            recipient_kid: core::mem::take(&mut *recipient_kid).into(),
+            profile:
+                reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseMlKemProfile::from(
+                    output.profile,
+                )
+                .into(),
         },
     )))
 }
@@ -49,39 +53,22 @@ pub(crate) fn decrypted(output: DecryptedCoseEncrypt) -> CoseOperationResult {
 fn encrypt_message(output: CoseMlKemEncryptOutput) -> CoseMlKemEncryptResult {
     let mut cose_encrypt = output.into_zeroizing();
     CoseMlKemEncryptResult {
-        cose_encrypt: core::mem::take(&mut *cose_encrypt),
-        __buffa_unknown_fields: Default::default(),
+        cose_encrypt: core::mem::take(&mut *cose_encrypt).into(),
     }
 }
 
 fn operation_result(result: OperationResultBranch) -> CoseOperationResult {
     CoseOperationResult {
         result: Some(result),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
-const fn kem_algorithm_to_proto(algorithm: NativeKem) -> CoseKemAlgorithm {
-    match algorithm {
-        NativeKem::MlKem512 => CoseKemAlgorithm::MlKem512,
-        NativeKem::MlKem768 => CoseKemAlgorithm::MlKem768,
-        NativeKem::MlKem1024 => CoseKemAlgorithm::MlKem1024,
-    }
+fn kem_algorithm_to_proto(algorithm: NativeKem) -> CoseKemAlgorithm {
+    CoseKemAlgorithm::from(algorithm)
 }
-
-const fn content_algorithm_to_proto(
-    algorithm: NativeContentAlgorithm,
-) -> CoseContentEncryptionAlgorithm {
-    match algorithm {
-        NativeContentAlgorithm::Aes128Gcm => CoseContentEncryptionAlgorithm::Aes128Gcm,
-        NativeContentAlgorithm::Aes192Gcm => CoseContentEncryptionAlgorithm::Aes192Gcm,
-        NativeContentAlgorithm::Aes256Gcm => CoseContentEncryptionAlgorithm::Aes256Gcm,
-    }
+fn content_algorithm_to_proto(algorithm: NativeContentAlgorithm) -> CoseContentEncryptionAlgorithm {
+    CoseContentEncryptionAlgorithm::from(algorithm)
 }
-
-const fn mode_to_proto(mode: NativeMode) -> CoseMlKemMode {
-    match mode {
-        NativeMode::Direct => CoseMlKemMode::Direct,
-        NativeMode::KeyWrap => CoseMlKemMode::KeyWrap,
-    }
+fn mode_to_proto(mode: NativeMode) -> CoseMlKemMode {
+    CoseMlKemMode::from(mode)
 }

@@ -18,13 +18,13 @@ use crate::wire::{
 pub(crate) fn attached_result(
     mut request: CoseSign1CreateRequest,
 ) -> CoseWireResult<CoseOperationResult> {
-    let payload = Zeroizing::new(core::mem::take(&mut request.payload));
-    let private_key = Zeroizing::new(core::mem::take(&mut request.private_key));
+    let payload = core::mem::take(&mut request.payload).into_zeroizing();
+    let private_key = core::mem::take(&mut request.private_key).into_zeroizing();
     let kid = Zeroizing::new(core::mem::take(&mut request.kid));
-    let external_aad = Zeroizing::new(core::mem::take(&mut request.external_aad));
+    let external_aad = core::mem::take(&mut request.external_aad).into_zeroizing();
     let algorithm = signature_algorithm_from_proto(request.algorithm)?;
     let options = encode_options_from_proto(request.options.as_option_mut())?;
-    let kid = request.has_kid.then_some(kid.as_slice());
+    let kid = kid.as_deref();
     let result = create_cose_sign1(CoseSign1CreateInput::with_signature_algorithm(
         algorithm,
         &payload,
@@ -32,7 +32,7 @@ pub(crate) fn attached_result(
         kid,
         &external_aad,
         options,
-    ))
+    )?)
     .map_err(boundary_error_from_failure)?;
     Ok(result::created_attached(result))
 }
@@ -40,13 +40,13 @@ pub(crate) fn attached_result(
 pub(crate) fn detached_result(
     mut request: CoseSign1CreateDetachedRequest,
 ) -> CoseWireResult<CoseOperationResult> {
-    let payload = Zeroizing::new(core::mem::take(&mut request.payload));
-    let private_key = Zeroizing::new(core::mem::take(&mut request.private_key));
+    let payload = core::mem::take(&mut request.payload).into_zeroizing();
+    let private_key = core::mem::take(&mut request.private_key).into_zeroizing();
     let kid = Zeroizing::new(core::mem::take(&mut request.kid));
-    let external_aad = Zeroizing::new(core::mem::take(&mut request.external_aad));
+    let external_aad = core::mem::take(&mut request.external_aad).into_zeroizing();
     let algorithm = signature_algorithm_from_proto(request.algorithm)?;
     let options = encode_options_from_proto(request.options.as_option_mut())?;
-    let kid = request.has_kid.then_some(kid.as_slice());
+    let kid = kid.as_deref();
     let result = create_detached_cose_sign1(CoseSign1CreateInput::with_signature_algorithm(
         algorithm,
         &payload,
@@ -54,7 +54,7 @@ pub(crate) fn detached_result(
         kid,
         &external_aad,
         options,
-    ))
+    )?)
     .map_err(boundary_error_from_failure)?;
     Ok(result::created_detached(result))
 }

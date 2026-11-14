@@ -8,7 +8,7 @@ use crate::X5ChainHeaderPlacement;
 
 const MAX_HEADERS: usize = 32;
 /// Exact SHA-256 registration used by RFC 9360 x5t; never an ES256 selector.
-pub const X5T_SHA256_IDENTIFIER: i64 = -16;
+pub use crate::generated_contract::values::X5T_SHA256_IDENTIFIER;
 
 /// Borrowed, bounded certificate discovery input, never a trust verdict.
 pub struct CertificateHeaders<'a> {

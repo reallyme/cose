@@ -9,13 +9,13 @@ use crate::CoseError;
 use super::validate::{validate_cbor_bytes, CborItemRole};
 
 /// Maximum accepted encoded COSE_Sign1 size.
-pub const MAX_COSE_SIGN1_BYTES: usize = 65_536;
+pub use crate::generated_contract::values::MAX_COSE_SIGN1_BYTES;
 
 /// Maximum accepted encoded detached COSE_Mac0 size.
-pub const MAX_COSE_MAC0_BYTES: usize = 65_536;
+pub use crate::generated_contract::values::MAX_COSE_MAC0_BYTES;
 
 /// Maximum accepted external AAD size for detached COSE_Mac0 verification.
-pub const MAX_MAC0_EXTERNAL_AAD_BYTES: usize = 65_536;
+pub use crate::generated_contract::values::MAX_MAC0_EXTERNAL_AAD_BYTES;
 
 #[cfg(feature = "cose-crypto")]
 pub(crate) fn validate_cose_mac0_bytes(bytes: &[u8], max_len: usize) -> Result<(), CoseError> {
@@ -23,22 +23,22 @@ pub(crate) fn validate_cose_mac0_bytes(bytes: &[u8], max_len: usize) -> Result<(
 }
 
 /// Maximum accepted encoded COSE_Key size.
-pub const MAX_COSE_KEY_BYTES: usize = 16_384;
+pub use crate::generated_contract::values::MAX_COSE_KEY_BYTES;
 
 /// Maximum accepted encoded `COSE_Encrypt` size.
-pub const MAX_COSE_ENCRYPT_BYTES: usize = 1_114_112;
+pub use crate::generated_contract::values::MAX_COSE_ENCRYPT_BYTES;
 
 /// Maximum accepted detached payload size for signing and verification.
-pub const MAX_DETACHED_PAYLOAD_BYTES: usize = 1_048_576;
+pub use crate::generated_contract::values::MAX_DETACHED_PAYLOAD_BYTES;
 
 /// Maximum certificates accepted in one RFC 9360 `x5chain` header.
-pub const MAX_COSE_X5CHAIN_CERTIFICATES: usize = 8;
+pub use crate::generated_contract::values::MAX_COSE_X5CHAIN_CERTIFICATES;
 
 /// Maximum DER bytes accepted for one RFC 9360 `x5chain` certificate.
-pub const MAX_COSE_X5CHAIN_CERTIFICATE_BYTES: usize = 16_384;
+pub use crate::generated_contract::values::MAX_COSE_X5CHAIN_CERTIFICATE_BYTES;
 
 /// Maximum aggregate DER bytes accepted for one RFC 9360 `x5chain` header.
-pub const MAX_COSE_X5CHAIN_TOTAL_BYTES: usize = 65_536;
+pub use crate::generated_contract::values::MAX_COSE_X5CHAIN_TOTAL_BYTES;
 
 #[cfg(feature = "cose-crypto")]
 pub(crate) fn validate_cose_sign1_bytes_with_limit(

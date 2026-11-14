@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
-#[cfg(feature = "cose-crypto")]
-use crate::algorithm::algorithm_from_cose_alg;
+use super::typ::CoseTypeExt;
 #[cfg(feature = "cose-crypto")]
 use coset::CoseSign1;
 use reallyme_crypto::core::Algorithm;
@@ -14,187 +13,201 @@ use crate::sign1::CoseType;
 #[cfg(feature = "cose-crypto")]
 use crate::CoseError;
 
-/// Verification policy for COSE_Sign1 byte-boundary APIs.
+use buffa::MessageField;
+#[cfg(feature = "cose-crypto")]
+use reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseType as ContractType;
+use reallyme_cose_proto::generated::proto::reallyme::cose::v1::{
+    CoseByteLimits as ContractLimits, CoseSignatureAlgorithm as ContractAlgorithm,
+    CoseVerificationPolicy as ContractPolicy,
+};
+/// Native convenience builder over the single generated verification policy.
 #[must_use]
 #[derive(Debug, Clone)]
 pub struct CosePolicy {
-    /// Require a `kid` / key_id in protected header.
-    require_kid: bool,
-
-    /// Allowed algorithms. An explicitly configured empty list rejects all.
-    allowed_algs: Vec<Algorithm>,
-    allowed_algs_configured: bool,
-
-    /// Exact COSE registrations accepted by verification.
-    allowed_cose_algs: Vec<CoseSignatureAlgorithm>,
-    allowed_cose_algs_configured: bool,
-
-    /// Maximum accepted encoded COSE_Sign1 bytes at public verification APIs.
-    max_cose_sign1_bytes: usize,
-
-    /// Maximum accepted detached payload bytes at detached verification APIs.
-    max_detached_payload_bytes: usize,
-
-    /// Require the registered COSE_Sign1 root tag (18).
-    require_tagged_sign1: bool,
-
-    /// Exact authenticated protected type required by the caller.
-    #[cfg(feature = "cose-crypto")]
-    expected_type: Option<CoseType>,
+    contract: ContractPolicy,
 }
 
 impl Default for CosePolicy {
     fn default() -> Self {
-        Self {
-            require_kid: false,
-            allowed_algs: Vec::new(),
-            allowed_algs_configured: false,
-            allowed_cose_algs: Vec::new(),
-            allowed_cose_algs_configured: false,
-            max_cose_sign1_bytes: MAX_COSE_SIGN1_BYTES,
-            max_detached_payload_bytes: MAX_DETACHED_PAYLOAD_BYTES,
-            require_tagged_sign1: false,
-            #[cfg(feature = "cose-crypto")]
-            expected_type: None,
-        }
+        let mut contract = ContractPolicy::default();
+        contract.allow_any_algorithm = true;
+        Self { contract }
     }
 }
-
 impl CosePolicy {
-    /// Construct the default verification policy.
-    ///
-    /// The default accepts every signature registration supported by the
-    /// crate. Applications with a known credential suite should configure an
-    /// allow-list before accepting externally supplied signatures.
+    /// Create the historical unrestricted modern policy explicitly.
     pub fn new() -> Self {
         Self::default()
     }
-
-    /// Return whether protected-header `kid` is required.
-    #[must_use]
+    /// Exact generated policy; no independent crypto-selector list exists.
+    pub fn contract(&self) -> &ContractPolicy {
+        &self.contract
+    }
+    /// Validate an owned generated policy before entering native semantics.
+    ///
+    /// # Errors
+    /// Rejects unknown selectors, contradictory allowlist modes and invalid typ.
+    pub fn from_contract(contract: ContractPolicy) -> Result<Self, crate::CoseError> {
+        if contract.allowed_algorithms.len() > 32
+            || (contract.allow_any_algorithm && !contract.allowed_algorithms.is_empty())
+        {
+            return Err(crate::error::CoseErrorReason::CommonInvalidParameter.into());
+        }
+        for value in &contract.allowed_algorithms {
+            CoseSignatureAlgorithm::try_from(*value)?;
+        }
+        if let Some(value) = contract.expected_type.as_option() {
+            value
+                .value
+                .as_ref()
+                .ok_or(crate::CoseError::InvalidFormat)?
+                .validate()?;
+        }
+        Ok(Self { contract })
+    }
+    /// Whether a nonempty protected kid is required.
     pub fn require_kid(&self) -> bool {
-        self.require_kid
+        self.contract.require_kid
     }
-
-    /// Return the configured algorithm allow-list.
-    ///
-    /// An empty list means either no restriction was configured or an
-    /// explicitly empty list that rejects every algorithm.
-    #[must_use]
-    pub fn allowed_algorithms(&self) -> &[Algorithm] {
-        &self.allowed_algs
+    /// Iterates checked, exact registrations from the generated policy.
+    pub fn allowed_cose_algorithms(&self) -> impl Iterator<Item = CoseSignatureAlgorithm> + '_ {
+        self.contract
+            .allowed_algorithms
+            .iter()
+            .filter_map(|value| CoseSignatureAlgorithm::try_from(*value).ok())
     }
-
-    /// Return the exact COSE registration allow-list.
-    ///
-    /// An explicitly configured empty list rejects every registration.
-    #[must_use]
-    pub fn allowed_cose_algorithms(&self) -> &[CoseSignatureAlgorithm] {
-        &self.allowed_cose_algs
-    }
-
-    /// Return the maximum accepted encoded COSE_Sign1 size.
-    #[must_use]
+    /// Effective encoded Sign1 ceiling, bounded by the implementation maximum.
     pub fn max_cose_sign1_bytes(&self) -> usize {
-        self.max_cose_sign1_bytes
+        self.contract
+            .limits
+            .as_option()
+            .map_or(MAX_COSE_SIGN1_BYTES, |limits| {
+                native_limit(limits.encoded_bytes, usize::MAX)
+            })
     }
-
-    /// Return the maximum accepted detached payload size.
-    #[must_use]
+    /// Effective detached payload ceiling.
     pub fn max_detached_payload_bytes(&self) -> usize {
-        self.max_detached_payload_bytes
+        self.contract
+            .limits
+            .as_option()
+            .map_or(MAX_DETACHED_PAYLOAD_BYTES, |limits| {
+                native_limit(limits.payload_bytes, usize::MAX)
+            })
     }
-
-    /// Return whether verification requires the COSE_Sign1 root tag (18).
-    #[must_use]
+    /// Whether the registered Sign1 root tag is required.
     pub fn require_tagged_sign1(&self) -> bool {
-        self.require_tagged_sign1
+        self.contract.require_tagged_sign1
     }
-
-    /// Return the required authenticated protected type, if configured.
-    #[must_use]
+    /// Whether the explicitly selected profile accepts an unprotected chain.
+    pub fn allow_unprotected_x5chain(&self) -> bool {
+        self.contract.allow_unprotected_x5chain
+    }
     #[cfg(feature = "cose-crypto")]
+    /// Borrow the generated authenticated typ alternative.
     pub fn expected_type(&self) -> Option<&CoseType> {
-        self.expected_type.as_ref()
+        self.contract
+            .expected_type
+            .as_option()
+            .and_then(|value| value.value.as_ref())
     }
-
-    /// Configure whether protected-header `kid` is required.
-    pub fn with_require_kid(mut self, require_kid: bool) -> Self {
-        self.require_kid = require_kid;
+    /// Set protected-kid enforcement.
+    pub fn with_require_kid(mut self, value: bool) -> Self {
+        self.contract.require_kid = value;
         self
     }
-
-    /// Replace the algorithm allow-list.
-    ///
-    /// An empty iterator fails closed at verification with
-    /// [`CoseError::UnsupportedAlgorithm`]. Use [`Self::allow_any_algorithm`]
-    /// when unrestricted verification is intentional.
-    pub fn with_allowed_algorithms(
-        mut self,
-        allowed_algorithms: impl IntoIterator<Item = Algorithm>,
-    ) -> Self {
-        self.allowed_algs = allowed_algorithms.into_iter().collect();
-        self.allowed_algs_configured = true;
+    /// Legacy primitive convenience selection expands immediately into exact IDs.
+    pub fn with_allowed_algorithms(self, values: impl IntoIterator<Item = Algorithm>) -> Self {
+        self.with_allowed_cose_algorithms(values.into_iter().flat_map(|primitive| {
+            CoseSignatureAlgorithm::ALL
+                .iter()
+                .copied()
+                .filter(move |candidate| candidate.crypto_algorithm() == Ok(primitive))
+        }))
+    }
+    /// Add a legacy primitive family by immediately expanding its exact registrations.
+    pub fn allow_algorithm(mut self, primitive: Algorithm) -> Self {
+        for algorithm in CoseSignatureAlgorithm::ALL {
+            if algorithm.crypto_algorithm() == Ok(primitive) {
+                self = self.allow_cose_algorithm(*algorithm);
+            }
+        }
+        self.contract.allow_any_algorithm = false;
         self
     }
-
-    /// Add one algorithm to the allow-list.
-    pub fn allow_algorithm(mut self, algorithm: Algorithm) -> Self {
-        self.allowed_algs.push(algorithm);
-        self.allowed_algs_configured = true;
-        self
-    }
-
-    /// Replace the exact COSE registration allow-list.
+    /// Replace the one exact-registration allowlist; empty rejects all.
     pub fn with_allowed_cose_algorithms(
         mut self,
-        allowed_algorithms: impl IntoIterator<Item = CoseSignatureAlgorithm>,
+        values: impl IntoIterator<Item = CoseSignatureAlgorithm>,
     ) -> Self {
-        self.allowed_cose_algs = allowed_algorithms.into_iter().collect();
-        self.allowed_cose_algs_configured = true;
+        self.contract.allowed_algorithms = values
+            .into_iter()
+            .map(|value| ContractAlgorithm::from(value).into())
+            .collect();
+        self.contract.allow_any_algorithm = false;
         self
     }
-
-    /// Add one exact COSE signature registration to the allow-list.
-    pub fn allow_cose_algorithm(mut self, algorithm: CoseSignatureAlgorithm) -> Self {
-        self.allowed_cose_algs.push(algorithm);
-        self.allowed_cose_algs_configured = true;
+    /// Add one exact registration to the same generated allowlist.
+    pub fn allow_cose_algorithm(mut self, value: CoseSignatureAlgorithm) -> Self {
+        self.contract
+            .allowed_algorithms
+            .push(ContractAlgorithm::from(value).into());
+        self.contract.allow_any_algorithm = false;
         self
     }
-
-    /// Explicitly accept any signature registration supported by this crate.
+    /// Explicitly clear restrictions within the modern operation profile.
     pub fn allow_any_algorithm(mut self) -> Self {
-        self.allowed_algs.clear();
-        self.allowed_cose_algs.clear();
-        self.allowed_algs_configured = false;
-        self.allowed_cose_algs_configured = false;
+        self.contract.allowed_algorithms.clear();
+        self.contract.allow_any_algorithm = true;
         self
     }
-
-    /// Configure the maximum accepted encoded COSE_Sign1 size.
-    pub fn with_max_cose_sign1_bytes(mut self, max_cose_sign1_bytes: usize) -> Self {
-        self.max_cose_sign1_bytes = max_cose_sign1_bytes;
+    fn limits(&mut self) -> &mut ContractLimits {
+        if self.contract.limits.as_option().is_none() {
+            self.contract.limits = MessageField::some(ContractLimits {
+                encoded_bytes: portable_limit(MAX_COSE_SIGN1_BYTES, MAX_COSE_SIGN1_BYTES),
+                payload_bytes: portable_limit(
+                    MAX_DETACHED_PAYLOAD_BYTES,
+                    MAX_DETACHED_PAYLOAD_BYTES,
+                ),
+                external_aad_bytes: portable_limit(MAX_COSE_SIGN1_BYTES, MAX_COSE_SIGN1_BYTES),
+            });
+        }
+        self.contract.limits.get_or_insert_default()
+    }
+    /// Tighten the encoded Sign1 ceiling.
+    pub fn with_max_cose_sign1_bytes(mut self, value: usize) -> Self {
+        self.limits().encoded_bytes = portable_limit(value, usize::MAX);
         self
     }
-
-    /// Configure the maximum accepted detached payload size.
-    pub fn with_max_detached_payload_bytes(mut self, max_detached_payload_bytes: usize) -> Self {
-        self.max_detached_payload_bytes = max_detached_payload_bytes;
+    /// Tighten the detached payload ceiling.
+    pub fn with_max_detached_payload_bytes(mut self, value: usize) -> Self {
+        self.limits().payload_bytes = portable_limit(value, usize::MAX);
         self
     }
-
-    /// Configure whether verification requires the COSE_Sign1 root tag (18).
-    pub fn with_require_tagged_sign1(mut self, require_tagged_sign1: bool) -> Self {
-        self.require_tagged_sign1 = require_tagged_sign1;
+    /// Set root-tag enforcement.
+    pub fn with_require_tagged_sign1(mut self, value: bool) -> Self {
+        self.contract.require_tagged_sign1 = value;
         self
     }
-
-    /// Require an exact RFC 9596 protected `typ` value.
+    /// Select explicit unprotected-chain interoperability.
+    pub fn with_allow_unprotected_x5chain(mut self, value: bool) -> Self {
+        self.contract.allow_unprotected_x5chain = value;
+        self
+    }
     #[cfg(feature = "cose-crypto")]
-    pub fn with_expected_type(mut self, expected_type: CoseType) -> Self {
-        self.expected_type = Some(expected_type);
+    /// Require the supplied generated typ alternative.
+    pub fn with_expected_type(mut self, value: CoseType) -> Self {
+        self.contract.expected_type = MessageField::some(ContractType { value: Some(value) });
         self
     }
+}
+fn native_limit(value: u64, maximum: usize) -> usize {
+    match usize::try_from(value) {
+        Ok(value) => value.min(maximum),
+        Err(_) => maximum,
+    }
+}
+fn portable_limit(value: usize, maximum: usize) -> u64 {
+    u64::try_from(value.min(maximum)).unwrap_or(u64::MAX)
 }
 
 /// Validate COSE_Sign1 header policy without performing cryptographic verification.
@@ -227,26 +240,8 @@ pub(crate) fn validate_cose_sign1_policy(
     }
 
     // --- algorithm allow-list ---
-    if policy.allowed_algs_configured {
-        if policy.allowed_algs.is_empty() {
-            return Err(CoseError::UnsupportedAlgorithm);
-        }
-        let cose_alg = cose
-            .protected
-            .header
-            .alg
-            .as_ref()
-            .ok_or(CoseError::UnsupportedAlgorithm)?;
-
-        let alg = algorithm_from_cose_alg(cose_alg)?;
-
-        if !policy.allowed_algorithms().contains(&alg) {
-            return Err(CoseError::UnsupportedAlgorithm);
-        }
-    }
-
-    if policy.allowed_cose_algs_configured {
-        if policy.allowed_cose_algs.is_empty() {
+    if !policy.contract.allow_any_algorithm {
+        if policy.contract.allowed_algorithms.is_empty() {
             return Err(CoseError::UnsupportedAlgorithm);
         }
         let cose_alg = cose
@@ -256,7 +251,10 @@ pub(crate) fn validate_cose_sign1_policy(
             .as_ref()
             .ok_or(CoseError::UnsupportedAlgorithm)?;
         let algorithm = CoseSignatureAlgorithm::from_registered(cose_alg)?;
-        if !policy.allowed_cose_algorithms().contains(&algorithm) {
+        if !policy
+            .allowed_cose_algorithms()
+            .any(|allowed| allowed == algorithm)
+        {
             return Err(CoseError::UnsupportedAlgorithm);
         }
     }

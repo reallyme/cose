@@ -82,3 +82,23 @@ impl CoseMacKey {
 
 // Both nested owners zeroize their contents, including during early returns.
 impl ZeroizeOnDrop for CoseMacKey {}
+
+/// Non-exporting verification capability described by CoseProviderMacRequest.
+pub trait CoseMacVerifier {
+    /// Exact registration bound to the protected key.
+    fn algorithm(&self) -> CoseMacAlgorithm;
+    /// Verify the full MAC_structure and exact-width tag in constant time.
+    /// Implementations route cryptography through reallyme-crypto.
+    ///
+    /// # Errors
+    /// Returns fixed key, authentication, provider or backend failures.
+    fn verify(&self, message: &[u8], tag: &[u8]) -> Result<(), CoseMac0Error>;
+}
+impl CoseMacVerifier for CoseMacKey {
+    fn algorithm(&self) -> CoseMacAlgorithm {
+        self.algorithm()
+    }
+    fn verify(&self, message: &[u8], tag: &[u8]) -> Result<(), CoseMac0Error> {
+        self.verify(message, tag)
+    }
+}

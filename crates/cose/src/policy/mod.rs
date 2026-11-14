@@ -9,3 +9,5 @@ mod validate;
 #[cfg(feature = "cose-crypto")]
 pub(crate) use validate::validate_cose_sign1_policy;
 pub use validate::CosePolicy;
+
+pub(crate) mod typ;

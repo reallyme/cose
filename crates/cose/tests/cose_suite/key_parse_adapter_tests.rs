@@ -94,10 +94,8 @@ fn malformed_transport_stays_separate_from_semantic_failure() {
 fn execute(lane: AdapterLane, cose_key: Vec<u8>) -> OperationOutput {
     let request = CoseOperationRequest {
         operation: Some(Operation::KeyParse(Box::new(CoseKeyBytesRequest {
-            cose_key,
-            __buffa_unknown_fields: Default::default(),
+            cose_key: cose_key.into(),
         }))),
-        __buffa_unknown_fields: Default::default(),
     };
 
     match lane {

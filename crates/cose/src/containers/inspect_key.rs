@@ -6,7 +6,6 @@ use super::{
     ContainerError, ContainerErrorReason as Reason, InspectedPeerKey, OptionalKeyPolicy, PeerCurve,
     PeerKeyUsage, PeerPointEncoding,
 };
-use crate::iso18013::Iso18013SignatureCurve as Curve;
 use crate::limits::MAX_COSE_KEY_BYTES;
 use zeroize::Zeroizing;
 
@@ -23,11 +22,21 @@ const SEC1_UNCOMPRESSED: u8 = 4;
 ///
 /// Map order and original compressed-point representation are retained. This is
 /// not cryptographic point validation: call `InspectedPeerKey::validate` before
-/// passing a key to agreement/HPKE. No private d is accepted or copied.
+/// passing a key to crypto. No private d is accepted or copied. Under `Cose`, a
+/// signature key's optional Base IV must be a byte string; it is retained only
+/// in the exact original encoding and never contributes to public material.
 ///
 /// # Errors
 /// Returns fixed encoding, limit, duplicate, key, usage and algorithm failures.
 pub fn inspect_peer_key(
+    encoded: &[u8],
+    usage: PeerKeyUsage,
+    optional: OptionalKeyPolicy,
+) -> Result<InspectedPeerKey, ContainerError> {
+    inspect_peer_key_operation(encoded, usage, optional)
+}
+
+pub(crate) fn inspect_peer_key_operation(
     encoded: &[u8],
     usage: PeerKeyUsage,
     optional: OptionalKeyPolicy,
@@ -65,6 +74,11 @@ pub fn inspect_peer_key(
                 }
             }
             4 => check_operations(value, usage)?,
+            5 if matches!(usage, PeerKeyUsage::Signature(_)) => {
+                // Base IV has no role in signatures. Validate its CBOR type
+                // without copying or interpreting it as cryptographic input.
+                value.bytes()?;
+            }
             _ => return Err(Reason::Key.into()),
         }
     }
@@ -120,11 +134,14 @@ pub fn inspect_peer_key(
     })
 }
 
-pub(super) fn check_usage(curve: PeerCurve, usage: PeerKeyUsage) -> Result<(), ContainerError> {
+pub(crate) fn check_usage(curve: PeerCurve, usage: PeerKeyUsage) -> Result<(), ContainerError> {
+    if curve == PeerCurve::Secp256k1 {
+        return Err(Reason::Algorithm.into());
+    }
     match usage {
-        PeerKeyUsage::Signature(suite) if curve == PeerCurve::Named(suite.curve()) => Ok(()),
+        PeerKeyUsage::Signature(suite) if curve == suite.curve() => Ok(()),
         PeerKeyUsage::Agreement | PeerKeyUsage::HpkeRecipient
-            if !matches!(curve, PeerCurve::Named(Curve::Ed25519 | Curve::Ed448)) =>
+            if !matches!(curve, PeerCurve::Ed25519 | PeerCurve::Ed448) =>
         {
             Ok(())
         }

@@ -39,13 +39,12 @@ fn every_executable_operation_returns_its_exact_version_two_variant() {
     let request = operation(RequestBranch::KeyFromPublicBytes(Box::new(
         CoseKeyFromPublicBytesRequest {
             algorithm: ed25519_identifier(),
-            public_key: public_key.to_vec(),
+            public_key: public_key.to_vec().into(),
             ec2_point_encoding: Default::default(),
-            __buffa_unknown_fields: Default::default(),
         },
     )));
-    let public_cose = match take_result_branch(execute_result(&request)) {
-        ResultBranch::KeyFromPublicBytes(mut message) => {
+    let public_cose = match &mut take_result_branch(execute_result(&request)) {
+        ResultBranch::KeyFromPublicBytes(message) => {
             Zeroizing::new(core::mem::take(&mut message.key_bytes))
         }
         _ => panic!("key_from_public_bytes returned the wrong v2 result variant"),
@@ -54,14 +53,12 @@ fn every_executable_operation_returns_its_exact_version_two_variant() {
     let request = operation(RequestBranch::KeyFromPrivateBytes(Box::new(
         CoseKeyFromPrivateBytesRequest {
             algorithm: ed25519_identifier(),
-            private_key: private_key.to_vec(),
-            public_key: public_key.to_vec(),
-            has_public_key: true,
-            __buffa_unknown_fields: Default::default(),
+            private_key: private_key.to_vec().into(),
+            public_key: Some(public_key.to_vec().into()),
         },
     )));
-    let private_cose = match take_result_branch(execute_result(&request)) {
-        ResultBranch::KeyFromPrivateBytes(mut message) => {
+    let private_cose = match &mut take_result_branch(execute_result(&request)) {
+        ResultBranch::KeyFromPrivateBytes(message) => {
             Zeroizing::new(core::mem::take(&mut message.key_bytes))
         }
         _ => panic!("key_from_private_bytes returned the wrong v2 result variant"),
@@ -93,19 +90,18 @@ fn every_executable_operation_returns_its_exact_version_two_variant() {
     let request = operation(RequestBranch::KeyToMultikey(Box::new(key_request(
         &public_cose,
     ))));
-    let multikey = match take_result_branch(execute_result(&request)) {
-        ResultBranch::KeyToMultikey(mut message) => {
+    let multikey = match &mut take_result_branch(execute_result(&request)) {
+        ResultBranch::KeyToMultikey(message) => {
             Zeroizing::new(core::mem::take(&mut message.multikey))
         }
         _ => panic!("key_to_multikey returned the wrong v2 result variant"),
     };
     let request = operation(RequestBranch::MultikeyToCoseKey(Box::new(
         CoseMultikeyToCoseKeyRequest {
-            multikey: multikey.to_string(),
-            __buffa_unknown_fields: Default::default(),
+            multikey: multikey.to_string().into(),
         },
     )));
-    match take_result_branch(execute_result(&request)) {
+    match &mut take_result_branch(execute_result(&request)) {
         ResultBranch::MultikeyToCoseKey(message) => assert!(!message.key_bytes.is_empty()),
         _ => panic!("multikey_to_cose_key returned the wrong v2 result variant"),
     }
@@ -113,8 +109,8 @@ fn every_executable_operation_returns_its_exact_version_two_variant() {
     let request = operation(RequestBranch::Sign1Create(Box::new(sign_request(
         &private_key,
     ))));
-    let attached = match take_result_branch(execute_result(&request)) {
-        ResultBranch::Sign1Create(mut message) => {
+    let attached = match &mut take_result_branch(execute_result(&request)) {
+        ResultBranch::Sign1Create(message) => {
             Zeroizing::new(core::mem::take(&mut message.cose_sign1))
         }
         _ => panic!("sign1_create returned the wrong v2 result variant"),
@@ -122,8 +118,8 @@ fn every_executable_operation_returns_its_exact_version_two_variant() {
     let request = operation(RequestBranch::Sign1CreateDetached(Box::new(
         detached_sign_request(&private_key),
     )));
-    let detached = match take_result_branch(execute_result(&request)) {
-        ResultBranch::Sign1CreateDetached(mut message) => {
+    let detached = match &mut take_result_branch(execute_result(&request)) {
+        ResultBranch::Sign1CreateDetached(message) => {
             Zeroizing::new(core::mem::take(&mut message.cose_sign1))
         }
         _ => panic!("sign1_create_detached returned the wrong v2 result variant"),
@@ -133,14 +129,14 @@ fn every_executable_operation_returns_its_exact_version_two_variant() {
         &attached,
         &public_key,
     ))));
-    match take_result_branch(execute_result(&request)) {
+    match &mut take_result_branch(execute_result(&request)) {
         ResultBranch::Sign1Verify(message) => assert_eq!(message.payload, PAYLOAD),
         _ => panic!("sign1_verify returned the wrong v2 result variant"),
     }
     let request = operation(RequestBranch::Sign1VerifyDetached(Box::new(
         detached_verify_request(&detached, &public_key),
     )));
-    match take_result_branch(execute_result(&request)) {
+    match &mut take_result_branch(execute_result(&request)) {
         ResultBranch::Sign1VerifyDetached(message) => assert!(message.payload.is_empty()),
         _ => panic!("sign1_verify_detached returned the wrong v2 result variant"),
     }
@@ -157,8 +153,8 @@ fn every_executable_operation_returns_its_exact_version_two_variant() {
     let direct_request = operation(RequestBranch::MlKemEncryptDirect(Box::new(
         encrypt_request(&kem_public, &kid),
     )));
-    let direct = match take_result_branch(execute_result(&direct_request)) {
-        ResultBranch::MlKemEncryptDirect(mut message) => {
+    let direct = match &mut take_result_branch(execute_result(&direct_request)) {
+        ResultBranch::MlKemEncryptDirect(message) => {
             Zeroizing::new(core::mem::take(&mut message.cose_encrypt))
         }
         _ => panic!("ml_kem_encrypt_direct returned the wrong v2 result variant"),
@@ -168,8 +164,8 @@ fn every_executable_operation_returns_its_exact_version_two_variant() {
     let key_wrap_request = operation(RequestBranch::MlKemEncryptKeyWrap(Box::new(
         encrypt_request(&kem_public, &kid),
     )));
-    let key_wrapped = match take_result_branch(execute_result(&key_wrap_request)) {
-        ResultBranch::MlKemEncryptKeyWrap(mut message) => {
+    let key_wrapped = match &mut take_result_branch(execute_result(&key_wrap_request)) {
+        ResultBranch::MlKemEncryptKeyWrap(message) => {
             Zeroizing::new(core::mem::take(&mut message.cose_encrypt))
         }
         _ => panic!("ml_kem_encrypt_key_wrap returned the wrong v2 result variant"),
@@ -181,7 +177,7 @@ fn every_executable_operation_returns_its_exact_version_two_variant() {
         &kem_private,
         &kid,
     ))));
-    match take_result_branch(execute_result(&request)) {
+    match &mut take_result_branch(execute_result(&request)) {
         ResultBranch::MlKemDecrypt(message) => {
             assert_eq!(message.plaintext, PAYLOAD);
         }
@@ -192,8 +188,7 @@ fn every_executable_operation_returns_its_exact_version_two_variant() {
 #[test]
 fn operation_error_outcomes_match_binary_and_json_contracts() {
     let request = operation(RequestBranch::KeyParse(Box::new(CoseKeyBytesRequest {
-        cose_key: vec![0xff],
-        __buffa_unknown_fields: Default::default(),
+        cose_key: vec![0xff].into(),
     })));
     let binary_request = Zeroizing::new(request.encode_to_vec());
     let binary = execute_operation_proto(&binary_request);
@@ -213,6 +208,7 @@ fn operation_error_outcomes_match_binary_and_json_contracts() {
 }
 
 #[test]
+#[allow(deprecated)] // Exercise published compatibility selectors.
 fn version_two_decoder_rejects_mismatched_and_hostile_responses_as_backend_failures() {
     let request = operation(RequestBranch::KeyParse(Box::default()));
     let mismatched = response_with_result(ResultBranch::KeyToPublicBytes(Box::default()));
@@ -230,13 +226,12 @@ fn version_two_decoder_rejects_mismatched_and_hostile_responses_as_backend_failu
     let verify_request = operation(RequestBranch::Sign1Verify(Box::default()));
     let invalid_metadata = response_with_result(ResultBranch::Sign1Verify(Box::new(
         reallyme_cose::wire::CoseSign1VerifyResult {
-            payload: Vec::new(),
+            payload: Vec::new().into(),
             algorithm: EnumValue::from(42_424_242),
-            kid: Vec::new(),
+            kid: Vec::new().into(),
             exact_signature_algorithm: EnumValue::from(42_424_242),
-            has_exact_signature_algorithm: true,
+
             protected_type: buffa::MessageField::none(),
-            __buffa_unknown_fields: Default::default(),
         },
     )));
     assert_backend_error(
@@ -246,13 +241,12 @@ fn version_two_decoder_rejects_mismatched_and_hostile_responses_as_backend_failu
 
     let mismatched_exact = response_with_result(ResultBranch::Sign1Verify(Box::new(
         reallyme_cose::wire::CoseSign1VerifyResult {
-            payload: Vec::new(),
+            payload: Vec::new().into(),
             algorithm: EnumValue::from(CoseSignatureAlgorithm::EcdsaP256Sha256),
-            kid: Vec::new(),
+            kid: Vec::new().into(),
             exact_signature_algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
-            has_exact_signature_algorithm: true,
+
             protected_type: buffa::MessageField::none(),
-            __buffa_unknown_fields: Default::default(),
         },
     )));
     assert_backend_error(
@@ -262,13 +256,12 @@ fn version_two_decoder_rejects_mismatched_and_hostile_responses_as_backend_failu
 
     let legacy_metadata = response_with_result(ResultBranch::Sign1Verify(Box::new(
         reallyme_cose::wire::CoseSign1VerifyResult {
-            payload: Vec::new(),
+            payload: Vec::new().into(),
             algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
-            kid: Vec::new(),
+            kid: Vec::new().into(),
             exact_signature_algorithm: EnumValue::from(0),
-            has_exact_signature_algorithm: false,
+
             protected_type: buffa::MessageField::none(),
-            __buffa_unknown_fields: Default::default(),
         },
     )));
     assert!(
@@ -290,7 +283,7 @@ fn version_two_decoder_rejects_mismatched_and_hostile_responses_as_backend_failu
     let oversized = Zeroizing::new(vec![0_u8; oversized_len]);
     assert_backend_error(
         decode_operation_response_for_request(&request, &oversized),
-        CoseErrorReason::CommonResourceLimitExceeded,
+        CoseErrorReason::BackendResourceLimitExceeded,
     );
 }
 
@@ -303,8 +296,8 @@ enum ResultBranchKind {
 }
 
 fn assert_key_result(request: CoseOperationRequest, expected: ResultBranchKind) {
-    let result = take_result_branch(execute_result(&request));
-    let message = match (expected, result) {
+    let mut result = take_result_branch(execute_result(&request));
+    let message = match (expected, &mut result) {
         (ResultBranchKind::Parse, ResultBranch::KeyParse(message))
         | (ResultBranchKind::PublicBytes, ResultBranch::KeyToPublicBytes(message))
         | (ResultBranchKind::PrivateBytes, ResultBranch::KeyToPrivateBytes(message))
@@ -344,8 +337,8 @@ fn execute_result(request: &CoseOperationRequest) -> CoseOperationResult {
 }
 
 fn take_operation_result(mut response: CoseOperationResponseV2) -> CoseOperationResult {
-    match response.outcome.take() {
-        Some(ResponseOutcome::Result(result)) => *result,
+    match response.outcome.as_mut() {
+        Some(ResponseOutcome::Result(result)) => core::mem::take(&mut **result),
         _ => panic!("operation returned a v2 error outcome"),
     }
 }
@@ -358,8 +351,8 @@ fn take_result_branch(mut result: CoseOperationResult) -> ResultBranch {
 }
 
 fn take_error(mut response: CoseOperationResponseV2) -> CoseErrorProto {
-    match response.outcome.take() {
-        Some(ResponseOutcome::Error(error)) => *error,
+    match response.outcome.as_mut() {
+        Some(ResponseOutcome::Error(error)) => core::mem::take(&mut **error),
         _ => panic!("operation returned a v2 success outcome"),
     }
 }
@@ -369,7 +362,7 @@ fn assert_backend_error(
     expected: CoseErrorReason,
 ) {
     let error = take_error(result.expect_err("hostile v2 response must be rejected"));
-    match error.error {
+    match error.error.as_ref() {
         Some(cose_error_proto::Error::Backend(error)) => {
             assert_eq!(error.reason.as_known(), Some(expected));
         }
@@ -381,16 +374,13 @@ fn response_with_result(result: ResultBranch) -> CoseOperationResponseV2 {
     CoseOperationResponseV2 {
         outcome: Some(ResponseOutcome::Result(Box::new(CoseOperationResult {
             result: Some(result),
-            __buffa_unknown_fields: Default::default(),
         }))),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
 fn operation(operation: RequestBranch) -> CoseOperationRequest {
     CoseOperationRequest {
         operation: Some(operation),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
@@ -400,14 +390,12 @@ fn ed25519_identifier(
         algorithm: Some(cose_algorithm_identifier::Algorithm::Signature(
             EnumValue::from(CoseSignatureAlgorithm::Ed25519),
         )),
-        __buffa_unknown_fields: Default::default(),
     })
 }
 
 fn key_request(cose_key: &[u8]) -> CoseKeyBytesRequest {
     CoseKeyBytesRequest {
-        cose_key: cose_key.to_vec(),
-        __buffa_unknown_fields: Default::default(),
+        cose_key: cose_key.to_vec().into(),
     }
 }
 
@@ -418,61 +406,55 @@ fn sign_options() -> buffa::MessageField<CoseSign1Options, buffa::Inline<CoseSig
 fn sign_request(private_key: &[u8]) -> CoseSign1CreateRequest {
     CoseSign1CreateRequest {
         algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
-        payload: PAYLOAD.to_vec(),
-        private_key: private_key.to_vec(),
-        kid: test_kid().to_vec(),
-        has_kid: true,
+        payload: PAYLOAD.to_vec().into(),
+        private_key: private_key.to_vec().into(),
+        kid: Some(test_kid().to_vec().into()),
         options: sign_options(),
-        external_aad: Vec::new(),
-        __buffa_unknown_fields: Default::default(),
+        external_aad: Vec::new().into(),
     }
 }
 
 fn detached_sign_request(private_key: &[u8]) -> CoseSign1CreateDetachedRequest {
     CoseSign1CreateDetachedRequest {
         algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
-        payload: PAYLOAD.to_vec(),
-        private_key: private_key.to_vec(),
-        kid: test_kid().to_vec(),
-        has_kid: true,
+        payload: PAYLOAD.to_vec().into(),
+        private_key: private_key.to_vec().into(),
+        kid: Some(test_kid().to_vec().into()),
         options: sign_options(),
-        external_aad: Vec::new(),
-        __buffa_unknown_fields: Default::default(),
+        external_aad: Vec::new().into(),
     }
 }
 
 fn verify_request(cose_sign1: &[u8], public_key: &[u8]) -> CoseSign1VerifyRequest {
     CoseSign1VerifyRequest {
-        cose_sign1: cose_sign1.to_vec(),
-        public_key: public_key.to_vec(),
+        cose_sign1: cose_sign1.to_vec().into(),
+        public_key: public_key.to_vec().into(),
         max_cose_sign1_bytes: 0,
         max_detached_payload_bytes: 0,
         require_kid: true,
-        allowed_algorithms: vec![EnumValue::from(CoseSignatureAlgorithm::Ed25519)],
-        external_aad: Vec::new(),
-        expected_kid: test_kid().to_vec(),
+        allowed_algorithms: vec![EnumValue::from(CoseSignatureAlgorithm::Ed25519)].into(),
+        external_aad: Vec::new().into(),
+        expected_kid: test_kid().to_vec().into(),
         require_tagged_sign1: false,
         expected_type: buffa::MessageField::none(),
         public_key_algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
 fn detached_verify_request(cose_sign1: &[u8], public_key: &[u8]) -> CoseSign1VerifyDetachedRequest {
     CoseSign1VerifyDetachedRequest {
-        cose_sign1: cose_sign1.to_vec(),
-        payload: PAYLOAD.to_vec(),
-        public_key: public_key.to_vec(),
+        cose_sign1: cose_sign1.to_vec().into(),
+        payload: PAYLOAD.to_vec().into(),
+        public_key: public_key.to_vec().into(),
         max_cose_sign1_bytes: 0,
         max_detached_payload_bytes: 0,
         require_kid: true,
-        allowed_algorithms: vec![EnumValue::from(CoseSignatureAlgorithm::Ed25519)],
-        external_aad: Vec::new(),
-        expected_kid: test_kid().to_vec(),
+        allowed_algorithms: vec![EnumValue::from(CoseSignatureAlgorithm::Ed25519)].into(),
+        external_aad: Vec::new().into(),
+        expected_kid: test_kid().to_vec().into(),
         require_tagged_sign1: false,
         expected_type: buffa::MessageField::none(),
         public_key_algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
@@ -480,25 +462,21 @@ fn encrypt_request(public_key: &[u8], kid: &[u8]) -> CoseMlKemEncryptRequest {
     CoseMlKemEncryptRequest {
         kem_algorithm: EnumValue::from(CoseKemAlgorithm::MlKem512),
         content_algorithm: EnumValue::from(CoseContentEncryptionAlgorithm::Aes128Gcm),
-        recipient_public_key: public_key.to_vec(),
-        recipient_kid: kid.to_vec(),
-        plaintext: PAYLOAD.to_vec(),
-        external_aad: Vec::new(),
-        supp_priv_info: Vec::new(),
-        has_supp_priv_info: false,
-        __buffa_unknown_fields: Default::default(),
+        recipient_public_key: public_key.to_vec().into(),
+        recipient_kid: kid.to_vec().into(),
+        plaintext: PAYLOAD.to_vec().into(),
+        external_aad: Vec::new().into(),
+        supp_priv_info: None,
     }
 }
 
 fn decrypt_request(cose_encrypt: &[u8], private_key: &[u8], kid: &[u8]) -> CoseMlKemDecryptRequest {
     CoseMlKemDecryptRequest {
-        cose_encrypt: cose_encrypt.to_vec(),
-        recipient_private_key: private_key.to_vec(),
-        expected_recipient_kid: kid.to_vec(),
-        external_aad: Vec::new(),
-        supp_priv_info: Vec::new(),
-        has_supp_priv_info: false,
-        __buffa_unknown_fields: Default::default(),
+        cose_encrypt: cose_encrypt.to_vec().into(),
+        recipient_private_key: private_key.to_vec().into(),
+        expected_recipient_kid: kid.to_vec().into(),
+        external_aad: Vec::new().into(),
+        supp_priv_info: None,
     }
 }
 
@@ -521,23 +499,19 @@ fn response_decoder_rejects_unspecified_legacy_signature_algorithm() {
 #[test]
 fn response_decoder_validates_key_algorithm_presence_and_registration() {
     let request = operation(RequestBranch::KeyParse(Box::default()));
-    for (algorithm, present, valid) in [
-        (0, false, true),
-        (100, true, true),
-        (201, true, true),
-        (202, true, true),
-        (0, true, false),
-        (100, false, false),
-        (200, true, false),
-        (42_424_242, true, false),
-        (42_424_242, false, false),
+    for (algorithm, valid) in [
+        (0, true),
+        (100, true),
+        (201, true),
+        (202, true),
+        (200, false),
+        (42_424_242, false),
     ] {
         let response = response_with_result(ResultBranch::KeyParse(Box::new(
             reallyme_cose::wire::CoseKeyBytesResult {
                 signature_algorithm: EnumValue::from(algorithm),
-                has_signature_algorithm: present,
-                key_bytes: Vec::new(),
-                __buffa_unknown_fields: Default::default(),
+
+                key_bytes: Vec::new().into(),
             },
         )));
         let decoded = decode_operation_response_for_request(&request, &response.encode_to_vec());
@@ -550,6 +524,7 @@ fn response_decoder_validates_key_algorithm_presence_and_registration() {
 }
 
 #[test]
+#[allow(deprecated)] // Exercise published compatibility selectors.
 fn legacy_verification_metadata_remains_accepted_for_every_supported_algorithm() {
     for algorithm in [
         CoseSignatureAlgorithm::Ed25519,
@@ -568,12 +543,11 @@ fn legacy_verification_metadata_remains_accepted_for_every_supported_algorithm()
         for detached in [false, true] {
             let metadata = Box::new(reallyme_cose::wire::CoseSign1VerifyResult {
                 algorithm: EnumValue::from(algorithm),
-                payload: Vec::new(),
-                kid: Vec::new(),
+                payload: Vec::new().into(),
+                kid: Vec::new().into(),
                 exact_signature_algorithm: EnumValue::from(0),
-                has_exact_signature_algorithm: false,
+
                 protected_type: buffa::MessageField::none(),
-                __buffa_unknown_fields: Default::default(),
             });
             let (request, result) = if detached {
                 (

@@ -21,13 +21,13 @@ use super::{
 };
 
 #[test]
+#[allow(deprecated)] // Exercise published compatibility selectors.
 fn es256_wire_contract_preserves_the_exact_registration() {
     let key = gen_p256();
     let key_request = CoseKeyFromPublicBytesRequest {
         algorithm: signature_identifier(CoseSignatureAlgorithm::Es256),
-        public_key: key.public.clone(),
+        public_key: key.public.clone().into(),
         ec2_point_encoding: Default::default(),
-        __buffa_unknown_fields: Default::default(),
     };
     let key_output = execute_operation_bytes(
         &operation_request(CoseOperationRequestBranch::KeyFromPublicBytes(Box::new(
@@ -38,7 +38,10 @@ fn es256_wire_contract_preserves_the_exact_registration() {
     assert_eq!(key_output.status(), OperationOutputStatus::Result);
     let key_result = CoseKeyBytesResult::decode_from_slice(key_output.bytes())
         .expect("ES256 COSE_Key result must decode");
-    assert!(key_result.has_signature_algorithm);
+    assert_ne!(
+        key_result.signature_algorithm,
+        CoseSignatureAlgorithm::Unspecified
+    );
     assert_eq!(
         key_result.signature_algorithm.as_known(),
         Some(CoseSignatureAlgorithm::Es256),
@@ -52,9 +55,8 @@ fn es256_wire_contract_preserves_the_exact_registration() {
 
     let legacy_request = CoseKeyFromPublicBytesRequest {
         algorithm: signature_identifier(CoseSignatureAlgorithm::EcdsaP256Sha256),
-        public_key: key.public.clone(),
+        public_key: key.public.clone().into(),
         ec2_point_encoding: Default::default(),
-        __buffa_unknown_fields: Default::default(),
     };
     let legacy_output = execute_operation_bytes(
         &operation_request(CoseOperationRequestBranch::KeyFromPublicBytes(Box::new(
@@ -72,8 +74,7 @@ fn es256_wire_contract_preserves_the_exact_registration() {
         CoseSignatureAlgorithm::Es256,
         sample_payload(),
         key.private,
-        test_kid().to_vec(),
-        true,
+        Some(test_kid().to_vec()),
     );
     let signed = execute_cose_sign1_create_request(&create.encode_to_vec());
     assert_eq!(signed.status(), OperationOutputStatus::Result);
@@ -81,7 +82,7 @@ fn es256_wire_contract_preserves_the_exact_registration() {
         .expect("ES256 create result must decode");
 
     let mut verify = sign1_verify_request(create_result.cose_sign1.clone(), key.public, true);
-    verify.allowed_algorithms = vec![signature_value(CoseSignatureAlgorithm::Es256)];
+    verify.allowed_algorithms = vec![signature_value(CoseSignatureAlgorithm::Es256)].into();
     verify.public_key_algorithm = signature_value(CoseSignatureAlgorithm::Es256);
     let verified = execute_cose_sign1_verify_request(&verify.encode_to_vec());
     assert_eq!(verified.status(), OperationOutputStatus::Result);
@@ -91,7 +92,10 @@ fn es256_wire_contract_preserves_the_exact_registration() {
         verify_result.algorithm.as_known(),
         Some(CoseSignatureAlgorithm::EcdsaP256Sha256),
     );
-    assert!(verify_result.has_exact_signature_algorithm);
+    assert_ne!(
+        verify_result.exact_signature_algorithm,
+        CoseSignatureAlgorithm::Unspecified
+    );
     assert_eq!(
         verify_result.exact_signature_algorithm.as_known(),
         Some(CoseSignatureAlgorithm::Es256),

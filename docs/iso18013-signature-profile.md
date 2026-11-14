@@ -95,8 +95,12 @@ integer/length widths, unique map labels, bounded collections/nesting, and full
 input consumption. They accept unsorted map orders, including inside protected
 byte strings. ISO public-key import checks `kty`, the exact named `crv`, optional
 original `alg`, verification `key_ops`, coordinate lengths, and public point
-validity for available providers. It rejects private material. The modern
-COSE_Key deterministic-map-order requirement is unchanged.
+validity for available providers. It accepts an optional byte-string Base IV
+(label 5) within the key size limit. The parameter has no effect on verification.
+The caller retains the original encoding, and signature-purpose peer-key
+inspection can return it with the validated public material. ISO import rejects
+private material. The modern COSE_Key deterministic-map-order requirement is
+unchanged.
 
 Hard limits are 65,536 encoded Sign1 bytes, 1,048,576 payload bytes, 16,384
 encoded COSE_Key bytes, 32 parameters per ISO key or header map, 1,024 items per

@@ -50,28 +50,71 @@ message CoseBackendError {
   CoseErrorReason reason = 1;
 }
 
+// Borrowed value methods project or construct the generated values named here.
+// Cryptographic operations use the operation adapters declared on the routing oneof.
+// Rust value methods: algorithm/signature.rs#CoseSignatureAlgorithm => CoseSignatureAlgorithm: crypto_algorithm
+// Rust value methods: containers/agreement_key.rs#AgreementKey => CoseAgreementKeyResult: original_cose_key, public_material, curve, point_encoding
+// Rust value methods: containers/peer_curve.rs#PeerCurve => CoseNamedCurve: coordinate_bytes, okp_bytes
+// Rust value methods: containers/peer_key.rs#InspectedPeerKey => CosePeerKeyResult: original_cose_key, public_material, curve, usage, point_encoding
+// Rust value methods: containers/peer_key.rs#ValidatedPeerKey => CosePeerKeyResult: public_view
+// Rust value methods: containers/read_headers.rs#CertificateHeaders => CoseProviderCertificateRequest: certificates, placement, sha256_thumbprint
+// Rust value methods: containers/receipt.rs#VerifiedContainer => CoseContainerVerifyResult: encoded, protected_headers, unprotected_headers, payload, policy, suite, provenance, verification_public_key, verification_context, selected_certificate_sha256
+// Rust value methods: containers/sign.rs#SignedContainer => CoseOpaqueBytes: encoded
+// Rust value methods: containers/suite.rs#SignatureSuite => CoseSignatureSuite: registration, curve, algorithm, has_builtin_provider
+// Rust value methods: encrypt/types.rs#CoseMlKemEncryptRequest => CoseMlKemEncryptRequest: new, with_supp_priv_info
+// Rust value methods: encrypt/types.rs#CoseMlKemDecryptRequest => CoseMlKemDecryptRequest: new, with_supp_priv_info
+// Rust value methods: error.rs#CoseError => CoseErrorReason: reason
+// Rust value methods: iso18013/curve.rs#Iso18013SignatureCurve => CoseNamedCurve: signature_length
+// Rust value methods: iso18013/types.rs#VerifiedIso18013Sign1 => CoseIsoSign1VerifyResult: suite, protected_header_bytes, protected_key_id, attached_payload
+// Rust value methods: mac0/algorithm.rs#CoseMacAlgorithm => CoseMacAlgorithm: cose_id, tag_length, key_length
+// Rust value methods: mac0/key.rs#CoseMacKey => CoseMac0VerifyRequest: new, algorithm
+// Rust value methods: mac0/types.rs#VerifiedDetachedCoseMac0 => CoseMac0VerifyResult: algorithm, protected_header_bytes, protected_key_id
+// Rust value methods: policy/validate.rs#CosePolicy => CoseVerificationPolicy: new, contract, from_contract, require_kid, allowed_cose_algorithms, max_cose_sign1_bytes, max_detached_payload_bytes, require_tagged_sign1, allow_unprotected_x5chain, expected_type, with_require_kid, with_allowed_algorithms, allow_algorithm, with_allowed_cose_algorithms, allow_cose_algorithm, allow_any_algorithm, with_max_cose_sign1_bytes, with_max_detached_payload_bytes, with_require_tagged_sign1, with_allow_unprotected_x5chain, with_expected_type
+// Rust value methods: sign1/sign.rs#CoseSign1EncodeOptions => CoseSign1Options: new, tagged, contract, tag, max_cose_sign1_bytes, x5chain_der, x5chain_header_placement, protected_type, with_tag, with_max_cose_sign1_bytes, with_x5chain_der, with_x5chain_header_placement, with_protected_type
+
 // Family-scoped protobuf selectors identify exact COSE registrations. Their
 // positive protobuf values are stable contract identifiers, not the signed
 // integers carried in COSE. Names such as ES256 and ESP256 preserve that exact
 // protocol distinction even though both use the same P-256 crypto backend.
+// Rust closed enum: CoseSignatureAlgorithm
 enum CoseSignatureAlgorithm {
+  // Rust availability: core
+  // Rust non-exhaustive
   COSE_SIGNATURE_ALGORITHM_UNSPECIFIED = 0;
   reserved 1 to 14;
   // EdDSA: 100-199; elliptic-curve signatures: 200-299;
   // post-quantum signatures: 1000-1099.
+  // Rust variant: Ed25519; wire: -19
   COSE_SIGNATURE_ALGORITHM_ED25519 = 100;
   // Historical primitive selectors remain accepted for wire compatibility
   // and map to the fully specified registrations used before 0.2.2.
+  // Rust compatibility variant: Esp256
   COSE_SIGNATURE_ALGORITHM_ECDSA_P256_SHA256 = 200 [deprecated = true];
+  // Rust variant: Es256; wire: -7; hash: Sha256; iso
   COSE_SIGNATURE_ALGORITHM_ES256 = 201;
+  // Rust variant: Es384; wire: -35; hash: Sha384; iso
+  COSE_SIGNATURE_ALGORITHM_ES384 = 212;
+  // Rust variant: Es512; wire: -36; hash: Sha512; iso
+  COSE_SIGNATURE_ALGORITHM_ES512 = 222;
+  // Rust variant: EdDsa; wire: -8; iso
+  COSE_SIGNATURE_ALGORITHM_EDDSA = 101;
+  // Rust variant: Esp256; wire: -9; hash: Sha256
   COSE_SIGNATURE_ALGORITHM_ESP256 = 202;
+  // Rust compatibility variant: Esp384
   COSE_SIGNATURE_ALGORITHM_ECDSA_P384_SHA384 = 210 [deprecated = true];
+  // Rust variant: Esp384; wire: -51; hash: Sha384
   COSE_SIGNATURE_ALGORITHM_ESP384 = 211;
+  // Rust compatibility variant: Esp512
   COSE_SIGNATURE_ALGORITHM_ECDSA_P521_SHA512 = 220 [deprecated = true];
+  // Rust variant: Esp512; wire: -52; hash: Sha512
   COSE_SIGNATURE_ALGORITHM_ESP512 = 221;
+  // Rust variant: Es256K; wire: -47; hash: Sha256
   COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256 = 230;
+  // Rust variant: MlDsa44; wire: -48
   COSE_SIGNATURE_ALGORITHM_ML_DSA_44 = 1000;
+  // Rust variant: MlDsa65; wire: -49
   COSE_SIGNATURE_ALGORITHM_ML_DSA_65 = 1010;
+  // Rust variant: MlDsa87; wire: -50
   COSE_SIGNATURE_ALGORITHM_ML_DSA_87 = 1020;
 }
 
@@ -82,23 +125,545 @@ enum CoseKeyAgreementAlgorithm {
   COSE_KEY_AGREEMENT_ALGORITHM_X25519 = 100;
 }
 
+// Rust closed enum: OptionalKeyPolicy
+enum CoseAgreementOptionalParameters {
+  COSE_AGREEMENT_OPTIONAL_PARAMETERS_UNSPECIFIED = 0;
+  // Enforce supplied alg/key_ops. Signature keys may include Base IV (label 5)
+  // only as a byte string: retain it in exact key bytes, never signature input.
+  // This subset permits omitted alg and agreement operations 7/8, but implements
+  // no ECDH alg registrations.
+  // Rust variant: Cose
+  COSE_AGREEMENT_OPTIONAL_PARAMETERS_VALIDATE_COSE = 1;
+  // Explicit ISO peer policy: ignore optional positive parameters, never d.
+  // Rust variant: IsoPeer
+  COSE_AGREEMENT_OPTIONAL_PARAMETERS_IGNORE_ISO_OPTIONAL = 2;
+}
+
+// Rust closed enum: AgreementEc2EncodingPolicy
+enum CoseAgreementEc2EncodingPolicy {
+  COSE_AGREEMENT_EC2_ENCODING_POLICY_UNSPECIFIED = 0;
+  // Rust variant: FullCoordinatesOnly
+  COSE_AGREEMENT_EC2_ENCODING_POLICY_FULL_COORDINATES_ONLY = 1;
+  // Rust variant: FullOrCompressed
+  COSE_AGREEMENT_EC2_ENCODING_POLICY_FULL_OR_COMPRESSED = 2;
+}
+
+// Rust closed enum: CosePointEncoding
+enum CosePointEncoding {
+  // Rust availability: core
+  COSE_POINT_ENCODING_UNSPECIFIED = 0;
+  // Rust variant: Ec2Coordinates; alias: FullCoordinates
+  COSE_POINT_ENCODING_EC2_COORDINATES = 1;
+  // Rust variant: Ec2YSign; alias: Compressed
+  COSE_POINT_ENCODING_EC2_Y_SIGN = 2;
+  // Rust variant: Okp
+  COSE_POINT_ENCODING_OKP = 3;
+}
+
+// All selectors are required and explicit. The caller assigns reader/device
+// roles and selects full reader coordinates or permitted device compression.
+// Rust view: containers/agreement_key.rs#AgreementKeyPolicy
+message CoseAgreementKeyPolicy {
+  // Nonempty unique allowlist, at most nine exact registered curves.
+  repeated CoseNamedCurve allowed_curves = 1;
+  CoseAgreementOptionalParameters optional_parameters = 2;
+  CoseAgreementEc2EncodingPolicy ec2_encoding = 3;
+}
+
+message CoseAgreementKeyCreateRequest {
+  CoseNamedCurve curve = 1;
+  // SENSITIVE: public SEC1 EC2 or canonical Montgomery bytes; never private d.
+  bytes public_key = 2;
+  CosePointEncoding point_encoding = 3;
+  CoseAgreementKeyPolicy policy = 4;
+  // Zero selects the built-in adapter; nonzero is application-local.
+  reserved 5;
+  reserved "provider_handle";
+  CoseProviderCapability capability = 6;
+}
+
+// Rust view: containers/normalize_agreement_key.rs#CryptoAgreementKeyProvider
+message CoseAgreementKeyParseRequest {
+  // SENSITIVE: exact untagged public COSE_Key map; unsorted unique maps accepted.
+  bytes cose_key = 1;
+  CoseAgreementKeyPolicy policy = 2;
+  reserved 3;
+  reserved "provider_handle";
+  CoseProviderCapability capability = 4;
+}
+
+// Rust view: containers/agreement_key.rs#AgreementKey
+message CoseAgreementKeyResult {
+  // SENSITIVE: exact received map or minimal constructed map. Never reconstructed
+  // from normalized points when parsing. Caller retains any outer tag/wrapper.
+  bytes cose_key = 1;
+  // SENSITIVE: separately validated full SEC1 EC2 or canonical Montgomery bytes.
+  bytes public_key = 2;
+  CoseNamedCurve curve = 3;
+  // Original/emitted wire representation before normalization.
+  CosePointEncoding point_encoding = 4;
+}
+
+// Named curve identity; values are the registered COSE crv identifiers.
+// Rust closed enum: CoseCurve
+enum CoseNamedCurve {
+  COSE_NAMED_CURVE_UNSPECIFIED = 0;
+  // Rust variant: P256; wire: 1
+  COSE_NAMED_CURVE_P256 = 1;
+  // Rust variant: P384; wire: 2
+  COSE_NAMED_CURVE_P384 = 2;
+  // Rust variant: P521; wire: 3
+  COSE_NAMED_CURVE_P521 = 3;
+  // Rust variant: X25519; wire: 4
+  COSE_NAMED_CURVE_X25519 = 4;
+  // Rust variant: X448; wire: 5
+  COSE_NAMED_CURVE_X448 = 5;
+  // Rust variant: Ed25519; wire: 6
+  COSE_NAMED_CURVE_ED25519 = 6;
+  // Rust variant: Ed448; wire: 7
+  COSE_NAMED_CURVE_ED448 = 7;
+  // Rust variant: Secp256k1; wire: 8
+  COSE_NAMED_CURVE_SECP256K1 = 8;
+  // Rust variant: BrainpoolP256r1; wire: 256
+  COSE_NAMED_CURVE_BRAINPOOL_P256R1 = 256;
+  // Rust variant: BrainpoolP320r1; wire: 257
+  COSE_NAMED_CURVE_BRAINPOOL_P320R1 = 257;
+  // Rust variant: BrainpoolP384r1; wire: 258
+  COSE_NAMED_CURVE_BRAINPOOL_P384R1 = 258;
+  // Rust variant: BrainpoolP512r1; wire: 259
+  COSE_NAMED_CURVE_BRAINPOOL_P512R1 = 259;
+}
+
+// Rust closed value: SignatureSuite
+message CoseSignatureSuite {
+  CoseSignatureAlgorithm registration = 1;
+  CoseNamedCurve curve = 2;
+}
+
+// If this message is absent, operation-specific hard defaults apply. If
+// present, zero is a real zero ceiling; callers cannot raise hard maxima.
+// Rust byte limits: ContainerLimits
+message CoseByteLimits {
+  // Rust maximum: MAX_COSE_SIGN1_BYTES
+  uint64 encoded_bytes = 1;
+  // Rust maximum: MAX_DETACHED_PAYLOAD_BYTES
+  uint64 payload_bytes = 2;
+  // Rust maximum: MAX_COSE_SIGN1_BYTES
+  uint64 external_aad_bytes = 3;
+}
+
+// Digest identity for the explicit provider prehash contract. These are
+// protobuf selectors; they do not implicitly select a COSE signature curve.
+// Rust closed enum: Iso18013EcdsaHash
+enum CoseHashAlgorithm {
+  COSE_HASH_ALGORITHM_UNSPECIFIED = 0;
+  // Rust variant: Sha256
+  COSE_HASH_ALGORITHM_SHA256 = 100;
+  // Rust variant: Sha384
+  COSE_HASH_ALGORITHM_SHA384 = 110;
+  // Rust variant: Sha512
+  COSE_HASH_ALGORITHM_SHA512 = 120;
+}
+
+// Private-use namespace carried by the supported ML-KEM container profile.
+// Rust closed enum: CoseMlKemProfile
+enum CoseMlKemProfile {
+  // Rust non-exhaustive
+  COSE_ML_KEM_PROFILE_UNSPECIFIED = 0;
+  // Rust variant: ReallyMeV1
+  COSE_ML_KEM_PROFILE_REALLY_ME_V1 = 1;
+}
+
+// Rust closed enum: CoseMacAlgorithm
+enum CoseMacAlgorithm {
+  COSE_MAC_ALGORITHM_UNSPECIFIED = 0;
+  // Rust variant: Hmac256_64; wire: 4
+  COSE_MAC_ALGORITHM_HMAC_256_64 = 4;
+  // Rust variant: Hmac256_256; wire: 5
+  COSE_MAC_ALGORITHM_HMAC_256_256 = 5;
+  // Rust variant: Hmac384_384; wire: 6
+  COSE_MAC_ALGORITHM_HMAC_384_384 = 6;
+  // Rust variant: Hmac512_512; wire: 7
+  COSE_MAC_ALGORITHM_HMAC_512_512 = 7;
+}
+
+// Rust borrowed view: containers/provider.rs#VerificationSource
+enum CoseKeySource {
+  COSE_KEY_SOURCE_UNSPECIFIED = 0;
+  COSE_KEY_SOURCE_DIRECT = 1;
+  COSE_KEY_SOURCE_PROVIDER = 2;
+  COSE_KEY_SOURCE_CERTIFICATES = 3;
+}
+
+// Rust view: mac0/types.rs#CoseMac0VerifyRequest
+// Rust view: mac0/key.rs#CoseMacKey
+message CoseMac0VerifyRequest {
+  // SENSITIVE: exact encoded COSE_Mac0, optionally tagged 17.
+  bytes encoded = 1;
+  // SENSITIVE: expected detached payload; never returned in metadata.
+  bytes detached_payload = 2;
+  // SENSITIVE: explicit external AAD, including empty bytes.
+  bytes external_aad = 3;
+  repeated CoseMacAlgorithm allowed_algorithms = 4;
+  CoseMacAlgorithm key_algorithm = 5;
+  CoseKeySource key_source = 6;
+  // SENSITIVE: direct key consumed into a protected owner; never returned.
+  bytes key = 7;
+  // Application-local capability lookup; zero is never a valid handle.
+  reserved 8;
+  reserved "key_handle";
+  CoseProviderCapability capability = 10;
+  CoseByteLimits limits = 9;
+}
+
+// Rust view: mac0/types.rs#VerifiedDetachedCoseMac0
+message CoseMac0VerifyResult {
+  CoseMacAlgorithm algorithm = 1;
+  // SENSITIVE: exact authenticated protected-header bytes.
+  bytes protected_headers = 2;
+  // SENSITIVE: authenticated key identifier, if present.
+  optional bytes protected_kid = 3;
+  reserved 4;
+  reserved "has_protected_kid";
+}
+
+// Rust borrowed view: iso18013/types.rs#Iso18013Sign1Content
+enum CoseIsoSign1Content {
+  COSE_ISO_SIGN1_CONTENT_UNSPECIFIED = 0;
+  COSE_ISO_SIGN1_CONTENT_ISSUER_ATTACHED = 1;
+  COSE_ISO_SIGN1_CONTENT_DEVICE_DETACHED = 2;
+  COSE_ISO_SIGN1_CONTENT_READER_DETACHED = 3;
+}
+
+// Rust view: iso18013/types.rs#Iso18013Sign1Request
+message CoseIsoSign1VerifyRequest {
+  // SENSITIVE: exact received Sign1 bytes.
+  bytes encoded = 1;
+  CoseIsoSign1Content content = 2;
+  // SENSITIVE: exact external device/reader bytes; empty for issuer role.
+  bytes detached_payload = 3;
+  repeated CoseSignatureSuite allowed_suites = 4;
+  CoseSignatureSuite key_suite = 5;
+  // SENSITIVE: SEC1/Edwards public point or exact COSE_Key when flagged.
+  bytes public_key = 6;
+  bool public_key_is_cose = 7;
+  CoseKeySource key_source = 8;
+  reserved 9;
+  reserved "verifier_handle";
+  CoseProviderCapability capability = 11;
+  CoseByteLimits limits = 10;
+}
+
+// Rust view: iso18013/types.rs#VerifiedIso18013Sign1
+message CoseIsoSign1VerifyResult {
+  CoseSignatureSuite suite = 1;
+  // SENSITIVE: exact authenticated protected map bytes.
+  bytes protected_headers = 2;
+  // SENSITIVE: authenticated protected kid.
+  optional bytes protected_kid = 3;
+  reserved 4;
+  reserved "has_protected_kid";
+  // SENSITIVE: attached issuer payload, never a copied detached payload.
+  optional bytes attached_payload = 5;
+  reserved 6;
+  reserved "has_attached_payload";
+}
+
+// Rust closed enum: ContainerProfile
+enum CoseContainerProfile {
+  COSE_CONTAINER_PROFILE_UNSPECIFIED = 0;
+  // Rust variant: Rfc9360
+  COSE_CONTAINER_PROFILE_RFC9360 = 1;
+  // Rust variant: Iso2021
+  COSE_CONTAINER_PROFILE_ISO2021 = 2;
+  // Rust variant: IsoEdition2Dis
+  COSE_CONTAINER_PROFILE_ISO_EDITION2_DIS = 3;
+}
+
+// Rust closed enum: ContainerPurpose
+enum CoseContainerPurpose {
+  COSE_CONTAINER_PURPOSE_UNSPECIFIED = 0;
+  // Rust variant: Generic
+  COSE_CONTAINER_PURPOSE_GENERIC = 1;
+  // Rust variant: IssuerMso
+  COSE_CONTAINER_PURPOSE_ISSUER_MSO = 2;
+  // Rust variant: DeviceAuthentication
+  COSE_CONTAINER_PURPOSE_DEVICE_AUTHENTICATION = 3;
+  // Rust variant: ReaderAuthentication
+  COSE_CONTAINER_PURPOSE_READER_AUTHENTICATION = 4;
+  // Rust variant: ReaderAuthenticationAll
+  COSE_CONTAINER_PURPOSE_READER_AUTHENTICATION_ALL = 5;
+  // Rust variant: MsoRevocation
+  COSE_CONTAINER_PURPOSE_MSO_REVOCATION = 6;
+  // Rust variant: Vical
+  COSE_CONTAINER_PURPOSE_VICAL = 7;
+  // Rust variant: Rical
+  COSE_CONTAINER_PURPOSE_RICAL = 8;
+}
+
+// Rust closed enum: EnvelopePolicy
+enum CoseEnvelopePolicy {
+  COSE_ENVELOPE_POLICY_UNSPECIFIED = 0;
+  // Rust variant: Untagged
+  COSE_ENVELOPE_POLICY_UNTAGGED = 1;
+  // Rust variant: Tagged
+  COSE_ENVELOPE_POLICY_TAGGED = 2;
+  // Rust variant: Either
+  COSE_ENVELOPE_POLICY_EITHER = 3;
+}
+
+// Rust borrowed view: containers/sign.rs#SigningContent
+// Rust borrowed view: containers/policy.rs#ContainerContent
+enum CoseContentMode {
+  COSE_CONTENT_MODE_UNSPECIFIED = 0;
+  COSE_CONTENT_MODE_ATTACHED = 1;
+  COSE_CONTENT_MODE_DETACHED = 2;
+}
+
+// Rust closed value: ContainerPolicy
+message CoseContainerPolicy {
+  CoseContainerProfile profile = 1;
+  CoseContainerPurpose purpose = 2;
+  CoseEnvelopePolicy envelope = 3;
+}
+
+// Rust view: containers/provider.rs#CryptoVerificationKey
+// Rust view: containers/provider.rs#CertificateSelection
+// Rust borrowed view: containers/provider.rs#CertificateSelection
+message CoseWorkingKey {
+  CoseSignatureSuite suite = 1;
+  // SENSITIVE: effective validated public key material, never a private key.
+  bytes public_key = 2;
+  // SENSITIVE: exact 32-byte external trust/working-key context identity.
+  bytes context_id = 3;
+}
+
+// Rust view: containers/verify.rs#ContainerVerifyRequest
+message CoseContainerVerifyRequest {
+  // SENSITIVE: exact received Sign1 bytes, never reconstructed.
+  bytes encoded = 1;
+  CoseContentMode content_mode = 2;
+  // SENSITIVE: exact detached content; empty when attached is selected.
+  bytes detached_payload = 3;
+  // SENSITIVE: explicit AAD; ISO profiles require empty bytes.
+  bytes external_aad = 4;
+  CoseContainerPolicy policy = 5;
+  repeated CoseSignatureSuite allowed_suites = 6;
+  CoseKeySource key_source = 7;
+  CoseWorkingKey key = 8;
+  reserved 9;
+  reserved "capability_handle";
+  CoseProviderCapability capability = 11;
+  CoseByteLimits limits = 10;
+}
+
+// Rust closed enum: EndEntityIntegrity
+enum CoseEndEntityIntegrity {
+  COSE_END_ENTITY_INTEGRITY_UNSPECIFIED = 0;
+  // Rust variant: ExternalKey
+  COSE_END_ENTITY_INTEGRITY_EXTERNAL_KEY = 1;
+  // Rust variant: ProtectedChain
+  COSE_END_ENTITY_INTEGRITY_PROTECTED_CHAIN = 2;
+  // Rust variant: ProtectedThumbprint
+  COSE_END_ENTITY_INTEGRITY_PROTECTED_THUMBPRINT = 3;
+  // Rust variant: IsoUnprotectedChain
+  COSE_END_ENTITY_INTEGRITY_ISO_UNPROTECTED_CHAIN = 4;
+}
+
+// Rust view: containers/receipt.rs#HeaderProvenance
+// Rust view: containers/receipt.rs#VerifiedContainer
+message CoseContainerVerifyResult {
+  // SENSITIVE: exact complete envelope, including received map order.
+  bytes encoded = 1;
+  // SENSITIVE: exact authenticated protected-header bytes.
+  bytes protected_headers = 2;
+  // SENSITIVE: exact unprotected bytes; not authenticated by the signature.
+  bytes unprotected_headers = 3;
+  // SENSITIVE: exact authenticated attached or supplied detached payload.
+  bytes payload = 4;
+  CoseContainerPolicy policy = 5;
+  CoseWorkingKey key = 6;
+  CoseX5ChainHeaderPlacement chain_placement = 7;
+  bool protected_thumbprint = 8;
+  CoseEndEntityIntegrity end_entity_integrity = 9;
+  // SENSITIVE: SHA-256 of the exact externally selected certificate, if present.
+  optional bytes certificate_sha256 = 10;
+  reserved 11;
+  reserved "has_certificate_sha256";
+}
+
+// Rust view: containers/sign.rs#ContainerSignRequest
+message CoseContainerSignRequest {
+  // SENSITIVE: exact finalized protected map, never re-encoded before signing.
+  bytes protected_headers = 1;
+  // SENSITIVE: exact finalized unprotected map.
+  bytes unprotected_headers = 2;
+  // SENSITIVE: exact attached or detached bytes.
+  bytes payload = 3;
+  CoseContentMode content_mode = 4;
+  // SENSITIVE: explicit AAD; ISO profiles require empty bytes.
+  bytes external_aad = 5;
+  CoseContainerPolicy policy = 6;
+  repeated CoseSignatureSuite allowed_suites = 7;
+  // Non-exporting capability; mode, encoding and key are bound by the provider.
+  reserved 8;
+  reserved "signer_handle";
+  CoseProviderCapability capability = 10;
+  CoseByteLimits limits = 9;
+}
+
+// Rust payload enum: PeerKeyUsage
+enum CosePeerKeyPurpose {
+  COSE_PEER_KEY_PURPOSE_UNSPECIFIED = 0;
+  // Rust variant: Signature(SignatureSuite)
+  COSE_PEER_KEY_PURPOSE_SIGNATURE = 1;
+  // Rust variant: Agreement
+  COSE_PEER_KEY_PURPOSE_AGREEMENT = 2;
+  // Rust variant: HpkeRecipient
+  COSE_PEER_KEY_PURPOSE_HPKE_RECIPIENT = 3;
+}
+
+// Rust view: containers/peer_key.rs#CryptoPeerKeyValidator
+message CosePeerKeyRequest {
+  // SENSITIVE: exact public-only COSE_Key, unsorted unique maps accepted.
+  bytes cose_key = 1;
+  CosePeerKeyPurpose purpose = 2;
+  // Required only for signature purpose; omitted for agreement/HPKE.
+  CoseSignatureSuite signature_suite = 3;
+  CoseAgreementOptionalParameters optional_parameters = 4;
+  // Zero selects the built-in crypto adapter; nonzero selects an injected port.
+  reserved 5;
+  reserved "validator_handle";
+  CoseProviderCapability capability = 6;
+}
+
+// Rust view: containers/peer_key.rs#InspectedPeerKey
+// Rust view: containers/peer_key.rs#ValidatedPeerKey
+message CosePeerKeyResult {
+  // SENSITIVE: exact map bytes.
+  bytes cose_key = 1;
+  // SENSITIVE: original SEC1 or OKP public representation, not normalized.
+  bytes public_key = 2;
+  CoseNamedCurve curve = 3;
+  CosePeerKeyPurpose purpose = 4;
+  CoseSignatureSuite signature_suite = 5;
+  CosePointEncoding point_encoding = 6;
+  // Inspection alone never asserts mathematical validation.
+  bool validated = 7;
+}
+
+// Rust closed enum: SignatureEncoding
+enum CoseSignatureEncoding {
+  COSE_SIGNATURE_ENCODING_UNSPECIFIED = 0;
+  // Rust variant: EcdsaFixed
+  COSE_SIGNATURE_ENCODING_COSE_ECDSA = 1;
+  // Rust variant: EcdsaDer
+  COSE_SIGNATURE_ENCODING_ECDSA_DER = 2;
+  // Rust variant: EdDsa
+  COSE_SIGNATURE_ENCODING_EDDSA = 3;
+  // Rust variant: CoseNative
+  COSE_SIGNATURE_ENCODING_COSE_NATIVE = 4;
+}
+
+message CoseSignatureConvertRequest {
+  CoseNamedCurve curve = 1;
+  CoseSignatureEncoding encoding = 2;
+  // SENSITIVE: declared signature representation, never interpreted heuristically.
+  bytes signature = 3;
+}
+
+// Rust view: containers/sign.rs#SignedContainer
+message CoseOpaqueBytes {
+  // SENSITIVE: bounded operation-specific CBOR, signature or encoded result.
+  bytes encoded = 1;
+}
+
+message CoseValidationResult {
+}
+
+message CoseSuiteInfoRequest {
+  CoseSignatureSuite suite = 1;
+  // ISO family compatibility (false) versus explicit ISO table pairs (true).
+  bool require_iso_pair = 2;
+}
+
+message CoseSuiteInfoResult {
+  CoseSignatureSuite suite = 1;
+  uint64 signature_bytes = 2;
+  uint64 coordinate_bytes = 3;
+  uint64 okp_public_bytes = 4;
+  bool builtin_provider = 5;
+}
+
+// Rust view: iso18013/provider.rs#Iso18013CryptoVerifier
+message CoseVerificationKeyImportRequest {
+  CoseSignatureSuite suite = 1;
+  // SENSITIVE: public-only COSE_Key or SEC1/Edwards bytes, according to the flag.
+  bytes public_key = 2;
+  bool public_key_is_cose = 3;
+  // SENSITIVE: fixed 32-byte identity for a generic working key.
+  bytes context_id = 4;
+  bool require_iso_pair = 5;
+}
+
+// Full modern signing contract, preserving the existing request field numbers.
+// A nonzero signer handle requires an empty private_key in the nested request.
+message CoseSign1CreateProfileRequest {
+  CoseSign1CreateRequest request = 1;
+  CoseType protected_type = 2;
+  reserved 3;
+  reserved "signer_handle";
+  CoseProviderCapability capability = 4;
+}
+
+// Callback-aware verification contract. A resolver handle requires an empty
+// direct public_key. The x5chain operation requires attached content and empty AAD.
+message CoseSign1VerifyProfileRequest {
+  CoseSign1VerifyRequest request = 1;
+  // SENSITIVE: exact detached bytes, including an intentionally empty payload.
+  bytes detached_payload = 2;
+  bool detached = 3;
+  bool allow_unprotected_x5chain = 4;
+  reserved 5;
+  reserved "resolver_handle";
+  CoseProviderCapability capability = 6;
+  CoseVerificationPolicy policy = 7;
+
+}
+
+// Rust view: sign1/verify.rs#VerifiedCoseSign1WithX5Chain
+message CoseSign1X5ChainResult {
+  CoseSign1VerifyResult verified = 1;
+  CoseX5Chain x5chain = 2;
+  CoseX5ChainHeaderPlacement placement = 3;
+}
+
 // CoseEc2PointEncoding selects the interoperable EC2 coordinate shape used
 // when constructing a COSE_Key. Both forms are defined by RFC 9053.
+// Frozen v1 compatibility selector. New operations use CosePointEncoding.
+// Rust legacy selector: CosePointEncoding
 enum CoseEc2PointEncoding {
   // Preserve the library default: encode y as a parity boolean.
   COSE_EC2_POINT_ENCODING_UNSPECIFIED = 0;
   // Encode y as a parity boolean for the compact RFC 9053 representation.
+  // Rust compatibility variant: Ec2YSign
   COSE_EC2_POINT_ENCODING_COMPRESSED = 1;
   // Encode x and y as full affine-coordinate byte strings.
+  // Rust compatibility variant: Ec2Coordinates
   COSE_EC2_POINT_ENCODING_FULL_COORDINATES = 2;
 }
 
+// Rust closed enum: CoseMlKemAlgorithm
 enum CoseKemAlgorithm {
+  // Rust non-exhaustive
   COSE_KEM_ALGORITHM_UNSPECIFIED = 0;
   reserved 1 to 14;
   // Post-quantum KEMs: 1000-1099; hybrid KEMs: 1100-1199.
+  // Rust variant: MlKem512
   COSE_KEM_ALGORITHM_ML_KEM_512 = 1000;
+  // Rust variant: MlKem768
   COSE_KEM_ALGORITHM_ML_KEM_768 = 1010;
+  // Rust variant: MlKem1024
   COSE_KEM_ALGORITHM_ML_KEM_1024 = 1020;
   COSE_KEM_ALGORITHM_X_WING_768 = 1100;
 }
@@ -117,19 +682,308 @@ message CoseAlgorithmIdentifier {
 // CoseContentEncryptionAlgorithm identifies the protected COSE_Encrypt content
 // algorithm. These enum values are protobuf identifiers, not COSE algorithm
 // registry values.
+// Rust closed enum: CoseContentEncryptionAlgorithm
 enum CoseContentEncryptionAlgorithm {
+  // Rust non-exhaustive
   COSE_CONTENT_ENCRYPTION_ALGORITHM_UNSPECIFIED = 0;
   reserved 1 to 3;
+  // Rust variant: Aes128Gcm
   COSE_CONTENT_ENCRYPTION_ALGORITHM_AES_128_GCM = 100;
+  // Rust variant: Aes192Gcm
   COSE_CONTENT_ENCRYPTION_ALGORITHM_AES_192_GCM = 110;
+  // Rust variant: Aes256Gcm
   COSE_CONTENT_ENCRYPTION_ALGORITHM_AES_256_GCM = 120;
 }
 
 // CoseMlKemMode reports which COSE_Recipient construction was authenticated.
+// Rust closed enum: CoseMlKemMode
 enum CoseMlKemMode {
+  // Rust non-exhaustive
   COSE_ML_KEM_MODE_UNSPECIFIED = 0;
+  // Rust variant: Direct
   COSE_ML_KEM_MODE_DIRECT = 1;
+  // Rust variant: KeyWrap
   COSE_ML_KEM_MODE_KEY_WRAP = 2;
+}
+
+// Provider capabilities are scoped by the caller's authorization context.
+// Handles never contain key material and are never globally registered by COSE.
+enum CoseProviderKind {
+  COSE_PROVIDER_KIND_UNSPECIFIED = 0;
+  COSE_PROVIDER_KIND_KEY_RESOLVER = 1;
+  COSE_PROVIDER_KIND_CERTIFICATE_VALIDATOR = 2;
+  COSE_PROVIDER_KIND_VERIFICATION_KEY = 3;
+  COSE_PROVIDER_KIND_SIGNER = 4;
+  COSE_PROVIDER_KIND_MAC_VERIFIER = 5;
+  COSE_PROVIDER_KIND_PEER_KEY_VALIDATOR = 6;
+  COSE_PROVIDER_KIND_AGREEMENT_KEY_NORMALIZER = 7;
+}
+
+message CoseProviderCapability {
+  // SENSITIVE: nonzero application-local capability identifier.
+  uint64 handle = 1;
+  CoseProviderKind kind = 2;
+}
+
+// Rust view: operation_contract/providers.rs#BuiltinProviders
+// At most 32 unique, nonzero (handle, kind) capabilities in one caller context.
+message CoseProviderRegistry {
+  repeated CoseProviderCapability capabilities = 1;
+}
+
+// Message and ECDSA-prehash are distinct, never inferred from byte length.
+// Rust payload enum: SigningMode
+enum CoseSigningMode {
+  COSE_SIGNING_MODE_UNSPECIFIED = 0;
+  // Rust variant: Message
+  COSE_SIGNING_MODE_MESSAGE = 1;
+  // Rust variant: EcdsaPrehash(Iso18013EcdsaHash)
+  COSE_SIGNING_MODE_ECDSA_PREHASH = 2;
+}
+
+message CoseEcdsaPrehash {
+  CoseHashAlgorithm hash = 1;
+  // SENSITIVE: exactly one digest of the finalized Sig_structure.
+  bytes digest = 2;
+}
+
+// Rust borrowed view: containers/signer.rs#SigningInput
+message CoseSigningInput {
+  oneof input {
+    // SENSITIVE: complete finalized Sig_structure, never only detached payload.
+    CoseOpaqueBytes message = 1;
+    CoseEcdsaPrehash ecdsa_prehash = 2;
+  }
+}
+
+message CoseProviderDescription {
+  oneof description {
+    CoseWorkingKey verification_key = 1;
+    CoseProviderSignerDescription signer = 2;
+    CoseMacAlgorithm mac_algorithm = 3;
+  }
+}
+
+message CoseProviderSignerDescription {
+  CoseWorkingKey key = 1;
+  CoseSigningMode signing_mode = 2;
+  CoseHashAlgorithm prehash = 3;
+  CoseSignatureEncoding signature_encoding = 4;
+  // Optional independently authorized verification capability. If absent, the
+  // built-in crypto verifier must implement the exact tuple; there is no fallback.
+  CoseProviderCapability verifier = 5;
+}
+
+message CoseProviderVerifyRequest {
+  // SENSITIVE: complete finalized authentication structure.
+  bytes message = 1;
+  // SENSITIVE: strict COSE representation, not DER.
+  bytes signature = 2;
+  // Exact selected working key/context bound by the description or certificate callback.
+  CoseWorkingKey key = 3;
+}
+
+message CoseProviderResolveKeyRequest {
+  CoseSignatureAlgorithm algorithm = 1;
+  // SENSITIVE: exact authenticated kid.
+  bytes kid = 2;
+}
+
+// Rust view: containers/read_headers.rs#CertificateHeaders
+// Rust borrowed view: containers/read_headers.rs#CertificateHeaders
+message CoseProviderCertificateRequest {
+  CoseSignatureAlgorithm algorithm = 1;
+  CoseX5Chain chain = 2;
+  CoseX5ChainHeaderPlacement placement = 3;
+  // SENSITIVE: protected SHA-256 thumbprint, absent if empty.
+  bytes sha256_thumbprint = 4;
+}
+
+message CoseProviderCertificateResult {
+  CoseWorkingKey key = 1;
+  // SENSITIVE: exact selected certificate DER, independent of key equivalence.
+  bytes end_entity_der = 2;
+}
+
+message CoseProviderPointRequest {
+  CoseNamedCurve curve = 1;
+  CosePeerKeyPurpose purpose = 2;
+  // SENSITIVE: public-only mathematical encoding, never private material.
+  bytes public_key = 3;
+  CoseSignatureSuite signature_suite = 4;
+}
+
+message CoseProviderMacRequest {
+  CoseMacAlgorithm algorithm = 1;
+  // SENSITIVE: complete MAC_structure built from exact received headers.
+  bytes message = 2;
+  // SENSITIVE: exact registered tag width.
+  bytes tag = 3;
+}
+
+// Complete callback vocabulary. An implementation in another language needs
+// only these generated requests/results and fixed CoseErrorReason values.
+// Rust port: mac0/key.rs#CoseMacVerifier
+// Rust port method: mac0/key.rs#CoseMacVerifier.algorithm => CoseProviderDescription.mac_algorithm
+// Rust port method: mac0/key.rs#CoseMacVerifier.verify => CoseProviderCallRequest.verify_mac
+// Rust port: containers/peer_key.rs#PeerKeyValidator
+// Rust port method: containers/peer_key.rs#PeerKeyValidator.validate => CoseProviderCallRequest.validate_peer
+// Rust port: containers/agreement_key.rs#AgreementKeyProvider
+// Rust port method: containers/agreement_key.rs#AgreementKeyProvider.normalize_public_key => CoseProviderCallRequest.normalize_agreement
+// Rust port: containers/provider.rs#VerificationKey
+// Rust port method: containers/provider.rs#VerificationKey.suite => CoseProviderDescription.verification_key
+// Rust port method: containers/provider.rs#VerificationKey.public_key => CoseProviderDescription.verification_key
+// Rust port method: containers/provider.rs#VerificationKey.context_id => CoseProviderDescription.verification_key
+// Rust port method: containers/provider.rs#VerificationKey.verify => CoseProviderCallRequest.verify
+// Rust port: containers/provider.rs#CertificateValidator
+// Rust port method: containers/provider.rs#CertificateValidator.resolve => CoseProviderCallRequest.resolve_certificate
+// Rust port: containers/signer.rs#ContainerSigner
+// Rust port method: containers/signer.rs#ContainerSigner.verification_key => CoseProviderSignerDescription.key
+// Rust port method: containers/signer.rs#ContainerSigner.input_mode => CoseProviderSignerDescription.signing_mode
+// Rust port method: containers/signer.rs#ContainerSigner.signature_encoding => CoseProviderSignerDescription.signature_encoding
+// Rust port method: containers/signer.rs#ContainerSigner.sign => CoseProviderCallRequest.sign
+// Rust port: iso18013/provider.rs#Iso18013Verifier
+// Rust port method: iso18013/provider.rs#Iso18013Verifier.suite => CoseProviderDescription.verification_key
+// Rust port method: iso18013/provider.rs#Iso18013Verifier.verify => CoseProviderCallRequest.verify
+// Rust port: sign1/provider.rs#CoseSigner
+// Rust port method: sign1/provider.rs#CoseSigner.algorithm => CoseProviderSignerDescription.key
+// Rust port method: sign1/provider.rs#CoseSigner.cose_algorithm => CoseProviderSignerDescription.key
+// Rust port method: sign1/provider.rs#CoseSigner.sign => CoseProviderCallRequest.sign
+// Rust port: operation_contract/provider_transport/transport.rs#ProviderTransport
+// Rust port method: operation_contract/provider_transport/transport.rs#ProviderTransport.registry => CoseProviderRegistry
+// Rust port method: operation_contract/provider_transport/transport.rs#ProviderTransport.call => CoseProviderCallRequest
+// Rust port: operation_contract/providers.rs#OperationProviders
+// Rust port method: operation_contract/providers.rs#OperationProviders.resolve_sign1_key => CoseProviderCallRequest.resolve_key
+// Rust port method: operation_contract/providers.rs#OperationProviders.resolve_x5chain_key => CoseProviderCallRequest.resolve_certificate
+// Rust port method: operation_contract/providers.rs#OperationProviders.mac_key => CoseProviderCallRequest.verify_mac
+// Rust port method: operation_contract/providers.rs#OperationProviders.mac_verifier => CoseProviderCallRequest.verify_mac
+// Rust port method: operation_contract/providers.rs#OperationProviders.iso_verifier => CoseProviderCallRequest.verify
+// Rust port method: operation_contract/providers.rs#OperationProviders.verification_key => CoseProviderCallRequest.verify
+// Rust port method: operation_contract/providers.rs#OperationProviders.certificate_validator => CoseProviderCallRequest.resolve_certificate
+// Rust port method: operation_contract/providers.rs#OperationProviders.container_signer => CoseProviderCallRequest.sign
+// Rust port method: operation_contract/providers.rs#OperationProviders.cose_signer => CoseProviderCallRequest.sign
+// Rust port method: operation_contract/providers.rs#OperationProviders.peer_key_validator => CoseProviderCallRequest.validate_peer
+// Rust port method: operation_contract/providers.rs#OperationProviders.agreement_key_provider => CoseProviderCallRequest.normalize_agreement
+message CoseProviderCallRequest {
+  CoseProviderCapability capability = 1;
+  oneof call {
+    CoseValidationResult describe = 100;
+    CoseSigningInput sign = 101;
+    CoseProviderVerifyRequest verify = 102;
+    CoseProviderResolveKeyRequest resolve_key = 103;
+    CoseProviderCertificateRequest resolve_certificate = 104;
+    CoseProviderPointRequest validate_peer = 105;
+    CoseProviderPointRequest normalize_agreement = 106;
+    CoseProviderMacRequest verify_mac = 107;
+  }
+}
+
+message CoseProviderCallResult {
+  oneof result {
+    CoseProviderDescription describe = 100;
+    CoseOpaqueBytes sign = 101;
+    CoseValidationResult verify = 102;
+    CoseOpaqueBytes resolve_key = 103;
+    CoseProviderCertificateResult resolve_certificate = 104;
+    CoseValidationResult validate_peer = 105;
+    CoseOpaqueBytes normalize_agreement = 106;
+    CoseValidationResult verify_mac = 107;
+  }
+}
+
+message CoseProviderCallResponse {
+  oneof outcome {
+    CoseProviderCallResult result = 1;
+    CoseError error = 2;
+  }
+}
+
+// One exact-registration allowlist. The unrestricted state is explicit;
+// otherwise an empty list rejects all. Native crypto-selector convenience
+// builders translate immediately into this same registration namespace.
+// Rust view: policy/validate.rs#CosePolicy
+message CoseVerificationPolicy {
+  repeated CoseSignatureAlgorithm allowed_algorithms = 1;
+  bool allow_any_algorithm = 2;
+  bool require_kid = 3;
+  bool require_tagged_sign1 = 4;
+  bool allow_unprotected_x5chain = 5;
+  CoseType expected_type = 6;
+  CoseByteLimits limits = 7;
+}
+
+// Public implementation constants are contract values, not algorithms.
+enum CoseImplementationConstant {
+  COSE_IMPLEMENTATION_CONSTANT_UNSPECIFIED = 0;
+  // Rust constant: algorithm/ml_kem.rs#REALLYME_COSE_ALG_ML_KEM_512: i64
+  // Value: -65537
+  COSE_IMPLEMENTATION_CONSTANT_REALLYME_COSE_ALG_ML_KEM_512 = 1;
+  // Rust constant: algorithm/ml_kem.rs#REALLYME_COSE_ALG_ML_KEM_768: i64
+  // Value: -65538
+  COSE_IMPLEMENTATION_CONSTANT_REALLYME_COSE_ALG_ML_KEM_768 = 2;
+  // Rust constant: algorithm/ml_kem.rs#REALLYME_COSE_ALG_ML_KEM_1024: i64
+  // Value: -65539
+  COSE_IMPLEMENTATION_CONSTANT_REALLYME_COSE_ALG_ML_KEM_1024 = 3;
+  // Rust constant: algorithm/ml_kem.rs#REALLYME_COSE_ALG_ML_KEM_512_A128KW: i64
+  // Value: -65540
+  COSE_IMPLEMENTATION_CONSTANT_REALLYME_COSE_ALG_ML_KEM_512_A128KW = 4;
+  // Rust constant: algorithm/ml_kem.rs#REALLYME_COSE_ALG_ML_KEM_768_A192KW: i64
+  // Value: -65541
+  COSE_IMPLEMENTATION_CONSTANT_REALLYME_COSE_ALG_ML_KEM_768_A192KW = 5;
+  // Rust constant: algorithm/ml_kem.rs#REALLYME_COSE_ALG_ML_KEM_1024_A256KW: i64
+  // Value: -65542
+  COSE_IMPLEMENTATION_CONSTANT_REALLYME_COSE_ALG_ML_KEM_1024_A256KW = 6;
+  // Rust constant: algorithm/ml_kem.rs#REALLYME_COSE_HEADER_EK: i64
+  // Value: -65543
+  COSE_IMPLEMENTATION_CONSTANT_REALLYME_COSE_HEADER_EK = 7;
+  // Rust constant: containers/read_headers.rs#X5T_SHA256_IDENTIFIER: i64; feature: cose-crypto
+  // Value: -16
+  COSE_IMPLEMENTATION_CONSTANT_X5T_SHA256_IDENTIFIER = 8;
+  // Rust constant: sign1/cose_type.rs#MAX_COSE_TYPE_TEXT_BYTES: usize
+  // Value: 256
+  COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_TYPE_TEXT_BYTES = 9;
+  // Rust constant: limits/profile.rs#MAX_COSE_SIGN1_BYTES: usize
+  // Value: 65536
+  COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_SIGN1_BYTES = 10;
+  // Rust constant: limits/profile.rs#MAX_COSE_MAC0_BYTES: usize
+  // Value: 65536
+  COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_MAC0_BYTES = 11;
+  // Rust constant: limits/profile.rs#MAX_MAC0_EXTERNAL_AAD_BYTES: usize
+  // Value: 65536
+  COSE_IMPLEMENTATION_CONSTANT_MAX_MAC0_EXTERNAL_AAD_BYTES = 12;
+  // Rust constant: limits/profile.rs#MAX_COSE_KEY_BYTES: usize
+  // Value: 16384
+  COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_KEY_BYTES = 13;
+  // Rust constant: limits/profile.rs#MAX_COSE_ENCRYPT_BYTES: usize
+  // Value: 1114112
+  COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_ENCRYPT_BYTES = 14;
+  // Rust constant: limits/profile.rs#MAX_DETACHED_PAYLOAD_BYTES: usize
+  // Value: 1048576
+  COSE_IMPLEMENTATION_CONSTANT_MAX_DETACHED_PAYLOAD_BYTES = 15;
+  // Rust constant: limits/profile.rs#MAX_COSE_X5CHAIN_CERTIFICATES: usize
+  // Value: 8
+  COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_X5CHAIN_CERTIFICATES = 16;
+  // Rust constant: limits/profile.rs#MAX_COSE_X5CHAIN_CERTIFICATE_BYTES: usize
+  // Value: 16384
+  COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_X5CHAIN_CERTIFICATE_BYTES = 17;
+  // Rust constant: limits/profile.rs#MAX_COSE_X5CHAIN_TOTAL_BYTES: usize
+  // Value: 65536
+  COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_X5CHAIN_TOTAL_BYTES = 18;
+  // Rust constant: wire.rs#MAX_COSE_PROTO_MESSAGE_BYTES: usize; feature: wire
+  // Value: 2097152
+  COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_PROTO_MESSAGE_BYTES = 19;
+  // Rust constant: wire.rs#MAX_COSE_PROTO_JSON_BYTES: usize; feature: wire
+  // Value: 3145728
+  COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_PROTO_JSON_BYTES = 20;
+}
+
+message CoseNamedConstant {
+  CoseImplementationConstant constant = 1;
+  sint64 value = 2;
+}
+
+message CoseContractInfoResult {
+  repeated CoseNamedConstant constants = 1;
 }
 
 // CoseOperationRequest is the single executable protobuf entrypoint for
@@ -141,25 +995,108 @@ message CoseOperationRequest {
 
   oneof operation {
     // COSE_Sign1 operations: 1000-1999.
+    // Rust adapter: sign1/sign.rs#cose_sign1
     CoseSign1CreateRequest sign1_create = 1000;
+    // Rust adapter: sign1/sign.rs#cose_sign1_detached
     CoseSign1CreateDetachedRequest sign1_create_detached = 1001;
     CoseSign1VerifyRequest sign1_verify = 1002;
     CoseSign1VerifyDetachedRequest sign1_verify_detached = 1003;
+    // Rust adapter: iso18013/verify.rs#cose_verify_iso18013_sign1
+    CoseIsoSign1VerifyRequest iso_sign1_verify = 1004;
+    // Rust adapter: containers/verify.rs#verify_container
+    CoseContainerVerifyRequest container_verify = 1005;
+    // Rust adapter: containers/sign.rs#sign_container
+    CoseContainerSignRequest container_sign = 1006;
+    // Rust adapter: containers/signature.rs#signature_to_cose
+    CoseSignatureConvertRequest signature_to_cose = 1010;
+    // Rust adapter: containers/signature.rs#cose_signature_to_der
+    CoseSignatureConvertRequest signature_to_der = 1011;
+    // Rust adapter: containers/signature.rs#validate_cose_signature
+    CoseSignatureConvertRequest signature_validate = 1012;
+    // Rust adapter: containers/suite.rs#iso
+    // Rust adapter: containers/suite.rs#modern
+    // Rust adapter: containers/suite.rs#new
+    CoseSuiteInfoRequest signature_suite_info = 1013;
+    // Rust adapter: sign1/exact.rs#cose_sign1_with_signature_algorithm
+    // Rust adapter: sign1/exact.rs#cose_sign1_with_signature_algorithm_and_external_aad
+    // Rust adapter: sign1/sign.rs#cose_sign1_tagged
+    // Rust adapter: sign1/sign.rs#cose_sign1_with_options
+    // Rust adapter: sign1/sign.rs#cose_sign1_with_options_and_external_aad
+    // Rust adapter: sign1/sign.rs#cose_sign1_with_signer
+    CoseSign1CreateProfileRequest sign1_create_profile = 1014;
+    // Rust adapter: sign1/exact.rs#cose_sign1_detached_with_signature_algorithm
+    // Rust adapter: sign1/exact.rs#cose_sign1_detached_with_signature_algorithm_and_external_aad
+    // Rust adapter: sign1/sign.rs#cose_sign1_detached_tagged
+    // Rust adapter: sign1/sign.rs#cose_sign1_detached_with_options
+    // Rust adapter: sign1/sign.rs#cose_sign1_detached_with_options_and_external_aad
+    // Rust adapter: sign1/sign.rs#cose_sign1_detached_with_signer
+    CoseSign1CreateProfileRequest sign1_create_detached_profile = 1015;
+    // Rust adapter: sign1/verify.rs#cose_verify1
+    // Rust adapter: sign1/verify.rs#cose_verify1_detached
+    // Rust adapter: sign1/verify.rs#cose_verify1_detached_with_exact_algorithm
+    // Rust adapter: sign1/verify.rs#cose_verify1_detached_with_metadata
+    // Rust adapter: sign1/verify.rs#cose_verify1_detached_with_policy
+    // Rust adapter: sign1/verify.rs#cose_verify1_detached_with_policy_and_external_aad
+    // Rust adapter: sign1/verify.rs#cose_verify1_with_exact_algorithm
+    // Rust adapter: sign1/verify.rs#cose_verify1_with_metadata
+    // Rust adapter: sign1/verify.rs#cose_verify1_with_policy
+    // Rust adapter: sign1/verify.rs#cose_verify1_with_policy_and_external_aad
+    CoseSign1VerifyProfileRequest sign1_verify_profile = 1016;
+    // Rust adapter: sign1/verify.rs#cose_verify1_with_x5chain
+    // Rust adapter: sign1/verify.rs#cose_verify1_with_x5chain_and_exact_algorithm
+    CoseSign1VerifyProfileRequest sign1_verify_x5chain = 1017;
 
     // COSE_Key and Multikey conversion operations: 2000-2999.
+    // Rust adapter: key/facade.rs#cose_key_from_public_bytes
+    // Rust adapter: key/facade.rs#cose_key_from_public_bytes_with_encoding
+    // Rust adapter: key/facade.rs#cose_key_from_signature_public_bytes
+    // Rust adapter: key/facade.rs#cose_key_from_signature_public_bytes_with_encoding
     CoseKeyFromPublicBytesRequest key_from_public_bytes = 2000;
+    // Rust adapter: key/facade.rs#cose_key_from_private_bytes
+    // Rust adapter: key/facade.rs#cose_key_from_signature_private_bytes
     CoseKeyFromPrivateBytesRequest key_from_private_bytes = 2001;
+    // Rust adapter: key/facade.rs#cose_key_to_vec
+    // Rust adapter: key/parse.rs#cose_key_from_slice
+    // Rust adapter: key/profile.rs#cose_key_signature_algorithm
     CoseKeyBytesRequest key_parse = 2002;
+    // Rust adapter: key/facade.rs#cose_key_to_public_bytes
     CoseKeyBytesRequest key_to_public_bytes = 2003;
+    // Rust adapter: key/facade.rs#cose_key_to_private_bytes
     CoseKeyBytesRequest key_to_private_bytes = 2004;
+    // Rust adapter: key/derive_kid.rs#derive_kid_from_cose_key_public
     CoseKeyBytesRequest key_derive_public_kid = 2005;
+    // Rust adapter: multikey/convert.rs#cose_key_to_multikey
     CoseKeyBytesRequest key_to_multikey = 2006;
+    // Rust adapter: multikey/convert.rs#multikey_to_cose_key
     CoseMultikeyToCoseKeyRequest multikey_to_cose_key = 2007;
+    // Rust adapter: containers/construct_agreement_key.rs#from_public_key
+    CoseAgreementKeyCreateRequest agreement_key_create = 2008;
+    // Rust adapter: containers/agreement_key.rs#from_slice
+    CoseAgreementKeyParseRequest agreement_key_parse = 2009;
+    // Rust adapter: containers/inspect_key.rs#inspect_peer_key
+    CosePeerKeyRequest peer_key_inspect = 2010;
+    // Rust adapter: containers/peer_key.rs#validate
+    CosePeerKeyRequest peer_key_validate = 2011;
+    // Rust adapter: containers/provider.rs#new
+    // Rust adapter: iso18013/provider.rs#from_cose_key
+    // Rust adapter: iso18013/provider.rs#new
+    CoseVerificationKeyImportRequest verification_key_import = 2012;
 
     // COSE_Encrypt and COSE_Recipient operations: 3000-3999.
+    // Rust adapter: encrypt/create.rs#cose_encrypt_ml_kem_direct
+    // Rust adapter: encrypt/create.rs#cose_encrypt_ml_kem_direct_with_external_aad
     CoseMlKemEncryptRequest ml_kem_encrypt_direct = 3000;
+    // Rust adapter: encrypt/create.rs#cose_encrypt_ml_kem_key_wrap
+    // Rust adapter: encrypt/create.rs#cose_encrypt_ml_kem_key_wrap_with_external_aad
     CoseMlKemEncryptRequest ml_kem_encrypt_key_wrap = 3001;
+    // Rust adapter: encrypt/decrypt.rs#cose_decrypt_ml_kem
+    // Rust adapter: encrypt/decrypt.rs#cose_decrypt_ml_kem_with_external_aad
     CoseMlKemDecryptRequest ml_kem_decrypt = 3002;
+    // Rust adapter: mac0/verify.rs#cose_verify_mac0_detached
+    CoseMac0VerifyRequest mac0_verify_detached = 4000;
+    // Rust adapter: containers/preflight.rs#validate_preferred_cbor
+    CoseOpaqueBytes preferred_cbor_validate = 5000;
+    CoseValidationResult contract_info = 5001;
   }
 }
 
@@ -185,6 +1122,17 @@ message CoseOperationResult {
     CoseSign1CreateResult sign1_create_detached = 1001;
     CoseSign1VerifyResult sign1_verify = 1002;
     CoseSign1VerifyResult sign1_verify_detached = 1003;
+    CoseIsoSign1VerifyResult iso_sign1_verify = 1004;
+    CoseContainerVerifyResult container_verify = 1005;
+    CoseOpaqueBytes container_sign = 1006;
+    CoseOpaqueBytes signature_to_cose = 1010;
+    CoseOpaqueBytes signature_to_der = 1011;
+    CoseValidationResult signature_validate = 1012;
+    CoseSuiteInfoResult signature_suite_info = 1013;
+    CoseSign1CreateResult sign1_create_profile = 1014;
+    CoseSign1CreateResult sign1_create_detached_profile = 1015;
+    CoseSign1VerifyResult sign1_verify_profile = 1016;
+    CoseSign1X5ChainResult sign1_verify_x5chain = 1017;
 
     // COSE_Key and Multikey conversion results: 2000-2999.
     CoseKeyBytesResult key_from_public_bytes = 2000;
@@ -195,35 +1143,46 @@ message CoseOperationResult {
     CoseKeyBytesResult key_derive_public_kid = 2005;
     CoseMultikeyResult key_to_multikey = 2006;
     CoseKeyBytesResult multikey_to_cose_key = 2007;
+    CoseAgreementKeyResult agreement_key_create = 2008;
+    CoseAgreementKeyResult agreement_key_parse = 2009;
+    CosePeerKeyResult peer_key_inspect = 2010;
+    CosePeerKeyResult peer_key_validate = 2011;
+    CoseWorkingKey verification_key_import = 2012;
 
     // COSE_Encrypt and COSE_Recipient results: 3000-3999.
     CoseMlKemEncryptResult ml_kem_encrypt_direct = 3000;
     CoseMlKemEncryptResult ml_kem_encrypt_key_wrap = 3001;
     CoseMlKemDecryptResult ml_kem_decrypt = 3002;
+    CoseMac0VerifyResult mac0_verify_detached = 4000;
+    CoseValidationResult preferred_cbor_validate = 5000;
+    CoseContractInfoResult contract_info = 5001;
   }
 }
 
 // CoseMlKemEncryptRequest creates one-recipient COSE_Encrypt using the
 // ReallyMe pre-IANA ML-KEM profile.
+// Rust view: encrypt/types.rs#CoseMlKemEncryptRequest
 message CoseMlKemEncryptRequest {
   // ML-KEM-512, ML-KEM-768, or ML-KEM-1024.
   CoseKemAlgorithm kem_algorithm = 1;
   // Protected content-encryption algorithm.
   CoseContentEncryptionAlgorithm content_algorithm = 2;
   // Recipient FIPS 203 ML-KEM encapsulation public key.
+  // SENSITIVE: identifying bytes; generated owners wipe and redact them.
   bytes recipient_public_key = 3;
   // SHA-256 thumbprint of the canonical public-only, algorithm-bound COSE_Key.
   // The encrypt operation rejects any value that does not identify
   // recipient_public_key exactly.
+  // SENSITIVE: identifying bytes; generated owners wipe and redact them.
   bytes recipient_kid = 4;
   // SENSITIVE: plaintext encrypted into the COSE_Encrypt ciphertext.
   bytes plaintext = 5;
   // SENSITIVE: external AAD authenticated but not carried in COSE.
   bytes external_aad = 6;
-  // SENSITIVE: mutually known private KDF context agreed out of band.
-  bytes supp_priv_info = 7;
-  // Distinguishes omitted SuppPrivInfo from an intentionally empty byte string.
-  bool has_supp_priv_info = 8;
+  // SENSITIVE: optional private KDF context; present empty differs from absent.
+  optional bytes supp_priv_info = 7;
+  reserved 8;
+  reserved "has_supp_priv_info";
 }
 
 message CoseMlKemEncryptResult {
@@ -233,6 +1192,7 @@ message CoseMlKemEncryptResult {
 
 // CoseMlKemDecryptRequest authenticates and decrypts the ReallyMe pre-IANA
 // ML-KEM COSE profile.
+// Rust view: encrypt/types.rs#CoseMlKemDecryptRequest
 message CoseMlKemDecryptRequest {
   // SENSITIVE: tagged or untagged COSE_Encrypt bytes.
   bytes cose_encrypt = 1;
@@ -241,15 +1201,17 @@ message CoseMlKemDecryptRequest {
   // Expected SHA-256 canonical public COSE_Key thumbprint. Decryption derives
   // the public key from recipient_private_key and rejects a protected kid
   // bound to any other key before decapsulation.
+  // SENSITIVE: identifying bytes; generated owners wipe and redact them.
   bytes expected_recipient_kid = 3;
   // SENSITIVE: external AAD authenticated but not carried in COSE.
   bytes external_aad = 4;
-  // SENSITIVE: mutually known private KDF context agreed out of band.
-  bytes supp_priv_info = 5;
-  // Distinguishes omitted SuppPrivInfo from an intentionally empty byte string.
-  bool has_supp_priv_info = 6;
+  // SENSITIVE: optional private KDF context; present empty differs from absent.
+  optional bytes supp_priv_info = 5;
+  reserved 6;
+  reserved "has_supp_priv_info";
 }
 
+// Rust view: encrypt/types.rs#DecryptedCoseEncrypt
 message CoseMlKemDecryptResult {
   // SENSITIVE: authenticated plaintext.
   bytes plaintext = 1;
@@ -257,22 +1219,32 @@ message CoseMlKemDecryptResult {
   CoseKemAlgorithm kem_algorithm = 3;
   CoseMlKemMode mode = 4;
   // Authenticated canonical public COSE_Key thumbprint from the recipient.
+  // SENSITIVE: identifying bytes; generated owners wipe and redact them.
   bytes recipient_kid = 5;
+  CoseMlKemProfile profile = 6;
+
 }
 
 // CoseX5Chain carries the RFC 9360 certificate path in leaf-first order.
 message CoseX5Chain {
+  // PUBLIC: certificate discovery data; generated owners still wipe and redact it.
   repeated bytes certificates_der = 1;
 }
 
 // CoseX5ChainHeaderPlacement selects the RFC 9360 header bucket. Application
-// profiles choose the bucket; ISO/IEC 18013-5 requires UNPROTECTED.
+// profiles choose the bucket: 2021 issuer/reader compatibility uses UNPROTECTED,
+// while the explicit draft revocation/RICAL contracts require PROTECTED.
+// Rust closed enum: X5ChainHeaderPlacement
 enum CoseX5ChainHeaderPlacement {
   COSE_X5_CHAIN_HEADER_PLACEMENT_UNSPECIFIED = 0;
+  // Rust variant: Protected
   COSE_X5_CHAIN_HEADER_PLACEMENT_PROTECTED = 1;
+  // Rust variant: Unprotected
   COSE_X5_CHAIN_HEADER_PLACEMENT_UNPROTECTED = 2;
 }
 
+// Rust view: sign1/sign.rs#CoseSign1EncodeOptions
+// Rust equality: CoseSign1Options
 message CoseSign1Options {
   // Emit the registered COSE_Sign1 root tag (18). False emits the untagged
   // COSE_Sign1 structure used by most byte-level SDK APIs.
@@ -285,6 +1257,11 @@ message CoseSign1Options {
   // Header bucket for x5chain. UNSPECIFIED preserves the original wire
   // contract and selects PROTECTED when x5chain is present.
   CoseX5ChainHeaderPlacement x5chain_header_placement = 4;
+  CoseType protected_type = 5;
+
+  // Canonical ceiling, including a present zero. Overrides the legacy scalar.
+  CoseByteLimits limits = 6;
+
 }
 
 // CoseSign1CreateRequest signs an attached payload.
@@ -298,10 +1275,11 @@ message CoseSign1CreateRequest {
   // keep this in a sensitive-buffer owner outside this transient protobuf
   // container.
   bytes private_key = 3;
-  // Protected-header kid bytes. Ignored unless has_kid is true.
-  bytes kid = 4;
-  // Whether a non-empty kid is present. An empty kid with this flag is invalid.
-  bool has_kid = 5;
+  // Optional protected-header kid. A present empty identifier is invalid.
+  // SENSITIVE: identifying bytes; generated owners wipe and redact them.
+  optional bytes kid = 4;
+  reserved 5;
+  reserved "has_kid";
   // Optional encoding controls. If omitted, the Rust SDK defaults apply.
   CoseSign1Options options = 6;
   // SENSITIVE: application-supplied external AAD authenticated by the
@@ -321,10 +1299,11 @@ message CoseSign1CreateDetachedRequest {
   // keep this in a sensitive-buffer owner outside this transient protobuf
   // container.
   bytes private_key = 3;
-  // Protected-header kid bytes. Ignored unless has_kid is true.
-  bytes kid = 4;
-  // Whether a non-empty kid is present. An empty kid with this flag is invalid.
-  bool has_kid = 5;
+  // Optional protected-header kid. A present empty identifier is invalid.
+  // SENSITIVE: identifying bytes; generated owners wipe and redact them.
+  optional bytes kid = 4;
+  reserved 5;
+  reserved "has_kid";
   // Optional encoding controls. If omitted, the Rust SDK defaults apply.
   CoseSign1Options options = 6;
   // SENSITIVE: application-supplied external AAD authenticated by the
@@ -345,6 +1324,7 @@ message CoseSign1CreateResult {
 message CoseType {
   oneof value {
     // Bounded UTF-8 media type, including optional media type parameters.
+    // PUBLIC: registered media-type metadata.
     string media_type = 1;
     // Unsigned IANA CoAP Content-Format identifier.
     uint64 content_format = 2;
@@ -359,6 +1339,7 @@ message CoseSign1VerifyRequest {
   // are accepted; attached messages contain payload bytes.
   bytes cose_sign1 = 1;
   // Raw public key bytes selected by the caller for the protected-header kid.
+  // SENSITIVE: identifying bytes; generated owners wipe and redact them.
   bytes public_key = 2;
   // Optional maximum accepted encoded COSE_Sign1 size. A value of 0 uses the
   // crate default.
@@ -379,6 +1360,7 @@ message CoseSign1VerifyRequest {
   // returned by the adapter's resolver. Empty preserves resolver-style use
   // where public_key was already selected outside this request.
   // Selection of this value belongs to the caller's trust-store boundary.
+  // SENSITIVE: identifying bytes; generated owners wipe and redact them.
   bytes expected_kid = 8;
   // Require the registered COSE_Sign1 root tag (18).
   bool require_tagged_sign1 = 9;
@@ -399,6 +1381,7 @@ message CoseSign1VerifyDetachedRequest {
   // can carry credential claims or PII and must not be logged.
   bytes payload = 2;
   // Raw public key bytes selected by the caller for the protected-header kid.
+  // SENSITIVE: identifying bytes; generated owners wipe and redact them.
   bytes public_key = 3;
   // Optional maximum accepted encoded COSE_Sign1 size. A value of 0 uses the
   // crate default.
@@ -418,6 +1401,7 @@ message CoseSign1VerifyDetachedRequest {
   // returned by the adapter's resolver. Empty preserves resolver-style use
   // where public_key was already selected outside this request.
   // Selection of this value belongs to the caller's trust-store boundary.
+  // SENSITIVE: identifying bytes; generated owners wipe and redact them.
   bytes expected_kid = 9;
   // Require the registered COSE_Sign1 root tag (18).
   bool require_tagged_sign1 = 10;
@@ -430,6 +1414,8 @@ message CoseSign1VerifyDetachedRequest {
 
 // CoseSign1VerifyResult contains the verified attached payload and protected
 // header metadata. Detached verification returns an empty payload field.
+// Rust view: sign1/verify.rs#VerifiedCoseSign1
+// Rust view: sign1/verify.rs#VerifiedDetachedCoseSign1
 message CoseSign1VerifyResult {
   // SENSITIVE: verified attached payload bytes, or empty for detached
   // verification. Payloads can carry credential claims or PII and must not be
@@ -439,10 +1425,12 @@ message CoseSign1VerifyResult {
   // new consumers should use exact_signature_algorithm.
   CoseSignatureAlgorithm algorithm = 2;
   // Verified protected-header kid bytes.
+  // SENSITIVE: identifying bytes; generated owners wipe and redact them.
   bytes kid = 3;
   // Exact signature registration authenticated by the protected header.
   CoseSignatureAlgorithm exact_signature_algorithm = 4;
-  bool has_exact_signature_algorithm = 5;
+  reserved 5;
+  reserved "has_exact_signature_algorithm";
   // Authenticated protected typ, if one was present.
   CoseType protected_type = 6;
 }
@@ -453,6 +1441,7 @@ message CoseKeyFromPublicBytesRequest {
   // Algorithm that determines the COSE_Key kty/crv/alg profile.
   CoseAlgorithmIdentifier algorithm = 1;
   // Raw public key bytes for the selected algorithm.
+  // SENSITIVE: identifying bytes; generated owners wipe and redact them.
   bytes public_key = 2;
   // EC2 point encoding. Unspecified preserves the compact default. This field
   // must remain unspecified for non-EC2 algorithms.
@@ -467,11 +1456,12 @@ message CoseKeyFromPrivateBytesRequest {
   // SENSITIVE: raw private key bytes. Callers must keep this in a
   // sensitive-buffer owner outside this transient protobuf container.
   bytes private_key = 2;
-  // Matching raw public key bytes. Ignored unless has_public_key is true;
+  // Optional matching raw public key bytes;
   // supported private-key constructions reject requests that omit it.
-  bytes public_key = 3;
-  // Whether public_key is present.
-  bool has_public_key = 4;
+  // SENSITIVE: identifying bytes; generated owners wipe and redact them.
+  optional bytes public_key = 3;
+  reserved 4;
+  reserved "has_public_key";
 }
 
 // CoseKeyBytesRequest carries encoded COSE_Key bytes for parse, extraction,
@@ -485,6 +1475,7 @@ message CoseKeyBytesRequest {
 
 // CoseKeyBytesResult carries encoded COSE_Key bytes or raw key/kid bytes,
 // depending on the operation-specific result envelope.
+// Rust view: key/owned.rs#CoseKey
 message CoseKeyBytesResult {
   // SENSITIVE: operation-specific bytes. For private-key extraction this
   // contains private key material and must be moved into a sensitive-buffer
@@ -494,19 +1485,22 @@ message CoseKeyBytesResult {
   // Absent for supported non-signature keys and for signature keys whose
   // optional COSE_Key alg parameter was omitted.
   CoseSignatureAlgorithm signature_algorithm = 2;
-  bool has_signature_algorithm = 3;
+  reserved 3;
+  reserved "has_signature_algorithm";
 }
 
 // CoseMultikeyToCoseKeyRequest converts a Multikey string into a public
 // COSE_Key.
 message CoseMultikeyToCoseKeyRequest {
   // Multikey string to parse.
+  // SENSITIVE: identifying bytes; generated owners wipe and redact them.
   string multikey = 1;
 }
 
 // CoseMultikeyResult contains a Multikey string produced from a public COSE_Key.
 message CoseMultikeyResult {
   // Multikey string.
+  // SENSITIVE: identifying bytes; generated owners wipe and redact them.
   string multikey = 1;
 }
 
@@ -515,58 +1509,186 @@ message CoseMultikeyResult {
 // one of these before crossing RPC, SDK, FFI, storage, audit, or telemetry
 // boundaries. Numeric bands keep evolving failure families adjacent without
 // forcing unrelated public wire values to move.
+// Rust view: error.rs#CoseError
 enum CoseErrorReason {
   COSE_ERROR_REASON_UNSPECIFIED = 0;
   reserved 1 to 37;
 
   // Common COSE binary and CBOR boundary failures: 100-199.
+  // Rust reason aliases: Malformed, MalformedCbor
+  // Rust error alias: Cbor
   COSE_ERROR_REASON_COMMON_CBOR = 100;
+  // Rust reason aliases: InvalidStructure
+  // Rust error alias: InvalidFormat
   COSE_ERROR_REASON_COMMON_INVALID_FORMAT = 101;
+  // Rust reason aliases: Limit, ResourceLimitExceeded
+  // Rust error alias: ResourceLimitExceeded
   COSE_ERROR_REASON_COMMON_RESOURCE_LIMIT_EXCEEDED = 102;
+  // Rust reason aliases: Encoding, NonCanonicalCbor
+  // Rust error alias: NonCanonicalCbor
   COSE_ERROR_REASON_COMMON_NON_CANONICAL_CBOR = 103;
+  // Rust reason aliases: UnexpectedTag
+  // Rust error alias: UnexpectedCborTag
   COSE_ERROR_REASON_COMMON_UNEXPECTED_CBOR_TAG = 104;
+  // Rust reason aliases: Duplicate, DuplicateHeader
+  // Rust error alias: DuplicateMapLabel
   COSE_ERROR_REASON_COMMON_DUPLICATE_MAP_LABEL = 105;
   COSE_ERROR_REASON_COMMON_MALFORMED_PROTOBUF = 120;
   COSE_ERROR_REASON_COMMON_MALFORMED_JSON = 121;
   COSE_ERROR_REASON_COMMON_INVALID_PARAMETER = 130;
   COSE_ERROR_REASON_COMMON_INVALID_LENGTH = 131;
   COSE_ERROR_REASON_COMMON_INVALID_ENCODING = 132;
+  // Rust reason aliases: MissingProtectedAlgorithm
+  COSE_ERROR_REASON_COMMON_MISSING_PROTECTED_ALGORITHM = 133;
+  // Rust reason aliases: AuthenticationFailed
+  COSE_ERROR_REASON_COMMON_AUTHENTICATION_FAILED = 134;
 
   // Provider failures: 200-299.
+  // Rust reason aliases: Algorithm, UnsupportedAlgorithm
+  // Rust error alias: UnsupportedAlgorithm
   COSE_ERROR_REASON_COMMON_UNSUPPORTED_ALGORITHM = 200;
+  // Rust reason aliases: Provider, ProviderUnavailable
+  // Rust error alias: ProviderUnavailable
+  // Rust error alias: Unavailable
   COSE_ERROR_REASON_PROVIDER_UNAVAILABLE = 201;
+  // Rust reason aliases: ThumbprintAlgorithm
+  COSE_ERROR_REASON_PROVIDER_UNSUPPORTED_THUMBPRINT_ALGORITHM = 202;
 
   // Backend failures: 300-399.
+  // Rust reason aliases: Backend, BackendFailure
+  // Rust error alias: Crypto
+  // Rust error alias: Backend
   COSE_ERROR_REASON_COMMON_CRYPTO_FAILED = 300;
   COSE_ERROR_REASON_BACKEND_INTERNAL = 301;
+  COSE_ERROR_REASON_BACKEND_RESOURCE_LIMIT_EXCEEDED = 302;
 
   // COSE_Sign1 failures: 400-499.
   COSE_ERROR_REASON_SIGN1_KID_KEY_MISMATCH = 400;
+  // Rust error alias: MissingPayload
   COSE_ERROR_REASON_SIGN1_MISSING_PAYLOAD = 401;
+  // Rust error alias: MissingKid
   COSE_ERROR_REASON_SIGN1_MISSING_KID = 402;
+  // Rust error alias: KeyNotResolved
   COSE_ERROR_REASON_SIGN1_KEY_NOT_RESOLVED = 403;
+  // Rust reason aliases: Critical, UnsupportedCriticalHeader
+  // Rust error alias: UnsupportedCriticalHeader
   COSE_ERROR_REASON_SIGN1_UNSUPPORTED_CRITICAL_HEADER = 410;
+  // Rust reason aliases: UnprotectedSecurityHeader
+  // Rust error alias: UnprotectedHeaderNotAllowed
   COSE_ERROR_REASON_SIGN1_UNPROTECTED_HEADER_NOT_ALLOWED = 411;
+  // Rust reason aliases: Authentication
+  // Rust error alias: InvalidSignature
   COSE_ERROR_REASON_SIGN1_INVALID_SIGNATURE = 420;
+  // Rust error alias: MissingPrivateKey
   COSE_ERROR_REASON_SIGN1_MISSING_PRIVATE_KEY = 421;
+  // Rust reason aliases: SignatureEncoding
+  // Rust error alias: InvalidSignatureEncoding
   COSE_ERROR_REASON_SIGN1_INVALID_SIGNATURE_ENCODING = 422;
 
   // COSE_Key material and key-shape failures: 500-599.
+  // Rust error alias: MissingKeyMaterial
   COSE_ERROR_REASON_KEY_MISSING_KEY_MATERIAL = 500;
+  // Rust reason aliases: Key
+  // Rust error alias: InvalidKeyMaterial
+  // Rust error alias: InvalidKey
   COSE_ERROR_REASON_KEY_INVALID_KEY_MATERIAL = 501;
+  // Rust reason aliases: InvalidKeyLength
+  COSE_ERROR_REASON_KEY_INVALID_LENGTH = 502;
+  // Rust reason aliases: KeyAlgorithmMismatch
+  COSE_ERROR_REASON_KEY_ALGORITHM_MISMATCH = 503;
 
   // Multikey decoding and COSE_Key conversion failures: 600-699.
+  // Rust error alias: InvalidMultikey
   COSE_ERROR_REASON_MULTIKEY_INVALID_MULTIKEY = 600;
 
   // COSE_Encrypt and COSE_Recipient failures: 700-799.
+  // Rust error alias: MissingCiphertext
   COSE_ERROR_REASON_ENCRYPT_MISSING_CIPHERTEXT = 700;
+  // Rust error alias: InvalidIv
   COSE_ERROR_REASON_ENCRYPT_INVALID_IV = 701;
+  // Rust error alias: InvalidRecipient
   COSE_ERROR_REASON_ENCRYPT_INVALID_RECIPIENT = 702;
+  // Rust error alias: MissingEncapsulatedKey
   COSE_ERROR_REASON_ENCRYPT_MISSING_ENCAPSULATED_KEY = 703;
+  // Rust error alias: InvalidEncapsulatedKey
   COSE_ERROR_REASON_ENCRYPT_INVALID_ENCAPSULATED_KEY = 704;
+  // Rust error alias: AuthenticationFailed
   COSE_ERROR_REASON_ENCRYPT_AUTHENTICATION_FAILED = 720;
+  // Rust error alias: KeyUnwrapFailed
   COSE_ERROR_REASON_ENCRYPT_KEY_UNWRAP_FAILED = 721;
+  // Rust error alias: KidMismatch
   COSE_ERROR_REASON_ENCRYPT_KID_MISMATCH = 730;
   COSE_ERROR_REASON_ENCRYPT_MISSING_KID = 731;
   COSE_ERROR_REASON_ENCRYPT_UNPROTECTED_HEADER_NOT_ALLOWED = 740;
+
+  // Exact fixed failures from the detached MAC and container contracts.
+  // Rust reason aliases: DetachedPayloadRequired
+  COSE_ERROR_REASON_MAC0_DETACHED_PAYLOAD_REQUIRED = 809;
+  // Rust reason aliases: InvalidTagLength
+  COSE_ERROR_REASON_MAC0_INVALID_TAG_LENGTH = 810;
+  // Rust reason aliases: Profile
+  COSE_ERROR_REASON_CONTAINER_PROFILE = 905;
+  // Rust reason aliases: CertificateValidation
+  COSE_ERROR_REASON_CONTAINER_CERTIFICATE_VALIDATION = 909;
+  // Rust reason aliases: CertificateMismatch
+  COSE_ERROR_REASON_CONTAINER_CERTIFICATE_MISMATCH = 910;
+  // Rust reason aliases: ThumbprintLength
+  COSE_ERROR_REASON_CONTAINER_THUMBPRINT_LENGTH = 912;
+  // Rust reason aliases: SigningInput
+  COSE_ERROR_REASON_CONTAINER_SIGNING_INPUT = 915;
+
+  // Retired unpublished duplicates; never reuse their identities.
+  reserved 800, 801, 802, 803, 804, 805, 806, 807, 808, 811, 812, 813, 814, 815, 816, 900, 901, 902, 903, 904, 906, 907, 908, 911, 913, 914, 916;
+  reserved "COSE_ERROR_REASON_MAC0_MALFORMED_CBOR", "COSE_ERROR_REASON_MAC0_NON_CANONICAL_CBOR", "COSE_ERROR_REASON_MAC0_UNEXPECTED_TAG", "COSE_ERROR_REASON_MAC0_INVALID_STRUCTURE", "COSE_ERROR_REASON_MAC0_DUPLICATE_HEADER", "COSE_ERROR_REASON_MAC0_MISSING_PROTECTED_ALGORITHM", "COSE_ERROR_REASON_MAC0_UNSUPPORTED_ALGORITHM", "COSE_ERROR_REASON_MAC0_UNPROTECTED_SECURITY_HEADER", "COSE_ERROR_REASON_MAC0_UNSUPPORTED_CRITICAL_HEADER", "COSE_ERROR_REASON_MAC0_INVALID_KEY_LENGTH", "COSE_ERROR_REASON_MAC0_KEY_ALGORITHM_MISMATCH", "COSE_ERROR_REASON_MAC0_AUTHENTICATION_FAILED", "COSE_ERROR_REASON_MAC0_RESOURCE_LIMIT_EXCEEDED", "COSE_ERROR_REASON_MAC0_PROVIDER_UNAVAILABLE", "COSE_ERROR_REASON_MAC0_BACKEND_FAILURE", "COSE_ERROR_REASON_CONTAINER_MALFORMED", "COSE_ERROR_REASON_CONTAINER_ENCODING", "COSE_ERROR_REASON_CONTAINER_DUPLICATE", "COSE_ERROR_REASON_CONTAINER_CRITICAL", "COSE_ERROR_REASON_CONTAINER_LIMIT", "COSE_ERROR_REASON_CONTAINER_ALGORITHM", "COSE_ERROR_REASON_CONTAINER_KEY", "COSE_ERROR_REASON_CONTAINER_PROVIDER", "COSE_ERROR_REASON_CONTAINER_THUMBPRINT_ALGORITHM", "COSE_ERROR_REASON_CONTAINER_SIGNATURE_ENCODING", "COSE_ERROR_REASON_CONTAINER_AUTHENTICATION", "COSE_ERROR_REASON_CONTAINER_BACKEND";
+
 }
+
+// Native lifetime and protected-owner projections of the generated messages.
+// Rust projection: {"binding":"containers/agreement_key.rs#AgreementKeyPolicy","message":"CoseAgreementKeyPolicy","fields":[{"name":"allowed_curves","source":"allowed_curves","visibility":"public"},{"name":"optional_parameters","source":"optional_parameters","visibility":"public"},{"name":"ec2_encoding","source":"ec2_encoding","visibility":"public"}],"borrowed":true,"copy":true}
+// Rust projection: {"binding":"mac0/types.rs#CoseMac0VerifyRequest","message":"CoseMac0VerifyRequest","fields":[{"name":"encoded","source":"encoded","visibility":"public"},{"name":"detached_payload","source":"detached_payload","visibility":"public"},{"name":"external_aad","source":"external_aad","visibility":"public"},{"name":"allowed_algorithms","source":"allowed_algorithms","visibility":"public"},{"name":"limits","source":"limits","visibility":"public"}],"borrowed":true,"omit":[{"fields":["key_algorithm","key_source","key","capability"],"reason":"argument"}]}
+// Rust projection: {"binding":"mac0/types.rs#VerifiedDetachedCoseMac0","message":"CoseMac0VerifyResult","fields":[{"name":"algorithm","source":"algorithm","visibility":"internal"},{"name":"protected_bytes","source":"protected_headers","visibility":"internal"},{"name":"protected_kid","source":"protected_kid","visibility":"internal"}]}
+// Rust projection: {"binding":"iso18013/types.rs#Iso18013Sign1Request","message":"CoseIsoSign1VerifyRequest","fields":[{"name":"encoded","source":"encoded","visibility":"public"},{"name":"content","visibility":"public","sources":["content","detached_payload"],"view":"Iso18013Sign1Content"},{"name":"allowed_suites","source":"allowed_suites","visibility":"public"},{"name":"limits","source":"limits","visibility":"public"}],"borrowed":true,"omit":[{"fields":["key_suite","public_key","public_key_is_cose","key_source","capability"],"reason":"argument"}]}
+// Rust projection: {"binding":"iso18013/types.rs#VerifiedIso18013Sign1","message":"CoseIsoSign1VerifyResult","fields":[{"name":"suite","source":"suite","visibility":"internal"},{"name":"protected","source":"protected_headers","visibility":"internal"},{"name":"protected_kid","source":"protected_kid","visibility":"internal"},{"name":"payload","source":"attached_payload","visibility":"internal"}]}
+// Rust projection: {"binding":"containers/verify.rs#ContainerVerifyRequest","message":"CoseContainerVerifyRequest","fields":[{"name":"encoded","source":"encoded","visibility":"public"},{"name":"content","visibility":"public","sources":["content_mode","detached_payload"],"view":"ContainerContent"},{"name":"external_aad","source":"external_aad","visibility":"public"},{"name":"policy","source":"policy","visibility":"public"},{"name":"allowed_suites","source":"allowed_suites","visibility":"public"},{"name":"limits","source":"limits","visibility":"public"}],"borrowed":true,"omit":[{"fields":["key_source","key","capability"],"reason":"argument"}]}
+// Rust projection: {"binding":"containers/receipt.rs#HeaderProvenance","message":"CoseContainerVerifyResult","fields":[{"name":"chain_placement","source":"chain_placement","visibility":"public","representation":"optional"},{"name":"protected_thumbprint","source":"protected_thumbprint","visibility":"public"},{"name":"end_entity_integrity","source":"end_entity_integrity","visibility":"public"}],"copy":true,"omit":[{"fields":["encoded","protected_headers","unprotected_headers","payload","policy","key","certificate_sha256"],"reason":"group"}]}
+// Rust projection: {"binding":"containers/receipt.rs#VerifiedContainer","message":"CoseContainerVerifyResult","fields":[{"name":"policy","source":"policy","visibility":"internal"},{"name":"suite","source":"key.suite","visibility":"internal"},{"name":"provenance","visibility":"internal","sources":["chain_placement","protected_thumbprint","end_entity_integrity"],"view":"HeaderProvenance"},{"name":"encoded","source":"encoded","visibility":"internal"},{"name":"protected","source":"protected_headers","visibility":"internal"},{"name":"unprotected","source":"unprotected_headers","visibility":"internal"},{"name":"payload","source":"payload","visibility":"internal"},{"name":"public_key","source":"key.public_key","visibility":"internal"},{"name":"context","source":"key.context_id","visibility":"internal","width":32},{"name":"certificate_digest","source":"certificate_sha256","visibility":"internal","width":32}]}
+// Rust fixed bytes: CoseContainerVerifyResult.key.context_id = 32
+// Rust fixed bytes: CoseContainerVerifyResult.certificate_sha256 = 32
+// Rust projection: {"binding":"containers/sign.rs#ContainerSignRequest","message":"CoseContainerSignRequest","fields":[{"name":"protected_headers","source":"protected_headers","visibility":"public"},{"name":"unprotected_headers","source":"unprotected_headers","visibility":"public"},{"name":"content","visibility":"public","sources":["content_mode","payload"],"view":"SigningContent"},{"name":"external_aad","source":"external_aad","visibility":"public"},{"name":"policy","source":"policy","visibility":"public"},{"name":"allowed_suites","source":"allowed_suites","visibility":"public"},{"name":"limits","source":"limits","visibility":"public"}],"borrowed":true,"omit":[{"fields":["capability"],"reason":"argument"}]}
+// Rust projection: {"binding":"containers/peer_key.rs#InspectedPeerKey","message":"CosePeerKeyResult","fields":[{"name":"original","source":"cose_key","visibility":"internal"},{"name":"material","source":"public_key","visibility":"internal"},{"name":"curve","source":"curve","visibility":"internal"},{"name":"usage","visibility":"internal","sources":["purpose","signature_suite"],"view":"PeerKeyUsage"},{"name":"encoding","source":"point_encoding","visibility":"internal"}],"omit":[{"fields":["validated"],"reason":"proof"}]}
+// Rust projection: {"binding":"containers/sign.rs#SignedContainer","message":"CoseOpaqueBytes","fields":[{"name":"encoded","source":"encoded","visibility":"internal"}]}
+// Rust projection: {"binding":"sign1/verify.rs#VerifiedCoseSign1WithX5Chain","message":"CoseSign1X5ChainResult","fields":[{"name":"payload","source":"verified.payload","visibility":"public"},{"name":"alg","source":"verified.algorithm","visibility":"public","representation":"crypto"},{"name":"cose_algorithm","source":"verified.exact_signature_algorithm","visibility":"public"},{"name":"kid","source":"verified.kid","visibility":"public"},{"name":"cose_type","source":"verified.protected_type","visibility":"public"},{"name":"x5chain_der","source":"x5chain.certificates_der","visibility":"public"},{"name":"x5chain_header_placement","source":"placement","visibility":"public"}],"non_exhaustive":true}
+// Rust projection: {"binding":"encrypt/types.rs#CoseMlKemEncryptRequest","message":"CoseMlKemEncryptRequest","fields":[{"name":"kem_algorithm","source":"kem_algorithm","visibility":"internal"},{"name":"content_algorithm","source":"content_algorithm","visibility":"internal"},{"name":"recipient_public_key","source":"recipient_public_key","visibility":"internal"},{"name":"recipient_kid","source":"recipient_kid","visibility":"internal"},{"name":"plaintext","source":"plaintext","visibility":"internal"},{"name":"supp_priv_info","source":"supp_priv_info","visibility":"internal"}],"borrowed":true,"non_exhaustive":true,"omit":[{"fields":["external_aad"],"reason":"argument"}]}
+// Rust projection: {"binding":"encrypt/types.rs#CoseMlKemDecryptRequest","message":"CoseMlKemDecryptRequest","fields":[{"name":"cose_encrypt","source":"cose_encrypt","visibility":"internal"},{"name":"recipient_private_key","source":"recipient_private_key","visibility":"internal"},{"name":"expected_recipient_kid","source":"expected_recipient_kid","visibility":"internal"},{"name":"supp_priv_info","source":"supp_priv_info","visibility":"internal"}],"borrowed":true,"non_exhaustive":true,"omit":[{"fields":["external_aad"],"reason":"argument"}]}
+// Rust projection: {"binding":"encrypt/types.rs#DecryptedCoseEncrypt","message":"CoseMlKemDecryptResult","fields":[{"name":"plaintext","source":"plaintext","visibility":"public"},{"name":"content_algorithm","source":"content_algorithm","visibility":"public"},{"name":"kem_algorithm","source":"kem_algorithm","visibility":"public"},{"name":"mode","source":"mode","visibility":"public"},{"name":"kid","source":"recipient_kid","visibility":"public"},{"name":"profile","source":"profile","visibility":"public"}],"non_exhaustive":true}
+// Rust projection: {"binding":"sign1/verify.rs#VerifiedCoseSign1","message":"CoseSign1VerifyResult","fields":[{"name":"payload","source":"payload","visibility":"public"},{"name":"alg","source":"algorithm","visibility":"public","representation":"crypto"},{"name":"cose_algorithm","source":"exact_signature_algorithm","visibility":"public"},{"name":"kid","source":"kid","visibility":"public"},{"name":"cose_type","source":"protected_type","visibility":"public"}],"non_exhaustive":true}
+// Rust projection: {"binding":"sign1/verify.rs#VerifiedDetachedCoseSign1","message":"CoseSign1VerifyResult","fields":[{"name":"alg","source":"algorithm","visibility":"public","representation":"crypto"},{"name":"cose_algorithm","source":"exact_signature_algorithm","visibility":"public"},{"name":"kid","source":"kid","visibility":"public"},{"name":"cose_type","source":"protected_type","visibility":"public"}],"non_exhaustive":true,"omit":[{"fields":["payload"],"reason":"detached"}]}
+// Rust borrowed projection: {"binding":"iso18013/types.rs#Iso18013Sign1Content","wire":"CoseIsoSign1Content","variants":[{"name":"IssuerAttached","cases":["COSE_ISO_SIGN1_CONTENT_ISSUER_ATTACHED"]},{"name":"DeviceDetached","cases":["COSE_ISO_SIGN1_CONTENT_DEVICE_DETACHED"],"field":"CoseIsoSign1VerifyRequest.detached_payload"},{"name":"ReaderDetached","cases":["COSE_ISO_SIGN1_CONTENT_READER_DETACHED"],"field":"CoseIsoSign1VerifyRequest.detached_payload"}]}
+// Rust borrowed projection: {"binding":"containers/policy.rs#ContainerContent","wire":"CoseContentMode","variants":[{"name":"Attached","cases":["COSE_CONTENT_MODE_ATTACHED"]},{"name":"Detached","cases":["COSE_CONTENT_MODE_DETACHED"],"field":"CoseContainerVerifyRequest.detached_payload"}]}
+// Rust borrowed projection: {"binding":"containers/sign.rs#SigningContent","wire":"CoseContentMode","variants":[{"name":"Attached","cases":["COSE_CONTENT_MODE_ATTACHED"],"field":"CoseContainerSignRequest.payload"},{"name":"Detached","cases":["COSE_CONTENT_MODE_DETACHED"],"field":"CoseContainerSignRequest.payload"}]}
+// Rust borrowed projection: {"binding":"containers/provider.rs#VerificationSource","wire":"CoseKeySource","variants":[{"name":"Key","cases":["COSE_KEY_SOURCE_DIRECT","COSE_KEY_SOURCE_PROVIDER"],"port":"VerificationKey"},{"name":"Certificates","cases":["COSE_KEY_SOURCE_CERTIFICATES"],"port":"CertificateValidator"}]}
+// Rust borrowed projection: {"binding":"containers/signer.rs#SigningInput","wire":"CoseSigningInput","variants":[{"name":"Message","cases":["message"],"field":"CoseSigningInput.message.encoded"},{"name":"EcdsaPrehash","cases":["ecdsa_prehash"],"fields":[{"name":"hash","source":"CoseSigningInput.ecdsa_prehash.hash"},{"name":"digest","source":"CoseSigningInput.ecdsa_prehash.digest"}]}]}
+// Rust message owner: policy/validate.rs#CosePolicy => CoseVerificationPolicy
+// Rust message owner: sign1/sign.rs#CoseSign1EncodeOptions => CoseSign1Options
+// Rust capability owner: containers/agreement_key.rs#AgreementKey
+// Rust capability owner: containers/peer_key.rs#ValidatedPeerKey
+// Rust capability owner: containers/peer_key.rs#CryptoPeerKeyValidator
+// Rust capability owner: containers/normalize_agreement_key.rs#CryptoAgreementKeyProvider
+// Rust capability owner: iso18013/provider.rs#Iso18013CryptoVerifier
+// Rust capability owner: error.rs#CoseError
+// Rust capability owner: containers/provider.rs#CryptoVerificationKey
+// Rust capability owner: key/owned.rs#CoseKey
+// Rust capability owner: operation_contract/providers.rs#BuiltinProviders
+// Rust capability owner: mac0/key.rs#CoseMacKey
+// Rust transport adapter: api.rs#execute => CoseOperationRequest
+// Rust transport adapter: api.rs#execute_with_providers => CoseOperationRequest
+// Rust transport adapter: api.rs#execute_protobuf_with_providers => CoseOperationRequest
+// Rust transport adapter: api.rs#execute_json_with_providers => CoseOperationRequest
+// Rust transport adapter: api.rs#execute_with_provider_transport => CoseOperationRequest
+// Rust transport adapter: wire.rs#execute_operation_proto => CoseOperationRequest
+// Rust transport adapter: wire.rs#execute_operation_proto_json => CoseOperationRequest
+// Rust transport adapter: wire.rs#decode_operation_response => CoseOperationResponseV2
+// Rust transport adapter: wire.rs#decode_operation_response_for_request => CoseOperationResponseV2
+// Rust transport adapter: wire.rs#decode_cose_error => CoseError
+// Rust internal limit: MAX_ALLOWLIST_ENTRIES: usize = 32
+// Rust internal limit: MAX_AGREEMENT_CURVES: usize = 9

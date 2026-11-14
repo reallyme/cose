@@ -2,32 +2,12 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 use super::{ContainerPolicy, SignatureSuite};
-use crate::X5ChainHeaderPlacement;
-use zeroize::{ZeroizeOnDrop, Zeroizing};
 
-/// How the selected end entity was bound to the authenticated content.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum EndEntityIntegrity {
-    /// No certificate headers; a separately validated public key was supplied.
-    ExternalKey,
-    /// Exact DER occurs in protected x5chain.
-    ProtectedChain,
-    /// Protected SHA-256 x5t matches the exact selected DER certificate.
-    ProtectedThumbprint,
-    /// Explicit ISO/VICAL interoperability exception for an unprotected chain.
-    IsoUnprotectedChain,
-}
+/// Closed compatibility view generated from the protobuf selector.
+pub use crate::generated_contract::EndEntityIntegrity;
 
 /// Header origin and cryptographic integrity, independently of certificate trust.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct HeaderProvenance {
-    /// Bucket containing the received chain, if any.
-    pub chain_placement: Option<X5ChainHeaderPlacement>,
-    /// Whether protected SHA-256 x5t was present and matched.
-    pub protected_thumbprint: bool,
-    /// Exact selected end-entity integrity rule applied.
-    pub end_entity_integrity: EndEntityIntegrity,
-}
+pub use crate::generated_contract::HeaderProvenance;
 
 /// Authenticated byte owners and actual verification context, released on success only.
 ///
@@ -35,18 +15,7 @@ pub struct HeaderProvenance {
 /// never an independent certificate-path, authority, freshness or schema verdict.
 /// Identifying bytes are wiped on drop; formatting, cloning and serialization
 /// are deliberately unavailable.
-pub struct VerifiedContainer {
-    pub(super) policy: ContainerPolicy,
-    pub(super) suite: SignatureSuite,
-    pub(super) provenance: HeaderProvenance,
-    pub(super) encoded: Zeroizing<Vec<u8>>,
-    pub(super) protected: Zeroizing<Vec<u8>>,
-    pub(super) unprotected: Zeroizing<Vec<u8>>,
-    pub(super) payload: Zeroizing<Vec<u8>>,
-    pub(super) public_key: Zeroizing<Vec<u8>>,
-    pub(super) context: Zeroizing<[u8; 32]>,
-    pub(super) certificate_digest: Option<Zeroizing<[u8; 32]>>,
-}
+pub use crate::generated_contract::VerifiedContainer;
 
 impl VerifiedContainer {
     /// Exact original complete envelope.
@@ -101,4 +70,3 @@ impl VerifiedContainer {
         self.certificate_digest.as_deref()
     }
 }
-impl ZeroizeOnDrop for VerifiedContainer {}

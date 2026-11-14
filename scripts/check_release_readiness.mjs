@@ -4,6 +4,9 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 import { isDeepStrictEqual } from "node:util";
+import { assertCompleteTypeContract } from "./check_type_contract.mjs";
+import { assertGuardedBuffaContract } from "./check_buffa_contract.mjs";
+import { assertCompleteOperationContract } from "./check_operation_contract.mjs";
 
 import { assertOperationContractRouting } from "./release-readiness/operation-contract-routing.mjs";
 
@@ -24,7 +27,8 @@ const {
   runCommands,
   assertProtoContract,
   assertNodeWorkflowJobsPinNode,
-  assertReallyMeProtobufReleasePolicy,
+  root,
+  assertWorkflowRunStep,
   assertWorkflowActionsPinned,
   assertCargoFuzzWorkflowPolicy,
   assertReallyMeVendoredCorePolicy,
@@ -83,8 +87,8 @@ assertContains(".github/dependabot.yml", "github-actions:");
 
 const expectedPackageName = "reallyme-cose";
 const expectedProtoPackageName = "reallyme-cose-proto";
-const expectedVersion = "0.2.11";
-const expectedDevelopmentRustToolchain = "1.99.1";
+const expectedVersion = "0.3.0";
+const expectedDevelopmentRustToolchain = "1.100.0";
 const expectedBufLinuxX86_64Sha256 =
   "8f2986298ad08f0cc1bf999b9797b7c383adf32d7edf0f73d6f1e1a701baeac1";
 const generatedFreshnessMode = process.argv.includes("--generated-freshness");
@@ -132,10 +136,10 @@ const expectedPlatformScope = {
   protobufSwiftMetadataIsPackagingApproval: false,
   wasmRuntimeIsNpmPackagingApproval: false,
 };
-const platformScopePath = "docs/platform-scope-0.2.11.json";
+const platformScopePath = "docs/platform-scope-0.3.0.json";
 const platformScope = readJson(platformScopePath);
 if (!isDeepStrictEqual(platformScope, expectedPlatformScope)) {
-  fail(`${platformScopePath} must exactly match the approved 0.2.11 platform scope`);
+  fail(`${platformScopePath} must exactly match the approved 0.3.0 platform scope`);
 }
 
 const forbiddenPlatformPathPrefixes = [
@@ -166,7 +170,7 @@ for (const trackedFile of loadTrackedFiles()) {
     forbiddenPlatformPaths.has(trackedFile) ||
     forbiddenPlatformManifestNames.has(manifestName)
   ) {
-    fail(`${trackedFile} is outside the approved Rust/protobuf-only 0.2.11 scope`);
+    fail(`${trackedFile} is outside the approved Rust/protobuf-only 0.3.0 scope`);
   }
 }
 
@@ -190,10 +194,10 @@ assertNotMatches(
   /\bcrate-type\s*=\s*\[[^\]]*"(?:cdylib|staticlib)"/su,
   "a platform-native Rust library artifact",
 );
-assertContains("README.md", "## 0.2.11 Platform Scope");
+assertContains("README.md", "## 0.3.0 Platform Scope");
 assertContains(
   "README.md",
-  "The `0.2.11` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
+  "The `0.3.0` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
 );
 
 assertNodeWorkflowJobsPinNode({ nodeVersion: "26" });
@@ -211,8 +215,8 @@ assertContains("crates/cose/Cargo.toml", '"/README.md"');
 assertContains("crates/cose/Cargo.toml", '"/LICENSE"');
 assertContains("crates/cose/Cargo.toml", '"/NOTICE"');
 assertContains("crates/cose/Cargo.toml", 'wire = [');
-assertContains("crates/cose/Cargo.toml", '"dep:buffa"');
-assertContains("crates/cose/Cargo.toml", '"dep:reallyme-cose-proto"');
+assertContains("crates/cose/Cargo.toml", "buffa.workspace = true");
+assertContains("crates/cose/Cargo.toml", 'reallyme-cose-proto = { workspace = true, features = ["generated"] }');
 assertContains("crates/cose/Cargo.toml", '"dep:serde"');
 assertContains("crates/cose/Cargo.toml", '"dep:serde_json"');
 assertContains(
@@ -222,8 +226,8 @@ assertContains(
 assertNotContains("Cargo.toml", 'path = "../codec');
 assertContains("crates/proto/Cargo.toml", '"buffa/json"');
 assertContains("crates/cose/src/lib.rs", 'reallyme-cose `wire` requires a runtime lane');
-assertContains("Cargo.toml", 'buffa = { version = "0.9.2", features = ["json"] }');
-assertContains("Cargo.toml", 'rust-version = "1.99"');
+assertContains("Cargo.toml", 'buffa = { package = "reallyme-buffa", version = "=0.1.0", features = ["json", "zeroize"] }');
+assertContains("Cargo.toml", 'rust-version = "1.100"');
 assertContains("rust-toolchain.toml", `channel = "${expectedDevelopmentRustToolchain}"`);
 assertContains(
   "Cargo.toml",
@@ -311,9 +315,9 @@ assertContains("fuzz/Cargo.toml", 'name = "cose_encrypt"');
 assertContains("fuzz/fuzz_targets/cose_encrypt.rs", "cose_decrypt_ml_kem_with_external_aad");
 assertContains("fuzz/README.md", "`cose_encrypt`");
 assertContains(".github/workflows/fuzz.yml", "cose_encrypt");
-assertContains("crates/cose/src/encrypt/types.rs", "pub enum CoseMlKemAlgorithm");
-assertContains("crates/cose/src/encrypt/types.rs", "#[non_exhaustive]\npub struct CoseMlKemEncryptRequest");
-assertContains("crates/cose/src/encrypt/types.rs", "pub(super) kem_algorithm: CoseMlKemAlgorithm");
+assertContains("crates/cose/src/generated_contract/cose_ml_kem_algorithm.rs", "pub enum CoseMlKemAlgorithm");
+assertContains("crates/cose/src/generated_contract/cose_ml_kem_encrypt_request.rs", "#[non_exhaustive]\npub struct CoseMlKemEncryptRequest");
+assertContains("crates/cose/src/generated_contract/cose_ml_kem_encrypt_request.rs", "pub(crate) kem_algorithm: super::CoseMlKemAlgorithm");
 assertContains("crates/cose/src/encrypt/types.rs", "pub const fn new(");
 assertContains("crates/cose/src/zeroize_coset.rs", "pub(crate) fn zeroize_cose_encrypt");
 assertContains("crates/cose/src/zeroize_coset.rs", "pub(crate) fn zeroize_cose_sign1");
@@ -366,7 +370,7 @@ assertContains(
 assertNotContains("crates/cose/src/operation_contract/key/parse.rs", "cose_key_from_slice");
 assertContains(
   "crates/cose/src/operation_contract/execute.rs",
-  "super::key::parse::result(*request)",
+  "super::key::parse::result(core::mem::take(&mut **request))",
 );
 for (const semanticRoute of [
   "construct_cose_key_from_public(CoseKeyFromPublicBytesInput::new(",
@@ -418,13 +422,13 @@ for (const bypassedFacade of [
   }
 }
 for (const contractRoute of [
-  "super::key::convert::from_public_bytes_result(*request)",
-  "super::key::convert::from_private_bytes_result(*request)",
-  "super::key::convert::to_public_bytes_result(*request)",
-  "super::key::convert::to_private_bytes_result(*request)",
-  "super::key::convert::derive_public_kid_result(*request)",
-  "super::key::convert::to_multikey_result(*request)",
-  "super::key::convert::multikey_to_key_result(*request)",
+  "super::key::convert::from_public_bytes_result(core::mem::take(&mut **request))",
+  "super::key::convert::from_private_bytes_result(core::mem::take(&mut **request))",
+  "super::key::convert::to_public_bytes_result(core::mem::take(&mut **request))",
+  "super::key::convert::to_private_bytes_result(core::mem::take(&mut **request))",
+  "super::key::convert::derive_public_kid_result(core::mem::take(&mut **request))",
+  "super::key::convert::to_multikey_result(core::mem::take(&mut **request))",
+  "super::key::convert::multikey_to_key_result(core::mem::take(&mut **request))",
 ]) {
   assertContains("crates/cose/src/operation_contract/execute.rs", contractRoute);
 }
@@ -480,10 +484,10 @@ for (const [adapter, bypassedFacades] of [
   }
 }
 for (const contractRoute of [
-  "super::sign1::create::attached_result(*request)",
-  "super::sign1::create::detached_result(*request)",
-  "super::sign1::verify::attached_result(*request)",
-  "super::sign1::verify::detached_result(*request)",
+  "super::sign1::create::attached_result(core::mem::take(&mut **request))",
+  "super::sign1::create::detached_result(core::mem::take(&mut **request))",
+  "super::sign1::verify::attached_result(core::mem::take(&mut **request))",
+  "super::sign1::verify::detached_result(core::mem::take(&mut **request))",
 ]) {
   assertContains("crates/cose/src/operation_contract/execute.rs", contractRoute);
 }
@@ -524,9 +528,9 @@ for (const [adapter, bypassedFacades] of [
   }
 }
 for (const contractRoute of [
-  "super::encrypt::create::direct_result(*request)",
-  "super::encrypt::create::key_wrap_result(*request)",
-  "super::encrypt::decrypt::result(*request)",
+  "super::encrypt::create::direct_result(core::mem::take(&mut **request))",
+  "super::encrypt::create::key_wrap_result(core::mem::take(&mut **request))",
+  "super::encrypt::decrypt::result(core::mem::take(&mut **request))",
 ]) {
   assertContains("crates/cose/src/operation_contract/execute.rs", contractRoute);
 }
@@ -539,6 +543,8 @@ assertContains(
   "crate::operation_contract::execute::execute_proto_json(request_json)",
 );
 assertOperationContractRouting({ readText, fail });
+assertCompleteOperationContract({ readText, loadTrackedFiles, fail });
+assertCompleteTypeContract({readText,loadTrackedFiles,fail});
 for (const [family, generatedResults] of [
   ["key", ["CoseKeyBytesResult", "CoseMultikeyResult"]],
   ["sign1", ["CoseSign1CreateResult", "CoseSign1VerifyResult"]],
@@ -613,202 +619,11 @@ assertContains("buf.yaml", "- path: crates/proto/proto");
 assertNotContains("buf.yaml", "except:");
 assertNotContains("buf.yaml", "FIELD_NO_DELETE");
 assertNotContains("buf.yaml", "MESSAGE_NO_DELETE");
-assertContains("buf.gen.yaml", "protoc-gen-buffa");
-assertContains("buf.gen.yaml", "protoc-gen-buffa-packaging");
-assertContains("buf.gen.yaml", "views=true");
 assertContains("crates/proto/Cargo.toml", `name = "${expectedProtoPackageName}"`);
 assertContains("crates/proto/Cargo.toml", `version = "${expectedVersion}"`);
 assertContains("crates/proto/Cargo.toml", "publish = true");
-assertContains("crates/proto/Cargo.toml", '"/proto/**/*.proto"');
-assertContains("crates/proto/Cargo.toml", 'default = ["generated"]');
-assertContains("crates/proto/Cargo.toml", 'zeroize = { workspace = true, optional = true }');
 assertContains("crates/proto/src/generated.rs", "COSE_PROTO_PACKAGE");
-if (!readText("crates/proto/src/generated/buffa/mod.rs").includes("@generated by buffa-codegen")) {
-  fail("generated protobuf module must retain its generator marker");
-}
-assertContains("scripts/harden-generated-cose-proto.mjs", "Zeroize::zeroize(&mut self.private_key)");
-assertContains("scripts/harden-generated-cose-proto.mjs", "redactDebugBytes");
-assertContains("scripts/harden-generated-cose-proto.mjs", "__reallyme_zeroize_unknown_fields");
-assertContains("scripts/harden-generated-cose-proto.mjs", '"cose_key"');
-assertContains("scripts/harden-generated-cose-proto.mjs", '"key_bytes"');
-assertContains("scripts/harden-generated-cose-proto.mjs", '"external_aad"');
-assertContains("scripts/harden-generated-cose-proto.mjs", '"expected_kid"');
-assertContains("scripts/harden-generated-cose-proto.mjs", "deny_unknown_fields");
-assertContains("scripts/harden-generated-cose-proto.mjs", "unknown field");
-assertContains("scripts/harden-generated-cose-proto.mjs", '"--check-idempotent"');
-assertContains("scripts/harden-generated-cose-proto.mjs", '["CoseOperationRequest", []]');
-assertReallyMeProtobufReleasePolicy({
-  generatedFreshnessMode,
-  bufVersion: "1.73.0",
-  buffaVersion: "0.9.2",
-  workflowMode: "delegated",
-  generatedFreshnessStepRun:
-    "node .release-readiness/scripts/run-consumer-check.mjs --generated-freshness",
-  installBufRun: verifiedBufInstallCommand,
-  hardeningPolicy: {
-    hardeningScript: "scripts/harden-generated-cose-proto.mjs",
-    protoSchema: "crates/proto/proto/reallyme/cose/v1/cose.proto",
-    generatedRust: "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.rs",
-    generatedView: "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.__view.rs",
-    protoCargo: "crates/proto/Cargo.toml",
-    requiredScriptNeedles: [
-      "Zeroize::zeroize(&mut self.private_key)",
-      "redactDebugBytes",
-      "__reallyme_zeroize_unknown_fields",
-      '"cose_key"',
-      '"key_bytes"',
-      '"external_aad"',
-      '"expected_kid"',
-    ],
-    requiredCargoNeedles: ['"buffa/json"'],
-    // Every bytes/string field is deliberately classified. "Sensitive" here
-    // means the generated owner must redact and wipe the value; it includes
-    // public keys and Multikey strings because they are persistent identity
-    // correlators even when they are not cryptographic secrets.
-    scalarFieldClassifications: [
-      { message: "CoseType", field: "media_type", kind: "string", sensitivity: "public" },
-      { message: "CoseX5Chain", field: "certificates_der", kind: "bytes", sensitivity: "public" },
-      { message: "CoseMlKemEncryptRequest", field: "recipient_public_key", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseMlKemEncryptRequest", field: "recipient_kid", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseMlKemEncryptRequest", field: "plaintext", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseMlKemEncryptRequest", field: "external_aad", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseMlKemEncryptRequest", field: "supp_priv_info", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseMlKemEncryptResult", field: "cose_encrypt", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseMlKemDecryptRequest", field: "cose_encrypt", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseMlKemDecryptRequest", field: "recipient_private_key", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseMlKemDecryptRequest", field: "expected_recipient_kid", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseMlKemDecryptRequest", field: "external_aad", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseMlKemDecryptRequest", field: "supp_priv_info", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseMlKemDecryptResult", field: "plaintext", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseMlKemDecryptResult", field: "recipient_kid", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1CreateRequest", field: "payload", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1CreateRequest", field: "private_key", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1CreateRequest", field: "kid", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1CreateRequest", field: "external_aad", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1CreateDetachedRequest", field: "payload", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1CreateDetachedRequest", field: "private_key", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1CreateDetachedRequest", field: "kid", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1CreateDetachedRequest", field: "external_aad", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1CreateResult", field: "cose_sign1", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1VerifyRequest", field: "cose_sign1", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1VerifyRequest", field: "public_key", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1VerifyRequest", field: "external_aad", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1VerifyRequest", field: "expected_kid", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1VerifyDetachedRequest", field: "cose_sign1", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1VerifyDetachedRequest", field: "payload", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1VerifyDetachedRequest", field: "public_key", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1VerifyDetachedRequest", field: "external_aad", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1VerifyDetachedRequest", field: "expected_kid", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1VerifyResult", field: "payload", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseSign1VerifyResult", field: "kid", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseKeyFromPublicBytesRequest", field: "public_key", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseKeyFromPrivateBytesRequest", field: "private_key", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseKeyFromPrivateBytesRequest", field: "public_key", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseKeyBytesRequest", field: "cose_key", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseKeyBytesResult", field: "key_bytes", kind: "bytes", sensitivity: "sensitive" },
-      { message: "CoseMultikeyToCoseKeyRequest", field: "multikey", kind: "string", sensitivity: "sensitive" },
-      { message: "CoseMultikeyResult", field: "multikey", kind: "string", sensitivity: "sensitive" },
-    ],
-    requiredGeneratedNeedles: [
-      "fn __reallyme_zeroize_unknown_fields(",
-      '.field("private_key", &"<redacted>")',
-      '.field("payload", &"<redacted>")',
-      '.field("cose_key", &"<redacted>")',
-      '.field("key_bytes", &"<redacted>")',
-      "::zeroize::Zeroize::zeroize(&mut self.private_key);",
-    ],
-    forbiddenGeneratedNeedles: [
-      "::buffa::alloc::format!(",
-      '.field("private_key", &self.private_key)',
-      '.field("payload", &self.payload)',
-      '.field("cose_key", &self.cose_key)',
-    ],
-    requiredViewNeedles: [
-      'formatter.write_str("CoseSign1CreateRequestView(<redacted>)")',
-      'formatter.write_str("CoseMlKemDecryptResultView(<redacted>)")',
-      'formatter.write_str("CoseSign1CreateRequestOwnedView(<redacted>)")',
-      'formatter.write_str("CoseMlKemDecryptResultOwnedView(<redacted>)")',
-    ],
-  },
-  generatedFreshness: {
-    generatedPaths: ["crates/proto/src/generated"],
-    commands: [
-      ["buf", ["lint"]],
-      ["buf", ["generate"]],
-      ["node", ["scripts/harden-generated-cose-proto.mjs"]],
-      ["node", ["scripts/harden-generated-cose-proto.mjs", "--check-idempotent"]],
-      ["cargo", ["fmt", "--package", expectedProtoPackageName]],
-    ],
-  },
-});
-assertContains(
-  "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.rs",
-  "impl ::core::ops::Drop for CoseSign1CreateRequest",
-);
-assertContains(
-  "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.rs",
-  "impl ::core::ops::Drop for CoseSign1CreateDetachedRequest",
-);
-assertContains(
-  "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.rs",
-  "impl ::core::ops::Drop for CoseKeyFromPrivateBytesRequest",
-);
-assertContains(
-  "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.rs",
-  '.field("private_key", &"<redacted>")',
-);
-assertContains(
-  "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.rs",
-  '.field("payload", &"<redacted>")',
-);
-assertContains(
-  "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.rs",
-  '.field("cose_key", &"<redacted>")',
-);
-assertContains(
-  "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.rs",
-  '.field("key_bytes", &"<redacted>")',
-);
-assertContains(
-  "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.rs",
-  "::zeroize::Zeroize::zeroize(&mut self.private_key);",
-);
-assertNotContains(
-  "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.rs",
-  '.field("private_key", &self.private_key)',
-);
-assertNotContains(
-  "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.rs",
-  '.field("payload", &self.payload)',
-);
-assertNotContains(
-  "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.rs",
-  '.field("cose_key", &self.cose_key)',
-);
-assertNotContains(
-  "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.rs",
-  '.field("key_bytes", &self.key_bytes)',
-);
-assertContains(
-  "crates/proto/src/generated/buffa/reallyme.cose.v1.mod.rs",
-  "__view",
-);
-assertContains(
-  "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.__view.rs",
-  'formatter.write_str("CoseSign1CreateRequestView(<redacted>)")',
-);
-assertContains(
-  "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.__view.rs",
-  'formatter.write_str("CoseMlKemDecryptResultView(<redacted>)")',
-);
-assertContains(
-  "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.__view.rs",
-  'formatter.write_str("CoseSign1CreateRequestOwnedView(<redacted>)")',
-);
-assertContains(
-  "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.__view.rs",
-  'formatter.write_str("CoseMlKemDecryptResultOwnedView(<redacted>)")',
-);
+assertGuardedBuffaContract({root,readText,fail,assertWorkflowRunStep,installBufRun:verifiedBufInstallCommand},generatedFreshnessMode);
 assertContains("crates/cose/src/wire.rs", "reallyme_cose_proto::generated::proto::reallyme::cose::v1");
 assertContains("crates/cose/src/wire.rs", "DecodeOptions::new()");
 assertContains("crates/cose/src/wire.rs", "const COSE_PROTO_UNKNOWN_FIELD_LIMIT: usize = 0;");
@@ -913,8 +728,6 @@ assertNotContains("crates/cose/src/wire.rs", "pub type CoseWireResult");
 assertContains("crates/cose/src/operation_contract/mod.rs", "pub(crate) mod response_v2;");
 assertContains("crates/cose/src/operation_contract/response_v2.rs", "fn result_matches_request(");
 assertContains("crates/cose/src/operation_contract/response_v2.rs", "CoseOperationResultBranch::MlKemDecrypt");
-assertContains("scripts/harden-generated-cose-proto.mjs", '["CoseOperationResponseV2", []]');
-assertContains("scripts/harden-generated-cose-proto.mjs", '["CoseOperationResult", []]');
 assertContains(
   "crates/proto/src/generated/buffa/reallyme.cose.v1.cose.rs",
   "impl ::core::ops::Drop for CoseOperationResponseV2",
@@ -934,7 +747,7 @@ assertContains(
   "Result<Zeroizing<String>, CoseError>",
 );
 assertContains("crates/cose/src/sign1/provider.rs", "pub trait CoseSigner");
-assertContains("crates/cose/src/sign1/provider.rs", "pub enum CoseSignerError");
+assertContains("crates/cose/src/sign1/provider.rs", "pub type CoseSignerError = CoseError;");
 assertContains("crates/cose/src/sign1/sign.rs", "pub fn cose_sign1_with_signer(");
 assertContains("crates/cose/src/sign1/sign.rs", "pub fn cose_sign1_detached_with_signer(");
 assertContains("crates/cose/tests/cose_suite/platform_signer_tests.rs", "CoseSignerError::Unavailable");
@@ -948,17 +761,17 @@ for (const allocationLimit of [
   assertContains("crates/cose/benches/operation_performance.rs", allocationLimit);
 }
 assertContains("crates/cose/src/policy/validate.rs", "#[must_use]\n#[derive(Debug, Clone)]\npub struct CosePolicy");
-assertContains("crates/cose/src/policy/validate.rs", "require_kid: bool");
+assertContains("crates/cose/src/policy/validate.rs", "contract: ContractPolicy");
 assertContains("crates/cose/src/policy/validate.rs", "pub fn with_require_kid");
 assertNotContains("crates/cose/src/policy/validate.rs", "pub require_kid: bool");
 assertNotContains("crates/cose/src/policy/validate.rs", "pub allowed_algs: Vec<Algorithm>");
 assertNotContains("crates/cose/src/policy/validate.rs", "pub max_cose_sign1_bytes: usize");
 assertContains("crates/cose/src/sign1/sign.rs", "#[must_use]\n#[derive(Clone, Debug, Eq, PartialEq)]\npub struct CoseSign1EncodeOptions");
-assertContains("crates/cose/src/sign1/sign.rs", "tag: bool");
-assertContains("crates/cose/src/sign1/sign.rs", "pub const fn tagged()");
+assertContains("crates/cose/src/sign1/sign.rs", "contract: crate::api::contract::CoseSign1Options");
+assertContains("crates/cose/src/sign1/sign.rs", "pub fn tagged()");
 assertNotContains("crates/cose/src/sign1/sign.rs", "pub tag: bool");
 assertNotContains("crates/cose/src/sign1/sign.rs", "pub max_cose_sign1_bytes: usize");
-assertContains("crates/cose/src/sign1/verify.rs", "#[must_use]\n#[non_exhaustive]\npub struct VerifiedCoseSign1");
+assertContains("crates/cose/src/generated_contract/verified_cose_sign1.rs", "#[must_use]\n#[non_exhaustive]\npub struct VerifiedCoseSign1");
 assertNotContains("crates/cose/src/wire.rs", "pub type CoseWireBytes = Zeroizing<Vec<u8>>;");
 assertNotContains("crates/cose/src/wire.rs", "pub fn encode_protobuf<M: Message>");
 assertContains("crates/cose/src/wire.rs", "Zeroizing::new(message.encode_to_vec())");
@@ -1135,7 +948,7 @@ assertNotContains(
 assertContains(".github/workflows/crates-release.yml", 'gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs"');
 assertNotContains(".github/workflows/crates-release.yml", "git push");
 assertContains(".github/workflows/crates-release.yml", "gh release create");
-assertContains(".github/workflows/crates-release.yml", "- minimum Rust version 1.99");
+assertContains(".github/workflows/crates-release.yml", "- minimum Rust version 1.100");
 assertContains(".github/workflows/crates-release.yml", "- update to reallyme/crypto 0.3.17");
 assertContains(".github/workflows/crates-release.yml", "- update to reallyme/codec 0.3.2");
 assertNotContains(".github/workflows/crates-release.yml", "--generate-notes");
@@ -1176,7 +989,7 @@ assertContains(
 assertNotContains(".github/workflows/protobuf-ci.yml", "git fetch origin main:refs/remotes/origin/main");
 assertNotContains(".github/workflows/protobuf-ci.yml", "buf breaking --against");
 assertContains(".github/workflows/protobuf-ci.yml", "scripts/check_release_readiness.mjs");
-assertContains(".github/workflows/protobuf-ci.yml", "scripts/harden-generated-cose-proto.mjs");
+assertContains(".github/workflows/protobuf-ci.yml", "scripts/generate_cose_contract.mjs");
 assertContains(".github/workflows/fuzz.yml", "- wire");
 assertContains(".github/workflows/fuzz.yml", "runs-on: ubuntu-24.04");
 assertNotContains(".github/workflows/fuzz.yml", "runs-on: ubuntu-latest");
@@ -1205,7 +1018,7 @@ assertContains(
   `toolchain: ${expectedDevelopmentRustToolchain}`,
 );
 assertContains(cratesPackagePreflightWorkflow, "BUF_VERSION: 1.73.0");
-assertContains(cratesPackagePreflightWorkflow, "BUFFA_VERSION: 0.9.2");
+assertContains(cratesPackagePreflightWorkflow, "BUFFA_VERSION: 0.1.0");
 assertContains(cratesPackagePreflightWorkflow, "CARGO_DENY_VERSION: 0.20.2");
 assertContains(cratesPackagePreflightWorkflow, "CARGO_AUDIT_VERSION: 0.22.2");
 assertContains(cratesPackagePreflightWorkflow, "scripts/audit_committed_lockfiles.sh");
@@ -1255,8 +1068,8 @@ assertContains(
 );
 assertContains(".github/workflows/protobuf-ci.yml", "sha256sum --check --strict");
 assertContains(cratesPackagePreflightWorkflow, "uses: taiki-e/install-action@");
-assertContains(cratesPackagePreflightWorkflow, 'protoc-gen-buffa --version "$BUFFA_VERSION"');
-assertContains(cratesPackagePreflightWorkflow, 'protoc-gen-buffa-packaging --version "$BUFFA_VERSION"');
+assertContains(cratesPackagePreflightWorkflow, 'protoc-gen-reallyme-buffa --version)" = "protoc-gen-reallyme-buffa $BUFFA_VERSION"');
+assertContains(cratesPackagePreflightWorkflow, 'protoc-gen-reallyme-buffa-packaging --version)" = "protoc-gen-reallyme-buffa-packaging $BUFFA_VERSION"');
 assertContains(cratesPackagePreflightWorkflow, 'cargo install cargo-fuzz --version "$CARGO_FUZZ_VERSION" --locked');
 assertContains(
   cratesPackagePreflightWorkflow,
@@ -1336,16 +1149,17 @@ assertCargoMetadataPolicy({
 
 const validationCommands = [
   ["node", ["--test", "scripts/publish_crates_in_order.test.mjs"]],
-  ["node", ["--test", "scripts/harden-generated-cose-proto.test.mjs"]],
+  ["node", ["--test", "scripts/generate_cose_contract.test.mjs"]],
   ["node", ["--test", "scripts/release-readiness/operation-contract-routing.test.mjs"]],
+  ["node", ["--test", "scripts/check_operation_contract.test.mjs", "scripts/check_type_contract.test.mjs"]],
   ["node", ["--test", "scripts/verify_release_attestation.test.mjs"]],
   ["node", ["--test", "scripts/verify_release_source.test.mjs"]],
   ["node", ["--check", "scripts/run_pinned_release_readiness.mjs"]],
   ["node", ["--check", "scripts/verify_release_source.mjs"]],
   ["node", ["--check", "scripts/write_release_attestation.mjs"]],
   ["node", ["--check", "scripts/verify_release_attestation.mjs"]],
-  ["node", ["--check", "scripts/harden-generated-cose-proto.mjs"]],
-  ["node", ["scripts/harden-generated-cose-proto.mjs", "--check-idempotent"]],
+  ["node", ["--check", "scripts/generate_cose_contract.mjs"]],
+  ["node", ["scripts/generate_cose_contract.mjs", "--check"]],
   ["cargo", ["fmt", "--check"]],
   ["cargo", ["check", "--locked", "--workspace", "--all-features"]],
   ["cargo", ["check", "--locked", "--workspace", "--all-features"], { env: { ...process.env, RUSTFLAGS: "-Dwarnings" } }],
@@ -1428,6 +1242,13 @@ const validationCommands = [
 
 if (!policyOnlyMode && !generatedFreshnessMode) {
   runCommands(validationCommands);
+}
+
+// Cleanup is native, but the user-facing fixed enum-diagnostic contract is
+// still supplied by a source guard. Do not advertise a ready release until a
+// published generator can satisfy it without that transformation.
+if (!generatedFreshnessMode && readText("scripts/generate_cose_contract.mjs").includes("sanitizeEnumDiagnostics")) {
+  fail("release blocked: a published ReallyMe Buffa fix must remove the standalone enum diagnostic source guard");
 }
 
 const readinessMode = generatedFreshnessMode

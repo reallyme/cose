@@ -13,7 +13,7 @@ on:
         description: Release version without a leading v
         required: true
         type: string
-        default: 0.2.11
+        default: 0.3.0
 
 concurrency:
   group: crates-package-preflight-${{ inputs.version }}-${{ github.sha }}
@@ -23,7 +23,7 @@ permissions:
   contents: read
 
 env:
-  BUFFA_VERSION: 0.9.2
+  BUFFA_VERSION: 0.1.0
   BUF_VERSION: 1.73.0
   CARGO_AUDIT_VERSION: 0.22.2
   CARGO_CHECK_EXTERNAL_TYPES_VERSION: 0.5.0
@@ -79,7 +79,7 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
-          toolchain: 1.99.1
+          toolchain: 1.100.0
           components: rustfmt, clippy
           targets: wasm32-unknown-unknown
 
@@ -109,8 +109,10 @@ jobs:
 
       - name: Install pinned Buffa generators
         run: |
-          cargo install protoc-gen-buffa --version "$BUFFA_VERSION" --locked
-          cargo install protoc-gen-buffa-packaging --version "$BUFFA_VERSION" --locked
+          cargo install reallyme-protoc-gen-buffa --version "=$BUFFA_VERSION" --locked
+          cargo install reallyme-protoc-gen-buffa-packaging --version "=$BUFFA_VERSION" --locked
+          test "$(protoc-gen-reallyme-buffa --version)" = "protoc-gen-reallyme-buffa $BUFFA_VERSION"
+          test "$(protoc-gen-reallyme-buffa-packaging --version)" = "protoc-gen-reallyme-buffa-packaging $BUFFA_VERSION"
 
       - name: Install nextest
         uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3

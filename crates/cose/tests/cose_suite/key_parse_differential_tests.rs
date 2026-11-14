@@ -99,10 +99,7 @@ fn hostile_semantic_inputs_preserve_exact_native_and_wire_failures() {
 
 #[test]
 fn adapter_only_failures_do_not_enter_key_semantics() {
-    let missing_operation = CoseOperationRequest {
-        operation: None,
-        __buffa_unknown_fields: Default::default(),
-    };
+    let missing_operation = CoseOperationRequest { operation: None };
     assert_error(
         &execute_operation_proto(&missing_operation.encode_to_vec()),
         primitive(
@@ -364,10 +361,8 @@ fn execute_adapters(input: &[u8]) -> (Zeroizing<Vec<u8>>, Zeroizing<Vec<u8>>) {
 fn operation_request(input: &[u8]) -> CoseOperationRequest {
     CoseOperationRequest {
         operation: Some(Operation::KeyParse(Box::new(CoseKeyBytesRequest {
-            cose_key: input.to_vec(),
-            __buffa_unknown_fields: Default::default(),
+            cose_key: input.to_vec().into(),
         }))),
-        __buffa_unknown_fields: Default::default(),
     }
 }
 
@@ -377,22 +372,18 @@ fn expected_result_envelope(key_bytes: &[u8]) -> Zeroizing<Vec<u8>> {
         .expect("successful differential fixture algorithm must inspect");
     let wire_algorithm = signature_algorithm.and_then(signature_algorithm_to_wire);
     let result = CoseKeyBytesResult {
-        key_bytes: key_bytes.to_vec(),
+        key_bytes: key_bytes.to_vec().into(),
         signature_algorithm: wire_algorithm
             .map(EnumValue::from)
             .unwrap_or_else(|| EnumValue::from(0)),
-        has_signature_algorithm: wire_algorithm.is_some(),
-        __buffa_unknown_fields: Default::default(),
     };
     Zeroizing::new(
         CoseOperationResponseV2 {
             outcome: Some(cose_operation_response_v2::Outcome::Result(Box::new(
                 CoseOperationResult {
                     result: Some(cose_operation_result::Result::KeyParse(Box::new(result))),
-                    __buffa_unknown_fields: Default::default(),
                 },
             ))),
-            __buffa_unknown_fields: Default::default(),
         }
         .encode_to_vec(),
     )
@@ -420,30 +411,19 @@ fn expected_error_envelope(expected: ExpectedFailure) -> Zeroizing<Vec<u8>> {
     let error = CoseErrorProto {
         error: Some(match expected.branch {
             ExpectedBranch::Primitive => {
-                cose_error_proto::Error::Primitive(Box::new(CosePrimitiveError {
-                    reason,
-                    __buffa_unknown_fields: Default::default(),
-                }))
+                cose_error_proto::Error::Primitive(Box::new(CosePrimitiveError { reason }))
             }
             ExpectedBranch::Provider => {
-                cose_error_proto::Error::Provider(Box::new(CoseProviderError {
-                    reason,
-                    __buffa_unknown_fields: Default::default(),
-                }))
+                cose_error_proto::Error::Provider(Box::new(CoseProviderError { reason }))
             }
             ExpectedBranch::Backend => {
-                cose_error_proto::Error::Backend(Box::new(CoseBackendError {
-                    reason,
-                    __buffa_unknown_fields: Default::default(),
-                }))
+                cose_error_proto::Error::Backend(Box::new(CoseBackendError { reason }))
             }
         }),
-        __buffa_unknown_fields: Default::default(),
     };
     Zeroizing::new(
         CoseOperationResponseV2 {
             outcome: Some(cose_operation_response_v2::Outcome::Error(Box::new(error))),
-            __buffa_unknown_fields: Default::default(),
         }
         .encode_to_vec(),
     )

@@ -4,7 +4,7 @@
 
 //! Protobuf adapter for the canonical COSE_Key parse operation.
 
-use zeroize::{Zeroize, Zeroizing};
+use zeroize::Zeroize;
 
 use crate::key::{parse_cose_key, CoseKeyParseInput};
 use crate::operation_contract::key::result;
@@ -14,7 +14,7 @@ use crate::wire::{CoseKeyBytesRequest, CoseOperationResult, CoseWireResult};
 pub(crate) fn result(mut request: CoseKeyBytesRequest) -> CoseWireResult<CoseOperationResult> {
     // Transfer generated storage immediately into a zeroizing owner. The
     // semantic input borrows this allocation and cannot outlive it.
-    let encoded_key = Zeroizing::new(core::mem::take(&mut request.cose_key));
+    let encoded_key = core::mem::take(&mut request.cose_key).into_zeroizing();
     request.cose_key.zeroize();
 
     let output = parse_cose_key(CoseKeyParseInput::new(&encoded_key))
