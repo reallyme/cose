@@ -232,6 +232,87 @@ fn es256_sign1_roundtrip_reports_exact_registration_and_policy_distinguishes_it(
 }
 
 #[test]
+fn full_sign1_allowlist_requires_the_exact_p256_registration_at_every_position(
+) -> Result<(), CoseError> {
+    const ALLOWLIST_LIMIT: usize = 32;
+
+    let key = gen_p256();
+    let payload = b"allowlist boundary";
+    let kid = test_kid();
+    for (registration, other) in [
+        (
+            CoseSignatureAlgorithm::Es256,
+            CoseSignatureAlgorithm::Esp256,
+        ),
+        (
+            CoseSignatureAlgorithm::Esp256,
+            CoseSignatureAlgorithm::Es256,
+        ),
+    ] {
+        let attached =
+            cose_sign1_with_signature_algorithm(registration, payload, &key.private, Some(kid))?;
+        let detached = cose_sign1_detached_with_signature_algorithm(
+            registration,
+            payload,
+            &key.private,
+            Some(kid),
+        )?;
+
+        for position in 0..ALLOWLIST_LIMIT {
+            for entry in [other, registration] {
+                let mut allowlist = [CoseSignatureAlgorithm::Ed25519; ALLOWLIST_LIMIT];
+                allowlist[position] = entry;
+                let builder = CosePolicy::new().with_allowed_cose_algorithms(allowlist);
+                let policy = CosePolicy::from_contract(builder.contract().clone())?;
+                let accepted = entry == registration;
+                let expected = if accepted {
+                    Ok(registration)
+                } else {
+                    Err(CoseError::UnsupportedAlgorithm)
+                };
+
+                let mut attached_called = false;
+                let attached_result = cose_verify1_with_exact_algorithm(
+                    &attached,
+                    &[],
+                    &policy,
+                    |requested, protected_kid| {
+                        attached_called = true;
+                        assert_eq!(requested, registration);
+                        assert_eq!(protected_kid, kid);
+                        Some(key.public.clone())
+                    },
+                );
+                let mut detached_called = false;
+                let detached_result = cose_verify1_detached_with_exact_algorithm(
+                    &detached,
+                    payload,
+                    &[],
+                    &policy,
+                    |requested, protected_kid| {
+                        detached_called = true;
+                        assert_eq!(requested, registration);
+                        assert_eq!(protected_kid, kid);
+                        Some(key.public.clone())
+                    },
+                );
+                assert_eq!(
+                    attached_result.map(|verified| verified.cose_algorithm),
+                    expected
+                );
+                assert_eq!(
+                    detached_result.map(|verified| verified.cose_algorithm),
+                    expected
+                );
+                assert_eq!(attached_called, accepted);
+                assert_eq!(detached_called, accepted);
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
 fn x5chain_verification_is_explicit_bounded_and_preserves_exact_es256() {
     const LEAF_CERTIFICATE_DER: &[u8] = &[0x30, 0x03, 0x02, 0x01, 0x01];
     const OTHER_CERTIFICATE_DER: &[u8] = &[0x30, 0x03, 0x02, 0x01, 0x02];
