@@ -11,8 +11,8 @@ import { assertCompleteOperationContract } from "./check_operation_contract.mjs"
 import { assertOperationContractRouting } from "./release-readiness/operation-contract-routing.mjs";
 
 const releaseReadinessCoreUrl = process.env.RELEASE_READINESS_CORE_URL;
-if (process.env.RELEASE_READINESS_ENFORCED_VERSION !== "0.9.3" || !releaseReadinessCoreUrl) {
-  console.error("Run the COSE checker through the pinned Release Readiness 0.9.3 runner.");
+if (process.env.RELEASE_READINESS_ENFORCED_VERSION !== "0.9.4" || !releaseReadinessCoreUrl) {
+  console.error("Run the COSE checker through the pinned Release Readiness 0.9.4 runner.");
   process.exit(1);
 }
 const { createReleaseReadinessContext } = await import(releaseReadinessCoreUrl);
@@ -64,7 +64,7 @@ assertCargoFuzzWorkflowPolicy({
   minimumInstallations: 1,
   requiredInstallSteps: [{ job: "scheduled", name: "Install cargo-fuzz" }],
 });
-assertReallyMeReleasePackagePolicy({ version: "0.9.3" });
+assertReallyMeReleasePackagePolicy({ version: "0.9.4" });
 assertPathsAbsent(["scripts/release-readiness/core.mjs"]);
 const rustCi = { workflow: ".github/workflows/rust-ci.yml", job: "rust" };
 assertRustReleasePolicy({
@@ -882,7 +882,7 @@ for (const workflow of [
   const inputs = readWorkflowStepInputs(workflow, step, readText(workflow).split(/\r?\n/u));
   if (step.condition !== null ||
       inputs.get("repository") !== "reallyme/release-readiness" ||
-      inputs.get("ref") !== "5f30357e5c5e1cf757be793a45149c455730bdca" ||
+      inputs.get("ref") !== "5a7c5b4785a2c47589dca7f18be11ed99d5dd7b8" ||
       inputs.get("path") !== ".release-readiness" ||
       inputs.get("persist-credentials") !== "false") {
     fail(`${workflow} must check out the reviewed Release Readiness package without credentials`);
@@ -943,7 +943,7 @@ assertContains(".github/workflows/fuzz-scheduled.yml", "- wire");
 assertContains(".github/workflows/fuzz-scheduled.yml", "FUZZ_MAX_TOTAL_TIME_SECONDS: 900");
 assertContains(".github/workflows/fuzz-scheduled.yml", "path: fuzz/corpus/${{ matrix.target }}");
 assertContains("deny.toml", 'yanked = "deny"');
-assertContains("scripts/run_pinned_release_readiness.mjs", "5f30357e5c5e1cf757be793a45149c455730bdca");
+assertContains("scripts/run_pinned_release_readiness.mjs", "5a7c5b4785a2c47589dca7f18be11ed99d5dd7b8");
 assertContains(".gitignore", "/.release-readiness/");
 assertContains(".gitignore", "/.local-tools/");
 assertContains(

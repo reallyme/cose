@@ -738,7 +738,7 @@ projections. Cleanup needs no source rewriting. The documented enum diagnostic
 guard is the remaining release blocker. Freshness regenerates into a temporary
 directory and compares every output without repairing the checked-in evidence.
 `node scripts/generate_cose_contract.mjs --check` runs that comparison directly.
-CI uses Release Readiness 0.9.3 pinned to its full commit. The local
+CI uses Release Readiness 0.9.4 pinned to its full commit. The local
 `node scripts/run_pinned_release_readiness.mjs` command runs the same pinned
 package via npm (network access required on the first run). Fuzzing
 commands and runtime limits are documented in
@@ -750,9 +750,11 @@ Local `../crypto` or `../codec` path dependencies are not accepted for release.
 
 The package preflight requires successful `Required CI` evidence for its
 source SHA and verifies the crate version. It tests the packaged crates and
-uploads the reviewed archives. The release workflow retrieves those archives,
-checks the Cargo package bytes against them, and publishes the crates in
-dependency order.
+uploads the reviewed archives. After preflight succeeds, copy the
+`gh workflow run` command from its summary to start the release with the
+verified version and source SHA. The release workflow retrieves the reviewed
+archives, checks the Cargo package bytes against them, and publishes the
+crates in dependency order.
 
 The gate also checks operation routing, typed errors, sensitive-buffer ownership,
 and allocation limits. The benchmark asserts named peak-allocation ceilings;
