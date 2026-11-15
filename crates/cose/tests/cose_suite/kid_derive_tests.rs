@@ -5,9 +5,9 @@
 
 use reallyme_cose::{
     cose_key_from_private_bytes, cose_key_from_public_bytes, cose_key_from_signature_private_bytes,
-    cose_key_from_signature_public_bytes_with_encoding, cose_key_from_slice,
-    cose_key_to_public_bytes, cose_key_to_vec, derive_kid_from_cose_key_public,
-    CoseEc2PointEncoding, CoseError, CoseSignatureAlgorithm,
+    cose_key_from_signature_public_bytes, cose_key_from_signature_public_bytes_with_encoding,
+    cose_key_from_slice, cose_key_signature_algorithm, cose_key_to_public_bytes, cose_key_to_vec,
+    derive_kid_from_cose_key_public, CoseEc2PointEncoding, CoseError, CoseSignatureAlgorithm,
 };
 use zeroize::Zeroizing;
 
@@ -43,6 +43,83 @@ fn kid_ignores_private_key_material() {
     let kid_priv = derive_kid_from_cose_key_public(&with_private).unwrap();
 
     assert_eq!(kid_pub, kid_priv);
+}
+
+#[test]
+fn ed25519_kid_matches_independent_canonical_public_map() -> Result<(), CoseError> {
+    // RFC 8032 §7.1, TEST 1. The expected digest is SHA-256 of the
+    // deterministic four-entry map prefix followed by the public key.
+    let public = hex::decode("d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a")
+        .map_err(|_| CoseError::InvalidKeyMaterial)?;
+    let mut seed = Zeroizing::new([0_u8; 32]);
+    hex::decode_to_slice(
+        "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60",
+        seed.as_mut_slice(),
+    )
+    .map_err(|_| CoseError::InvalidKeyMaterial)?;
+
+    const EXPECTED_KID: &str = "3606e96f48d6fbe487c2816a7742861d2ea9908fcf943b705151889cd1001819";
+    let explicit_public =
+        cose_key_from_signature_public_bytes(CoseSignatureAlgorithm::Ed25519, &public)?;
+    let mut expected_map = b"\xa4\x01\x01\x03\x32\x20\x06\x21\x58\x20".to_vec();
+    expected_map.extend_from_slice(&public);
+    assert_eq!(cose_key_to_vec(&explicit_public)?.as_slice(), expected_map);
+    assert_eq!(
+        hex::encode(derive_kid_from_cose_key_public(&explicit_public)?),
+        EXPECTED_KID
+    );
+
+    // Parse a private key with kid and key_ops in addition to x and d. The
+    // optional alg changes the input metadata, while the hash uses -19 in
+    // both cases according to the Ed25519 profile.
+    const PRIVATE_FIXTURE_CAPACITY: usize = 83;
+    for explicit_algorithm in [false, true] {
+        let mut encoded = Zeroizing::new(Vec::with_capacity(PRIVATE_FIXTURE_CAPACITY));
+        encoded.push(if explicit_algorithm { 0xa7 } else { 0xa6 });
+        encoded.extend_from_slice(b"\x01\x01\x02\x41\x99");
+        let algorithm_value = encoded
+            .len()
+            .checked_add(1)
+            .ok_or(CoseError::InvalidFormat)?;
+        if explicit_algorithm {
+            encoded.extend_from_slice(b"\x03\x32");
+        }
+        encoded.extend_from_slice(b"\x04\x81\x02\x20\x06\x21\x58\x20");
+        encoded.extend_from_slice(&public);
+        encoded.extend_from_slice(b"\x23\x58\x20");
+        encoded.extend_from_slice(seed.as_slice());
+        let key = cose_key_from_slice(&encoded)?;
+        assert_eq!(
+            cose_key_signature_algorithm(&key)?,
+            explicit_algorithm.then_some(CoseSignatureAlgorithm::Ed25519)
+        );
+        assert_eq!(
+            hex::encode(derive_kid_from_cose_key_public(&key)?),
+            EXPECTED_KID
+        );
+
+        // Changing d leaves x intact but invalidates the private/public binding.
+        let last_seed_byte = encoded.last_mut().ok_or(CoseError::InvalidFormat)?;
+        *last_seed_byte ^= 1;
+        assert!(matches!(
+            cose_key_from_slice(&encoded),
+            Err(CoseError::InvalidKeyMaterial)
+        ));
+
+        if explicit_algorithm {
+            *encoded.last_mut().ok_or(CoseError::InvalidFormat)? ^= 1;
+            // Exercise legacy registration rejection with the valid pair.
+            let alg = encoded
+                .get_mut(algorithm_value)
+                .ok_or(CoseError::InvalidFormat)?;
+            *alg = 0x27;
+            assert!(matches!(
+                cose_key_from_slice(&encoded),
+                Err(CoseError::UnsupportedAlgorithm)
+            ));
+        }
+    }
+    Ok(())
 }
 
 #[test]
