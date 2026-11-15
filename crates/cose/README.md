@@ -737,7 +737,7 @@ projections. Cleanup needs no source rewriting. The documented enum diagnostic
 guard is the remaining release blocker. Freshness regenerates into a temporary
 directory and compares every output without repairing the checked-in evidence.
 `node scripts/generate_cose_contract.mjs --check` runs that comparison directly.
-CI uses Release Readiness 0.9.4 pinned to its full commit. The local
+CI uses Release Readiness 0.9.5 pinned to its full commit. The local
 `node scripts/run_pinned_release_readiness.mjs` command runs the same pinned
 package via npm (network access required on the first run). Fuzzing
 commands and runtime limits are documented in

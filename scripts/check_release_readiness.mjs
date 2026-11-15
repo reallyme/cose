@@ -11,8 +11,8 @@ import { assertCompleteOperationContract } from "./check_operation_contract.mjs"
 import { assertOperationContractRouting } from "./release-readiness/operation-contract-routing.mjs";
 
 const releaseReadinessCoreUrl = process.env.RELEASE_READINESS_CORE_URL;
-if (process.env.RELEASE_READINESS_ENFORCED_VERSION !== "0.9.4" || !releaseReadinessCoreUrl) {
-  console.error("Run the COSE checker through the pinned Release Readiness 0.9.4 runner.");
+if (process.env.RELEASE_READINESS_ENFORCED_VERSION !== "0.9.5" || !releaseReadinessCoreUrl) {
+  console.error("Run the COSE checker through the pinned Release Readiness 0.9.5 runner.");
   process.exit(1);
 }
 const { createReleaseReadinessContext } = await import(releaseReadinessCoreUrl);
@@ -36,6 +36,7 @@ const {
   readWorkflowStepInputs,
   assertWorkflowActionsPinned,
   assertCargoFuzzWorkflowPolicy,
+  assertFuzzLockfileWorkflow,
   assertReallyMeReleasePackagePolicy,
   assertRustReleasePolicy,
   assertTextPolicy,
@@ -64,7 +65,7 @@ assertCargoFuzzWorkflowPolicy({
   minimumInstallations: 1,
   requiredInstallSteps: [{ job: "scheduled", name: "Install cargo-fuzz" }],
 });
-assertReallyMeReleasePackagePolicy({ version: "0.9.4" });
+assertReallyMeReleasePackagePolicy({ version: "0.9.5" });
 assertPathsAbsent([
   "scripts/release-readiness/core.mjs",
   "scripts/sanitize_enum_diagnostics.mjs",
@@ -885,7 +886,7 @@ for (const workflow of [
   const inputs = readWorkflowStepInputs(workflow, step, readText(workflow).split(/\r?\n/u));
   if (step.condition !== null ||
       inputs.get("repository") !== "reallyme/release-readiness" ||
-      inputs.get("ref") !== "5a7c5b4785a2c47589dca7f18be11ed99d5dd7b8" ||
+      inputs.get("ref") !== "55115f21d5bf9a3fbc1bb8d10484aecba6e7bd8f" ||
       inputs.get("path") !== ".release-readiness" ||
       inputs.get("persist-credentials") !== "false") {
     fail(`${workflow} must check out the reviewed Release Readiness package without credentials`);
@@ -940,13 +941,14 @@ assertContains(
 );
 assertNotContains(".github/workflows/protobuf-ci.yml", "git fetch origin main:refs/remotes/origin/main");
 assertNotContains(".github/workflows/protobuf-ci.yml", "buf breaking --against");
-assertContains(".github/workflows/fuzz.yml", "cargo metadata --manifest-path fuzz/Cargo.toml --locked --no-deps");
+assertFuzzLockfileWorkflow(".github/workflows/fuzz.yml", "build");
+assertFuzzLockfileWorkflow(".github/workflows/fuzz-scheduled.yml", "scheduled");
 assertContains(".github/workflows/fuzz.yml", "git diff --exit-code -- fuzz/Cargo.lock");
 assertContains(".github/workflows/fuzz-scheduled.yml", "- wire");
 assertContains(".github/workflows/fuzz-scheduled.yml", "FUZZ_MAX_TOTAL_TIME_SECONDS: 900");
 assertContains(".github/workflows/fuzz-scheduled.yml", "path: fuzz/corpus/${{ matrix.target }}");
 assertContains("deny.toml", 'yanked = "deny"');
-assertContains("scripts/run_pinned_release_readiness.mjs", "5a7c5b4785a2c47589dca7f18be11ed99d5dd7b8");
+assertContains("scripts/run_pinned_release_readiness.mjs", "55115f21d5bf9a3fbc1bb8d10484aecba6e7bd8f");
 assertContains(".gitignore", "/.release-readiness/");
 assertContains(".gitignore", "/.local-tools/");
 assertContains(

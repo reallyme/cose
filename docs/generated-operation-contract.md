@@ -206,7 +206,7 @@ The workspace packages are `reallyme-cose` 0.3.0 and `reallyme-cose-proto` 0.3.0
 using the published dependencies `reallyme-crypto` 0.4.2 and
 `reallyme-codec` 0.4.3. ReallyMe Buffa and both generators are 0.1.2, Buf is 1.73.0,
 the stable compiler is Rust 1.100.0, and the minimum Rust version is 1.100.
-CI and the local runner use Release Readiness 0.9.4.
+CI and the local runner use Release Readiness 0.9.5.
 
 Brainpool, Ed448 and X448 provider implementation remains in `reallyme/crypto`.
 This repository recognizes registered mappings and fails closed where the

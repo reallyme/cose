@@ -6,7 +6,7 @@
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-const upstream = "github:reallyme/release-readiness#5a7c5b4785a2c47589dca7f18be11ed99d5dd7b8";
+const upstream = "github:reallyme/release-readiness#55115f21d5bf9a3fbc1bb8d10484aecba6e7bd8f";
 const result = spawnSync("npm", [
   "exec", "--yes", `--package=${upstream}`, "--", "reallyme-release-readiness",
   ...process.argv.slice(2),
