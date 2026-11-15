@@ -56,7 +56,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: reallyme/release-readiness
-          ref: 7dffa0366a43fe9cc7b98a8040d37dd701d7955e
+          ref: 5f30357e5c5e1cf757be793a45149c455730bdca
           path: .release-readiness
           persist-credentials: false
 
@@ -135,3 +135,28 @@ jobs:
           if-no-files-found: error
           overwrite: true
           retention-days: 30
+
+      - name: Show release form inputs
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          VERSION_PATTERN: '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
+          SHA_PATTERN: '^[0-9a-f]{40}$'
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" != workflow_dispatch || "$GITHUB_REF" != refs/heads/main ||
+                "$SOURCE_SHA" != "$GITHUB_SHA" || ! "$SOURCE_SHA" =~ $SHA_PATTERN ||
+                ! "$RELEASE_VERSION" =~ $VERSION_PATTERN ]]; then
+            echo "::warning::Cannot show release inputs without a matching preflight dispatch on main." >&2
+            exit 0
+          fi
+          if [[ -z "$GITHUB_STEP_SUMMARY" ]]; then
+            echo "::warning::GitHub Actions did not provide a job summary file." >&2
+            exit 0
+          fi
+          if ! printf '%s\n' '## Release form inputs' '' \
+              'Copy these values into the release form for this ecosystem once the preflight run succeeds.' '' \
+              '**Version**' '```text' "$RELEASE_VERSION" '```' '' \
+              '**Source SHA**' '```text' "$SOURCE_SHA" '```' >>"$GITHUB_STEP_SUMMARY"; then
+            echo "::warning::Could not write release inputs to the GitHub Actions summary." >&2
+          fi

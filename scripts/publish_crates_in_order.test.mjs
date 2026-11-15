@@ -80,7 +80,7 @@ syncBuiltinESMExports();
       encoding: "utf8",
       timeout: 10_000,
       env: {
-        ...process.env,
+        // All child commands are mocked, so inherit no CI inputs or credentials.
         GITHUB_ACTIONS: archive === undefined ? "" : "true",
         CRATE_ARCHIVE_DIR: archive === undefined ? undefined : reviewed,
         RELEASE_VERSION: version,
