@@ -25,12 +25,15 @@ inputs, real cryptographic providers, and the byte-entry points.
 | Ed25519 `kid` hash input | SHA-256 receives exactly the 42-byte canonical map with `kty` OKP, `alg` Ed25519 (`-19`), `crv` Ed25519 (`6`), and the 32-byte `x`. The seed `d` cannot change those bytes or stand in for a missing `x`. | Kani exercises the production projection and encoder with independent symbolic `x` and `d` bytes, optional `d`, and explicit or omitted `alg`. It observes the exact prefix, length, and an arbitrary public-key byte at the SHA-256 boundary. The native RFC 8032 vector exercises the full derivation path, including profile and private/public pair validation. |
 | Authentication lengths | CBOR byte-string sizing accounts for the correct prefix width and fails on overflow. | Every pair of 64-bit `usize` inputs to the size helper. |
 | ML-KEM recipient registration | Each private-use ID selects the documented mode, parameter set, wire lengths, and optional AES-KW registration and key length. Unknown private-use IDs fail closed. | All `i64` values supplied as private-use labels. |
+| ML-KEM KDF context | The context is `[AlgorithmID, [keyDataLength, protected], ?SuppPrivInfo]`. It retains the exact algorithm, checked output length in bits, both byte strings, and the distinction between absent and empty private information. | Kani checks the production context builder for all `i64` algorithm IDs and machine-sized output lengths, with symbolic byte strings of up to three bytes. A second proof models serialization for direct AES-128-GCM and A192KW and observes every encoded byte, the requested output width, and empty customization at KMAC. Native tests check the full encoding at CBOR width boundaries and exercise the real KMAC implementation. |
 
 The signature obligations use the [IANA COSE registry](https://www.iana.org/assignments/cose/#algorithms)
 and [RFC 9052 §4.4](https://www.rfc-editor.org/rfc/rfc9052.html#section-4.4).
 The byte-string prefixes follow [RFC 8949 §3.1](https://www.rfc-editor.org/rfc/rfc8949.html#section-3.1).
 Certificate arrays follow the order specified in [RFC 9360 §2](https://www.rfc-editor.org/rfc/rfc9360.html#section-2).
 The ML-KEM sizes come from [FIPS 203](https://csrc.nist.gov/pubs/fips/203/final).
+The ReallyMe V1 KDF context follows the field layout in the archived
+[PQ KEM for COSE draft §5.1](https://datatracker.ietf.org/doc/html/draft-ietf-jose-pqc-kem-06#section-5.1).
 
 The Sign1 regression suite exercises exact P-256 allowlist membership, every
 combination of security-relevant unprotected and critical fields in a parsed
@@ -50,7 +53,7 @@ deprecated EdDSA registration.
 
 | Priority | Area | Method and acceptance condition |
 | --- | --- | --- |
-| 1 | ML-KEM composition | Check the production KDF context against an independent byte specification. Cover `AlgorithmID`, output length in bits, the exact recipient protected bstr, and optional `SuppPrivInfo`. Model key derivation, decapsulation, unwrap, and AES-GCM through typed results at the crypto boundary. Prove both recipient identity checks precede decapsulation and plaintext is returned only after required key establishment and content authentication. The unprotected encapsulation ciphertext affects authentication through the established key. |
+| 1 | ML-KEM composition | Model key derivation, decapsulation, unwrap, and AES-GCM through typed results at the crypto boundary. Prove both recipient identity checks precede decapsulation and plaintext is returned only after required key establishment and content authentication. The unprotected encapsulation ciphertext affects authentication through the established key. |
 | 2 | COSE_Key and `kid` | Extend private-field exclusion to additional parameter layouts and cover the documented defaults for other key profiles with an omitted `alg`. Digest uniqueness relies on SHA-256's collision resistance. |
 | 3 | Mac0 and signature representation | Check the `MAC0` context, detached payload, AAD, protected headers, HMAC registration and exact tag length. Verify DER/raw conversion against width and canonical DER rules while preserving the existing NIST-curve verification semantics. Evaluate constant-time comparison with a leakage-aware method. |
 | 4 | Resource limits and operation routing | Check COSE-specific length, depth, and work limits at the parser boundaries. Extend the existing protobuf contract checks to assert matching successful request/result variants across all routes. |
