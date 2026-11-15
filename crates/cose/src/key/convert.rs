@@ -15,7 +15,7 @@ use crate::failure::CoseFailure;
 use crate::limits::validate_cose_key_bytes;
 use crate::{CoseError, CoseKey};
 
-use super::akp::{akp_key, akp_profile, algorithm_for_akp_profile};
+use super::akp::{akp_key, akp_profile, akp_public_bytes_from_params, algorithm_for_akp_profile};
 use super::ec::{
     algorithm_for_ec2_profile, canonical_ec_public_key, ec2_profile,
     ec2_profile_for_signature_algorithm, ec2_public_bytes_from_params, ec2_public_key_builder,
@@ -380,11 +380,8 @@ fn extract_cose_key_public_impl(key: &CoseKey) -> Result<Vec<u8>, CoseError> {
             Ok(public_key)
         }
         KeyProfile::Akp(profile) => {
-            let public_key = get_param_bytes(key.inner(), iana::AkpKeyParameter::Pub as i64)
-                .ok_or(CoseError::MissingKeyMaterial)?;
-            if public_key.len() != profile.public_key_len {
-                return Err(CoseError::InvalidKeyMaterial);
-            }
+            let public_key =
+                akp_public_bytes_from_params(&key.inner().params, profile.public_key_len)?;
             validate_public_key(algorithm_for_akp_profile(profile), public_key)?;
             Ok(public_key.to_vec())
         }

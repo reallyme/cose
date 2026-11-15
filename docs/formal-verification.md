@@ -12,6 +12,7 @@ inputs, real cryptographic providers, and the byte-entry points.
 | --- | --- | --- |
 | Signature registration | Each supported numeric wire ID selects its exact registration and primitive. Legacy curve-dependent, unknown, and private-use IDs fail modern selection. | All `i64` values, against an independent IANA registration table. |
 | Sign1 policy | Restricted policies admit exactly the registrations in the active allowlist. ES256 and ESP256 cannot authorize each other at any position. | Every generated registration against all ordered lists of zero to 32 raw protobuf selector values, including duplicates, unknown values, and deprecated selectors for fully specified ECDSA. A separate proof places an exact or sibling P-256 registration at any active position. Native regressions exercise all 32 positions in attached and detached verification. |
+| Sign1 header placement | Unprotected `alg`, `kid`, and COSE type are rejected. Critical fields in either bucket fail closed. | All combinations of the five field-presence flags in a parsed Sign1 fixture. The protected algorithm is present in every case. |
 | Sign1 authenticated bytes | The verifier's input builder preserves the original protected bstr, external AAD, and payload, in order and with the `Signature1` context. It rejects a missing original bstr. | The small-input proof uses an out-of-order protected map and symbolic `kid`, AAD, and payload bytes. At 23, 24, 255, and 256 bytes, separate proofs check the exact prefix, output length, and every byte of an arbitrary input to the production byte-string encoder. A builder proof observes the original slices and their lengths at the append boundary for every combination. A native regression compares the complete encoding to an independent encoder for all 64 combinations. |
 | Sign1 boundary-sized backend input | Both attached and detached verification pass the received protected bstr, external AAD, and intended payload to the builder. Crypto dispatch receives the builder's original buffer, full length, and exact byte at every offset. | Kani covers all 64 combinations of the three field lengths using a modeled builder output with arbitrary contents and checking an arbitrary offset. It models wire decoding, protected-byte preflight, policy, signature conversion, and fixture wiping, with an observation at crypto dispatch. A native regression signs an independently encoded structure for each combination, verifies both wire forms through the production decoder and Ed25519 backend, and checks that changing any one of the three fields invalidates the signature. |
 | Sign1 authentication gate | Attached and detached verification enforce payload placement before resolving the protected algorithm and `kid`. The verification flow passes the received protected bytes, AAD and intended payload to the structure builder, then forwards the builder output, resolved key and signature to the backend. Only backend acceptance releases authenticated metadata and, for attached verification, the payload. | An Ed25519 fixture with symbolic embedded-payload presence and backend acceptance. Stubs model wire decoding, protected-byte preflight, policy, the structure builder, signature conversion, fixture wiping and cryptographic verification. |
@@ -23,9 +24,15 @@ inputs, real cryptographic providers, and the byte-entry points.
 | P-256 public extraction | The extractor returns exactly the compressed SEC1 prefix and the supplied X coordinate. The private scalar `d` cannot affect those bytes or substitute for missing `x` or `y`. Full-coordinate extraction returns a point only after provider acceptance. | Bounded parameter slices with symbolic 32-byte X, Y, and `d` and symbolic compact Y sign. The production label lookup and projection run for compact and full-coordinate inputs. Full-point validation is modeled as acceptance or typed rejection. The model omits recursive cleanup for the synthetic CBOR fixtures. |
 | P-256 `kid` hash input | The fixed-size public encoder passes only `kty`, `alg`, `crv`, `x`, and the Y sign to SHA-256, preserving ES256 (`-7`) and ESP256 (`-9`) exactly. An unsupported registration or invalid compressed-point prefix cannot reach the hash. | All 32 X bytes and both Y signs at the production hash boundary. The encoder takes a compressed public point and an exact registration, and has no private-key input. The harness observes the input to SHA-256 through a stub. |
 | Ed25519 `kid` hash input | SHA-256 receives exactly the 42-byte canonical map with `kty` OKP, `alg` Ed25519 (`-19`), `crv` Ed25519 (`6`), and the 32-byte `x`. The seed `d` cannot change those bytes or stand in for a missing `x`. | Kani exercises the production projection and encoder with independent symbolic `x` and `d` bytes, optional `d`, and explicit or omitted `alg`. It observes the exact prefix, length, and an arbitrary public-key byte at the SHA-256 boundary. The native RFC 8032 vector exercises the full derivation path, including profile and private/public pair validation. |
+| OKP and EC2 key defaults | The curve selects the exact default registration and coordinate width. X25519 stays without a signature registration. Unknown curves fail closed. | All `i64` curve IDs. A native regression checks each EC2 family against the identifier derived from the corresponding canonical public key. |
+| AKP public projection | AKP extraction selects the public parameter and enforces its expected length. The private parameter cannot replace the public bytes. ML-DSA and ML-KEM profiles bind the exact algorithm and material widths. | Symbolic bytes in a bounded two-parameter fixture and all machine-sized expected lengths. Registration checks cover the supported ML-DSA algorithms, all private-use IDs, and a mismatched assigned algorithm. Native ML-KEM vectors check projection and digest at the actual key widths. |
 | Authentication lengths | CBOR byte-string sizing accounts for the correct prefix width and fails on overflow. | Every pair of 64-bit `usize` inputs to the size helper. |
+| CBOR admission and limits | The outer length gate runs before parsing and accepts only complete items. Depth, collection count, and the COSE role constrain parsing work. | All depth and collection counts, all COSE container roles, and a small input at an arbitrary outer ceiling with a modeled parser. Native tests exercise the real reader at the nesting and collection limits. |
+| Mac0 authentication | The exact protected HMAC registration and tag length gate MAC verification. The backend receives the original protected bytes, external AAD, and detached payload in `MAC0` context. Only backend acceptance releases protected metadata. | All numeric wire IDs and both SHA-256 registration directions. The length proof covers all machine-sized tag lengths with a single-entry or empty allowlist. The handoff model uses a symbolic one-byte AAD and payload, a decoded HMAC 256/64 fixture, and a modeled structure serializer and verifier. The header proof models placement and field validation and checks that metadata uses only the protected `kid`. Native duplicate-header tests exercise placement. Native tests exercise all four HMAC registrations. |
+| ECDSA signature representation | DER lengths use their minimal supported form. DER scalar contents must be positive and minimally encoded. NIST curve dispatch enforces the exact raw COSE width. | All short and one-byte extended DER length heads and one- and two-byte scalar contents. The raw-width proof covers all three supported NIST widths against signatures of up to 133 bytes. Native tests exercise full DER conversion, positive sign padding, and the P-521 long-form sequence. |
 | ML-KEM recipient registration | Each private-use ID selects the documented mode, parameter set, wire lengths, and optional AES-KW registration and key length. Unknown private-use IDs fail closed. | All `i64` values supplied as private-use labels. |
 | ML-KEM KDF context | The context is `[AlgorithmID, [keyDataLength, protected], ?SuppPrivInfo]`. It retains the exact algorithm, checked output length in bits, both byte strings, and the distinction between absent and empty private information. | Kani checks the production context builder for all `i64` algorithm IDs and machine-sized output lengths, with symbolic byte strings of up to three bytes. A second proof models serialization for direct AES-128-GCM and A192KW and observes every encoded byte, the requested output width, and empty customization at KMAC. Native tests check the full encoding at CBOR width boundaries and exercise the real KMAC implementation. |
+| ML-KEM decryption | Both recipient identity checks precede decapsulation. Direct mode uses the derived content key. Key-wrap mode requires key derivation and unwrap integrity. Only successful content authentication releases plaintext. | Separate production control-flow proofs for recipient identity, content-key establishment, and plaintext release. They model the comparison result, protected serialization and crypto providers with small direct and key-wrap fixtures. Native tests join the production parser and primitives across the supported profiles. |
 
 The signature obligations use the [IANA COSE registry](https://www.iana.org/assignments/cose/#algorithms)
 and [RFC 9052 §4.4](https://www.rfc-editor.org/rfc/rfc9052.html#section-4.4).
@@ -49,22 +56,40 @@ to check the public and private key forms against one independently computed
 digest. It also checks that the real parser rejects a mismatched seed and a
 deprecated EdDSA registration.
 
-## Remaining 0.4.0 verification work
+The protobuf boundary tests enumerate every generated request and successful
+result oneof branch. They compare each generated wire field number with the
+schema and check that the response gate accepts only the matching pair. The
+cross product also covers absent request and result variants.
 
-| Priority | Area | Method and acceptance condition |
-| --- | --- | --- |
-| 1 | ML-KEM composition | Model key derivation, decapsulation, unwrap, and AES-GCM through typed results at the crypto boundary. Prove both recipient identity checks precede decapsulation and plaintext is returned only after required key establishment and content authentication. The unprotected encapsulation ciphertext affects authentication through the established key. |
-| 2 | COSE_Key and `kid` | Extend private-field exclusion to additional parameter layouts and cover the documented defaults for other key profiles with an omitted `alg`. Digest uniqueness relies on SHA-256's collision resistance. |
-| 3 | Mac0 and signature representation | Check the `MAC0` context, detached payload, AAD, protected headers, HMAC registration and exact tag length. Verify DER/raw conversion against width and canonical DER rules while preserving the existing NIST-curve verification semantics. Evaluate constant-time comparison with a leakage-aware method. |
-| 4 | Resource limits and operation routing | Check COSE-specific length, depth, and work limits at the parser boundaries. Extend the existing protobuf contract checks to assert matching successful request/result variants across all routes. |
+## Native comparison review
 
-Start with Kani for control flow and finite input domains. Use independent
-byte specifications and differential tests for larger serialization domains.
-Consider Cryptol and SAW once the ML-KEM context specification is stable and
-there is a maintained equivalence check against the production encoder.
-The proofs rely on the cryptographic provider's contract for primitive
-correctness. They establish neither side-channel resistance nor properties
-of the wasm runtime.
+The ARM64 macOS release assembly for the truncated HMAC comparison was
+reviewed with Rust 1.100.0 and `reallyme-crypto-constant-time` 0.3.17 and
+0.4.0. Treat tag bytes as secret and pointers and lengths as public. In
+`ct_eq`, the branch conditions depend on slice lengths and the loop counter.
+Byte equality feeds `cset` and the accumulated result through `and`. The
+loads advance both pointers by one each iteration, and the `subtle` barrier
+uses a fixed stack address. The comparison therefore reads every byte of
+equal-length inputs with the same branch and address trace. The fixed-width
+HMAC registrations delegate comparison to the native RustCrypto verifier.
+
+Reproduce the comparison assembly with the locked dependency on this target.
+
+```sh
+cargo rustc --locked --release -p reallyme-crypto-constant-time -- --emit=asm
+```
+
+The review covers the emitted comparator on this target. Timing, speculative
+effects, and other targets require separate evidence.
+
+## Verification scope
+
+The proofs rely on cryptographic provider contracts for primitive correctness.
+Digest uniqueness relies on SHA-256 collision resistance. The unprotected
+ML-KEM encapsulation ciphertext affects authentication through the key
+established by decapsulation. The serialization tests compare production
+encodings with independent byte fixtures across the documented boundaries.
+The separate native comparison review specifies its target and leakage model.
 
 ## Running the proofs
 

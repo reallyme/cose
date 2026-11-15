@@ -4,15 +4,16 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 use reallyme_cose::{
-    cose_decrypt_ml_kem_with_external_aad, cose_key_from_public_bytes,
-    cose_key_from_signature_public_bytes, cose_key_from_slice, cose_key_to_multikey,
-    cose_key_to_public_bytes, cose_key_to_vec, cose_verify1, cose_verify1_detached,
-    cose_verify1_with_policy_and_external_aad, cose_verify1_with_x5chain_and_exact_algorithm,
-    derive_kid_from_cose_key_public, multikey_to_cose_key, Algorithm,
-    CoseContentEncryptionAlgorithm, CoseError, CoseMlKemAlgorithm, CoseMlKemDecryptRequest,
-    CoseMlKemMode, CosePolicy, CoseSignatureAlgorithm, CoseType,
+    cose_decrypt_ml_kem_with_external_aad, cose_key_from_private_bytes, cose_key_from_public_bytes,
+    cose_key_from_signature_public_bytes, cose_key_from_slice, cose_key_signature_algorithm,
+    cose_key_to_multikey, cose_key_to_public_bytes, cose_key_to_vec, cose_verify1,
+    cose_verify1_detached, cose_verify1_with_policy_and_external_aad,
+    cose_verify1_with_x5chain_and_exact_algorithm, derive_kid_from_cose_key_public,
+    multikey_to_cose_key, Algorithm, CoseContentEncryptionAlgorithm, CoseError, CoseMlKemAlgorithm,
+    CoseMlKemDecryptRequest, CoseMlKemMode, CosePolicy, CoseSignatureAlgorithm, CoseType,
 };
 use serde::Deserialize;
+use zeroize::Zeroizing;
 
 const COSE_SIGN1_VECTORS: &str = include_str!("../../../../vectors/cose-sign1.json");
 const COSE_KEY_VECTORS: &str = include_str!("../../../../vectors/cose-key.json");
@@ -311,6 +312,43 @@ fn portable_cose_key_vectors_roundtrip() {
 }
 
 #[test]
+fn ec2_keys_with_omitted_alg_derive_the_curve_default_kid() -> Result<(), CoseError> {
+    use ciborium::value::Value;
+
+    let suite: CoseKeySuite =
+        serde_json::from_str(COSE_KEY_VECTORS).map_err(|_| CoseError::InvalidFormat)?;
+    for case in suite.cases {
+        let algorithm = algorithm_from_name(&case.algorithm);
+        if !matches!(
+            algorithm,
+            Algorithm::P256 | Algorithm::P384 | Algorithm::P521 | Algorithm::Secp256k1
+        ) {
+            continue;
+        }
+        let raw = decode_hex(&case.cose_key_hex);
+        let Value::Map(mut fields) =
+            ciborium::de::from_reader(raw.as_slice()).map_err(|_| CoseError::InvalidFormat)?
+        else {
+            return Err(CoseError::InvalidFormat);
+        };
+        // COSE_Key alg is label 3. Preserve the independent fixture's
+        // public coordinates and all other encoded fields.
+        fields.retain(|(label, _)| label.as_integer() != Some(3.into()));
+        let mut wire = Vec::new();
+        ciborium::ser::into_writer(&Value::Map(fields), &mut wire).map_err(|_| CoseError::Cbor)?;
+        let unspecified = cose_key_from_slice(&wire)?;
+        assert_eq!(cose_key_signature_algorithm(&unspecified)?, None);
+        let public = decode_hex(&case.public_key_hex);
+        let canonical = cose_key_from_public_bytes(algorithm, &public)?;
+        assert_eq!(
+            derive_kid_from_cose_key_public(&unspecified)?.as_slice(),
+            derive_kid_from_cose_key_public(&canonical)?.as_slice()
+        );
+    }
+    Ok(())
+}
+
+#[test]
 fn portable_pq_cose_key_and_multikey_vectors_roundtrip() {
     let suite: CoseKeySuite =
         serde_json::from_str(COSE_PQ_KEY_VECTORS).expect("PQ COSE_Key vectors must parse");
@@ -393,7 +431,7 @@ fn deterministic_ml_kem_cose_encrypt_vectors_decrypt_and_preserve_metadata() {
         let (crypto_algorithm, kem_algorithm) = ml_kem_algorithm_from_name(&case.kem_algorithm);
         let content_algorithm = content_algorithm_from_name(&case.content_algorithm);
         let mode = ml_kem_mode_from_name(&case.mode);
-        let private_key = decode_hex(&case.private_key_seed_hex);
+        let private_key = Zeroizing::new(decode_hex(&case.private_key_seed_hex));
         let public_key = decode_hex(&case.public_key_hex);
         let kid = decode_hex(&case.recipient_kid_hex);
         let plaintext = decode_hex(&case.plaintext_hex);
@@ -407,6 +445,19 @@ fn deterministic_ml_kem_cose_encrypt_vectors_decrypt_and_preserve_metadata() {
 
         let public_cose_key = cose_key_from_public_bytes(crypto_algorithm, &public_key)
             .expect("vector public key must form a COSE_Key");
+        let private_cose_key =
+            cose_key_from_private_bytes(crypto_algorithm, &private_key, Some(&public_key))
+                .expect("vector seed and public key must form a private COSE_Key");
+        assert_eq!(
+            cose_key_to_public_bytes(&private_cose_key).expect("public parameter must extract"),
+            public_key
+        );
+        assert_eq!(
+            derive_kid_from_cose_key_public(&private_cose_key)
+                .expect("private COSE_Key must derive a public kid")
+                .as_slice(),
+            kid.as_slice()
+        );
         assert_eq!(
             derive_kid_from_cose_key_public(&public_cose_key)
                 .expect("vector public COSE_Key must derive a kid")

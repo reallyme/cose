@@ -22,6 +22,11 @@ use super::x5chain::decode_x5chain;
 const COSE_SIGN1_TAG: u64 = iana::CborTag::CoseSign1 as u64;
 
 #[cfg(test)]
+#[cfg(not(kani))]
+#[path = "verify_header_policy_tests.rs"]
+mod tests;
+
+#[cfg(kani)]
 #[path = "verify_header_policy_tests.rs"]
 mod tests;
 

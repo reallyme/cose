@@ -17,6 +17,10 @@ use super::ec::{
 };
 use super::validate_material::{validate_private_public_pair, validate_public_key};
 
+#[cfg(kani)]
+#[path = "verify_okp_profile_proof_tests.rs"]
+mod verification;
+
 pub(crate) const ED25519_PUBLIC_KEY_BYTES: usize = 32;
 pub(crate) const ED25519_SECRET_KEY_BYTES: usize = 32;
 pub(crate) const X25519_PUBLIC_KEY_BYTES: usize = 32;

@@ -2,6 +2,7 @@
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+use coset::CoseRecipient;
 use reallyme_crypto::aes::{
     decrypt, decrypt_aes128_gcm, decrypt_aes192_gcm, Aes128GcmDecryptRequest, Aes128GcmKey,
     Aes128GcmNonce, Aes192GcmDecryptRequest, Aes192GcmKey, Aes192GcmNonce, Aes256GcmKey,
@@ -31,6 +32,10 @@ use super::types::{
     CoseContentEncryptionAlgorithm, CoseMlKemAlgorithm, CoseMlKemDecryptInput,
     CoseMlKemDecryptRequest, CoseMlKemMode, DecryptedCoseEncrypt,
 };
+
+#[cfg(kani)]
+#[path = "verify_ml_kem_decryption_proof_tests.rs"]
+mod verification;
 
 /// Decrypts the ReallyMe ML-KEM COSE profile with empty external AAD.
 ///
@@ -93,22 +98,63 @@ fn decrypt_ml_kem(
         .ok_or(CoseError::UnsupportedAlgorithm)?;
     let suite = suite_from_cose_algorithm(recipient_algorithm)?;
 
-    if !reallyme_crypto::operations::constant_time::equal(
-        &recipient.protected.header.key_id,
+    let shared_secret = decapsulate_for_recipient(
+        &suite,
+        recipient,
         request.expected_recipient_kid,
-    ) {
+        request.recipient_private_key,
+    )?;
+    let content_key = derive_recipient_content_key(
+        &suite,
+        recipient,
+        &shared_secret,
+        content_cose_algorithm as i64,
+        content_key_length,
+        request.supp_priv_info,
+    );
+    let plaintext = authenticate_after_key_establishment(content_key, |key| {
+        let body_protected = encode_protected_header(&cose.protected)?;
+        let aad = enc_structure(&body_protected, external_aad)?;
+        let ciphertext = cose
+            .ciphertext
+            .as_deref()
+            .ok_or(CoseError::MissingCiphertext)?;
+        decrypt_content(
+            content_algorithm,
+            key,
+            &cose.unprotected.iv,
+            &aad,
+            ciphertext,
+        )
+    })?;
+
+    Ok(DecryptedCoseEncrypt {
+        plaintext,
+        content_algorithm,
+        kem_algorithm: suite.kem,
+        mode: suite.mode,
+        kid: Zeroizing::new(recipient.protected.header.key_id.clone()),
+        profile: suite.profile,
+    })
+}
+
+fn decapsulate_for_recipient(
+    suite: &MlKemSuite,
+    recipient: &CoseRecipient,
+    expected_kid: &[u8],
+    seed: &[u8],
+) -> Result<Zeroizing<Vec<u8>>, CoseError> {
+    let kem = suite.kem;
+    let protected_kid = recipient.protected.header.key_id.as_slice();
+    if !reallyme_crypto::operations::constant_time::equal(protected_kid, expected_kid) {
         return Err(CoseError::KidMismatch);
     }
-    let recipient_public_key =
-        derive_public_key_from_seed(suite.kem, request.recipient_private_key)?;
+    let recipient_public_key = derive_public_key_from_seed(kem, seed)?;
     let derived_kid = Zeroizing::new(derive_kid_from_ml_kem_public_key(
-        suite.kem.crypto_algorithm(),
+        kem.crypto_algorithm(),
         &recipient_public_key,
     )?);
-    if !reallyme_crypto::operations::constant_time::equal(
-        derived_kid.as_ref(),
-        &recipient.protected.header.key_id,
-    ) {
+    if !reallyme_crypto::operations::constant_time::equal(derived_kid.as_ref(), protected_kid) {
         return Err(CoseError::KidMismatch);
     }
     match suite.mode {
@@ -125,61 +171,57 @@ fn decrypt_ml_kem(
     if encapsulated_key.len() != suite.encapsulated_key_length {
         return Err(CoseError::InvalidEncapsulatedKey);
     }
-    let shared_secret = decapsulate(suite.kem, encapsulated_key, request.recipient_private_key)?;
+    decapsulate(suite.kem, encapsulated_key, seed)
+}
+
+fn derive_recipient_content_key(
+    suite: &MlKemSuite,
+    recipient: &CoseRecipient,
+    shared_secret: &[u8],
+    content_algorithm_id: i64,
+    content_key_length: usize,
+    supp_priv_info: Option<&[u8]>,
+) -> Result<Zeroizing<Vec<u8>>, CoseError> {
     let recipient_protected = encode_protected_header(&recipient.protected)?;
-    let content_key = match suite.mode {
+    match suite.mode {
         CoseMlKemMode::Direct => derive_key(
-            &shared_secret,
-            content_cose_algorithm as i64,
+            shared_secret,
+            content_algorithm_id,
             content_key_length,
             &recipient_protected,
-            request.supp_priv_info,
-        )?,
+            supp_priv_info,
+        ),
         CoseMlKemMode::KeyWrap => {
             let kek_length = suite.kek_length.ok_or(CoseError::UnsupportedAlgorithm)?;
             let algorithm_id = suite
                 .key_wrap_algorithm_id
                 .ok_or(CoseError::UnsupportedAlgorithm)?;
             let kek = derive_key(
-                &shared_secret,
+                shared_secret,
                 algorithm_id,
                 kek_length,
                 &recipient_protected,
-                request.supp_priv_info,
+                supp_priv_info,
             )?;
             let wrapped = recipient
                 .ciphertext
                 .as_deref()
                 .ok_or(CoseError::MissingCiphertext)?;
-            unwrap_content_key(&suite, &kek, wrapped, content_key_length)?
+            unwrap_content_key(suite, &kek, wrapped, content_key_length)
         }
-    };
+    }
+}
 
-    let body_protected = encode_protected_header(&cose.protected)?;
-    let aad = enc_structure(&body_protected, external_aad)?;
-    let ciphertext = cose
-        .ciphertext
-        .as_deref()
-        .ok_or(CoseError::MissingCiphertext)?;
-    let plaintext = decrypt_content(
-        content_algorithm,
-        &content_key,
-        &cose.unprotected.iv,
-        &aad,
-        ciphertext,
-    )?;
+fn authenticate_after_key_establishment(
+    content_key: Result<Zeroizing<Vec<u8>>, CoseError>,
+    authenticate: impl FnOnce(&[u8]) -> Result<Zeroizing<Vec<u8>>, CoseError>,
+) -> Result<Zeroizing<Vec<u8>>, CoseError> {
+    let key = content_key?;
+    let plaintext = authenticate(&key)?;
     if plaintext.len() > MAX_PLAINTEXT_BYTES {
         return Err(CoseError::ResourceLimitExceeded);
     }
-
-    Ok(DecryptedCoseEncrypt {
-        plaintext,
-        content_algorithm,
-        kem_algorithm: suite.kem,
-        mode: suite.mode,
-        kid: Zeroizing::new(recipient.protected.header.key_id.clone()),
-        profile: suite.profile,
-    })
+    Ok(plaintext)
 }
 
 fn validate_request(

@@ -6,9 +6,40 @@ use core::mem::ManuallyDrop;
 use zeroize::Zeroizing;
 
 use super::{
-    ec2_public_bytes_from_params, iana, Algorithm, CoseError, Ec2Profile, Label, Value,
-    P256_COORDINATE_BYTES,
+    ec2_profile_from_curve, ec2_public_bytes_from_params, iana, Algorithm, CoseError, Ec2Profile,
+    Label, Value, P256_COORDINATE_BYTES,
 };
+
+#[kani::proof]
+fn ec2_default_registration_is_exact_when_alg_is_omitted() {
+    let curve: i64 = kani::any();
+    let expected = match curve {
+        1 => Some((-9, 32)),
+        2 => Some((-51, 48)),
+        3 => Some((-52, 66)),
+        8 => Some((-47, 32)),
+        _ => None,
+    };
+    match (ec2_profile_from_curve(curve), expected) {
+        (Ok(profile), Some((id, width))) => {
+            assert!(profile.curve as i64 == curve);
+            assert!(profile.alg as i64 == id && profile.coordinate_len == width);
+        }
+        (Err(error), None) => {
+            assert!(error == CoseError::UnsupportedAlgorithm);
+        }
+        _ => {
+            assert!(
+                false,
+                "each curve must select exactly its default registration"
+            );
+        }
+    }
+    kani::cover!(curve == 1, "P-256 defaults to ESP256");
+    kani::cover!(curve == 3, "P-521 defaults to ESP512");
+    kani::cover!(curve == 8, "secp256k1 retains ES256K");
+    kani::cover!(curve == 6, "Ed25519 cannot select an EC2 default");
+}
 
 const P256_PROFILE: Ec2Profile = Ec2Profile {
     curve: iana::EllipticCurve::P_256,

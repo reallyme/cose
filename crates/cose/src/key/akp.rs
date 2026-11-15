@@ -5,13 +5,19 @@
 //! Additional-key-type COSE_Key profiles for ML-DSA and ML-KEM.
 
 use ciborium::value::Value;
-use coset::{iana, CoseKeyBuilder, MlDsaVariant, RegisteredLabelWithPrivate};
+use coset::{iana, CoseKeyBuilder, Label, MlDsaVariant, RegisteredLabelWithPrivate};
 use reallyme_crypto::core::Algorithm;
 
 use crate::algorithm::{
     REALLYME_COSE_ALG_ML_KEM_1024, REALLYME_COSE_ALG_ML_KEM_512, REALLYME_COSE_ALG_ML_KEM_768,
 };
 use crate::CoseError;
+
+use super::profile::find_param_value;
+
+#[cfg(kani)]
+#[path = "verify_akp_public_projection_proof_tests.rs"]
+mod verification;
 
 const ML_DSA_PRIVATE_SEED_BYTES: usize = 32;
 const ML_DSA_44_PUBLIC_KEY_BYTES: usize = 1_312;
@@ -100,6 +106,19 @@ pub(crate) fn akp_profile_from_cose_algorithm(
 
 pub(crate) const fn algorithm_for_akp_profile(profile: AkpProfile) -> Algorithm {
     profile.algorithm
+}
+
+pub(super) fn akp_public_bytes_from_params(
+    params: &[(Label, Value)],
+    public_key_len: usize,
+) -> Result<&[u8], CoseError> {
+    let public_key = find_param_value(params, iana::AkpKeyParameter::Pub as i64)
+        .and_then(Value::as_bytes)
+        .ok_or(CoseError::MissingKeyMaterial)?;
+    if public_key.len() != public_key_len {
+        return Err(CoseError::InvalidKeyMaterial);
+    }
+    Ok(public_key)
 }
 
 pub(crate) fn akp_key(

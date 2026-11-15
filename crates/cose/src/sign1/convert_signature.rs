@@ -301,3 +301,7 @@ fn write_der_integer(der: &mut Vec<u8>, value: &[u8]) -> Result<(), CoseError> {
 #[cfg(test)]
 #[path = "convert_signature_tests.rs"]
 mod tests;
+
+#[cfg(kani)]
+#[path = "verify_der_signature_proof_tests.rs"]
+mod verification;

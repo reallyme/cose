@@ -7,11 +7,27 @@ use coset::{iana, CoseSign1, Label, RegisteredLabelWithPrivate};
 use super::validate_cose_sign1_structure;
 use crate::CoseError;
 
+#[cfg(test)]
 #[test]
 fn sign1_structure_rejects_unprotected_security_headers_and_critical_headers() {
     for presence in 0_u8..32 {
         check_header_combination(presence);
     }
+}
+
+#[cfg(kani)]
+#[kani::proof]
+#[kani::unwind(8)]
+fn sign1_protected_structure_rejects_unprotected_overrides_and_critical_headers() {
+    let presence: u8 = kani::any();
+    kani::assume(presence < 32);
+    check_header_combination(presence);
+    kani::cover!(presence == 0, "a protected-only algorithm is admitted");
+    kani::cover!(
+        presence & 1 != 0,
+        "an unprotected algorithm cannot override the protected algorithm"
+    );
+    kani::cover!(presence & 0b11000 != 0, "critical fields are rejected");
 }
 
 fn check_header_combination(presence: u8) {
@@ -45,6 +61,10 @@ fn check_header_combination(presence: u8) {
             iana::HeaderParameter::Alg,
         )];
     }
+    // Model the structural guard independently of teardown of the synthetic
+    // parsed headers.
+    #[cfg(kani)]
+    let cose = core::mem::ManuallyDrop::new(cose);
     let actual = validate_cose_sign1_structure(&cose);
     let expected = if protected_crit {
         Err(CoseError::UnsupportedCriticalHeader)
