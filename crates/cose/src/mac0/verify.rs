@@ -9,8 +9,13 @@ use crate::limits::{MAX_COSE_MAC0_BYTES, MAX_DETACHED_PAYLOAD_BYTES, MAX_MAC0_EX
 
 use super::decode::decode;
 use super::{
-    CoseMac0Error, CoseMac0ErrorReason, CoseMac0VerifyRequest, CoseMacKey, VerifiedDetachedCoseMac0,
+    CoseMac0Error, CoseMac0ErrorReason, CoseMac0VerifyRequest, CoseMacAlgorithm, CoseMacKey,
+    VerifiedDetachedCoseMac0,
 };
+
+#[cfg(kani)]
+#[path = "verify_mac0_authentication_proof_tests.rs"]
+mod verification;
 
 /// Verify detached COSE_Mac0 bytes using RFC 9052 §§6.2–6.3.
 ///
@@ -50,15 +55,12 @@ pub(crate) fn verify_mac0_operation(
         limits.encoded_bytes.min(MAX_COSE_MAC0_BYTES),
     )?;
     let algorithm = decoded.metadata.algorithm;
-    if !request.allowed_algorithms.contains(&algorithm) {
-        return Err(CoseMac0ErrorReason::UnsupportedAlgorithm.into());
-    }
-    if key.algorithm() != algorithm {
-        return Err(CoseMac0ErrorReason::KeyAlgorithmMismatch.into());
-    }
-    if decoded.tag.len() != algorithm.tag_length() {
-        return Err(CoseMac0ErrorReason::InvalidTagLength.into());
-    }
+    authorize_tag(
+        algorithm,
+        request.allowed_algorithms,
+        || key.algorithm(),
+        decoded.tag.len(),
+    )?;
 
     let to_be_maced = build_authentication_structure(
         AuthenticationContext::Mac0,
@@ -68,4 +70,22 @@ pub(crate) fn verify_mac0_operation(
     )?;
     key.verify(&to_be_maced, &decoded.tag)?;
     Ok(decoded.metadata)
+}
+
+fn authorize_tag(
+    algorithm: CoseMacAlgorithm,
+    allowed: &[CoseMacAlgorithm],
+    key_algorithm: impl FnOnce() -> CoseMacAlgorithm,
+    tag_len: usize,
+) -> Result<(), CoseMac0Error> {
+    if !allowed.contains(&algorithm) {
+        return Err(CoseMac0ErrorReason::UnsupportedAlgorithm.into());
+    }
+    if key_algorithm() != algorithm {
+        return Err(CoseMac0ErrorReason::KeyAlgorithmMismatch.into());
+    }
+    if tag_len != algorithm.tag_length() {
+        return Err(CoseMac0ErrorReason::InvalidTagLength.into());
+    }
+    Ok(())
 }

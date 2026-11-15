@@ -7,6 +7,10 @@ use ciborium::value::Value;
 
 use super::{CoseMac0Error, CoseMac0ErrorReason, CoseMacAlgorithm};
 
+#[cfg(kani)]
+#[path = "verify_mac0_header_proof_tests.rs"]
+mod verification;
+
 const ALGORITHM_LABEL: i64 = 1;
 const CRITICAL_LABEL: i64 = 2;
 const CONTENT_TYPE_LABEL: i64 = 3;
@@ -21,22 +25,13 @@ pub(super) fn validate_headers<'a>(
     protected: &'a [HeaderEntry],
     unprotected: &[HeaderEntry],
 ) -> Result<(CoseMacAlgorithm, Option<&'a [u8]>), CoseMac0Error> {
-    // Compare semantic labels across buckets as well as the raw duplicate
-    // checks in preflight. No unprotected value may shadow protected metadata.
-    for (label, _) in protected {
-        validate_label(label)?;
-        if unprotected.iter().any(|(other, _)| label == other) {
-            return Err(CoseMac0ErrorReason::DuplicateHeader.into());
-        }
-    }
-    for (label, value) in unprotected {
-        validate_label(label)?;
-        if matches!(integer_label(label), Some(ALGORITHM_LABEL | CRITICAL_LABEL)) {
-            return Err(CoseMac0ErrorReason::UnprotectedSecurityHeader.into());
-        }
-        validate_common_value(label, value)?;
-    }
+    validate_header_placement(protected, unprotected)?;
+    protected_metadata(protected)
+}
 
+fn protected_metadata(
+    protected: &[HeaderEntry],
+) -> Result<(CoseMacAlgorithm, Option<&[u8]>), CoseMac0Error> {
     let mut algorithm = None;
     let mut kid = None;
     for (label, value) in protected {
@@ -67,11 +62,47 @@ pub(super) fn validate_headers<'a>(
     ))
 }
 
+fn validate_header_placement(
+    protected: &[HeaderEntry],
+    unprotected: &[HeaderEntry],
+) -> Result<(), CoseMac0Error> {
+    // Compare semantic labels across buckets as well as the raw duplicate
+    // checks in preflight. No unprotected value may shadow protected metadata.
+    for (label, _) in protected {
+        validate_label(label)?;
+        if unprotected
+            .iter()
+            .any(|(other, _)| header_labels_equal(label, other))
+        {
+            return Err(CoseMac0ErrorReason::DuplicateHeader.into());
+        }
+    }
+    for (label, value) in unprotected {
+        validate_label(label)?;
+        if matches!(integer_label(label), Some(ALGORITHM_LABEL | CRITICAL_LABEL)) {
+            return Err(CoseMac0ErrorReason::UnprotectedSecurityHeader.into());
+        }
+        validate_common_value(label, value)?;
+    }
+
+    Ok(())
+}
+
 fn validate_label(label: &Value) -> Result<(), CoseMac0Error> {
     match label {
         Value::Integer(integer) if i64::try_from(*integer).is_ok() => Ok(()),
         Value::Text(_) => Ok(()),
         _ => Err(CoseMac0ErrorReason::InvalidStructure.into()),
+    }
+}
+
+fn header_labels_equal(left: &Value, right: &Value) -> bool {
+    // Label validation permits integers and text. Compare those values
+    // directly so the duplicate check never traverses CBOR containers.
+    match (left, right) {
+        (Value::Integer(left), Value::Integer(right)) => left == right,
+        (Value::Text(left), Value::Text(right)) => left == right,
+        _ => false,
     }
 }
 
@@ -110,10 +141,17 @@ fn validate_critical(value: &Value, protected: &[HeaderEntry]) -> Result<(), Cos
     }
     for (index, label) in labels.iter().enumerate() {
         validate_label(label)?;
-        if labels.iter().take(index).any(|previous| previous == label) {
+        if labels
+            .iter()
+            .take(index)
+            .any(|previous| header_labels_equal(previous, label))
+        {
             return Err(CoseMac0ErrorReason::DuplicateHeader.into());
         }
-        if !protected.iter().any(|(present, _)| present == label) {
+        if !protected
+            .iter()
+            .any(|(present, _)| header_labels_equal(present, label))
+        {
             return Err(CoseMac0ErrorReason::InvalidStructure.into());
         }
         // Only these fields have enforced semantics and corresponding typed

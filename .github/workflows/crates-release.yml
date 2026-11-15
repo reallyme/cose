@@ -172,4 +172,4 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --verify-tag \
             --title "$RELEASE_TAG" \
-            --notes $'- add configurable protected or unprotected x5chain headers for mdoc issuer authentication\n- carry x5chain placement through protobuf while preserving the protected default and rejecting duplicate labels\n- minimum Rust version 1.100\n- update to reallyme/crypto 0.4.2\n- update to reallyme/codec 0.4.3'
+            --notes $'- introduce ISO/IEC 18013-5 signature and signed-container contracts\n- migrate protobuf consumers from manual presence flags to optional fields\n- add bounded formal verification for COSE algorithm selection, authentication inputs, key identity, and ML-KEM recipient handling\n- require Rust 1.100 and update ReallyMe Crypto to 0.4.2, Codec to 0.4.3, and Buffa to 0.1.2'

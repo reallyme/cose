@@ -8,6 +8,7 @@ use std::collections::HashSet;
 
 #[cfg(feature = "cose-crypto")]
 use super::profile::validate_protected_header_bytes;
+use super::profile::{next_depth, validate_item_depth};
 use crate::CoseError;
 
 const CBOR_INDEFINITE_ADDITIONAL_INFO: u8 = 0x1f;
@@ -34,7 +35,6 @@ const COSE_SIGN1_TAG: u64 = 18;
 const COSE_MAC0_TAG: u64 = 17;
 #[cfg(feature = "cose-crypto")]
 const COSE_ENCRYPT_TAG: u64 = 96;
-const MAX_CBOR_DEPTH: usize = 32;
 const MAX_CBOR_COLLECTION_ITEMS: usize = 1_024;
 #[cfg(feature = "cose-crypto")]
 const MAX_COSE_HEADER_PARAMETERS: usize = 32;
@@ -61,6 +61,7 @@ pub(super) fn validate_cbor_bytes(
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(kani, derive(kani::Arbitrary))]
 pub(super) enum CborItemRole {
     Normal,
     CoseKeyTop,
@@ -95,9 +96,7 @@ fn parse_cbor_item(
     depth: usize,
     role: CborItemRole,
 ) -> Result<usize, CoseError> {
-    if depth > MAX_CBOR_DEPTH {
-        return Err(CoseError::ResourceLimitExceeded);
-    }
+    validate_item_depth(depth)?;
 
     let first = *bytes.get(offset).ok_or(CoseError::Cbor)?;
     let major = first >> CBOR_MAJOR_TYPE_SHIFT;
@@ -456,9 +455,7 @@ fn parse_protected_header_bstr_if_present(
     offset: usize,
     depth: usize,
 ) -> Result<Option<usize>, CoseError> {
-    if depth > MAX_CBOR_DEPTH {
-        return Err(CoseError::ResourceLimitExceeded);
-    }
+    validate_item_depth(depth)?;
 
     let first = *bytes.get(offset).ok_or(CoseError::Cbor)?;
     let major = first >> CBOR_MAJOR_TYPE_SHIFT;
@@ -494,6 +491,6 @@ fn parse_protected_header_bstr_if_present(
     Ok(None)
 }
 
-fn next_depth(depth: usize) -> Result<usize, CoseError> {
-    depth.checked_add(1).ok_or(CoseError::ResourceLimitExceeded)
-}
+#[cfg(all(kani, feature = "cose-crypto"))]
+#[path = "verify_cbor_limits_proof_tests.rs"]
+mod verification;

@@ -17,6 +17,12 @@
         "fuzz/",
         "vectors/"
       ]
+    },
+    "formal": {
+      "workflow": "formal-verification.yml",
+      "paths": [
+        "crates/"
+      ]
     }
   },
   "release": {

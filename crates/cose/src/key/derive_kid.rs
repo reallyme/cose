@@ -2,6 +2,7 @@
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+use crate::algorithm::CoseSignatureAlgorithm;
 use crate::failure::CoseFailure;
 #[cfg(feature = "cose-crypto")]
 use crate::key::convert::canonical_ml_kem_public_key_bytes;
@@ -12,9 +13,20 @@ use crate::key::convert::{
 use crate::key::profile::{algorithm_for_cose_key, cose_key_signature_algorithm};
 use crate::{CoseError, CoseKey};
 use reallyme_codec::cbor::sha2_256_content_hash;
+use reallyme_crypto::core::Algorithm;
 #[cfg(feature = "cose-crypto")]
 use zeroize::Zeroize;
 use zeroize::Zeroizing;
+
+#[path = "encode_ed25519_kid_preimage.rs"]
+mod ed25519_preimage;
+
+#[path = "encode_p256_kid_preimage.rs"]
+mod p256_preimage;
+
+#[cfg(kani)]
+#[path = "verify_ed25519_kid_proof_tests.rs"]
+mod ed25519_verification;
 
 #[must_use]
 pub(crate) struct CoseKeyKidOutput {
@@ -45,20 +57,43 @@ pub(crate) fn derive_cose_key_public_kid(
     let algorithm = algorithm_for_cose_key(input.key()).map_err(CoseFailure::from)?;
     let signature_algorithm =
         cose_key_signature_algorithm(input.key()).map_err(CoseFailure::from)?;
-    let public_bytes = extract_cose_key_public(input)?.into_zeroizing();
-    let public_key = match signature_algorithm {
-        Some(signature_algorithm) => {
-            construct_cose_key_from_signature_public(signature_algorithm, &public_bytes)?.into_key()
+    let digest = if algorithm == Algorithm::Ed25519 {
+        // The Ed25519 profile validates x and its binding to d when present.
+        // Hash only the specified public projection of that validated key.
+        ed25519_preimage::hash_ed25519_kid(input.key().inner()).map_err(CoseFailure::from)?
+    } else {
+        let public_bytes = extract_cose_key_public(input)?.into_zeroizing();
+        match signature_algorithm {
+            Some(signature @ (CoseSignatureAlgorithm::Es256 | CoseSignatureAlgorithm::Esp256)) => {
+                // EC2 extraction validates the key and returns compressed SEC1
+                // bytes. The P-256 encoder accepts only that public projection.
+                let point = public_bytes
+                    .as_slice()
+                    .try_into()
+                    .map_err(|_| CoseFailure::from(CoseError::InvalidKeyMaterial))?;
+                p256_preimage::hash_p256_kid(signature, point)?
+            }
+            signature => {
+                let public_key = match signature {
+                    Some(signature) => {
+                        construct_cose_key_from_signature_public(signature, &public_bytes)?
+                            .into_key()
+                    }
+                    None => construct_cose_key_from_public(CoseKeyFromPublicBytesInput::new(
+                        algorithm,
+                        &public_bytes,
+                    ))?
+                    .into_key(),
+                };
+                let canonical =
+                    encode_cose_key(CoseKeyRefInput::new(&public_key))?.into_zeroizing();
+                sha2_256_content_hash(&canonical)
+            }
         }
-        None => construct_cose_key_from_public(CoseKeyFromPublicBytesInput::new(
-            algorithm,
-            &public_bytes,
-        ))?
-        .into_key(),
     };
-    let canonical = encode_cose_key(CoseKeyRefInput::new(&public_key))?.into_zeroizing();
+    let digest = Zeroizing::new(digest);
     Ok(CoseKeyKidOutput {
-        kid: Zeroizing::new(sha2_256_content_hash(&canonical).to_vec()),
+        kid: Zeroizing::new(digest.to_vec()),
         #[cfg(feature = "wire")]
         signature_algorithm,
     })
@@ -68,8 +103,8 @@ pub(crate) fn derive_cose_key_public_kid(
 ///
 /// The public key is validated and normalized before encoding, so compressed,
 /// raw-coordinate, and uncompressed SEC1 inputs for the same EC point produce
-/// one identifier. The canonical public key includes its algorithm binding;
-/// the same bytes under a different COSE algorithm therefore cannot collide.
+/// one identifier. The canonical public key includes its algorithm binding,
+/// so a different COSE algorithm changes the bytes passed to SHA-256.
 ///
 /// # Errors
 ///

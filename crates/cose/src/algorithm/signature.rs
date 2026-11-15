@@ -9,6 +9,10 @@ use reallyme_crypto::core::Algorithm;
 
 use crate::CoseError;
 
+#[cfg(kani)]
+#[path = "verify_signature_registration_proof_tests.rs"]
+mod verification;
+
 /// Closed compatibility view generated from the protobuf selector.
 pub use crate::generated_contract::CoseSignatureAlgorithm;
 

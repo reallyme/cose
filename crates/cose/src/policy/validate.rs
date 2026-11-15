@@ -2,6 +2,10 @@
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 use super::typ::CoseTypeExt;
+#[cfg(all(kani, feature = "cose-crypto"))]
+#[path = "verify_sign1_policy_proof_tests.rs"]
+mod verification;
+
 #[cfg(feature = "cose-crypto")]
 use coset::CoseSign1;
 use reallyme_crypto::core::Algorithm;
@@ -13,7 +17,7 @@ use crate::sign1::CoseType;
 #[cfg(feature = "cose-crypto")]
 use crate::CoseError;
 
-use buffa::MessageField;
+use buffa::{EnumValue, MessageField};
 #[cfg(feature = "cose-crypto")]
 use reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseType as ContractType;
 use reallyme_cose_proto::generated::proto::reallyme::cose::v1::{
@@ -71,10 +75,7 @@ impl CosePolicy {
     }
     /// Iterates checked, exact registrations from the generated policy.
     pub fn allowed_cose_algorithms(&self) -> impl Iterator<Item = CoseSignatureAlgorithm> + '_ {
-        self.contract
-            .allowed_algorithms
-            .iter()
-            .filter_map(|value| CoseSignatureAlgorithm::try_from(*value).ok())
+        exact_signature_registrations(&self.contract.allowed_algorithms)
     }
     /// Effective encoded Sign1 ceiling, bounded by the implementation maximum.
     pub fn max_cose_sign1_bytes(&self) -> usize {
@@ -241,9 +242,6 @@ pub(crate) fn validate_cose_sign1_policy(
 
     // --- algorithm allow-list ---
     if !policy.contract.allow_any_algorithm {
-        if policy.contract.allowed_algorithms.is_empty() {
-            return Err(CoseError::UnsupportedAlgorithm);
-        }
         let cose_alg = cose
             .protected
             .header
@@ -251,13 +249,28 @@ pub(crate) fn validate_cose_sign1_policy(
             .as_ref()
             .ok_or(CoseError::UnsupportedAlgorithm)?;
         let algorithm = CoseSignatureAlgorithm::from_registered(cose_alg)?;
-        if !policy
-            .allowed_cose_algorithms()
-            .any(|allowed| allowed == algorithm)
-        {
-            return Err(CoseError::UnsupportedAlgorithm);
-        }
+        require_exact_signature_registration(&policy.contract.allowed_algorithms, algorithm)?;
     }
 
     Ok(())
+}
+
+#[cfg(feature = "cose-crypto")]
+fn require_exact_signature_registration(
+    allowlist: &[EnumValue<ContractAlgorithm>],
+    algorithm: CoseSignatureAlgorithm,
+) -> Result<(), CoseError> {
+    if exact_signature_registrations(allowlist).any(|allowed| allowed == algorithm) {
+        Ok(())
+    } else {
+        Err(CoseError::UnsupportedAlgorithm)
+    }
+}
+
+fn exact_signature_registrations(
+    allowlist: &[EnumValue<ContractAlgorithm>],
+) -> impl Iterator<Item = CoseSignatureAlgorithm> + '_ {
+    allowlist
+        .iter()
+        .filter_map(|value| CoseSignatureAlgorithm::try_from(*value).ok())
 }

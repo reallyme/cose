@@ -40,6 +40,19 @@ pub use crate::generated_contract::values::MAX_COSE_X5CHAIN_CERTIFICATE_BYTES;
 /// Maximum aggregate DER bytes accepted for one RFC 9360 `x5chain` header.
 pub use crate::generated_contract::values::MAX_COSE_X5CHAIN_TOTAL_BYTES;
 
+const MAX_CBOR_DEPTH: usize = 32;
+
+pub(super) fn next_depth(depth: usize) -> Result<usize, CoseError> {
+    depth.checked_add(1).ok_or(CoseError::ResourceLimitExceeded)
+}
+
+pub(super) fn validate_item_depth(depth: usize) -> Result<(), CoseError> {
+    if depth > MAX_CBOR_DEPTH {
+        return Err(CoseError::ResourceLimitExceeded);
+    }
+    Ok(())
+}
+
 #[cfg(feature = "cose-crypto")]
 pub(crate) fn validate_cose_sign1_bytes_with_limit(
     bytes: &[u8],

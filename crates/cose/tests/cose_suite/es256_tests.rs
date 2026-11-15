@@ -6,8 +6,9 @@
 use reallyme_cose::{
     cose_key_from_public_bytes, cose_key_from_signature_private_bytes,
     cose_key_from_signature_public_bytes, cose_key_from_slice, cose_key_signature_algorithm,
-    cose_key_to_public_bytes, cose_key_to_vec, cose_sign1_with_signature_algorithm,
-    cose_sign1_with_signature_algorithm_and_external_aad, cose_verify1_with_exact_algorithm,
+    cose_key_to_public_bytes, cose_key_to_vec, cose_sign1_detached_with_signature_algorithm,
+    cose_sign1_with_signature_algorithm, cose_sign1_with_signature_algorithm_and_external_aad,
+    cose_verify1_detached_with_exact_algorithm, cose_verify1_with_exact_algorithm,
     cose_verify1_with_policy, cose_verify1_with_x5chain, derive_kid_from_cose_key_public,
     Algorithm, CoseError, CosePolicy, CoseSign1EncodeOptions, CoseSignatureAlgorithm,
     X5ChainHeaderPlacement,
@@ -45,6 +46,72 @@ fn exact_resolver_does_not_reuse_an_es256_key_for_esp256() {
             assert!(matches!(result, Err(CoseError::KeyNotResolved)));
         }
     }
+}
+
+#[test]
+fn detached_exact_resolver_keeps_registrations_separate_for_the_same_kid() -> Result<(), CoseError>
+{
+    let (es256_public, es256_private) =
+        reallyme_crypto::dispatch::generate_keypair(Algorithm::P256)
+            .map_err(|_| CoseError::InvalidKeyMaterial)?;
+    let (esp256_public, esp256_private) =
+        reallyme_crypto::dispatch::generate_keypair(Algorithm::P256)
+            .map_err(|_| CoseError::InvalidKeyMaterial)?;
+    let payload = b"detached payload";
+    let kid = test_kid();
+    let policy = CosePolicy::default();
+
+    for (registration, other, private, other_public) in [
+        (
+            CoseSignatureAlgorithm::Es256,
+            CoseSignatureAlgorithm::Esp256,
+            es256_private.as_slice(),
+            &esp256_public,
+        ),
+        (
+            CoseSignatureAlgorithm::Esp256,
+            CoseSignatureAlgorithm::Es256,
+            esp256_private.as_slice(),
+            &es256_public,
+        ),
+    ] {
+        let signed = cose_sign1_detached_with_signature_algorithm(
+            registration,
+            payload,
+            private,
+            Some(kid),
+        )?;
+        let result = cose_verify1_detached_with_exact_algorithm(
+            &signed,
+            payload,
+            &[],
+            &policy,
+            |requested, requested_kid| {
+                assert_eq!(requested_kid, kid);
+                match requested {
+                    CoseSignatureAlgorithm::Es256 => Some(es256_public.clone()),
+                    CoseSignatureAlgorithm::Esp256 => Some(esp256_public.clone()),
+                    _ => None,
+                }
+            },
+        )?;
+        assert_eq!(result.cose_algorithm, registration);
+        assert_eq!(result.alg, Algorithm::P256);
+        assert_eq!(result.kid.as_slice(), kid);
+
+        let result = cose_verify1_detached_with_exact_algorithm(
+            &signed,
+            payload,
+            &[],
+            &policy,
+            |requested, requested_kid| {
+                assert_eq!(requested_kid, kid);
+                (requested == other).then(|| other_public.clone())
+            },
+        );
+        assert!(matches!(result, Err(CoseError::KeyNotResolved)));
+    }
+    Ok(())
 }
 
 #[test]
@@ -165,8 +232,90 @@ fn es256_sign1_roundtrip_reports_exact_registration_and_policy_distinguishes_it(
 }
 
 #[test]
+fn full_sign1_allowlist_requires_the_exact_p256_registration_at_every_position(
+) -> Result<(), CoseError> {
+    const ALLOWLIST_LIMIT: usize = 32;
+
+    let key = gen_p256();
+    let payload = b"allowlist boundary";
+    let kid = test_kid();
+    for (registration, other) in [
+        (
+            CoseSignatureAlgorithm::Es256,
+            CoseSignatureAlgorithm::Esp256,
+        ),
+        (
+            CoseSignatureAlgorithm::Esp256,
+            CoseSignatureAlgorithm::Es256,
+        ),
+    ] {
+        let attached =
+            cose_sign1_with_signature_algorithm(registration, payload, &key.private, Some(kid))?;
+        let detached = cose_sign1_detached_with_signature_algorithm(
+            registration,
+            payload,
+            &key.private,
+            Some(kid),
+        )?;
+
+        for position in 0..ALLOWLIST_LIMIT {
+            for entry in [other, registration] {
+                let mut allowlist = [CoseSignatureAlgorithm::Ed25519; ALLOWLIST_LIMIT];
+                allowlist[position] = entry;
+                let builder = CosePolicy::new().with_allowed_cose_algorithms(allowlist);
+                let policy = CosePolicy::from_contract(builder.contract().clone())?;
+                let accepted = entry == registration;
+                let expected = if accepted {
+                    Ok(registration)
+                } else {
+                    Err(CoseError::UnsupportedAlgorithm)
+                };
+
+                let mut attached_called = false;
+                let attached_result = cose_verify1_with_exact_algorithm(
+                    &attached,
+                    &[],
+                    &policy,
+                    |requested, protected_kid| {
+                        attached_called = true;
+                        assert_eq!(requested, registration);
+                        assert_eq!(protected_kid, kid);
+                        Some(key.public.clone())
+                    },
+                );
+                let mut detached_called = false;
+                let detached_result = cose_verify1_detached_with_exact_algorithm(
+                    &detached,
+                    payload,
+                    &[],
+                    &policy,
+                    |requested, protected_kid| {
+                        detached_called = true;
+                        assert_eq!(requested, registration);
+                        assert_eq!(protected_kid, kid);
+                        Some(key.public.clone())
+                    },
+                );
+                assert_eq!(
+                    attached_result.map(|verified| verified.cose_algorithm),
+                    expected
+                );
+                assert_eq!(
+                    detached_result.map(|verified| verified.cose_algorithm),
+                    expected
+                );
+                assert_eq!(attached_called, accepted);
+                assert_eq!(detached_called, accepted);
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
 fn x5chain_verification_is_explicit_bounded_and_preserves_exact_es256() {
     const LEAF_CERTIFICATE_DER: &[u8] = &[0x30, 0x03, 0x02, 0x01, 0x01];
+    const OTHER_CERTIFICATE_DER: &[u8] = &[0x30, 0x03, 0x02, 0x01, 0x02];
 
     let keypair = gen_p256();
     let cose = cose_sign1_with_signature_algorithm_and_external_aad(
@@ -278,6 +427,25 @@ fn x5chain_verification_is_explicit_bounded_and_preserves_exact_es256() {
         X5ChainHeaderPlacement::Unprotected
     );
 
+    for (encoded, placement_policy) in [
+        (cose.as_slice(), &policy),
+        (unprotected_chain.as_slice(), &unprotected_policy),
+    ] {
+        let mut trust_called = false;
+        let rejected = reallyme_cose::cose_verify1_with_x5chain_and_exact_algorithm(
+            encoded,
+            placement_policy,
+            |algorithm, certificates| {
+                trust_called = true;
+                assert_eq!(algorithm, CoseSignatureAlgorithm::Es256);
+                assert_eq!(certificates, expected_certificates.as_slice());
+                None
+            },
+        );
+        assert!(trust_called);
+        assert_eq!(rejected.err(), Some(CoseError::KeyNotResolved));
+    }
+
     // A third party can add an unprotected path to a message signed without
     // one. The default policy must not attribute that path to the signer.
     let without_chain = cose_sign1_with_signature_algorithm(
@@ -321,18 +489,23 @@ fn x5chain_verification_is_explicit_bounded_and_preserves_exact_es256() {
         .expect("unprotected header must exist");
     *unprotected_entries = ciborium::value::Value::Map(vec![(
         ciborium::value::Value::Integer(33_i64.into()),
-        ciborium::value::Value::Bytes(LEAF_CERTIFICATE_DER.to_vec()),
+        ciborium::value::Value::Bytes(OTHER_CERTIFICATE_DER.to_vec()),
     )]);
     let mut duplicate_bytes = Vec::new();
     ciborium::ser::into_writer(&duplicate_chain, &mut duplicate_bytes)
         .expect("test COSE must encode");
-    assert_eq!(
-        cose_verify1_with_x5chain(&duplicate_bytes, &policy, |_, _| {
+    // Allow either placement so the trust boundary is tested independently of placement policy.
+    let mut duplicate_trust_called = false;
+    let rejected = reallyme_cose::cose_verify1_with_x5chain_and_exact_algorithm(
+        &duplicate_bytes,
+        &unprotected_policy,
+        |_, _| {
+            duplicate_trust_called = true;
             Some(keypair.public.clone())
-        })
-        .err(),
-        Some(CoseError::DuplicateMapLabel),
+        },
     );
+    assert_eq!(rejected.err(), Some(CoseError::DuplicateMapLabel));
+    assert!(!duplicate_trust_called);
 }
 
 #[test]

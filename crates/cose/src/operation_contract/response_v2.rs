@@ -17,6 +17,10 @@ use crate::wire::{
 
 const MAX_RESPONSE_OVERHEAD_BYTES: usize = 32;
 
+#[cfg(test)]
+#[path = "verify_request_result_routing_tests.rs"]
+mod routing_tests;
+
 pub(crate) fn from_result(result: CoseWireResult<CoseOperationResult>) -> CoseOperationResponseV2 {
     let outcome = match result {
         Ok(result) => CoseOperationOutcomeV2::Result(Box::new(result)),

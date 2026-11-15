@@ -47,6 +47,21 @@ fn collection_over_limit_is_rejected_before_key_tracking_allocation() {
 }
 
 #[test]
+fn nested_wire_arrays_are_admitted_at_the_depth_limit_and_rejected_beyond_it() {
+    let mut cbor = vec![0x81; 32];
+    cbor.push(0x00);
+    assert_eq!(
+        validate_cbor_bytes(&cbor, cbor.len(), CborItemRole::Normal),
+        Ok(())
+    );
+    cbor.insert(0, 0x81);
+    assert_eq!(
+        validate_cbor_bytes(&cbor, cbor.len(), CborItemRole::Normal),
+        Err(CoseError::ResourceLimitExceeded)
+    );
+}
+
+#[test]
 fn overlong_simple_value_is_non_canonical() {
     assert_eq!(
         validate_cbor_bytes(&[0xf8, 0x00], 2, CborItemRole::Normal),

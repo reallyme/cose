@@ -7,17 +7,17 @@ use coset::CoseSign1;
 use reallyme_crypto::core::Algorithm;
 use reallyme_crypto::dispatch::verify;
 
-use crate::encode_cbor::encode_protected_header;
 use crate::error::signature_error_from_algorithm_error;
 use crate::failure::CoseFailure;
 use crate::policy::{validate_cose_sign1_policy, CosePolicy};
 use crate::CoseError;
 
-use super::build_sig_structure::build_sig_structure;
+use super::build_sig_structure::build_received_sig_structure;
 use super::convert_signature::backend_signature_from_cose;
 use super::cose_type::CoseType;
 use super::decode::{
     decode_cose_sign1, decode_cose_sign1_with_x5chain, validate_cose_sign1_structure,
+    DecodedCoseSign1WithX5Chain,
 };
 use super::sign::X5ChainHeaderPlacement;
 use super::types::{CoseSign1DetachedVerifyInput, CoseSign1KeyResolution, CoseSign1VerifyInput};
@@ -25,6 +25,20 @@ use crate::limits::validate_detached_payload_with_limit;
 use zeroize::Zeroizing;
 
 use crate::algorithm::CoseSignatureAlgorithm;
+
+#[cfg(kani)]
+#[path = "verify_authentication_gate_proof_tests.rs"]
+mod verification;
+
+#[cfg(test)]
+#[cfg(not(kani))]
+#[path = "verify_x5chain_wire_tests.rs"]
+mod x5chain_wire_tests;
+
+#[cfg(kani)]
+#[path = "verify_x5chain_wire_tests.rs"]
+mod x5chain_wire_tests;
+
 /// Verified COSE_Sign1 attached payload and protected-header metadata.
 pub use crate::generated_contract::VerifiedCoseSign1;
 
@@ -173,35 +187,11 @@ pub(crate) fn verify_cose_sign1_x5chain(
     policy: &CosePolicy,
     public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[Vec<u8>]) -> Option<Vec<u8>>,
 ) -> Result<VerifiedCoseSign1WithX5Chain, CoseError> {
-    let decoded = decode_cose_sign1_with_x5chain(cose_bytes, policy.max_cose_sign1_bytes())?;
-    let mut cose = decoded.cose;
-    let x5chain_der = decoded.x5chain_der;
-    let x5chain_header_placement = match decoded.x5chain_placement {
-        None => return Err(CoseError::InvalidFormat),
-        Some(_) if x5chain_der.is_empty() => return Err(CoseError::InvalidFormat),
-        Some(X5ChainHeaderPlacement::Unprotected) if !policy.allow_unprotected_x5chain() => {
-            return Err(CoseError::UnprotectedHeaderNotAllowed);
-        }
-        Some(placement) => placement,
-    };
-    let payload = cose
-        .inner()
-        .payload
-        .as_ref()
-        .ok_or(CoseError::MissingPayload)?;
-    let metadata = verify_cose_signature(
-        cose.inner(),
-        decoded.tagged,
-        &[],
-        payload,
-        policy,
-        |algorithm, _| match public_key_resolver(algorithm, &x5chain_der) {
-            Some(public_key) => CoseSign1KeyResolution::Resolved(Zeroizing::new(public_key)),
-            None => CoseSign1KeyResolution::NotResolved,
-        },
-    )
-    .map_err(CoseFailure::into_native_error)?;
-    let payload = cose
+    let mut decoded = decode_cose_sign1_with_x5chain(cose_bytes, policy.max_cose_sign1_bytes())?;
+    let (metadata, x5chain_header_placement) =
+        verify_x5chain_signature(&decoded, policy, public_key_resolver)?;
+    let payload = decoded
+        .cose
         .inner_mut()
         .payload
         .take()
@@ -212,9 +202,41 @@ pub(crate) fn verify_cose_sign1_x5chain(
         cose_algorithm: metadata.cose_algorithm,
         kid: metadata.kid,
         cose_type: metadata.cose_type,
-        x5chain_der,
+        x5chain_der: decoded.x5chain_der,
         x5chain_header_placement,
     })
+}
+
+// Keep the decoded chain under its original owner until verification
+// succeeds. This lets the trust resolver borrow the exact decoded chain.
+fn verify_x5chain_signature(
+    decoded: &DecodedCoseSign1WithX5Chain,
+    policy: &CosePolicy,
+    public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[Vec<u8>]) -> Option<Vec<u8>>,
+) -> Result<(VerifiedDetachedCoseSign1, X5ChainHeaderPlacement), CoseError> {
+    let placement = match decoded.x5chain_placement {
+        None => return Err(CoseError::InvalidFormat),
+        Some(_) if decoded.x5chain_der.is_empty() => return Err(CoseError::InvalidFormat),
+        Some(X5ChainHeaderPlacement::Unprotected) if !policy.allow_unprotected_x5chain() => {
+            return Err(CoseError::UnprotectedHeaderNotAllowed);
+        }
+        Some(placement) => placement,
+    };
+    let cose = decoded.cose.inner();
+    let payload = cose.payload.as_ref().ok_or(CoseError::MissingPayload)?;
+    let metadata = verify_cose_signature(
+        cose,
+        decoded.tagged,
+        &[],
+        payload,
+        policy,
+        |algorithm, _| match public_key_resolver(algorithm, &decoded.x5chain_der) {
+            Some(public_key) => CoseSign1KeyResolution::Resolved(Zeroizing::new(public_key)),
+            None => CoseSign1KeyResolution::NotResolved,
+        },
+    )
+    .map_err(CoseFailure::into_native_error)?;
+    Ok((metadata, placement))
 }
 
 /// Verify COSE_Sign1 with a detached payload.
@@ -425,12 +447,10 @@ fn verify_cose_signature(
 
     // RFC 9052 §4.4: the Sig_structure must carry the protected header bstr
     // exactly as received, not a re-encoding of the parsed header.
-    let protected_bytes = encode_protected_header(&cose.protected)?;
-    let to_verify = build_sig_structure(&protected_bytes, external_aad, payload)?;
+    let to_verify = build_received_sig_structure(&cose.protected, external_aad, payload)?;
     let backend_signature = backend_signature_from_cose(alg, &cose.signature)?;
 
-    verify(alg, &public_key, &to_verify, &backend_signature)
-        .map_err(signature_error_from_algorithm_error)?;
+    verify_signature_with_backend(alg, &public_key, &to_verify, &backend_signature)?;
 
     Ok(VerifiedDetachedCoseSign1 {
         alg,
@@ -438,4 +458,15 @@ fn verify_cose_signature(
         kid: Zeroizing::new(kid.to_vec()),
         cose_type,
     })
+}
+
+// Translate provider errors at the boundary so the verification flow can be
+// checked against a typed provider result independent of the provider version.
+fn verify_signature_with_backend(
+    algorithm: Algorithm,
+    public_key: &[u8],
+    message: &[u8],
+    signature: &[u8],
+) -> Result<(), CoseError> {
+    verify(algorithm, public_key, message, signature).map_err(signature_error_from_algorithm_error)
 }

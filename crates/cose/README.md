@@ -742,6 +742,8 @@ CI uses Release Readiness 0.9.4 pinned to its full commit. The local
 package via npm (network access required on the first run). Fuzzing
 commands and runtime limits are documented in
 [the fuzzing guide](https://github.com/reallyme/cose/blob/main/fuzz/README.md).
+The [formal verification guide](https://github.com/reallyme/cose/blob/main/docs/formal-verification.md)
+documents the Kani checks, their input bounds, and how to run them locally.
 
 Release readiness requires crates.io dependencies for the published ReallyMe
 foundational crates: `reallyme-crypto` `^0.4.2` and `reallyme-codec` `^0.4.3`.

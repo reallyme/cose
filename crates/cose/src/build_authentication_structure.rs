@@ -58,6 +58,10 @@ pub(crate) fn build_authentication_structure(
 #[path = "build_authentication_structure_tests.rs"]
 mod tests;
 
+#[cfg(kani)]
+#[path = "verify_authentication_lengths_proof_tests.rs"]
+mod verification;
+
 fn checked_bstr_size(current: usize, payload_len: usize) -> Option<usize> {
     current
         .checked_add(cbor_length_header_size(payload_len))?

@@ -34,6 +34,25 @@ fn encode_kdf_context(
     recipient_protected: &[u8],
     supp_priv_info: Option<&[u8]>,
 ) -> Result<Zeroizing<Vec<u8>>, CoseError> {
+    let value = build_kdf_context(
+        algorithm_id,
+        output_length,
+        recipient_protected,
+        supp_priv_info,
+    )?;
+    let context = encode_cbor_value(value)?;
+    if context.len() > KMAC256_MAX_CONTEXT_LENGTH {
+        return Err(CoseError::ResourceLimitExceeded);
+    }
+    Ok(context)
+}
+
+fn build_kdf_context(
+    algorithm_id: i64,
+    output_length: usize,
+    recipient_protected: &[u8],
+    supp_priv_info: Option<&[u8]>,
+) -> Result<Value, CoseError> {
     let output_bits = output_length
         .checked_mul(8)
         .ok_or(CoseError::ResourceLimitExceeded)?;
@@ -52,12 +71,7 @@ fn encode_kdf_context(
         context_items.push(Value::Bytes(supp_priv_info.to_vec()));
     }
 
-    let context = encode_cbor_value(Value::Array(context_items))?;
-    if context.len() > KMAC256_MAX_CONTEXT_LENGTH {
-        return Err(CoseError::ResourceLimitExceeded);
-    }
-
-    Ok(context)
+    Ok(Value::Array(context_items))
 }
 
 pub(crate) fn enc_structure(
@@ -75,3 +89,7 @@ pub(crate) fn enc_structure(
 #[cfg(test)]
 #[path = "kdf_tests.rs"]
 mod tests;
+
+#[cfg(kani)]
+#[path = "verify_kdf_context_proof_tests.rs"]
+mod verification;

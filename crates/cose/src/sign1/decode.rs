@@ -19,6 +19,21 @@ use super::cose_type::{CoseType, COSE_TYPE_HEADER_LABEL};
 use super::sign::X5ChainHeaderPlacement;
 use super::x5chain::decode_x5chain;
 
+const COSE_SIGN1_TAG: u64 = iana::CborTag::CoseSign1 as u64;
+
+#[cfg(test)]
+#[cfg(not(kani))]
+#[path = "verify_header_policy_tests.rs"]
+mod tests;
+
+#[cfg(kani)]
+#[path = "verify_header_policy_tests.rs"]
+mod tests;
+
+#[cfg(kani)]
+#[path = "decode_x5chain_proof_tests.rs"]
+mod x5chain_proofs;
+
 /// Decode untagged COSE_Sign1 bytes, or bytes carrying the registered
 /// COSE_Sign1 tag (18) already allowed by the byte-boundary tag policy.
 pub(super) fn decode_cose_sign1(
@@ -57,19 +72,8 @@ fn decode_cose_sign1_internal(
     allow_x5chain: bool,
 ) -> Result<DecodedCoseSign1WithX5Chain, CoseError> {
     let decoded = SensitiveCborValue::decode_cose_sign1(cose_bytes, max_len)?;
-    let tagged = matches!(decoded.value(), Value::Tag(18, _));
-    let body = match decoded.value() {
-        Value::Tag(18, body) => body.as_ref(),
-        value => value,
-    };
-    let items = match body {
-        Value::Array(items) => items,
-        _ => return Err(CoseError::InvalidFormat),
-    };
-    let [protected_value, unprotected_value, payload_value, signature_value] = items.as_slice()
-    else {
-        return Err(CoseError::InvalidFormat);
-    };
+    let ([protected_value, unprotected_value, payload_value, signature_value], tagged) =
+        sign1_fields(decoded.value())?;
 
     // Establish the recursive wipe owner before cloning any semantic field.
     // Every rejected header or field type below therefore clears both the
@@ -109,6 +113,20 @@ fn decode_cose_sign1_internal(
         x5chain_placement,
         tagged,
     })
+}
+
+fn sign1_fields(value: &Value) -> Result<([&Value; 4], bool), CoseError> {
+    let (body, tagged) = match value {
+        Value::Tag(COSE_SIGN1_TAG, body) => (body.as_ref(), true),
+        value => (value, false),
+    };
+    let Value::Array(items) = body else {
+        return Err(CoseError::InvalidFormat);
+    };
+    let [protected, unprotected, payload, signature] = items.as_slice() else {
+        return Err(CoseError::InvalidFormat);
+    };
+    Ok(([protected, unprotected, payload, signature], tagged))
 }
 
 #[derive(Clone, Copy)]
@@ -204,17 +222,7 @@ fn decode_sign1_header(
                 Label::Int(COSE_TYPE_HEADER_LABEL),
                 cose_type.to_cbor_value(),
             ));
-        } else if label == iana::HeaderParameter::X5Chain as i64 {
-            if !allow_x5chain {
-                return Err(CoseError::InvalidFormat);
-            }
-            if x5chain_placement.is_some() {
-                return Err(CoseError::DuplicateMapLabel);
-            }
-            *x5chain_placement = Some(match bucket {
-                Sign1HeaderBucket::Protected => X5ChainHeaderPlacement::Protected,
-                Sign1HeaderBucket::Unprotected => X5ChainHeaderPlacement::Unprotected,
-            });
+        } else if claim_x5chain_label(label, bucket, allow_x5chain, x5chain_placement)? {
             *x5chain_der = Zeroizing::new(decode_x5chain(value)?);
         } else {
             // This SDK does not expose processing results for content-type,
@@ -225,6 +233,31 @@ fn decode_sign1_header(
         }
     }
     Ok(())
+}
+
+// The header decoder shares this placement across both bucket passes. Claim
+// the label before reading its value so a second occurrence cannot replace
+// the first certificate path.
+fn claim_x5chain_label(
+    label: i64,
+    bucket: Sign1HeaderBucket,
+    allow_x5chain: bool,
+    placement: &mut Option<X5ChainHeaderPlacement>,
+) -> Result<bool, CoseError> {
+    if label != iana::HeaderParameter::X5Chain as i64 {
+        return Ok(false);
+    }
+    if !allow_x5chain {
+        return Err(CoseError::InvalidFormat);
+    }
+    if placement.is_some() {
+        return Err(CoseError::DuplicateMapLabel);
+    }
+    *placement = Some(match bucket {
+        Sign1HeaderBucket::Protected => X5ChainHeaderPlacement::Protected,
+        Sign1HeaderBucket::Unprotected => X5ChainHeaderPlacement::Unprotected,
+    });
+    Ok(true)
 }
 
 fn parse_header_algorithm(
