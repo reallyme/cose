@@ -33,6 +33,7 @@ inputs, real cryptographic providers, and the byte-entry points.
 | ML-KEM recipient registration | Each private-use ID selects the documented mode, parameter set, wire lengths, and optional AES-KW registration and key length. Unknown private-use IDs fail closed. | All `i64` values supplied as private-use labels. |
 | ML-KEM KDF context | The context is `[AlgorithmID, [keyDataLength, protected], ?SuppPrivInfo]`. It retains the exact algorithm, checked output length in bits, both byte strings, and the distinction between absent and empty private information. | Kani checks the production context builder for all `i64` algorithm IDs and machine-sized output lengths, with symbolic byte strings of up to three bytes. A second proof models serialization for direct AES-128-GCM and A192KW and observes every encoded byte, the requested output width, and empty customization at KMAC. Native tests check the full encoding at CBOR width boundaries and exercise the real KMAC implementation. |
 | ML-KEM decryption | Both recipient identity checks precede decapsulation. Direct mode uses the derived content key. Key-wrap mode requires key derivation and unwrap integrity. Only successful content authentication releases plaintext. | Separate production control-flow proofs for recipient identity, content-key establishment, and plaintext release. They model the comparison result, protected serialization and crypto providers with small direct and key-wrap fixtures. Native tests join the production parser and primitives across the supported profiles. |
+| ML-KEM body authentication | The body verifier hands the AEAD adapter the selected AES-GCM registration, content key, received nonce and ciphertext, and `Enc_structure` built from the original protected bstr and external AAD. | Kani covers all three AES-GCM registrations with symbolic keys, nonces, ciphertexts, and empty or two-byte external AAD. One proof checks that the received protected bstr bypasses reserialization. A separate handoff proof models that return value and the serializer, and observes the input to the AEAD adapter. Native tests compare the shared serializer with independent bytes at the CBOR length boundaries. |
 
 The signature obligations use the [IANA COSE registry](https://www.iana.org/assignments/cose/#algorithms)
 and [RFC 9052 §4.4](https://www.rfc-editor.org/rfc/rfc9052.html#section-4.4).
@@ -61,26 +62,29 @@ result oneof branch. They compare each generated wire field number with the
 schema and check that the response gate accepts only the matching pair. The
 cross product also covers absent request and result variants.
 
-## Native comparison review
+## Comparison control-flow review
 
-The ARM64 macOS release assembly for the truncated HMAC comparison was
-reviewed with Rust 1.100.0 and `reallyme-crypto-constant-time` 0.3.17 and
+The truncated HMAC comparator was reviewed for ARM64 macOS, x86-64 Linux,
+and Wasm using Rust 1.100.0 and `reallyme-crypto-constant-time` 0.3.17 and
 0.4.0. Treat tag bytes as secret and pointers and lengths as public. In
 `ct_eq`, the branch conditions depend on slice lengths and the loop counter.
-Byte equality feeds `cset` and the accumulated result through `and`. The
-loads advance both pointers by one each iteration, and the `subtle` barrier
-uses a fixed stack address. The comparison therefore reads every byte of
-equal-length inputs with the same branch and address trace. The fixed-width
-HMAC registrations delegate comparison to the native RustCrypto verifier.
+Byte equality feeds the accumulated result through an integer AND on each
+target. The loads read consecutive positions in both slices, and the
+`subtle` barrier uses a fixed stack offset. Equal-length comparisons follow
+the same branch and address trace across tag values. The fixed-width HMAC
+registrations delegate comparison to the provider's verifier.
 
-Reproduce the comparison assembly with the locked dependency on this target.
+Reproduce the emitted comparison with the locked dependency for each target.
 
 ```sh
-cargo rustc --locked --release -p reallyme-crypto-constant-time -- --emit=asm
+for comparison_target in aarch64-apple-darwin x86_64-unknown-linux-gnu wasm32-unknown-unknown; do
+  cargo rustc --locked --release --target "$comparison_target" \
+    -p reallyme-crypto-constant-time -- --emit=asm
+done
 ```
 
-The review covers the emitted comparator on this target. Timing, speculative
-effects, and other targets require separate evidence.
+The review covers the emitted comparator instructions. Microarchitectural
+timing, speculation, and Wasm engine transformations require separate evidence.
 
 ## Verification scope
 
@@ -89,7 +93,13 @@ Digest uniqueness relies on SHA-256 collision resistance. The unprotected
 ML-KEM encapsulation ciphertext affects authentication through the key
 established by decapsulation. The serialization tests compare production
 encodings with independent byte fixtures across the documented boundaries.
-The separate native comparison review specifies its target and leakage model.
+The comparison review specifies its targets and leakage model.
+
+The exhaustive protobuf matrix checks the response gate. Successful execution
+coverage for newly added routes belongs at the typed dispatcher and wire entry
+points. Keep proofs of the cryptographic primitives with their provider. An
+independent encoding equivalence proof is most valuable where a new encoding
+has a wider domain than the byte fixtures can exercise.
 
 ## Running the proofs
 
@@ -109,3 +119,10 @@ CARGO_NET_OFFLINE=true cargo kani --package reallyme-cose --lib --no-default-fea
 Use `--harness <name>` to verify one obligation while iterating. Keep default
 memory, overflow, and unwinding checks enabled. Increase a loop's unwinding
 bound only when the input domain or an implementation detail warrants it.
+
+CI allows six minutes per harness, 35 minutes for the verification step, and
+45 minutes for the job. A timeout fails verification. The job summary lists
+the slowest reported harnesses, and the artifact includes the console log
+and any completed JSON report. Use a targeted rerun to diagnose a timeout.
+Prefer proving smaller production stages with explicit assumptions and
+reachability checks when a model repeatedly exhausts the time budget.

@@ -37,6 +37,10 @@ use super::types::{
 #[path = "verify_ml_kem_decryption_proof_tests.rs"]
 mod verification;
 
+#[cfg(kani)]
+#[path = "verify_encryption_aad_proof_tests.rs"]
+mod aad_verification;
+
 /// Decrypts the ReallyMe ML-KEM COSE profile with empty external AAD.
 ///
 /// # Errors
@@ -113,19 +117,7 @@ fn decrypt_ml_kem(
         request.supp_priv_info,
     );
     let plaintext = authenticate_after_key_establishment(content_key, |key| {
-        let body_protected = encode_protected_header(&cose.protected)?;
-        let aad = enc_structure(&body_protected, external_aad)?;
-        let ciphertext = cose
-            .ciphertext
-            .as_deref()
-            .ok_or(CoseError::MissingCiphertext)?;
-        decrypt_content(
-            content_algorithm,
-            key,
-            &cose.unprotected.iv,
-            &aad,
-            ciphertext,
-        )
+        authenticate_body(cose, content_algorithm, key, external_aad)
     })?;
 
     Ok(DecryptedCoseEncrypt {
@@ -136,6 +128,27 @@ fn decrypt_ml_kem(
         kid: Zeroizing::new(recipient.protected.header.key_id.clone()),
         profile: suite.profile,
     })
+}
+
+fn authenticate_body(
+    cose: &coset::CoseEncrypt,
+    algorithm: CoseContentEncryptionAlgorithm,
+    content_key: &[u8],
+    external_aad: &[u8],
+) -> Result<Zeroizing<Vec<u8>>, CoseError> {
+    let body_protected = encode_protected_header(&cose.protected)?;
+    let aad = enc_structure(&body_protected, external_aad)?;
+    let ciphertext = cose
+        .ciphertext
+        .as_deref()
+        .ok_or(CoseError::MissingCiphertext)?;
+    decrypt_content(
+        algorithm,
+        content_key,
+        &cose.unprotected.iv,
+        &aad,
+        ciphertext,
+    )
 }
 
 fn decapsulate_for_recipient(

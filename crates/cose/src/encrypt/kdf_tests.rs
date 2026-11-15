@@ -5,8 +5,16 @@
 use reallyme_crypto::kmac::{derive_kmac256, Kmac256Key, KMAC256_MAX_CONTEXT_LENGTH};
 use zeroize::Zeroizing;
 
-use super::{derive_key, encode_kdf_context};
+use super::{derive_key, enc_structure, encode_kdf_context};
 use crate::CoseError;
+
+const BSTR_WIDTHS: [(usize, &[u8]); 5] = [
+    (0, b"\x40"),
+    (23, b"\x57"),
+    (24, b"\x58\x18"),
+    (255, b"\x58\xff"),
+    (256, b"\x59\x01\x00"),
+];
 
 #[test]
 fn oversized_encoded_context_has_a_resource_limit_error() {
@@ -47,18 +55,11 @@ fn context_matches_independent_cbor_across_integer_and_byte_string_widths() -> R
         (24, b"\x18\xc0"),
         (32, b"\x19\x01\x00"),
     ];
-    const BYTE_STRINGS: [(usize, &[u8]); 5] = [
-        (0, b"\x40"),
-        (23, b"\x57"),
-        (24, b"\x58\x18"),
-        (255, b"\x58\xff"),
-        (256, b"\x59\x01\x00"),
-    ];
     let protected: Vec<u8> = (u8::MIN..=u8::MAX).collect();
     let private = Zeroizing::new((u8::MIN..=u8::MAX).rev().collect::<Vec<_>>());
     for (algorithm, algorithm_cbor) in ALGORITHMS {
         for (output_length, bits_cbor) in OUTPUT_LENGTHS {
-            for (protected_len, protected_head) in BYTE_STRINGS {
+            for (protected_len, protected_head) in BSTR_WIDTHS {
                 let protected = &protected[..protected_len];
                 let mut expected = Zeroizing::new(vec![0x82]);
                 expected.extend_from_slice(algorithm_cbor);
@@ -69,7 +70,7 @@ fn context_matches_independent_cbor_across_integer_and_byte_string_widths() -> R
                 let actual = encode_kdf_context(algorithm, output_length, protected, None)?;
                 assert_eq!(actual.as_slice(), expected.as_slice());
 
-                for (private_len, private_head) in BYTE_STRINGS {
+                for (private_len, private_head) in BSTR_WIDTHS {
                     let private = &private[..private_len];
                     let mut expected = expected.clone();
                     expected[0] = 0x83;
@@ -80,6 +81,26 @@ fn context_matches_independent_cbor_across_integer_and_byte_string_widths() -> R
                     assert_eq!(actual.as_slice(), expected.as_slice());
                 }
             }
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn enc_structure_matches_independent_cbor_at_both_byte_string_boundaries() -> Result<(), CoseError>
+{
+    let protected: Vec<u8> = (u8::MIN..=u8::MAX).collect();
+    let aad: Vec<u8> = (u8::MIN..=u8::MAX).rev().collect();
+    for (protected_len, protected_head) in BSTR_WIDTHS {
+        for (aad_len, aad_head) in BSTR_WIDTHS {
+            let protected = &protected[..protected_len];
+            let aad = &aad[..aad_len];
+            let mut expected = b"\x83\x67Encrypt".to_vec();
+            expected.extend_from_slice(protected_head);
+            expected.extend_from_slice(protected);
+            expected.extend_from_slice(aad_head);
+            expected.extend_from_slice(aad);
+            assert_eq!(enc_structure(protected, aad)?.as_slice(), expected);
         }
     }
     Ok(())
