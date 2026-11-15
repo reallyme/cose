@@ -19,6 +19,7 @@ const mode = args[0] ?? MODE_INSPECT;
 const allowDirty = args.includes("--allow-dirty");
 const unknownArgs = args.slice(1).filter((arg) => arg !== "--allow-dirty");
 const releaseVersion = process.env.RELEASE_VERSION ?? "";
+const archiveDirectory = process.env.CRATE_ARCHIVE_DIR;
 
 if (
   (mode !== MODE_INSPECT && mode !== MODE_ORDER && mode !== MODE_PUBLISH) ||
@@ -32,6 +33,15 @@ if (
 
 if (allowDirty && mode !== MODE_INSPECT && mode !== MODE_ORDER) {
   console.error("--allow-dirty is only supported for local package inspection and order checks");
+  process.exit(2);
+}
+
+if (
+  ((mode === MODE_PUBLISH && process.env.GITHUB_ACTIONS === "true") ||
+    archiveDirectory !== undefined) &&
+  !(typeof archiveDirectory === "string" && path.isAbsolute(archiveDirectory))
+) {
+  console.error("CRATE_ARCHIVE_DIR must be an absolute path to the reviewed crate archives.");
   process.exit(2);
 }
 
@@ -307,8 +317,16 @@ if (mode === MODE_INSPECT) {
 
   fs.rmSync(unpackDirectory, { force: true, recursive: true });
   fs.mkdirSync(unpackDirectory, { recursive: true });
+  if (archiveDirectory !== undefined) {
+    fs.mkdirSync(archiveDirectory);
+  }
   for (const pkg of ordered) {
     const archive = path.join(packageDirectory, `${pkg.name}-${pkg.version}.crate`);
+    // Keep the exact archives inspected below. Later Cargo dry runs can
+    // replace files under target/package.
+    if (archiveDirectory !== undefined) {
+      fs.copyFileSync(archive, path.join(archiveDirectory, path.basename(archive)), fs.constants.COPYFILE_EXCL);
+    }
     const extractResult = run("tar", ["-xzf", archive, "-C", unpackDirectory]);
     if (extractResult.status !== 0) {
       process.exit(extractResult.status ?? 1);
@@ -418,26 +436,57 @@ function inspectPackage(pkg) {
   process.exit(dryRunResult.status ?? 1);
 }
 
-function publishPackage(pkg) {
-  const packageResult = run("cargo", [
-    "package",
-    "-p",
-    pkg.name,
-    "--no-verify",
-    "--locked",
-  ]);
-  if (packageResult.status !== 0) {
-    process.exit(packageResult.status ?? 1);
-  }
+function archiveChecksum(file) {
+  return createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+}
 
-  const args = ["publish", "-p", pkg.name, "--locked"];
+function verifyReviewedArchive(pkg) {
+  if (archiveDirectory === undefined) {
+    return;
+  }
+  const name = `${pkg.name}-${pkg.version}.crate`;
+  try {
+    if (archiveChecksum(path.join(packageDirectory, name)) ===
+        archiveChecksum(path.join(archiveDirectory, name))) {
+      return;
+    }
+  } catch {
+    console.error(`reviewed crate archive is missing or unreadable: ${pkg.name}`);
+    process.exit(1);
+  }
+  console.error(`repacked crate archive does not match preflight: ${pkg.name}`);
+  process.exit(1);
+}
+
+function publishPackage(pkg) {
+  const args = ["publish", "-p", pkg.name, "--locked", "--no-verify"];
 
   for (let attempt = 1; attempt <= MAX_PUBLISH_ATTEMPTS; attempt += 1) {
+    // Cargo's stable CLI packages from source. Require the archive to match
+    // preflight first and keep compilation out of the credentialed job.
+    const packaged = run("cargo", [
+      "package", "-p", pkg.name, "--no-verify", "--locked",
+    ], { capture: true });
+    process.stdout.write(packaged.stdout);
+    process.stderr.write(packaged.stderr);
+    if (packaged.status !== 0) {
+      if (!unresolvedRegistryPackages(packaged.stderr).some(
+        (name) => isEarlierWorkspaceDependency(pkg, name),
+      ) || attempt === MAX_PUBLISH_ATTEMPTS) {
+        process.exit(packaged.status ?? 1);
+      }
+      sleepMs(attempt * CRATES_IO_INDEX_RETRY_BASE_MS);
+      continue;
+    }
+    verifyReviewedArchive(pkg);
     const result = run("cargo", args, { capture: true });
     process.stdout.write(result.stdout);
     process.stderr.write(result.stderr);
 
     if (result.status === 0) {
+      if (archiveDirectory !== undefined) {
+        verifyPublishedPackageMatches(pkg);
+      }
       return;
     }
 
@@ -481,7 +530,7 @@ function publishPackage(pkg) {
 }
 
 function verifyPublishedPackageMatches(pkg) {
-  const localArchive = path.join(packageDirectory, `${pkg.name}-${pkg.version}.crate`);
+  const localArchive = path.join(archiveDirectory ?? packageDirectory, `${pkg.name}-${pkg.version}.crate`);
   if (!fs.existsSync(localArchive)) {
     console.error(`${pkg.name} ${pkg.version} local package archive is missing`);
     process.exit(1);
@@ -518,7 +567,7 @@ function verifyPublishedPackageMatches(pkg) {
       process.exit(downloadResult.status ?? 1);
     }
 
-    const localChecksum = createHash("sha256").update(fs.readFileSync(localArchive)).digest("hex");
+    const localChecksum = archiveChecksum(localArchive);
     const publishedChecksum = createHash("sha256")
       .update(fs.readFileSync(publishedArchive))
       .digest("hex");

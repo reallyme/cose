@@ -5,29 +5,10 @@
 name: Protobuf Checks
 
 on:
-  workflow_dispatch:
-  pull_request:
-    paths:
-      - ".github/workflows/protobuf-ci.yml"
-      - "buf.yaml"
-      - "buf.gen.yaml"
-      - "crates/proto/**"
-      - "scripts/check_release_readiness.mjs"
-      - "scripts/release-readiness/core.mjs"
-      - "scripts/generate_cose_contract.mjs"
-      - "scripts/**"
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/protobuf-ci.yml"
-      - "buf.yaml"
-      - "buf.gen.yaml"
-      - "crates/proto/**"
-      - "scripts/check_release_readiness.mjs"
-      - "scripts/release-readiness/core.mjs"
-      - "scripts/generate_cose_contract.mjs"
-      - "scripts/**"
+  workflow_call:
+    outputs:
+      verified_sha:
+        value: ${{ jobs.protobuf.outputs.verified_sha }}
 
 permissions:
   contents: read
@@ -41,6 +22,9 @@ jobs:
   protobuf:
     name: lint, generated freshness
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    outputs:
+      verified_sha: ${{ steps.verified.outputs.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -88,9 +72,20 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: reallyme/release-readiness
-          ref: 18a6d91d99837e80f92e41fe04effb0b043d754e
+          ref: 7dffa0366a43fe9cc7b98a8040d37dd701d7955e
           path: .release-readiness
           persist-credentials: false
 
       - name: Check release readiness generated freshness
         run: node .release-readiness/scripts/run-consumer-check.mjs --generated-freshness
+
+      - name: Test repository scripts
+        run: node --test scripts/*.test.mjs scripts/release-readiness/*.test.mjs
+
+      - name: Record verified source
+        id: verified
+        shell: bash
+        run: |
+          sha=$(git rev-parse --verify HEAD)
+          test "$sha" = "$GITHUB_SHA"
+          printf 'sha=%s\n' "$sha" >>"$GITHUB_OUTPUT"

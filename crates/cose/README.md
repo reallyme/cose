@@ -720,7 +720,7 @@ dependency checks after installing the pinned external-type checker:
 
 ```sh
 bash scripts/install_external_type_checker.sh .local-tools
-node scripts/check_release_readiness.mjs
+node scripts/run_pinned_release_readiness.mjs
 ```
 
 Protobuf regeneration requires Buf 1.73.0 and the ReallyMe Buffa 0.1.0 tools:
@@ -729,7 +729,7 @@ Protobuf regeneration requires Buf 1.73.0 and the ReallyMe Buffa 0.1.0 tools:
 cargo install reallyme-protoc-gen-buffa --version '=0.1.0' --locked
 cargo install reallyme-protoc-gen-buffa-packaging --version '=0.1.0' --locked
 node scripts/generate_cose_contract.mjs
-node scripts/check_release_readiness.mjs --generated-freshness
+node scripts/run_pinned_release_readiness.mjs --generated-freshness
 ```
 
 The generation driver requires exact executable names and versions, lints the
@@ -738,10 +738,9 @@ projections. Cleanup needs no source rewriting. The documented enum diagnostic
 guard is the remaining release blocker. Freshness regenerates into a temporary
 directory and compares every output without repairing the checked-in evidence.
 `node scripts/generate_cose_contract.mjs --check` runs that comparison directly.
-CI uses the pinned shared release-readiness runner;
-crate publication additionally requires its package-preflight checks. Locally,
-`node scripts/run_pinned_release_readiness.mjs` verifies the vendored core against
-the pinned upstream copy before running the same gate (requires network access). Fuzzing
+CI uses Release Readiness 0.9.0 pinned to its full commit. The local
+`node scripts/run_pinned_release_readiness.mjs` command runs the same pinned
+package via npm (network access required on the first run). Fuzzing
 commands and runtime limits are documented in
 [the fuzzing guide](https://github.com/reallyme/cose/blob/main/fuzz/README.md).
 
@@ -749,11 +748,11 @@ Release readiness requires crates.io dependencies for the published ReallyMe
 foundational crates: `reallyme-crypto` `^0.3.17` and `reallyme-codec` `^0.3.2`.
 Local `../crypto` or `../codec` path dependencies are not accepted for release.
 
-The package preflight verifies the requested release commit and crate version,
-audits committed lockfiles, runs the pinned release-readiness checks, and
-inspects and dry-runs the package publication. The release workflow publishes
-with the repository's `CARGO_REGISTRY_TOKEN` after the reviewed package
-preflight succeeds.
+The package preflight requires successful `Required CI` evidence for its
+source SHA and verifies the crate version. It tests the packaged crates and
+uploads the reviewed archives. The release workflow retrieves those archives,
+checks the Cargo package bytes against them, and publishes the crates in
+dependency order.
 
 The gate also checks operation routing, typed errors, sensitive-buffer ownership,
 and allocation limits. The benchmark asserts named peak-allocation ceilings;

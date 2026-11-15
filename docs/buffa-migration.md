@@ -60,8 +60,8 @@ and numeric values continue to decode.
 
 After a matching fixed runtime/generator family is published, update exact pins,
 remove the diagnostic guard and regenerate. The existing regression test must
-pass against unmodified generator output. The release gate rejects the current
-guarded migration even after all independent validation commands pass.
+pass against unmodified generator output. Crate preflight and publication reject the guarded migration. Development CI
+still verifies the existing guarded bindings and their regression tests.
 
 The remaining separate generator emits native borrowed adapters, reason aliases
 and equality compatibility. A local-plugin `type_attribute` option could replace

@@ -1,0 +1,74 @@
+# SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+name: Scheduled fuzzing
+
+on:
+  schedule:
+    - cron: "41 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_FUZZ_VERSION: 0.13.2
+  NIGHTLY_TOOLCHAIN: nightly-2026-09-15
+  FUZZ_MAX_TOTAL_TIME_SECONDS: 900
+
+jobs:
+  scheduled:
+    name: scheduled fuzz (${{ matrix.target }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - cose_sign1
+          - cose_mac0
+          - cose_iso18013
+          - cose_containers
+          - cose_key
+          - multikey_to_cose
+          - wire
+          - cose_encrypt
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Rust nightly
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: ${{ env.NIGHTLY_TOOLCHAIN }}
+
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+
+      - name: Install cargo-fuzz
+        run: cargo install cargo-fuzz --version "$CARGO_FUZZ_VERSION" --locked
+
+      - name: Verify fuzz lockfile is current
+        run: cargo metadata --manifest-path fuzz/Cargo.toml --locked --no-deps
+
+      - name: Restore and persist fuzz corpus
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: fuzz/corpus/${{ matrix.target }}
+          key: fuzz-corpus-v1-${{ runner.os }}-${{ matrix.target }}-${{ github.run_id }}
+          restore-keys: |
+            fuzz-corpus-v1-${{ runner.os }}-${{ matrix.target }}-
+
+      - name: Run time-boxed fuzz target
+        run: cargo +nightly-2026-09-15 fuzz run ${{ matrix.target }} -- -max_total_time="$FUZZ_MAX_TOTAL_TIME_SECONDS" -rss_limit_mb=4096
+
+      - name: Upload crash artifacts
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fuzz-artifacts-${{ matrix.target }}
+          path: fuzz/artifacts/${{ matrix.target }}
+          if-no-files-found: ignore

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 import {schemaScalarClassifications} from "./schema_contract.mjs";
-import {checkFreshness,checkGeneratorVersions} from "./generate_cose_contract.mjs";
+import {checkFreshness} from "./generate_cose_contract.mjs";
 import {maskRustNonCode} from "./release-readiness/operation-contract-routing.mjs";
 
 // The pinned shared runner retains its supply-chain and general repository
@@ -58,17 +58,15 @@ export function assertGuardedBuffaContract({root,readText,fail,assertWorkflowRun
         || !new RegExp(`${variant}\\(crate::${expected}\\)`,"u").test(scope)) fail("protobuf scalar lacks its native wipe owner");
     }
   }
-  for(const workflow of [".github/workflows/protobuf-ci.yml",".github/workflows/crates-package-preflight.yml"]) {
-    if(!/^\s*BUFFA_VERSION: 0\.1\.0$/mu.test(readText(workflow))) fail("generator CI version differs");
-    if(!/^\s*BUF_VERSION: 1\.73\.0$/mu.test(readText(workflow))) fail("Buf CI version differs");
-    assertWorkflowRunStep(workflow,"Install pinned Buffa generators",`cargo install reallyme-protoc-gen-buffa --version "=$BUFFA_VERSION" --locked
+  const workflow=".github/workflows/protobuf-ci.yml";
+  if(!/^\s*BUFFA_VERSION: 0\.1\.0$/mu.test(readText(workflow))) fail("generator CI version differs");
+  if(!/^\s*BUF_VERSION: 1\.73\.0$/mu.test(readText(workflow))) fail("Buf CI version differs");
+  assertWorkflowRunStep(workflow,"Install pinned Buffa generators",`cargo install reallyme-protoc-gen-buffa --version "=$BUFFA_VERSION" --locked
 cargo install reallyme-protoc-gen-buffa-packaging --version "=$BUFFA_VERSION" --locked
 test "$(protoc-gen-reallyme-buffa --version)" = "protoc-gen-reallyme-buffa $BUFFA_VERSION"
 test "$(protoc-gen-reallyme-buffa-packaging --version)" = "protoc-gen-reallyme-buffa-packaging $BUFFA_VERSION"`);
-  }
-  if(installBufRun!==undefined) assertWorkflowRunStep(".github/workflows/protobuf-ci.yml","Install buf",installBufRun);
-  assertWorkflowRunStep(".github/workflows/protobuf-ci.yml","Check release readiness generated freshness",
+  if(installBufRun!==undefined) assertWorkflowRunStep(workflow,"Install buf",installBufRun);
+  assertWorkflowRunStep(workflow,"Check release readiness generated freshness",
     "node .release-readiness/scripts/run-consumer-check.mjs --generated-freshness");
-  checkGeneratorVersions(root);
   if(freshness) checkFreshness(root);
 }

@@ -60,7 +60,7 @@ Use Buf 1.73.0 and the published `protoc-gen-reallyme-buffa` /
 
 ```sh
 node scripts/generate_cose_contract.mjs
-node scripts/check_release_readiness.mjs --generated-freshness
+node scripts/run_pinned_release_readiness.mjs --generated-freshness
 ```
 
 The complete message family uses native cleanup, guarded repeated storage,

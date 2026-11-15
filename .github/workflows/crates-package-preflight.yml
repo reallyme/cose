@@ -1,10 +1,10 @@
 # SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
-
+#
 # SPDX-License-Identifier: MIT OR Apache-2.0
 
 name: Crates Package Preflight
 
-run-name: Crates package preflight ${{ inputs.version }} @ ${{ github.sha }}
+run-name: Preflight crates ${{ inputs.version }} ${{ inputs.source_sha }}
 
 on:
   workflow_dispatch:
@@ -14,192 +14,124 @@ on:
         required: true
         type: string
         default: 0.3.0
-
-concurrency:
-  group: crates-package-preflight-${{ inputs.version }}-${{ github.sha }}
-  cancel-in-progress: false
+      source_sha:
+        description: Full source commit SHA on main
+        required: true
+        type: string
 
 permissions:
   contents: read
 
-env:
-  BUFFA_VERSION: 0.1.0
-  BUF_VERSION: 1.73.0
-  CARGO_AUDIT_VERSION: 0.22.2
-  CARGO_CHECK_EXTERNAL_TYPES_VERSION: 0.5.0
-  CARGO_DENY_VERSION: 0.20.2
-  CARGO_FUZZ_VERSION: 0.13.2
-  CARGO_NEXTEST_VERSION: 0.9.146
-  EXTERNAL_TYPES_NIGHTLY: nightly-2026-09-15
-  FUZZ_NIGHTLY: nightly-2026-09-15
-  WASM_BINDGEN_CLI_VERSION: 0.2.129
-  WASM_PACK_VERSION: 0.15.0
-  BUF_LINUX_X86_64_SHA256: 8f2986298ad08f0cc1bf999b9797b7c383adf32d7edf0f73d6f1e1a701baeac1
+concurrency:
+  group: crates-package-preflight-${{ inputs.source_sha }}
+  cancel-in-progress: false
 
 jobs:
-  verify-source-sha:
-    name: Verify release source
+  verify:
+    name: Verify release source and evidence
     runs-on: ubuntu-24.04
-    outputs:
-      release_sha: ${{ steps.verify-source.outputs.release_sha }}
-      release_version: ${{ steps.verify-source.outputs.release_version }}
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: read
     steps:
-      - name: Checkout requested release commit
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ github.sha }}
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Install Node
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: '26'
-
-      - name: Match workflow head, current main, and crate versions
-        id: verify-source
-        env:
-          RELEASE_SHA: ${{ github.sha }}
-          RELEASE_VERSION: ${{ inputs.version }}
-          RELEASE_SOURCE_WRITE_GITHUB_OUTPUT: '1'
-        run: node scripts/verify_release_source.mjs
-
-  crates-package:
-    name: Review crates.io packages
-    needs: verify-source-sha
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout certified release commit
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ needs.verify-source-sha.outputs.release_sha }}
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
-        with:
-          toolchain: 1.100.0
-          components: rustfmt, clippy
-          targets: wasm32-unknown-unknown
-
-      - name: Cache Cargo
-        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
-
-      - name: Install Node
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: '26'
-
-      - name: Install buf
+      - name: Validate source selection
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
         run: |
           set -euo pipefail
-          install_dir="$RUNNER_TEMP/buf/bin"
-          mkdir -p "$install_dir"
-          curl --fail-with-body --location --proto '=https' --tlsv1.2 \
-            --retry 5 --retry-all-errors \
-            --output "$install_dir/buf" \
-            "https://github.com/bufbuild/buf/releases/download/v${BUF_VERSION}/buf-Linux-x86_64"
-          printf '%s  %s\n' "$BUF_LINUX_X86_64_SHA256" "$install_dir/buf" \
-            | sha256sum --check --strict
-          chmod 0755 "$install_dir/buf"
-          printf '%s\n' "$install_dir" >> "$GITHUB_PATH"
-          "$install_dir/buf" --version
+          test "$GITHUB_REF" = refs/heads/main
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$SOURCE_SHA" = "$GITHUB_SHA"
 
-      - name: Install pinned Buffa generators
-        run: |
-          cargo install reallyme-protoc-gen-buffa --version "=$BUFFA_VERSION" --locked
-          cargo install reallyme-protoc-gen-buffa-packaging --version "=$BUFFA_VERSION" --locked
-          test "$(protoc-gen-reallyme-buffa --version)" = "protoc-gen-reallyme-buffa $BUFFA_VERSION"
-          test "$(protoc-gen-reallyme-buffa-packaging --version)" = "protoc-gen-reallyme-buffa-packaging $BUFFA_VERSION"
-
-      - name: Install nextest
-        uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
+      - name: Checkout candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          tool: cargo-nextest@${{ env.CARGO_NEXTEST_VERSION }}
-
-      - name: Install external-type checker
-        run: bash scripts/install_external_type_checker.sh .local-tools
-
-      - name: Install external-type checker toolchain
-        run: rustup toolchain install "$EXTERNAL_TYPES_NIGHTLY" --profile minimal
-
-      - name: Install fuzz toolchain and runner
-        run: |
-          rustup toolchain install "$FUZZ_NIGHTLY" --profile minimal
-          cargo install cargo-fuzz --version "$CARGO_FUZZ_VERSION" --locked
-
-      - name: Install wasm-pack
-        uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
-        with:
-          tool: wasm-pack@${{ env.WASM_PACK_VERSION }}
-
-      - name: Install wasm-bindgen CLI
-        uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
-        with:
-          tool: wasm-bindgen-cli@${{ env.WASM_BINDGEN_CLI_VERSION }}
-
-      - name: Install cargo-deny
-        uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
-        with:
-          tool: cargo-deny@${{ env.CARGO_DENY_VERSION }}
-
-      - name: Install cargo-audit
-        uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
-        with:
-          tool: cargo-audit@${{ env.CARGO_AUDIT_VERSION }}
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
 
       - name: Checkout release-readiness runner
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: reallyme/release-readiness
-          ref: 18a6d91d99837e80f92e41fe04effb0b043d754e
+          ref: 7dffa0366a43fe9cc7b98a8040d37dd701d7955e
           path: .release-readiness
           persist-credentials: false
 
-      - name: Security advisory audit
-        run: scripts/audit_committed_lockfiles.sh
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8
+        with:
+          toolchain: 1.100.0
 
-      - name: Check release version and publish order
-        env:
-          RELEASE_VERSION: ${{ needs.verify-source-sha.outputs.release_version }}
-        run: node scripts/publish_crates_in_order.mjs order
+      - name: Install Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '26'
 
-      - name: Run pinned release-readiness gates
-        env:
-          RELEASE_VERSION: ${{ needs.verify-source-sha.outputs.release_version }}
+      - name: Enforce package release policy
         run: node .release-readiness/scripts/run-consumer-check.mjs --release-packages
 
-      - name: Inspect normalized crate tarballs and dry-run publication
+      - name: Verify release candidate
+        id: candidate
         env:
-          RELEASE_VERSION: ${{ needs.verify-source-sha.outputs.release_version }}
-        run: node scripts/publish_crates_in_order.mjs inspect
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_TAG: reallyme-cose-v${{ inputs.version }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+        run: node .release-readiness/scripts/run-consumer-check.mjs --check-release crates preflight "$RELEASE_VERSION" "$RELEASE_TAG" "$SOURCE_SHA"
 
-      - name: Write reviewed package attestation
-        env:
-          RELEASE_SHA: ${{ needs.verify-source-sha.outputs.release_sha }}
-          RELEASE_VERSION: ${{ needs.verify-source-sha.outputs.release_version }}
-        run: node scripts/write_release_attestation.mjs
-
-      - name: Upload reviewed package attestation
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      - name: Record verified CI
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          name: reallyme-cose-crates-preflight-${{ inputs.version }}-${{ github.sha }}
-          path: release-attestation/crates-preflight.json
+          name: release-readiness-ci-${{ github.run_attempt }}-${{ steps.candidate.outputs.ci_run_id }}
+          path: ${{ runner.temp }}/release-readiness-ci.json
           if-no-files-found: error
           retention-days: 30
 
-      - name: Summarize reviewed release
+  crates-package:
+    name: Review crates.io packages
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout verified source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8
+        with:
+          toolchain: 1.100.0
+
+      - name: Install Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '26'
+
+      - name: Install cargo-audit
+        uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39
+        with:
+          tool: cargo-audit@0.22.2
+          fallback: none
+
+      - name: Audit current advisories across committed lockfiles
+        run: scripts/audit_committed_lockfiles.sh
+
+      - name: Inspect and stage verified crate archives
+        run: node scripts/publish_crates_in_order.mjs inspect
         env:
-          RELEASE_SHA: ${{ needs.verify-source-sha.outputs.release_sha }}
-          RELEASE_VERSION: ${{ needs.verify-source-sha.outputs.release_version }}
-        run: |
-          {
-            echo '## Crates package preflight passed'
-            echo
-            echo "- Version: \`${RELEASE_VERSION}\`"
-            echo "- Commit: \`${RELEASE_SHA}\`"
-            echo "- Publish order: \`reallyme-cose-proto\`, then \`reallyme-cose\`"
-            echo "- Attestation run ID: \`${GITHUB_RUN_ID}\`"
-          } >> "$GITHUB_STEP_SUMMARY"
+          RELEASE_VERSION: ${{ inputs.version }}
+          CRATE_ARCHIVE_DIR: ${{ runner.temp }}/release-package
+
+      - name: Upload verified package
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: reallyme-cose-crates-${{ inputs.version }}-${{ inputs.source_sha }}
+          path: ${{ runner.temp }}/release-package
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 30
