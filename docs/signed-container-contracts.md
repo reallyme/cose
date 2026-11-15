@@ -130,7 +130,7 @@ Public point validation executes for P-256/P-384/P-521, Ed25519 and X25519.
 Agreement/HPKE usage excludes Edwards keys; signatures exclude X25519/X448.
 Brainpool, Ed448 and X448 inspection is tested, but validated import and built-in
 signature verification fail closed with `ContainerErrorReason::Provider` where
-the pinned published facade lacks coverage. Enum/width recognition is not
+the pinned built-in COSE provider adapter lacks coverage. Enum/width recognition is not
 execution evidence. The independently generated unavailable-curve fixtures do
 not establish an integrated provider.
 
@@ -147,8 +147,8 @@ must implement certificate validation and bind its stable context identity.
 | --- | --- |
 | reallyme-cose | 0.3.0 (unreleased) |
 | reallyme-cose-proto | 0.3.0 (complete generated operation contract) |
-| reallyme-crypto | 0.3.17 |
-| reallyme-codec | 0.3.2 |
+| reallyme-crypto | 0.4.2 |
+| reallyme-codec | 0.4.3 |
 | half (CBOR float-width checks only) | 2.7.1 |
 
 Production cryptography, hashing and constant-time equality are imported solely

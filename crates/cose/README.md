@@ -127,7 +127,7 @@ This example generates its key pair with `reallyme-crypto`, so add that direct
 dependency alongside `reallyme-cose`:
 
 ```toml
-reallyme-crypto = { version = "0.3.17", default-features = false, features = ["native", "dispatch", "ed25519"] }
+reallyme-crypto = { version = "0.4.2", default-features = false, features = ["native", "dispatch", "ed25519"] }
 ```
 
 ```rust
@@ -439,7 +439,7 @@ an unsorted protected header map.
 
 ## Protobuf Wire Boundary
 
-The protobuf schema defines every public operation. ReallyMe Buffa 0.1.0 generates its
+The protobuf schema defines every public operation. ReallyMe Buffa 0.1.2 generates its
 request/result types, policy selectors, operation discriminants and error codes.
 Use `api::contract` for those definitions and `api::execute` for typed Rust
 execution. `api::execute_with_providers` accepts explicit application-local
@@ -508,10 +508,9 @@ use `DecodeOptions::reject_unknown_fields()` on the original bounded bytes;
 a default decoder with storage disabled cannot preserve unknown-field evidence.
 
 See the [Buffa security migration matrix](https://github.com/reallyme/cose/blob/main/docs/buffa-migration.md).
-Native cleanup replaces the former generated-source ownership patches. A narrow
-standalone-enum diagnostic guard remains because published 0.1.0 still formats
-numeric input in those errors. Complete migration and release readiness require
-a published generator fix that removes that final source transformation.
+ReallyMe Buffa generates native cleanup and fixed standalone enum diagnostics.
+The generation driver uses the published output and emits separate Rust
+compatibility projections.
 
 ## ReallyMe ML-KEM COSE Profile
 
@@ -723,11 +722,11 @@ bash scripts/install_external_type_checker.sh .local-tools
 node scripts/run_pinned_release_readiness.mjs
 ```
 
-Protobuf regeneration requires Buf 1.73.0 and the ReallyMe Buffa 0.1.0 tools:
+Protobuf regeneration requires Buf 1.73.0 and the ReallyMe Buffa 0.1.2 tools:
 
 ```sh
-cargo install reallyme-protoc-gen-buffa --version '=0.1.0' --locked
-cargo install reallyme-protoc-gen-buffa-packaging --version '=0.1.0' --locked
+cargo install reallyme-protoc-gen-buffa --version '=0.1.2' --locked
+cargo install reallyme-protoc-gen-buffa-packaging --version '=0.1.2' --locked
 node scripts/generate_cose_contract.mjs
 node scripts/run_pinned_release_readiness.mjs --generated-freshness
 ```
@@ -745,7 +744,7 @@ commands and runtime limits are documented in
 [the fuzzing guide](https://github.com/reallyme/cose/blob/main/fuzz/README.md).
 
 Release readiness requires crates.io dependencies for the published ReallyMe
-foundational crates: `reallyme-crypto` `^0.3.17` and `reallyme-codec` `^0.3.2`.
+foundational crates: `reallyme-crypto` `^0.4.2` and `reallyme-codec` `^0.4.3`.
 Local `../crypto` or `../codec` path dependencies are not accepted for release.
 
 The package preflight requires successful `Required CI` evidence for its

@@ -70,7 +70,7 @@ reconstructed bytes into a transcript. The format layer retains any surrounding
 tag 24 / encoded-byte-string wrapper exactly; this boundary does not strip it.
 
 `AgreementKeyProvider` owns mathematical validation and normalization.
-`CryptoAgreementKeyProvider` uses only published `reallyme-crypto` 0.3.17 APIs
+`CryptoAgreementKeyProvider` uses only published `reallyme-crypto` 0.4.2 APIs
 and executes P-256/P-384/P-521 and X25519 in native and WASM lanes. Registered
 Brainpool and X448 mappings remain available to explicit crypto-owned provider
 adapters; the built-in adapter returns `Provider`. Edwards keys are rejected

@@ -8,7 +8,7 @@ use reallyme_crypto::core::Algorithm;
 use reallyme_crypto::dispatch::verify;
 
 use crate::encode_cbor::encode_protected_header;
-use crate::error::verify_error_from_algorithm_error;
+use crate::error::signature_error_from_algorithm_error;
 use crate::failure::CoseFailure;
 use crate::policy::{validate_cose_sign1_policy, CosePolicy};
 use crate::CoseError;
@@ -430,7 +430,7 @@ fn verify_cose_signature(
     let backend_signature = backend_signature_from_cose(alg, &cose.signature)?;
 
     verify(alg, &public_key, &to_verify, &backend_signature)
-        .map_err(verify_error_from_algorithm_error)?;
+        .map_err(signature_error_from_algorithm_error)?;
 
     Ok(VerifiedDetachedCoseSign1 {
         alg,

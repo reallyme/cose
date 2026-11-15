@@ -11,7 +11,7 @@ use reallyme_crypto::aes::{
 use reallyme_crypto::aes_kw::{
     wrap_key_aes128, wrap_key_aes192, wrap_key_aes256, Aes128KwKek, Aes192KwKek, Aes256KwKek,
 };
-use reallyme_crypto::core::RngOutputKind;
+use reallyme_crypto::core::{CryptoErrorReason, RngOutputKind};
 use reallyme_crypto::csprng::{generate_aead_nonce_12, OsSecureRandom, SecureRandom};
 use zeroize::{Zeroize, Zeroizing};
 
@@ -258,8 +258,8 @@ fn encapsulate(
             reallyme_crypto::ml_kem_1024::ml_kem_1024_encapsulate(public_key)
         }
     }
-    .map_err(|error| match error {
-        reallyme_crypto::core::CryptoError::InvalidKey => CoseError::InvalidKeyMaterial,
+    .map_err(|error| match error.reason() {
+        CryptoErrorReason::PrimitiveInvalidKey => CoseError::InvalidKeyMaterial,
         _ => CoseError::Crypto,
     })
 }

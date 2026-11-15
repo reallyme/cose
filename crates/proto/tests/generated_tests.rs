@@ -7,7 +7,10 @@
 #![cfg(feature = "generated")]
 #![allow(clippy::panic)]
 
-use buffa::{EnumValue, Message};
+use buffa::{
+    json::{with_json_parse_options, JsonParseOptions},
+    EnumValue, Message,
+};
 use reallyme_cose_proto::generated::proto::reallyme::cose::v1::{
     __buffa::oneof::{cose_algorithm_identifier, cose_error},
     CoseAlgorithmIdentifier, CoseContentEncryptionAlgorithm, CoseEc2PointEncoding, CoseError,
@@ -92,9 +95,8 @@ fn top_level_operation_request_has_an_ordinary_drop_wipe_path() {
     #[allow(drop_bounds)]
     fn assert_drop_implementation<T: Drop>() {}
 
-    // Unknown fields belong to the top-level message itself, so recursive leaf
-    // hardening is insufficient. This compile-time assertion prevents the
-    // postprocessor from silently dropping the ordinary-destruction hook.
+    // The top-level owner needs Buffa's ordinary-destruction hook even when
+    // the operation oneof is empty.
     assert_drop_implementation::<CoseOperationRequest>();
 }
 
@@ -103,9 +105,8 @@ fn version_two_response_owners_have_ordinary_drop_wipe_paths() {
     #[allow(drop_bounds)]
     fn assert_drop_implementation<T: Drop>() {}
 
-    // Both wrappers can retain length-delimited unknown fields in addition to
-    // owning nested sensitive result messages. Their explicit Drop hooks are
-    // therefore independently required.
+    // Both wrappers participate in recursive cleanup, including when a
+    // partially built response owns no result or error branch yet.
     assert_drop_implementation::<CoseOperationResponseV2>();
     assert_drop_implementation::<CoseOperationResult>();
 }
@@ -149,17 +150,25 @@ fn key_bytes_result_uses_unambiguous_proto_json_and_view_accessors(
 
 #[test]
 fn generated_proto_json_rejects_unknown_fields() {
-    let request = serde_json::from_str::<CoseSign1CreateRequest>(
-        r#"{"algorithm":"COSE_SIGNATURE_ALGORITHM_ED25519","payload":"","privateKey":"","kid":"","hasKid":false,"externalAad":"","private_key_typo":""}"#,
-    );
-    assert!(request.is_err());
+    let result =
+        serde_json::from_str::<CoseSign1CreateRequest>(r#"{"kid":"","private-field-name":""}"#);
+    let error = match result {
+        Ok(_) => panic!("unknown ProtoJSON field was accepted"),
+        Err(error) => error,
+    };
+    assert!(!error.to_string().contains("private-field-name"));
 }
 
 #[test]
-fn generated_proto_json_enum_range_errors_do_not_reflect_untrusted_values() {
+fn generated_proto_json_enum_errors_do_not_reflect_untrusted_values() {
     for (untrusted_value, expected_diagnostic) in [
-        ("42424242", "unknown enum value"),
-        ("9223372036854775807", "enum value out of i32 range"),
+        (r#""private-enum-name""#, "unknown enum name"),
+        ("42424242", "unknown enum number"),
+        ("-42424242", "unknown enum number"),
+        ("-9223372036854775808", "enum number out of i32 range"),
+        ("18446744073709551615", "enum number out of i32 range"),
+        ("42424242.125", "expected a protobuf enum name or integer"),
+        ("true", "expected a protobuf enum name or integer"),
     ] {
         let result = serde_json::from_str::<CoseSignatureAlgorithm>(untrusted_value);
         let error = match result {
@@ -171,8 +180,80 @@ fn generated_proto_json_enum_range_errors_do_not_reflect_untrusted_values() {
             diagnostic.contains(expected_diagnostic),
             "unexpected fixed diagnostic: {diagnostic}"
         );
-        assert!(!diagnostic.contains(untrusted_value));
+        assert!(!diagnostic.contains(untrusted_value.trim_matches('"')));
     }
+}
+
+#[test]
+fn generated_proto_json_enum_defaults_and_lenient_behavior_are_preserved(
+) -> Result<(), serde_json::Error> {
+    const UNKNOWN_NAME: &str = r#""private-enum-name""#;
+    const UNKNOWN_FIELD_NAME: &str = r#"{"algorithm":"private-enum-name"}"#;
+    for lenient in [false, true] {
+        with_json_parse_options(
+            &JsonParseOptions::new().ignore_unknown_enum_values(lenient),
+            || {
+                for (encoded, expected) in [
+                    (
+                        r#""COSE_SIGNATURE_ALGORITHM_ED25519""#,
+                        CoseSignatureAlgorithm::Ed25519,
+                    ),
+                    ("100", CoseSignatureAlgorithm::Ed25519),
+                    ("null", CoseSignatureAlgorithm::default()),
+                ] {
+                    assert_eq!(
+                        serde_json::from_str::<CoseSignatureAlgorithm>(encoded)?,
+                        expected
+                    );
+                }
+                // Leniency applies to message fields. Concrete enum values
+                // have always rejected unknown names and numbers.
+                for encoded in [UNKNOWN_NAME, "42424242"] {
+                    assert!(serde_json::from_str::<CoseSignatureAlgorithm>(encoded).is_err());
+                }
+                for (encoded, expected) in [
+                    (r#"{"algorithm":42424242}"#, EnumValue::from(42_424_242)),
+                    (r#"{"algorithm":null}"#, EnumValue::default()),
+                ] {
+                    let value = serde_json::from_str::<CoseSign1CreateRequest>(encoded)?;
+                    assert_eq!(value.algorithm, expected);
+                }
+                let field = serde_json::from_str::<CoseSign1CreateRequest>(UNKNOWN_FIELD_NAME);
+                if lenient {
+                    assert_eq!(field?.algorithm, EnumValue::default());
+                } else {
+                    assert!(field.is_err());
+                }
+                Ok::<_, serde_json::Error>(())
+            },
+        )?;
+    }
+    Ok(())
+}
+
+#[test]
+fn generated_secret_byte_json_preserves_base64_padding_compatibility(
+) -> Result<(), serde_json::Error> {
+    for encoded in [
+        r#"{"payload":"+/8="}"#,
+        r#"{"payload":"+/8"}"#,
+        r#"{"payload":"-_8="}"#,
+        r#"{"payload":"-_8"}"#,
+    ] {
+        let request = serde_json::from_str::<CoseSign1CreateRequest>(encoded)?;
+        assert_eq!(request.payload.as_slice(), &[0xfb, 0xff]);
+        let normalized = serde_json::to_value(&request)?;
+        assert_eq!(
+            normalized
+                .get("payload")
+                .and_then(serde_json::Value::as_str),
+            Some("+/8=")
+        );
+    }
+    for encoded in [r#"{"payload":"+/8==="}"#, r#"{"payload":"+/8!"}"#] {
+        assert!(serde_json::from_str::<CoseSign1CreateRequest>(encoded).is_err());
+    }
+    Ok(())
 }
 
 #[test]

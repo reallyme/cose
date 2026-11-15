@@ -71,7 +71,7 @@ impl VerificationKey for CryptoVerificationKey {
             super::own_bytes::copy(signature)?
         };
         reallyme_crypto::dispatch::verify(algorithm, self.verifier.public_key(), message, &backend)
-            .map_err(crate::error::verify_error_from_algorithm_error)
+            .map_err(crate::error::signature_error_from_algorithm_error)
     }
 }
 impl ZeroizeOnDrop for CryptoVerificationKey {}

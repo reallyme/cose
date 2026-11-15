@@ -65,7 +65,10 @@ assertCargoFuzzWorkflowPolicy({
   requiredInstallSteps: [{ job: "scheduled", name: "Install cargo-fuzz" }],
 });
 assertReallyMeReleasePackagePolicy({ version: "0.9.4" });
-assertPathsAbsent(["scripts/release-readiness/core.mjs"]);
+assertPathsAbsent([
+  "scripts/release-readiness/core.mjs",
+  "scripts/sanitize_enum_diagnostics.mjs",
+]);
 const rustCi = { workflow: ".github/workflows/rust-ci.yml", job: "rust" };
 assertRustReleasePolicy({
   release: { ...rustCi, step: "Test locked release toolchain" },
@@ -243,12 +246,12 @@ assertContains("crates/cose/Cargo.toml", '"dep:serde"');
 assertContains("crates/cose/Cargo.toml", '"dep:serde_json"');
 assertContains(
   "Cargo.toml",
-  'reallyme-codec = { version = "0.3.2", default-features = false, features = ["base64url", "cbor", "multikey"] }',
+  'reallyme-codec = { version = "0.4.3", default-features = false, features = ["base64url", "cbor", "multikey"] }',
 );
 assertNotContains("Cargo.toml", 'path = "../codec');
 assertContains("crates/proto/Cargo.toml", '"buffa/json"');
 assertContains("crates/cose/src/lib.rs", 'reallyme-cose `wire` requires a runtime lane');
-assertContains("Cargo.toml", 'buffa = { package = "reallyme-buffa", version = "=0.1.0", features = ["json", "zeroize"] }');
+assertContains("Cargo.toml", 'buffa = { package = "reallyme-buffa", version = "=0.1.2", features = ["json", "zeroize"] }');
 assertContains("Cargo.toml", 'rust-version = "1.100"');
 assertContains("rust-toolchain.toml", `channel = "${expectedDevelopmentRustToolchain}"`);
 assertContains(
@@ -969,13 +972,13 @@ assertCargoMetadataPolicy({
       dependencies: [
         {
           name: "reallyme-codec",
-          requirement: "^0.3.2",
+          requirement: "^0.4.3",
           source: "registry",
           defaultFeatures: false,
         },
         {
           name: "reallyme-crypto",
-          requirement: "^0.3.17",
+          requirement: "^0.4.2",
           source: "registry",
           defaultFeatures: false,
         },
@@ -1091,14 +1094,6 @@ const validationCommands = [
 
 if (selectedModes.length === 0) {
   runCommands(validationCommands);
-}
-
-// Cleanup is native, but the user-facing fixed enum-diagnostic contract is
-// still supplied by a source guard. Do not advertise a ready release until a
-// published generator can satisfy it without that transformation. CI checks
-// the current source separately so the release blocker is still visible.
-if (releasePackagesMode && readText("scripts/generate_cose_contract.mjs").includes("sanitizeEnumDiagnostics")) {
-  fail("release blocked: a published ReallyMe Buffa fix must remove the standalone enum diagnostic source guard");
 }
 
 const readinessMode = generatedFreshnessMode

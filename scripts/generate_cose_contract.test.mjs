@@ -8,7 +8,6 @@ import {tmpdir} from "node:os";
 import {dirname,join,resolve} from "node:path";
 import test from "node:test";
 import {checkFreshness,generate,generatedPaths,filesUnder} from "./generate_cose_contract.mjs";
-import {sanitizeEnumDiagnostics} from "./sanitize_enum_diagnostics.mjs";
 
 function fixture(callback) {
   const root=mkdtempSync(join(tmpdir(),"cose-generation-test-"));
@@ -60,14 +59,3 @@ test("a wrong generator version fails before writing output",()=>fixture(root=>{
   assert.match(result.stderr,/unsupported generator name or version/u);
   assert.deepEqual(filesUnder(root,"crates/proto/src/generated"),[]);
 }));
-
-test("temporary standalone enum diagnostics preserve fixed errors and reject drift",()=>{
-  const source='::serde::de::Error::custom( ::buffa::alloc::format!("enum value {v} out of i32 range"), )\n'
-    +'::serde::de::Error::custom( ::buffa::alloc::format!("unknown enum value {v32}"), )';
-  const output=sanitizeEnumDiagnostics(source);
-  assert.match(output,/custom\("enum value out of i32 range"\)/u);
-  assert.match(output,/custom\("unknown enum value"\)/u);
-  assert.doesNotMatch(output,/format!|\{v/u);
-  assert.throws(()=>sanitizeEnumDiagnostics(output),/differs from the published generator/u);
-  assert.throws(()=>sanitizeEnumDiagnostics(source+'\n::buffa::alloc::format!("other {v}")'),/differs from the published generator/u);
-});

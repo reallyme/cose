@@ -56,7 +56,7 @@ Borrowed Rust and callback APIs adapt these same semantic operations.
 
 The source of truth is `proto/reallyme/cose/v1/cose.proto` inside this crate.
 Use Buf 1.73.0 and the published `protoc-gen-reallyme-buffa` /
-`protoc-gen-reallyme-buffa-packaging` 0.1.0 executables. From the repository root:
+`protoc-gen-reallyme-buffa-packaging` 0.1.2 executables. From the repository root:
 
 ```sh
 node scripts/generate_cose_contract.mjs
@@ -92,10 +92,8 @@ output retain independent lifetimes. Keep sensitive transport buffers under
 explicit wipe owners.
 
 The [migration matrix](../../docs/buffa-migration.md) accounts for removed
-workarounds and retained boundaries. Native cleanup no longer needs source
-patches. Standalone enum diagnostics still require one narrowly scoped guard
-with 0.1.0; the migration is not release-ready until a published generator fix
-eliminates that transformation.
+workarounds and retained boundaries. Buffa generates native cleanup and fixed
+standalone enum diagnostics directly.
 
 ## License
 

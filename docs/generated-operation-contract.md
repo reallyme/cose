@@ -1,7 +1,7 @@
 # Generated COSE operation contract
 
 The protobuf schema is authoritative for every public operation in 0.3.0.
-ReallyMe Buffa 0.1.0 generates request/result types, policy selectors, operation variants,
+ReallyMe Buffa 0.1.2 generates request/result types, policy selectors, operation variants,
 binary/JSON codecs and stable failure codes. The implementation stays behind
 that contract. Existing borrowed Rust and callback signatures are retained as
 thin adapters to the same semantic functions; they do not serialize and decode
@@ -181,39 +181,39 @@ and WASM/Node; allocation-counter checks remain native-only.
 
 ## Versions and remaining integration
 
-The ReallyMe Buffa migration remains blocked from release while the standalone
-enum diagnostic guard is required. See the [migration matrix](buffa-migration.md)
-for the native cleanup evidence and generator follow-up.
+ReallyMe Buffa 0.1.2 supplies native cleanup and fixed standalone enum
+diagnostics. See the [migration matrix](buffa-migration.md) for ownership
+and diagnostic regression coverage.
 
 | Check | Result |
 | --- | --- |
-| Release readiness | Blocked on a published standalone enum diagnostic fix |
-| Debug workspace tests, including doctests | 450 passed with the diagnostic guard |
-| Native nextest / optimized all-features nextest | 448 / 448 passed |
-| WASM/Node unit / integration tests | 109 / 3 passed |
+| Debug workspace tests, including doctests | 452 passed |
+| Native nextest / optimized all-features nextest | 450 / 450 passed |
+| WASM/Node unit / integration tests | 109 / 4 passed |
 | Independent legacy conformance vector audit | 55 cases passed |
 | Format, warnings-as-errors checks, strict Clippy and external-type checks | Passed |
 | Buffa regeneration/freshness and operation/type-contract guards | Passed |
 | Rustdoc public export inventory | 65 schema-bound free functions; no handwritten public COSE enums |
-| Seven iOS/Android Rust targets | All 14 all-target compile/Clippy checks passed; Android API 24 |
+| Seven iOS/Android Rust targets | All-target compile checks passed |
 | All four lockfiles and dependency/advisory policy | Passed; no known advisories reported |
-| Instrumented fuzz build and protobuf smoke | All targets built; 3,478 wire executions in 21 seconds, no crash |
+| Instrumented fuzz build | All targets built |
 
 These are compile, test and bounded smoke results, not a proof of complete fuzz
 coverage, on-device execution or reader interoperability. Existing independent
 fixture files and their expected cryptographic bytes were retained unchanged.
 
 The workspace packages are `reallyme-cose` 0.3.0 and `reallyme-cose-proto` 0.3.0,
-with unchanged published crypto/codec pins: `reallyme-crypto` 0.3.17 and
-`reallyme-codec` 0.3.2. ReallyMe Buffa and both generators are 0.1.0, Buf is 1.73.0,
+using the published dependencies `reallyme-crypto` 0.4.2 and
+`reallyme-codec` 0.4.3. ReallyMe Buffa and both generators are 0.1.2, Buf is 1.73.0,
 the stable compiler is Rust 1.100.0, and the minimum Rust version is 1.100.
+CI and the local runner use Release Readiness 0.9.4.
 
 Brainpool, Ed448 and X448 provider implementation remains in `reallyme/crypto`.
 This repository recognizes registered mappings and fails closed where the
-published facade lacks coverage. Schema generation is not provider execution
+built-in COSE provider adapter lacks coverage. Schema generation is not provider execution
 evidence. The suite-info provider flag reports the built-in tuple mapping,
 independently of runtime authorization or platform readiness. Reader negotiation,
 session establishment, transcript construction,
 HPKE, format schemas, certificate authority/path policy and revocation freshness
-remain external. iOS/Android validation covers Rust target compilation and
-Clippy, not device execution or SDK packaging.
+remain external. iOS/Android validation covers Rust target compilation. Device execution and
+SDK packaging are outside this repository's validation scope.
