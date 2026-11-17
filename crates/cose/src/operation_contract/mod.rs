@@ -30,5 +30,6 @@ pub(crate) mod suite;
 
 #[cfg(test)]
 mod map_failure_tests;
+mod message_sign;
 #[cfg(test)]
 mod tests;

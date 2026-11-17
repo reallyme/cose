@@ -661,6 +661,8 @@ pub mod cose_operation_request {
         Sign1SignatureStructure(
             ::buffa::alloc::boxed::Box<super::super::super::CoseSign1SignatureStructureRequest>,
         ),
+        SignCreate(::buffa::alloc::boxed::Box<super::super::super::CoseSignCreateRequest>),
+        SignVerify(::buffa::alloc::boxed::Box<super::super::super::CoseSignVerifyRequest>),
         KeyFromPublicBytes(
             ::buffa::alloc::boxed::Box<super::super::super::CoseKeyFromPublicBytesRequest>,
         ),
@@ -742,6 +744,8 @@ pub mod cose_operation_request {
                 Self::Sign1SignatureStructure(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::SignCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::SignVerify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::KeyFromPublicBytes(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -903,6 +907,30 @@ pub mod cose_operation_request {
         for ::core::option::Option<Operation>
     {
         fn from(v: super::super::super::CoseSign1SignatureStructureRequest) -> Self {
+            Self::Some(Operation::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseSignCreateRequest> for Operation {
+        fn from(v: super::super::super::CoseSignCreateRequest) -> Self {
+            Self::SignCreate(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseSignCreateRequest>
+        for ::core::option::Option<Operation>
+    {
+        fn from(v: super::super::super::CoseSignCreateRequest) -> Self {
+            Self::Some(Operation::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseSignVerifyRequest> for Operation {
+        fn from(v: super::super::super::CoseSignVerifyRequest) -> Self {
+            Self::SignVerify(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseSignVerifyRequest>
+        for ::core::option::Option<Operation>
+    {
+        fn from(v: super::super::super::CoseSignVerifyRequest) -> Self {
             Self::Some(Operation::from(v))
         }
     }
@@ -1106,6 +1134,12 @@ pub mod cose_operation_request {
                 Self::Sign1SignatureStructure(v) => {
                     map.serialize_entry("sign1SignatureStructure", &**v)?;
                 }
+                Self::SignCreate(v) => {
+                    map.serialize_entry("signCreate", &**v)?;
+                }
+                Self::SignVerify(v) => {
+                    map.serialize_entry("signVerify", &**v)?;
+                }
                 Self::KeyFromPublicBytes(v) => {
                     map.serialize_entry("keyFromPublicBytes", &**v)?;
                 }
@@ -1271,6 +1305,8 @@ pub mod cose_operation_result {
         Sign1SignatureStructure(
             ::buffa::alloc::boxed::Box<super::super::super::CoseSign1SignatureStructureResult>,
         ),
+        SignCreate(::buffa::alloc::boxed::Box<super::super::super::CoseMessageCreateResult>),
+        SignVerify(::buffa::alloc::boxed::Box<super::super::super::CoseSignVerifyResult>),
         KeyFromPublicBytes(::buffa::alloc::boxed::Box<super::super::super::CoseKeyBytesResult>),
         KeyFromPrivateBytes(::buffa::alloc::boxed::Box<super::super::super::CoseKeyBytesResult>),
         KeyParse(::buffa::alloc::boxed::Box<super::super::super::CoseKeyBytesResult>),
@@ -1340,6 +1376,8 @@ pub mod cose_operation_result {
                 Self::Sign1SignatureStructure(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::SignCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::SignVerify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::KeyFromPublicBytes(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -1453,6 +1491,30 @@ pub mod cose_operation_result {
         for ::core::option::Option<Result>
     {
         fn from(v: super::super::super::CoseSign1SignatureStructureResult) -> Self {
+            Self::Some(Result::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseMessageCreateResult> for Result {
+        fn from(v: super::super::super::CoseMessageCreateResult) -> Self {
+            Self::SignCreate(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseMessageCreateResult>
+        for ::core::option::Option<Result>
+    {
+        fn from(v: super::super::super::CoseMessageCreateResult) -> Self {
+            Self::Some(Result::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseSignVerifyResult> for Result {
+        fn from(v: super::super::super::CoseSignVerifyResult) -> Self {
+            Self::SignVerify(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseSignVerifyResult>
+        for ::core::option::Option<Result>
+    {
+        fn from(v: super::super::super::CoseSignVerifyResult) -> Self {
             Self::Some(Result::from(v))
         }
     }
@@ -1593,6 +1655,12 @@ pub mod cose_operation_result {
                 }
                 Self::Sign1SignatureStructure(v) => {
                     map.serialize_entry("sign1SignatureStructure", &**v)?;
+                }
+                Self::SignCreate(v) => {
+                    map.serialize_entry("signCreate", &**v)?;
+                }
+                Self::SignVerify(v) => {
+                    map.serialize_entry("signVerify", &**v)?;
                 }
                 Self::KeyFromPublicBytes(v) => {
                     map.serialize_entry("keyFromPublicBytes", &**v)?;

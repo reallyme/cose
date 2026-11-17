@@ -59,6 +59,8 @@ routing_fixtures! {
     2011 => PeerKeyValidate,
     2012 => VerificationKeyImport,
     2013 => KeyToPublicVec,
+    1020 => SignCreate,
+    1021 => SignVerify,
     2014 => KeySetParse,
     2015 => KeySetCreate,
     3000 => MlKemEncryptDirect,

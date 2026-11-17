@@ -1064,6 +1064,8 @@ message CoseOperationRequest {
     CoseSign1VerifyProfileRequest sign1_verify_x5chain = 1017;
     // Rust adapter: sign1/build_sign1_signature_structure.rs#build_sign1_signature_structure
     CoseSign1SignatureStructureRequest sign1_signature_structure = 1018;
+    CoseSignCreateRequest sign_create = 1020;
+    CoseSignVerifyRequest sign_verify = 1021;
 
     // COSE_Key and Multikey conversion operations: 2000-2999.
     // Rust adapter: key/facade.rs#cose_key_from_public_bytes
@@ -1159,6 +1161,8 @@ message CoseOperationResult {
     CoseSign1VerifyResult sign1_verify_profile = 1016;
     CoseSign1X5ChainResult sign1_verify_x5chain = 1017;
     CoseSign1SignatureStructureResult sign1_signature_structure = 1018;
+    CoseMessageCreateResult sign_create = 1020;
+    CoseSignVerifyResult sign_verify = 1021;
 
     // COSE_Key and Multikey conversion results: 2000-2999.
     CoseKeyBytesResult key_from_public_bytes = 2000;
@@ -1558,6 +1562,85 @@ message CoseKeySetCreateResult {
 
 // CoseKeyFromPublicBytesRequest builds a public COSE_Key from raw public key
 // bytes and an explicit algorithm binding.
+// Exact protected-map contents (empty bytes means no parameters) and encoded
+// unprotected map. Definite preferred CBOR retains received map order. At most
+// 32 labels and 16 KiB per bucket. Never normalize protected bytes.
+message CoseMessageHeaders {
+  // SENSITIVE: protected ownership and redacted diagnostics.
+  bytes protected = 1;
+  // SENSITIVE: protected ownership and redacted diagnostics.
+  bytes unprotected = 2;
+}
+
+// Entire encoded message is bounded to 1 MiB. Sensitive generated ownership
+// applies equally to attached payloads, ciphertext and signature material.
+message CoseMessageCreateResult {
+  // SENSITIVE: protected ownership and redacted diagnostics.
+  bytes encoded = 1;
+}
+
+message CoseSignSigner {
+  CoseMessageHeaders headers = 1;
+  CoseSignatureSuite suite = 2;
+  // Native primitive encoding; no COSE_Key usage restrictions are discarded.
+  // SENSITIVE: protected ownership and redacted diagnostics.
+  bytes private_key = 3;
+}
+
+// RFC 9052 sections 4.1/4.4. One through 32 signers. The context is Signature,
+// never Signature1. Payload and AAD are explicit; AAD is at most 64 KiB.
+message CoseSignCreateRequest {
+  CoseMessageHeaders headers = 1;
+  // SENSITIVE: protected ownership and redacted diagnostics.
+  bytes payload = 2;
+  // SENSITIVE: protected ownership and redacted diagnostics.
+  bytes external_aad = 3;
+  CoseContentMode content_mode = 4;
+  bool tagged = 5;
+  repeated CoseSignSigner signers = 6;
+  repeated CoseSignatureSuite allowed_suites = 7;
+}
+
+message CoseSignKeyBinding {
+  uint32 signature_index = 1;
+  CoseSignatureSuite suite = 2;
+  // SENSITIVE: protected ownership and redacted diagnostics.
+  bytes public_key = 3;
+}
+
+// Verify every signature with exactly one caller-authorized indexed key each.
+// No threshold, trust discovery, certificate policy or key selection is inferred.
+// A present detached_payload requires a nil slot; absence requires attached bstr.
+message CoseSignVerifyRequest {
+  // SENSITIVE: protected ownership and redacted diagnostics.
+  bytes encoded = 1;
+  // SENSITIVE: protected ownership and redacted diagnostics.
+  optional bytes detached_payload = 2;
+  // SENSITIVE: protected ownership and redacted diagnostics.
+  bytes external_aad = 3;
+  CoseEnvelopePolicy envelope = 4;
+  repeated CoseSignKeyBinding keys = 5;
+  repeated CoseSignatureSuite allowed_suites = 6;
+}
+
+message CoseVerifiedSignature {
+  uint32 signature_index = 1;
+  CoseSignatureSuite suite = 2;
+  // SENSITIVE: protected ownership and redacted diagnostics.
+  bytes protected = 3;
+  // SENSITIVE: protected ownership and redacted diagnostics.
+  optional bytes protected_kid = 4;
+}
+
+message CoseSignVerifyResult {
+  // SENSITIVE: protected ownership and redacted diagnostics.
+  bytes body_protected = 1;
+  // Present only for attached content. Detached content remains caller-owned.
+  // SENSITIVE: protected ownership and redacted diagnostics.
+  optional bytes attached_payload = 2;
+  repeated CoseVerifiedSignature signatures = 3;
+}
+
 message CoseKeyFromPublicBytesRequest {
   // Algorithm that determines the COSE_Key kty/crv/alg profile.
   CoseAlgorithmIdentifier algorithm = 1;

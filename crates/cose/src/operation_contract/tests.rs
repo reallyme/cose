@@ -55,3 +55,6 @@ mod presence;
 
 #[path = "contract_allowlist_tests.rs"]
 mod allowlists;
+
+#[path = "contract_sign_message_tests.rs"]
+mod sign_message;

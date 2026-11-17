@@ -101,6 +101,12 @@ fn validate_for_request(
 
 fn validate_result(result: &CoseOperationResult) -> CoseWireResult<()> {
     let valid = match result.result.as_ref() {
+        Some(CoseOperationResultBranch::SignCreate(value)) => {
+            !value.encoded.is_empty() && value.encoded.len() <= 1_048_576
+        }
+        Some(CoseOperationResultBranch::SignVerify(value)) => {
+            crate::messages::sign::valid_result(value)
+        }
         Some(CoseOperationResultBranch::KeySetParse(result)) => {
             crate::messages::key_set::valid_parsed_result(result)
         }
@@ -223,6 +229,12 @@ fn result_matches_request(request: &CoseOperationRequest, result: &CoseOperation
     matches!(
         (request.operation.as_ref(), result.result.as_ref()),
         (
+            Some(cose_operation_request::Operation::SignCreate(_)),
+            Some(CoseOperationResultBranch::SignCreate(_))
+        ) | (
+            Some(cose_operation_request::Operation::SignVerify(_)),
+            Some(CoseOperationResultBranch::SignVerify(_))
+        ) | (
             Some(cose_operation_request::Operation::Sign1CreateProfile(_)),
             Some(CoseOperationResultBranch::Sign1CreateProfile(_))
         ) | (

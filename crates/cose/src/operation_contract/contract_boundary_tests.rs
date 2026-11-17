@@ -18,6 +18,14 @@ fn every_schema_operation_has_an_executable_fixed_error_and_frozen_field_number(
 ) -> Result<(), CoseError> {
     let operations = [
         (
+            Operation::SignCreate(Box::<contract::CoseSignCreateRequest>::default()),
+            1020u64,
+        ),
+        (
+            Operation::SignVerify(Box::<contract::CoseSignVerifyRequest>::default()),
+            1021u64,
+        ),
+        (
             Operation::Sign1Create(Box::<contract::CoseSign1CreateRequest>::default()),
             1000u64,
         ),
@@ -178,7 +186,7 @@ fn every_schema_operation_has_an_executable_fixed_error_and_frozen_field_number(
             5000u64,
         ),
     ];
-    assert_eq!(operations.len(), 37);
+    assert_eq!(operations.len(), 39);
     for (operation, expected) in operations {
         let encoded = request(operation.clone()).encode_to_vec();
         let (mut tag, mut shift) = (0u64, 0u32);

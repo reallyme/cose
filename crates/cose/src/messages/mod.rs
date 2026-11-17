@@ -5,4 +5,8 @@
 
 mod bounded;
 pub(crate) mod key_set;
+mod read_headers;
+mod read_message;
+pub(crate) mod sign;
+mod signature_crypto;
 mod validate_key_map;

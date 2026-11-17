@@ -107,6 +107,14 @@ pub mod __buffa {
         reg.register_json_any(super::__COSE_KEY_SET_PARSE_RESULT_JSON_ANY);
         reg.register_json_any(super::__COSE_KEY_SET_CREATE_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_KEY_SET_CREATE_RESULT_JSON_ANY);
+        reg.register_json_any(super::__COSE_MESSAGE_HEADERS_JSON_ANY);
+        reg.register_json_any(super::__COSE_MESSAGE_CREATE_RESULT_JSON_ANY);
+        reg.register_json_any(super::__COSE_SIGN_SIGNER_JSON_ANY);
+        reg.register_json_any(super::__COSE_SIGN_CREATE_REQUEST_JSON_ANY);
+        reg.register_json_any(super::__COSE_SIGN_KEY_BINDING_JSON_ANY);
+        reg.register_json_any(super::__COSE_SIGN_VERIFY_REQUEST_JSON_ANY);
+        reg.register_json_any(super::__COSE_VERIFIED_SIGNATURE_JSON_ANY);
+        reg.register_json_any(super::__COSE_SIGN_VERIFY_RESULT_JSON_ANY);
         reg.register_json_any(super::__COSE_KEY_FROM_PUBLIC_BYTES_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_KEY_FROM_PRIVATE_BYTES_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_KEY_BYTES_REQUEST_JSON_ANY);
@@ -249,6 +257,14 @@ pub use self::__buffa::view::CoseMac0VerifyRequestView;
 pub use self::__buffa::view::CoseMac0VerifyResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseMac0VerifyResultView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseMessageCreateResultOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseMessageCreateResultView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseMessageHeadersOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseMessageHeadersView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseMlKemDecryptRequestOwnedView;
 #[doc(inline)]
@@ -410,6 +426,26 @@ pub use self::__buffa::view::CoseSign1X5ChainResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSign1X5ChainResultView;
 #[doc(inline)]
+pub use self::__buffa::view::CoseSignCreateRequestOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseSignCreateRequestView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseSignKeyBindingOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseSignKeyBindingView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseSignSignerOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseSignSignerView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseSignVerifyRequestOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseSignVerifyRequestView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseSignVerifyResultOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseSignVerifyResultView;
+#[doc(inline)]
 pub use self::__buffa::view::CoseSignatureConvertRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSignatureConvertRequestView;
@@ -445,6 +481,10 @@ pub use self::__buffa::view::CoseVerificationKeyImportRequestView;
 pub use self::__buffa::view::CoseVerificationPolicyOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseVerificationPolicyView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseVerifiedSignatureOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseVerifiedSignatureView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseWorkingKeyOwnedView;
 #[doc(inline)]

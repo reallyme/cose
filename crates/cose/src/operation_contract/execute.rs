@@ -42,6 +42,12 @@ fn dispatch_operation(
     };
 
     match &mut operation {
+        cose_operation_request::Operation::SignCreate(request) => {
+            super::message_sign::create(core::mem::take(&mut **request))
+        }
+        cose_operation_request::Operation::SignVerify(request) => {
+            super::message_sign::verify(core::mem::take(&mut **request))
+        }
         cose_operation_request::Operation::Sign1CreateProfile(request) => {
             super::sign1::profile::create(core::mem::take(&mut **request), providers)
         }

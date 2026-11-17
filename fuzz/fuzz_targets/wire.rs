@@ -73,6 +73,17 @@ fuzz_target!(|data: &[u8]| {
         )));
     }
 
+    let message_suite=reallyme_cose::api::contract::CoseSignatureSuite {
+        registration: reallyme_cose::api::contract::CoseSignatureAlgorithm::Es256.into(),
+        curve: reallyme_cose::api::contract::CoseNamedCurve::P256.into(),
+    };
+    execute(Operation::SignVerify(Box::new(reallyme_cose::api::contract::CoseSignVerifyRequest {
+        encoded:data.to_vec().into(),detached_payload:None,external_aad:Vec::new().into(),
+        envelope:reallyme_cose::api::contract::CoseEnvelopePolicy::Either.into(),
+        keys:vec![reallyme_cose::api::contract::CoseSignKeyBinding {
+            signature_index:0,suite:buffa::MessageField::some(message_suite.clone()), public_key:data.to_vec().into(),
+        }].into(), allowed_suites:vec![message_suite].into(),
+    })));
     // Sign1 operation tags are equally sparse. Exercise attached and detached
     // creation and verification through both transports on every iteration.
     execute(Operation::Sign1Create(Box::new(sign1_create_request(

@@ -376,6 +376,8 @@ pub mod cose_operation_request {
                 Self::Sign1SignatureStructure(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::SignCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::SignVerify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::KeyFromPublicBytes(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -513,6 +515,16 @@ pub mod cose_operation_request {
                 super::super::super::super::__buffa::view::CoseSign1SignatureStructureRequestView<
                     'a,
                 >,
+            >,
+        ),
+        SignCreate(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseSignCreateRequestView<'a>,
+            >,
+        ),
+        SignVerify(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseSignVerifyRequestView<'a>,
             >,
         ),
         KeyFromPublicBytes(
@@ -708,6 +720,8 @@ pub mod cose_operation_result {
                 Self::Sign1SignatureStructure(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::SignCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::SignVerify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::KeyFromPublicBytes(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -845,6 +859,16 @@ pub mod cose_operation_result {
                 super::super::super::super::__buffa::view::CoseSign1SignatureStructureResultView<
                     'a,
                 >,
+            >,
+        ),
+        SignCreate(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseMessageCreateResultView<'a>,
+            >,
+        ),
+        SignVerify(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseSignVerifyResultView<'a>,
             >,
         ),
         KeyFromPublicBytes(
