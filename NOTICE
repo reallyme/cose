@@ -17,5 +17,8 @@ reallyme/release-readiness through scripts/run_pinned_release_readiness.mjs.
 That upstream tooling is licensed under MIT OR Apache-2.0 and is not included
 in either published crate.
 
+The protobuf crate includes unmodified Buffa option descriptors under proto/buffa.
+Those descriptors are licensed under Apache-2.0; their license is bundled there.
+
 This NOTICE file is informational and does not modify the license terms in
 LICENSE or any third-party dependency license.

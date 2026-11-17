@@ -4,6 +4,8 @@ version: v2
 modules:
   - path: crates/proto/proto
 lint:
+  ignore:
+    - crates/proto/proto/buffa
   use:
     - STANDARD
 breaking:

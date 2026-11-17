@@ -81,7 +81,7 @@ assertRustReleasePolicy({
 });
 assertRustSourcePolicy({
   roots: ["."],
-  generatedPrefixes: ["crates/proto/src/generated"],
+  generatedPrefixes: ["crates/proto/src/generated", "crates/cose/src/generated_contract"],
   moduleHardLines: 150,
 });
 // Generated sources are covered by their crate's bundled license text.
@@ -90,7 +90,7 @@ assertSpdxHeaders({
   names: [],
   copyright: "SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited",
   license: "SPDX-License-Identifier: MIT OR Apache-2.0",
-  excludedPrefixes: ["crates/proto/src/generated"],
+  excludedPrefixes: ["crates/proto/src/generated", "crates/cose/src/generated_contract"],
 });
 assertContains("Cargo.toml", 'license = "MIT OR Apache-2.0"');
 for (const manifest of ["fuzz/Cargo.toml", "tools/vector-audit/Cargo.toml", "tools/vector-goldens/Cargo.toml"]) {
@@ -1013,6 +1013,8 @@ assertCargoMetadataPolicy({
         "src/generated/buffa/reallyme.cose.v1.cose.rs",
         "src/generated/buffa/reallyme.cose.v1.cose.__view.rs",
         "proto/reallyme/cose/v1/cose.proto",
+        "proto/buffa/ext/options.proto",
+        "proto/buffa/LICENSE",
       ],
     },
   ],

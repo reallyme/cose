@@ -2,14 +2,15 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 import { maskRustNonCode } from "./release-readiness/operation-contract-routing.mjs";
-import { nativeBorrowedProjections, nativeProjections } from "./generate_native_projections.mjs";
+import { nativeProjections } from "./generate_native_projections.mjs";
+import { nativeAdapterBindings } from "./native_adapter_bindings.mjs";
 
 // Native selectors, borrowed alternatives and DTO declarations derive from the
 // schema. Only process-local owners and provider ports remain handwritten.
 export function assertCompleteTypeContract({readText,loadTrackedFiles,fail}) {
   const schema=readText("crates/proto/proto/reallyme/cose/v1/cose.proto");
   if (/^\s*bool has_\w+\s*=/mu.test(schema)) fail("scalar presence must use optional, a oneof or UNSPECIFIED");
-  const projections=[...nativeProjections(schema),...nativeBorrowedProjections(schema)];
+  const projections=[...nativeProjections(schema),...nativeAdapterBindings(schema).filter(value=>value.kind==="borrowed")];
   const projectionBindings=new Set(projections.map((value)=>`${value.path}#${value.name}`));
   const messages=new Map([...schema.matchAll(/(?:message|enum) (\w+) \{([\s\S]*?)\n\}/gu)].map(([,name,body])=>[name,body]));
   const views=new Set([...schema.matchAll(/\/\/ Rust view: ([a-z0-9_/]+\.rs)#(\w+)/gu)].map(([,path,name])=>`${path}#${name}`));

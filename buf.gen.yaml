@@ -6,6 +6,7 @@ plugins:
     out: crates/proto/src/generated/buffa
     strategy: all
     opt:
+      - adapters=true
       - views=true
       - json=true
       - deny_unknown_json_fields=true

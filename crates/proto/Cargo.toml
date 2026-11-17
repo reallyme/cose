@@ -11,6 +11,8 @@ categories = ["cryptography", "encoding"]
 publish = true
 include = [
     "/proto/**/*.proto",
+    "/proto/buffa/LICENSE",
+    "/proto/buffa/README.md",
     "/src/**/*.rs",
     "/tests/**/*.rs",
     "/Cargo.toml",

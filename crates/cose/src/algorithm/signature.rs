@@ -88,3 +88,26 @@ impl CoseSignatureAlgorithm {
         Ok(value)
     }
 }
+
+impl CoseSignatureAlgorithm {
+    /// Whether this is an original ISO suite registration. Entry points apply their explicit profile.
+    #[must_use]
+    pub const fn is_iso(self) -> bool {
+        matches!(self, Self::Es256 | Self::Es384 | Self::Es512 | Self::EdDsa)
+    }
+    /// ECDSA message hash, independently of named key curve.
+    #[cfg(feature = "cose-crypto")]
+    #[must_use]
+    pub const fn ecdsa_hash(self) -> Option<crate::iso18013::Iso18013EcdsaHash> {
+        match self {
+            Self::Es256 => Some(crate::iso18013::Iso18013EcdsaHash::Sha256),
+            Self::Es384 => Some(crate::iso18013::Iso18013EcdsaHash::Sha384),
+            Self::Es512 => Some(crate::iso18013::Iso18013EcdsaHash::Sha512),
+            Self::Esp256 => Some(crate::iso18013::Iso18013EcdsaHash::Sha256),
+            Self::Esp384 => Some(crate::iso18013::Iso18013EcdsaHash::Sha384),
+            Self::Esp512 => Some(crate::iso18013::Iso18013EcdsaHash::Sha512),
+            Self::Es256K => Some(crate::iso18013::Iso18013EcdsaHash::Sha256),
+            _ => None,
+        }
+    }
+}

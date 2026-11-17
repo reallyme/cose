@@ -1,12 +1,15 @@
 # ReallyMe Buffa integration
 
-The runtime and both local generators use the published ReallyMe Buffa 0.1.1
-family. Rust retains the `buffa` dependency alias. COSE package versions, Rust
-1.100 MSRV, protobuf package names, field numbers and cryptographic vectors
-remain unchanged. No service, descriptor, reflection, WKT or build-script
-integration is present in this repository. The crypto/codec operation-contract
-features are not enabled; their optional upstream runtime is not interchangeable
-with the COSE runtime.
+ReallyMe Buffa 0.1.3 generates the wire model and all native enum adapters.
+Rust retains the `buffa` dependency alias at runtime version 0.1.2, matching the
+exact requirement of Codec 0.4.3. Cargo cannot select runtime 0.1.3 alongside
+that requirement. The native adapters use the existing runtime's `EnumValue`
+API. Updating the runtime requires a compatible Codec release.
+
+COSE package versions, Rust 1.100 MSRV, protobuf package names, field numbers
+and cryptographic vectors remain unchanged. No service, reflection, WKT or
+build-script integration is present. The crypto/codec operation-contract
+features are not enabled.
 
 ## Security equivalence matrix
 
@@ -21,7 +24,8 @@ with the COSE runtime.
 | Retained unknown-field cleanup and recursive typed checks | `unknown_fields=false`; explicit zero-allowance wire admission; unknown data cannot inhabit a typed message | Nested/group/unknown wire rejection and complete-tree admission |
 | Ordinary JSON base64 scratch | Local `ProtoBytesJson` reserves guarded storage before decoding; wipes encoded owned strings and serialization scratch | Standard and URL-safe padding vectors, malformed base64, optional/repeated fields and allocation tests |
 | View export policy | `deny_view_json=.reallyme.cose.v1`, including empty and containing views | Whole-view export rejection, eager and owned oneof redaction, owned JSON compatibility |
-| Schema-derived native projections and reason aliases | Retained separate contract generation; no Buffa output rewriting | Operation/type reachability and regeneration tests |
+| Native closed, payload and borrowed callback enums | Typed `(buffa.ext.file).adapters` options; Buffa emits 17 closed selectors, two payload selectors and five borrowed enums | Direct Buffa output comparison; unknown/zero and normalization tests; incomplete descriptors, duplicate identities and missing callback payload tests |
+| Native record projections, constants, reason aliases and equality compatibility | Separate schema-derived companions; no enum generation or semantic rewriting of Buffa output | Operation/type reachability and regeneration tests |
 | Canonical protobuf and domain validation | Retained bounded codecs, re-encoding checks, typed errors and provider authorization | Existing native/protobuf/JSON parity and independent vectors |
 | Transport, parser and borrowed input ownership | Retained source owners and JSON escape rejection; serialized copies remain caller-owned | Existing size/recursion/encoding/ownership tests |
 
@@ -40,20 +44,29 @@ ordinary WKTs and dynamic reflection snapshots do not satisfy cleanup policy.
 
 ## Generation
 
-The `buffa` dependency resolves to `reallyme-buffa =0.1.1` with `json` and
-`zeroize`. Buf 1.73.0 invokes `reallyme-protoc-gen-buffa =0.1.1` and
-`reallyme-protoc-gen-buffa-packaging =0.1.1`. The generator writes the message,
+The `buffa` dependency resolves to `reallyme-buffa =0.1.2` with `json` and
+`zeroize`. Buf 1.75.0 invokes `reallyme-protoc-gen-buffa =0.1.3` and
+`reallyme-protoc-gen-buffa-packaging =0.1.3`. The generator writes the message,
 enum, oneof, eager-view and module files under `crates/proto/src/generated/buffa`.
-The generation driver also checks the schema-derived outputs in
+The driver copies Buffa's 24 native enum files to the implementation crate and
+formats all generated Rust with `rustfmt`. No semantic source patches are applied.
+It also checks the schema-derived companions in
 `crates/proto/src/contract_extensions.rs` and `crates/cose/src/generated_contract`.
 
-Buffa 0.1.1 emits fixed diagnostics for unknown names, unknown numbers and
+Buffa 0.1.3 emits fixed diagnostics for unknown names, unknown numbers and
 out-of-range numbers. Tests cover signed and unsigned input, known values, null
 defaults, lenient field parsing and unknown values in open enum fields.
-Regeneration uses the published output directly and formats it with `rustfmt`.
+Regeneration uses the generator output directly and formats it with `rustfmt`.
 
-The remaining separate generator emits native borrowed adapters, reason aliases
-and equality compatibility. A local-plugin `type_attribute` option could replace
-the `Eq` companion generation. Removing the other projections would require a
-schema-native representation of the Rust lifetime adapters and compatibility
-aliases. Version, freshness and reachability checks remain repository policy.
+The remaining companion generation handles native record projections (including
+checked `usize` limits), constants, error spelling aliases, equality compatibility
+and module assembly. It emits no enums. These record and alias projections are
+not supplied by Buffa 0.1.3; removing this companion code would require further
+Buffa support or a separately approved Rust API change. Freshness and reachability
+checks cover both Buffa output and these companions.
+
+The imported option descriptor is vendored unchanged under
+`crates/proto/proto/buffa`, with its upstream license and content digest. Only
+COSE files are generation targets. The published protobuf crate includes the
+import descriptor and license. The option
+messages are build-time descriptors and are not added to the public wire crate.

@@ -19,7 +19,7 @@ change, not a change to authenticated COSE encodings or algorithm registrations.
 | `CoseSign1VerifyResult` | `exact_signature_algorithm = 4`; zero means absent | 5, `has_exact_signature_algorithm` |
 | `CoseKeyBytesResult` | `signature_algorithm = 2`; zero means absent | 3, `has_signature_algorithm` |
 
-ReallyMe Buffa 0.1.1 generates `Option<SecretBytes>` for optional bytes. `None` omits the
+ReallyMe Buffa 0.1.3 generates `Option<SecretBytes>` for optional bytes. `None` omits the
 field; `Some(SecretBytes::default())` writes its tag and a zero length. Borrowed generated
 views expose `Option<&[u8]>`. Adapters borrow that presence directly, and all
 owning buffers retain redacted Debug and wipe-on-drop behavior. Clear, generated

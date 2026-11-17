@@ -4,6 +4,8 @@ syntax = "proto3";
 
 package reallyme.cose.v1;
 
+import "buffa/ext/options.proto";
+
 option go_package = "github.com/reallyme/cose/gen/go/reallyme/cose/v1;cosev1";
 option java_multiple_files = true;
 option java_outer_classname = "CoseProto";
@@ -52,7 +54,7 @@ message CoseBackendError {
 
 // Borrowed value methods project or construct the generated values named here.
 // Cryptographic operations use the operation adapters declared on the routing oneof.
-// Rust value methods: algorithm/signature.rs#CoseSignatureAlgorithm => CoseSignatureAlgorithm: crypto_algorithm
+// Rust value methods: algorithm/signature.rs#CoseSignatureAlgorithm => CoseSignatureAlgorithm: crypto_algorithm, is_iso, ecdsa_hash
 // Rust value methods: containers/agreement_key.rs#AgreementKey => CoseAgreementKeyResult: original_cose_key, public_material, curve, point_encoding
 // Rust value methods: containers/peer_curve.rs#PeerCurve => CoseNamedCurve: coordinate_bytes, okp_bytes
 // Rust value methods: containers/peer_key.rs#InspectedPeerKey => CosePeerKeyResult: original_cose_key, public_material, curve, usage, point_encoding
@@ -79,56 +81,34 @@ message CoseBackendError {
 // Rust closed enum: CoseSignatureAlgorithm
 enum CoseSignatureAlgorithm {
   // Rust availability: core
-  // Rust non-exhaustive
   COSE_SIGNATURE_ALGORITHM_UNSPECIFIED = 0;
   reserved 1 to 14;
   // EdDSA: 100-199; elliptic-curve signatures: 200-299;
   // RSA signatures: 300-399; post-quantum signatures: 1000-1099.
-  // Rust variant: Ed25519; wire: -19
   COSE_SIGNATURE_ALGORITHM_ED25519 = 100;
   // Historical primitive selectors remain accepted for wire compatibility
   // and map to the fully specified registrations used before 0.2.2.
-  // Rust compatibility variant: Esp256
   COSE_SIGNATURE_ALGORITHM_ECDSA_P256_SHA256 = 200 [deprecated = true];
-  // Rust variant: Es256; wire: -7; hash: Sha256; iso
   COSE_SIGNATURE_ALGORITHM_ES256 = 201;
-  // Rust variant: Es384; wire: -35; hash: Sha384; iso
   COSE_SIGNATURE_ALGORITHM_ES384 = 212;
-  // Rust variant: Es512; wire: -36; hash: Sha512; iso
   COSE_SIGNATURE_ALGORITHM_ES512 = 222;
-  // Rust variant: EdDsa; wire: -8; iso
   COSE_SIGNATURE_ALGORITHM_EDDSA = 101;
-  // Rust variant: Esp256; wire: -9; hash: Sha256
   COSE_SIGNATURE_ALGORITHM_ESP256 = 202;
-  // Rust compatibility variant: Esp384
   COSE_SIGNATURE_ALGORITHM_ECDSA_P384_SHA384 = 210 [deprecated = true];
-  // Rust variant: Esp384; wire: -51; hash: Sha384
   COSE_SIGNATURE_ALGORITHM_ESP384 = 211;
-  // Rust compatibility variant: Esp512
   COSE_SIGNATURE_ALGORITHM_ECDSA_P521_SHA512 = 220 [deprecated = true];
-  // Rust variant: Esp512; wire: -52; hash: Sha512
   COSE_SIGNATURE_ALGORITHM_ESP512 = 221;
-  // Rust variant: Es256K; wire: -47; hash: Sha256
   COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256 = 230;
   // Verification only. RSA keys use rsaEncryption SPKI DER, never EC points.
-  // Rust variant: Ps256; wire: -37
   COSE_SIGNATURE_ALGORITHM_PS256 = 300;
-  // Rust variant: Ps384; wire: -38
   COSE_SIGNATURE_ALGORITHM_PS384 = 301;
-  // Rust variant: Ps512; wire: -39
   COSE_SIGNATURE_ALGORITHM_PS512 = 302;
   // Historical PKCS#1 v1.5 verification requires an explicit allowlist.
-  // Rust variant: Rs256; wire: -257
   COSE_SIGNATURE_ALGORITHM_RS256 = 310;
-  // Rust variant: Rs384; wire: -258
   COSE_SIGNATURE_ALGORITHM_RS384 = 311;
-  // Rust variant: Rs512; wire: -259
   COSE_SIGNATURE_ALGORITHM_RS512 = 312;
-  // Rust variant: MlDsa44; wire: -48
   COSE_SIGNATURE_ALGORITHM_ML_DSA_44 = 1000;
-  // Rust variant: MlDsa65; wire: -49
   COSE_SIGNATURE_ALGORITHM_ML_DSA_65 = 1010;
-  // Rust variant: MlDsa87; wire: -50
   COSE_SIGNATURE_ALGORITHM_ML_DSA_87 = 1020;
 }
 
@@ -146,22 +126,18 @@ enum CoseAgreementOptionalParameters {
   // only as a byte string: retain it in exact key bytes, never signature input.
   // This subset permits omitted alg and agreement operations 7/8, but implements
   // no ECDH alg registrations.
-  // Rust variant: Cose
   COSE_AGREEMENT_OPTIONAL_PARAMETERS_VALIDATE_COSE = 1;
   // Explicit ISO peer policy: ignore unknown positive parameters, never d.
   // Known alg/key_ops still enforce the selected purpose and exact signature
   // registration. Base IV must be a byte string; retain it without using it.
   // As with VALIDATE_COSE, agreement alg is omitted: no ECDH alg is implemented.
-  // Rust variant: IsoPeer
   COSE_AGREEMENT_OPTIONAL_PARAMETERS_IGNORE_ISO_OPTIONAL = 2;
 }
 
 // Rust closed enum: AgreementEc2EncodingPolicy
 enum CoseAgreementEc2EncodingPolicy {
   COSE_AGREEMENT_EC2_ENCODING_POLICY_UNSPECIFIED = 0;
-  // Rust variant: FullCoordinatesOnly
   COSE_AGREEMENT_EC2_ENCODING_POLICY_FULL_COORDINATES_ONLY = 1;
-  // Rust variant: FullOrCompressed
   COSE_AGREEMENT_EC2_ENCODING_POLICY_FULL_OR_COMPRESSED = 2;
 }
 
@@ -169,11 +145,8 @@ enum CoseAgreementEc2EncodingPolicy {
 enum CosePointEncoding {
   // Rust availability: core
   COSE_POINT_ENCODING_UNSPECIFIED = 0;
-  // Rust variant: Ec2Coordinates; alias: FullCoordinates
   COSE_POINT_ENCODING_EC2_COORDINATES = 1;
-  // Rust variant: Ec2YSign; alias: Compressed
   COSE_POINT_ENCODING_EC2_Y_SIGN = 2;
-  // Rust variant: Okp
   COSE_POINT_ENCODING_OKP = 3;
 }
 
@@ -225,29 +198,17 @@ message CoseAgreementKeyResult {
 // Rust closed enum: CoseCurve
 enum CoseNamedCurve {
   COSE_NAMED_CURVE_UNSPECIFIED = 0;
-  // Rust variant: P256; wire: 1
   COSE_NAMED_CURVE_P256 = 1;
-  // Rust variant: P384; wire: 2
   COSE_NAMED_CURVE_P384 = 2;
-  // Rust variant: P521; wire: 3
   COSE_NAMED_CURVE_P521 = 3;
-  // Rust variant: X25519; wire: 4
   COSE_NAMED_CURVE_X25519 = 4;
-  // Rust variant: X448; wire: 5
   COSE_NAMED_CURVE_X448 = 5;
-  // Rust variant: Ed25519; wire: 6
   COSE_NAMED_CURVE_ED25519 = 6;
-  // Rust variant: Ed448; wire: 7
   COSE_NAMED_CURVE_ED448 = 7;
-  // Rust variant: Secp256k1; wire: 8
   COSE_NAMED_CURVE_SECP256K1 = 8;
-  // Rust variant: BrainpoolP256r1; wire: 256
   COSE_NAMED_CURVE_BRAINPOOL_P256R1 = 256;
-  // Rust variant: BrainpoolP320r1; wire: 257
   COSE_NAMED_CURVE_BRAINPOOL_P320R1 = 257;
-  // Rust variant: BrainpoolP384r1; wire: 258
   COSE_NAMED_CURVE_BRAINPOOL_P384R1 = 258;
-  // Rust variant: BrainpoolP512r1; wire: 259
   COSE_NAMED_CURVE_BRAINPOOL_P512R1 = 259;
 }
 
@@ -275,36 +236,27 @@ message CoseByteLimits {
 // Rust closed enum: Iso18013EcdsaHash
 enum CoseHashAlgorithm {
   COSE_HASH_ALGORITHM_UNSPECIFIED = 0;
-  // Rust variant: Sha256
   COSE_HASH_ALGORITHM_SHA256 = 100;
-  // Rust variant: Sha384
   COSE_HASH_ALGORITHM_SHA384 = 110;
-  // Rust variant: Sha512
   COSE_HASH_ALGORITHM_SHA512 = 120;
 }
 
 // Private-use namespace carried by the supported ML-KEM container profile.
 // Rust closed enum: CoseMlKemProfile
 enum CoseMlKemProfile {
-  // Rust non-exhaustive
   COSE_ML_KEM_PROFILE_UNSPECIFIED = 0;
   // Private ML-KEM identifiers and draft-ietf-jose-pqc-kem-06 KMAC256 context:
   // [AlgorithmID, [keyDataLength, protected], ?SuppPrivInfo]. PartyUInfo and
   // PartyVInfo are omitted. Enc_structure follows RFC 9052 section 5.3.
-  // Rust variant: ReallyMeV1
   COSE_ML_KEM_PROFILE_REALLY_ME_V1 = 1;
 }
 
 // Rust closed enum: CoseMacAlgorithm
 enum CoseMacAlgorithm {
   COSE_MAC_ALGORITHM_UNSPECIFIED = 0;
-  // Rust variant: Hmac256_64; wire: 4
   COSE_MAC_ALGORITHM_HMAC_256_64 = 4;
-  // Rust variant: Hmac256_256; wire: 5
   COSE_MAC_ALGORITHM_HMAC_256_256 = 5;
-  // Rust variant: Hmac384_384; wire: 6
   COSE_MAC_ALGORITHM_HMAC_384_384 = 6;
-  // Rust variant: Hmac512_512; wire: 7
   COSE_MAC_ALGORITHM_HMAC_512_512 = 7;
 }
 
@@ -393,43 +345,29 @@ message CoseIsoSign1VerifyResult {
 // Rust closed enum: ContainerProfile
 enum CoseContainerProfile {
   COSE_CONTAINER_PROFILE_UNSPECIFIED = 0;
-  // Rust variant: Rfc9360
   COSE_CONTAINER_PROFILE_RFC9360 = 1;
-  // Rust variant: Iso2021
   COSE_CONTAINER_PROFILE_ISO2021 = 2;
-  // Rust variant: IsoEdition2Dis
   COSE_CONTAINER_PROFILE_ISO_EDITION2_DIS = 3;
 }
 
 // Rust closed enum: ContainerPurpose
 enum CoseContainerPurpose {
   COSE_CONTAINER_PURPOSE_UNSPECIFIED = 0;
-  // Rust variant: Generic
   COSE_CONTAINER_PURPOSE_GENERIC = 1;
-  // Rust variant: IssuerMso
   COSE_CONTAINER_PURPOSE_ISSUER_MSO = 2;
-  // Rust variant: DeviceAuthentication
   COSE_CONTAINER_PURPOSE_DEVICE_AUTHENTICATION = 3;
-  // Rust variant: ReaderAuthentication
   COSE_CONTAINER_PURPOSE_READER_AUTHENTICATION = 4;
-  // Rust variant: ReaderAuthenticationAll
   COSE_CONTAINER_PURPOSE_READER_AUTHENTICATION_ALL = 5;
-  // Rust variant: MsoRevocation
   COSE_CONTAINER_PURPOSE_MSO_REVOCATION = 6;
-  // Rust variant: Vical
   COSE_CONTAINER_PURPOSE_VICAL = 7;
-  // Rust variant: Rical
   COSE_CONTAINER_PURPOSE_RICAL = 8;
 }
 
 // Rust closed enum: EnvelopePolicy
 enum CoseEnvelopePolicy {
   COSE_ENVELOPE_POLICY_UNSPECIFIED = 0;
-  // Rust variant: Untagged
   COSE_ENVELOPE_POLICY_UNTAGGED = 1;
-  // Rust variant: Tagged
   COSE_ENVELOPE_POLICY_TAGGED = 2;
-  // Rust variant: Either
   COSE_ENVELOPE_POLICY_EITHER = 3;
 }
 
@@ -481,13 +419,9 @@ message CoseContainerVerifyRequest {
 // Rust closed enum: EndEntityIntegrity
 enum CoseEndEntityIntegrity {
   COSE_END_ENTITY_INTEGRITY_UNSPECIFIED = 0;
-  // Rust variant: ExternalKey
   COSE_END_ENTITY_INTEGRITY_EXTERNAL_KEY = 1;
-  // Rust variant: ProtectedChain
   COSE_END_ENTITY_INTEGRITY_PROTECTED_CHAIN = 2;
-  // Rust variant: ProtectedThumbprint
   COSE_END_ENTITY_INTEGRITY_PROTECTED_THUMBPRINT = 3;
-  // Rust variant: IsoUnprotectedChain
   COSE_END_ENTITY_INTEGRITY_ISO_UNPROTECTED_CHAIN = 4;
 }
 
@@ -536,11 +470,8 @@ message CoseContainerSignRequest {
 // Rust payload enum: PeerKeyUsage
 enum CosePeerKeyPurpose {
   COSE_PEER_KEY_PURPOSE_UNSPECIFIED = 0;
-  // Rust variant: Signature(SignatureSuite)
   COSE_PEER_KEY_PURPOSE_SIGNATURE = 1;
-  // Rust variant: Agreement
   COSE_PEER_KEY_PURPOSE_AGREEMENT = 2;
-  // Rust variant: HpkeRecipient
   COSE_PEER_KEY_PURPOSE_HPKE_RECIPIENT = 3;
 }
 
@@ -576,13 +507,9 @@ message CosePeerKeyResult {
 // Rust closed enum: SignatureEncoding
 enum CoseSignatureEncoding {
   COSE_SIGNATURE_ENCODING_UNSPECIFIED = 0;
-  // Rust variant: EcdsaFixed
   COSE_SIGNATURE_ENCODING_COSE_ECDSA = 1;
-  // Rust variant: EcdsaDer
   COSE_SIGNATURE_ENCODING_ECDSA_DER = 2;
-  // Rust variant: EdDsa
   COSE_SIGNATURE_ENCODING_EDDSA = 3;
-  // Rust variant: CoseNative
   COSE_SIGNATURE_ENCODING_COSE_NATIVE = 4;
 }
 
@@ -671,24 +598,18 @@ enum CoseEc2PointEncoding {
   // Preserve the library default: encode y as a parity boolean.
   COSE_EC2_POINT_ENCODING_UNSPECIFIED = 0;
   // Encode y as a parity boolean for the compact RFC 9053 representation.
-  // Rust compatibility variant: Ec2YSign
   COSE_EC2_POINT_ENCODING_COMPRESSED = 1;
   // Encode x and y as full affine-coordinate byte strings.
-  // Rust compatibility variant: Ec2Coordinates
   COSE_EC2_POINT_ENCODING_FULL_COORDINATES = 2;
 }
 
 // Rust closed enum: CoseMlKemAlgorithm
 enum CoseKemAlgorithm {
-  // Rust non-exhaustive
   COSE_KEM_ALGORITHM_UNSPECIFIED = 0;
   reserved 1 to 14;
   // Post-quantum KEMs: 1000-1099; hybrid KEMs: 1100-1199.
-  // Rust variant: MlKem512
   COSE_KEM_ALGORITHM_ML_KEM_512 = 1000;
-  // Rust variant: MlKem768
   COSE_KEM_ALGORITHM_ML_KEM_768 = 1010;
-  // Rust variant: MlKem1024
   COSE_KEM_ALGORITHM_ML_KEM_1024 = 1020;
   COSE_KEM_ALGORITHM_X_WING_768 = 1100;
 }
@@ -709,27 +630,20 @@ message CoseAlgorithmIdentifier {
 // registry values.
 // Rust closed enum: CoseContentEncryptionAlgorithm
 enum CoseContentEncryptionAlgorithm {
-  // Rust non-exhaustive
   COSE_CONTENT_ENCRYPTION_ALGORITHM_UNSPECIFIED = 0;
   reserved 1 to 3;
-  // Rust variant: Aes128Gcm
   COSE_CONTENT_ENCRYPTION_ALGORITHM_AES_128_GCM = 100;
-  // Rust variant: Aes192Gcm
   COSE_CONTENT_ENCRYPTION_ALGORITHM_AES_192_GCM = 110;
-  // Rust variant: Aes256Gcm
   COSE_CONTENT_ENCRYPTION_ALGORITHM_AES_256_GCM = 120;
 }
 
 // CoseMlKemMode reports which COSE_Recipient construction was authenticated.
 // Rust closed enum: CoseMlKemMode
 enum CoseMlKemMode {
-  // Rust non-exhaustive
   COSE_ML_KEM_MODE_UNSPECIFIED = 0;
   // Recipient ciphertext must be CBOR nil (f6); an empty byte string is invalid.
-  // Rust variant: Direct
   COSE_ML_KEM_MODE_DIRECT = 1;
   // Recipient ciphertext carries the wrapped key as a byte string.
-  // Rust variant: KeyWrap
   COSE_ML_KEM_MODE_KEY_WRAP = 2;
 }
 
@@ -762,9 +676,7 @@ message CoseProviderRegistry {
 // Rust payload enum: SigningMode
 enum CoseSigningMode {
   COSE_SIGNING_MODE_UNSPECIFIED = 0;
-  // Rust variant: Message
   COSE_SIGNING_MODE_MESSAGE = 1;
-  // Rust variant: EcdsaPrehash(Iso18013EcdsaHash)
   COSE_SIGNING_MODE_ECDSA_PREHASH = 2;
 }
 
@@ -1315,9 +1227,7 @@ message CoseX5Chain {
 // Rust closed enum: X5ChainHeaderPlacement
 enum CoseX5ChainHeaderPlacement {
   COSE_X5_CHAIN_HEADER_PLACEMENT_UNSPECIFIED = 0;
-  // Rust variant: Protected
   COSE_X5_CHAIN_HEADER_PLACEMENT_PROTECTED = 1;
-  // Rust variant: Unprotected
   COSE_X5_CHAIN_HEADER_PLACEMENT_UNPROTECTED = 2;
 }
 
@@ -2191,11 +2101,6 @@ enum CoseErrorReason {
 // Rust projection: {"binding":"encrypt/types.rs#DecryptedCoseEncrypt","message":"CoseMlKemDecryptResult","fields":[{"name":"plaintext","source":"plaintext","visibility":"public"},{"name":"content_algorithm","source":"content_algorithm","visibility":"public"},{"name":"kem_algorithm","source":"kem_algorithm","visibility":"public"},{"name":"mode","source":"mode","visibility":"public"},{"name":"kid","source":"recipient_kid","visibility":"public"},{"name":"profile","source":"profile","visibility":"public"}],"non_exhaustive":true}
 // Rust projection: {"binding":"sign1/verify.rs#VerifiedCoseSign1","message":"CoseSign1VerifyResult","fields":[{"name":"payload","source":"payload","visibility":"public"},{"name":"alg","source":"algorithm","visibility":"public","representation":"crypto"},{"name":"cose_algorithm","source":"exact_signature_algorithm","visibility":"public"},{"name":"kid","source":"kid","visibility":"public"},{"name":"cose_type","source":"protected_type","visibility":"public"}],"non_exhaustive":true}
 // Rust projection: {"binding":"sign1/verify.rs#VerifiedDetachedCoseSign1","message":"CoseSign1VerifyResult","fields":[{"name":"alg","source":"algorithm","visibility":"public","representation":"crypto"},{"name":"cose_algorithm","source":"exact_signature_algorithm","visibility":"public"},{"name":"kid","source":"kid","visibility":"public"},{"name":"cose_type","source":"protected_type","visibility":"public"}],"non_exhaustive":true,"omit":[{"fields":["payload"],"reason":"detached"}]}
-// Rust borrowed projection: {"binding":"iso18013/types.rs#Iso18013Sign1Content","wire":"CoseIsoSign1Content","variants":[{"name":"IssuerAttached","cases":["COSE_ISO_SIGN1_CONTENT_ISSUER_ATTACHED"]},{"name":"DeviceDetached","cases":["COSE_ISO_SIGN1_CONTENT_DEVICE_DETACHED"],"field":"CoseIsoSign1VerifyRequest.detached_payload"},{"name":"ReaderDetached","cases":["COSE_ISO_SIGN1_CONTENT_READER_DETACHED"],"field":"CoseIsoSign1VerifyRequest.detached_payload"}]}
-// Rust borrowed projection: {"binding":"containers/policy.rs#ContainerContent","wire":"CoseContentMode","variants":[{"name":"Attached","cases":["COSE_CONTENT_MODE_ATTACHED"]},{"name":"Detached","cases":["COSE_CONTENT_MODE_DETACHED"],"field":"CoseContainerVerifyRequest.detached_payload"}]}
-// Rust borrowed projection: {"binding":"containers/sign.rs#SigningContent","wire":"CoseContentMode","variants":[{"name":"Attached","cases":["COSE_CONTENT_MODE_ATTACHED"],"field":"CoseContainerSignRequest.payload"},{"name":"Detached","cases":["COSE_CONTENT_MODE_DETACHED"],"field":"CoseContainerSignRequest.payload"}]}
-// Rust borrowed projection: {"binding":"containers/provider.rs#VerificationSource","wire":"CoseKeySource","variants":[{"name":"Key","cases":["COSE_KEY_SOURCE_DIRECT","COSE_KEY_SOURCE_PROVIDER"],"port":"VerificationKey"},{"name":"Certificates","cases":["COSE_KEY_SOURCE_CERTIFICATES"],"port":"CertificateValidator"}]}
-// Rust borrowed projection: {"binding":"containers/signer.rs#SigningInput","wire":"CoseSigningInput","variants":[{"name":"Message","cases":["message"],"field":"CoseSigningInput.message.encoded"},{"name":"EcdsaPrehash","cases":["ecdsa_prehash"],"fields":[{"name":"hash","source":"CoseSigningInput.ecdsa_prehash.hash"},{"name":"digest","source":"CoseSigningInput.ecdsa_prehash.digest"}]}]}
 // Rust message owner: policy/validate.rs#CosePolicy => CoseVerificationPolicy
 // Rust message owner: sign1/encode_options.rs#CoseSign1EncodeOptions => CoseSign1Options
 // Rust capability owner: containers/agreement_key.rs#AgreementKey
@@ -2220,3 +2125,896 @@ enum CoseErrorReason {
 // Rust transport adapter: wire.rs#decode_cose_error => CoseError
 // Rust internal limit: MAX_ALLOWLIST_ENTRIES: usize = 32
 // Rust internal limit: MAX_AGREEMENT_CURVES: usize = 9
+
+// Buffa validates these native compatibility views against the complete wire
+// descriptors. No COSE-local generator emits their enum declarations.
+option (buffa.ext.file).adapters = {
+  version: 1
+  selectors {
+    file: "cose_signature_algorithm.rs"
+    name: "CoseSignatureAlgorithm"
+    wire {
+      source: ".reallyme.cose.v1.CoseSignatureAlgorithm"
+      rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseSignatureAlgorithm"
+    }
+    error {
+      rust_type: "crate::CoseError"
+      value: "crate::error::CoseErrorReason::CommonInvalidParameter"
+    }
+    non_exhaustive: true
+    variants {
+      name: "Ed25519"
+      identifier: -19
+      source: "COSE_SIGNATURE_ALGORITHM_ED25519"
+    }
+    variants {
+      name: "Es256"
+      identifier: -7
+      source: "COSE_SIGNATURE_ALGORITHM_ES256"
+    }
+    variants {
+      name: "Es384"
+      identifier: -35
+      source: "COSE_SIGNATURE_ALGORITHM_ES384"
+    }
+    variants {
+      name: "Es512"
+      identifier: -36
+      source: "COSE_SIGNATURE_ALGORITHM_ES512"
+    }
+    variants {
+      name: "EdDsa"
+      identifier: -8
+      source: "COSE_SIGNATURE_ALGORITHM_EDDSA"
+    }
+    variants {
+      name: "Esp256"
+      identifier: -9
+      source: "COSE_SIGNATURE_ALGORITHM_ESP256"
+    }
+    variants {
+      name: "Esp384"
+      identifier: -51
+      source: "COSE_SIGNATURE_ALGORITHM_ESP384"
+    }
+    variants {
+      name: "Esp512"
+      identifier: -52
+      source: "COSE_SIGNATURE_ALGORITHM_ESP512"
+    }
+    variants {
+      name: "Es256K"
+      identifier: -47
+      source: "COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256"
+    }
+    variants {
+      name: "MlDsa44"
+      identifier: -48
+      source: "COSE_SIGNATURE_ALGORITHM_ML_DSA_44"
+    }
+    variants {
+      name: "MlDsa65"
+      identifier: -49
+      source: "COSE_SIGNATURE_ALGORITHM_ML_DSA_65"
+    }
+    variants {
+      name: "MlDsa87"
+      identifier: -50
+      source: "COSE_SIGNATURE_ALGORITHM_ML_DSA_87"
+    }
+    variants {
+      name: "Ps256"
+      identifier: -37
+      source: "COSE_SIGNATURE_ALGORITHM_PS256"
+    }
+    variants {
+      name: "Ps384"
+      identifier: -38
+      source: "COSE_SIGNATURE_ALGORITHM_PS384"
+    }
+    variants {
+      name: "Ps512"
+      identifier: -39
+      source: "COSE_SIGNATURE_ALGORITHM_PS512"
+    }
+    variants {
+      name: "Rs256"
+      identifier: -257
+      source: "COSE_SIGNATURE_ALGORITHM_RS256"
+    }
+    variants {
+      name: "Rs384"
+      identifier: -258
+      source: "COSE_SIGNATURE_ALGORITHM_RS384"
+    }
+    variants {
+      name: "Rs512"
+      identifier: -259
+      source: "COSE_SIGNATURE_ALGORITHM_RS512"
+    }
+    normalizations {
+      target: "Esp256"
+      source: "COSE_SIGNATURE_ALGORITHM_ECDSA_P256_SHA256"
+    }
+    normalizations {
+      target: "Esp384"
+      source: "COSE_SIGNATURE_ALGORITHM_ECDSA_P384_SHA384"
+    }
+    normalizations {
+      target: "Esp512"
+      source: "COSE_SIGNATURE_ALGORITHM_ECDSA_P521_SHA512"
+    }
+    identifier_error {
+      rust_type: "crate::CoseError"
+      value: "crate::CoseError::UnsupportedAlgorithm"
+    }
+  }
+  selectors {
+    file: "optional_key_policy.rs"
+    name: "OptionalKeyPolicy"
+    wire {
+      source: ".reallyme.cose.v1.CoseAgreementOptionalParameters"
+      rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseAgreementOptionalParameters"
+    }
+    error {
+      rust_type: "crate::CoseError"
+      value: "crate::error::CoseErrorReason::CommonInvalidParameter"
+    }
+    non_exhaustive: false
+    variants {
+      name: "Cose"
+      source: "COSE_AGREEMENT_OPTIONAL_PARAMETERS_VALIDATE_COSE"
+    }
+    variants {
+      name: "IsoPeer"
+      source: "COSE_AGREEMENT_OPTIONAL_PARAMETERS_IGNORE_ISO_OPTIONAL"
+    }
+  }
+  selectors {
+    file: "agreement_ec2_encoding_policy.rs"
+    name: "AgreementEc2EncodingPolicy"
+    wire {
+      source: ".reallyme.cose.v1.CoseAgreementEc2EncodingPolicy"
+      rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseAgreementEc2EncodingPolicy"
+    }
+    error {
+      rust_type: "crate::CoseError"
+      value: "crate::error::CoseErrorReason::CommonInvalidParameter"
+    }
+    non_exhaustive: false
+    variants {
+      name: "FullCoordinatesOnly"
+      source: "COSE_AGREEMENT_EC2_ENCODING_POLICY_FULL_COORDINATES_ONLY"
+    }
+    variants {
+      name: "FullOrCompressed"
+      source: "COSE_AGREEMENT_EC2_ENCODING_POLICY_FULL_OR_COMPRESSED"
+    }
+  }
+  selectors {
+    file: "cose_point_encoding.rs"
+    name: "CosePointEncoding"
+    wire {
+      source: ".reallyme.cose.v1.CosePointEncoding"
+      rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CosePointEncoding"
+    }
+    error {
+      rust_type: "crate::CoseError"
+      value: "crate::error::CoseErrorReason::CommonInvalidParameter"
+    }
+    non_exhaustive: false
+    variants {
+      name: "Ec2Coordinates"
+      aliases: "FullCoordinates"
+      source: "COSE_POINT_ENCODING_EC2_COORDINATES"
+    }
+    variants {
+      name: "Ec2YSign"
+      aliases: "Compressed"
+      source: "COSE_POINT_ENCODING_EC2_Y_SIGN"
+    }
+    variants {
+      name: "Okp"
+      source: "COSE_POINT_ENCODING_OKP"
+    }
+    legacy {
+      wire {
+        source: ".reallyme.cose.v1.CoseEc2PointEncoding"
+        rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseEc2PointEncoding"
+      }
+      normalizations {
+        target: "Ec2YSign"
+        source: "COSE_EC2_POINT_ENCODING_COMPRESSED"
+      }
+      normalizations {
+        target: "Ec2Coordinates"
+        source: "COSE_EC2_POINT_ENCODING_FULL_COORDINATES"
+      }
+    }
+  }
+  selectors {
+    file: "cose_curve.rs"
+    name: "CoseCurve"
+    wire {
+      source: ".reallyme.cose.v1.CoseNamedCurve"
+      rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseNamedCurve"
+    }
+    error {
+      rust_type: "crate::CoseError"
+      value: "crate::error::CoseErrorReason::CommonInvalidParameter"
+    }
+    non_exhaustive: false
+    variants {
+      name: "P256"
+      identifier: 1
+      source: "COSE_NAMED_CURVE_P256"
+    }
+    variants {
+      name: "P384"
+      identifier: 2
+      source: "COSE_NAMED_CURVE_P384"
+    }
+    variants {
+      name: "P521"
+      identifier: 3
+      source: "COSE_NAMED_CURVE_P521"
+    }
+    variants {
+      name: "X25519"
+      identifier: 4
+      source: "COSE_NAMED_CURVE_X25519"
+    }
+    variants {
+      name: "X448"
+      identifier: 5
+      source: "COSE_NAMED_CURVE_X448"
+    }
+    variants {
+      name: "Ed25519"
+      identifier: 6
+      source: "COSE_NAMED_CURVE_ED25519"
+    }
+    variants {
+      name: "Ed448"
+      identifier: 7
+      source: "COSE_NAMED_CURVE_ED448"
+    }
+    variants {
+      name: "Secp256k1"
+      identifier: 8
+      source: "COSE_NAMED_CURVE_SECP256K1"
+    }
+    variants {
+      name: "BrainpoolP256r1"
+      identifier: 256
+      source: "COSE_NAMED_CURVE_BRAINPOOL_P256R1"
+    }
+    variants {
+      name: "BrainpoolP320r1"
+      identifier: 257
+      source: "COSE_NAMED_CURVE_BRAINPOOL_P320R1"
+    }
+    variants {
+      name: "BrainpoolP384r1"
+      identifier: 258
+      source: "COSE_NAMED_CURVE_BRAINPOOL_P384R1"
+    }
+    variants {
+      name: "BrainpoolP512r1"
+      identifier: 259
+      source: "COSE_NAMED_CURVE_BRAINPOOL_P512R1"
+    }
+    identifier_error {
+      rust_type: "crate::CoseError"
+      value: "crate::CoseError::UnsupportedAlgorithm"
+    }
+  }
+  selectors {
+    file: "iso18013_ecdsa_hash.rs"
+    name: "Iso18013EcdsaHash"
+    wire {
+      source: ".reallyme.cose.v1.CoseHashAlgorithm"
+      rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseHashAlgorithm"
+    }
+    error {
+      rust_type: "crate::CoseError"
+      value: "crate::error::CoseErrorReason::CommonInvalidParameter"
+    }
+    non_exhaustive: false
+    variants {
+      name: "Sha256"
+      source: "COSE_HASH_ALGORITHM_SHA256"
+    }
+    variants {
+      name: "Sha384"
+      source: "COSE_HASH_ALGORITHM_SHA384"
+    }
+    variants {
+      name: "Sha512"
+      source: "COSE_HASH_ALGORITHM_SHA512"
+    }
+  }
+  selectors {
+    file: "cose_ml_kem_profile.rs"
+    name: "CoseMlKemProfile"
+    wire {
+      source: ".reallyme.cose.v1.CoseMlKemProfile"
+      rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseMlKemProfile"
+    }
+    error {
+      rust_type: "crate::CoseError"
+      value: "crate::error::CoseErrorReason::CommonInvalidParameter"
+    }
+    non_exhaustive: true
+    variants {
+      name: "ReallyMeV1"
+      source: "COSE_ML_KEM_PROFILE_REALLY_ME_V1"
+    }
+  }
+  selectors {
+    file: "cose_mac_algorithm.rs"
+    name: "CoseMacAlgorithm"
+    wire {
+      source: ".reallyme.cose.v1.CoseMacAlgorithm"
+      rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseMacAlgorithm"
+    }
+    error {
+      rust_type: "crate::CoseError"
+      value: "crate::error::CoseErrorReason::CommonInvalidParameter"
+    }
+    non_exhaustive: false
+    variants {
+      name: "Hmac256_64"
+      identifier: 4
+      source: "COSE_MAC_ALGORITHM_HMAC_256_64"
+    }
+    variants {
+      name: "Hmac256_256"
+      identifier: 5
+      source: "COSE_MAC_ALGORITHM_HMAC_256_256"
+    }
+    variants {
+      name: "Hmac384_384"
+      identifier: 6
+      source: "COSE_MAC_ALGORITHM_HMAC_384_384"
+    }
+    variants {
+      name: "Hmac512_512"
+      identifier: 7
+      source: "COSE_MAC_ALGORITHM_HMAC_512_512"
+    }
+    identifier_error {
+      rust_type: "crate::CoseError"
+      value: "crate::CoseError::UnsupportedAlgorithm"
+    }
+  }
+  selectors {
+    file: "container_profile.rs"
+    name: "ContainerProfile"
+    wire {
+      source: ".reallyme.cose.v1.CoseContainerProfile"
+      rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseContainerProfile"
+    }
+    error {
+      rust_type: "crate::CoseError"
+      value: "crate::error::CoseErrorReason::CommonInvalidParameter"
+    }
+    non_exhaustive: false
+    variants {
+      name: "Rfc9360"
+      source: "COSE_CONTAINER_PROFILE_RFC9360"
+    }
+    variants {
+      name: "Iso2021"
+      source: "COSE_CONTAINER_PROFILE_ISO2021"
+    }
+    variants {
+      name: "IsoEdition2Dis"
+      source: "COSE_CONTAINER_PROFILE_ISO_EDITION2_DIS"
+    }
+  }
+  selectors {
+    file: "container_purpose.rs"
+    name: "ContainerPurpose"
+    wire {
+      source: ".reallyme.cose.v1.CoseContainerPurpose"
+      rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseContainerPurpose"
+    }
+    error {
+      rust_type: "crate::CoseError"
+      value: "crate::error::CoseErrorReason::CommonInvalidParameter"
+    }
+    non_exhaustive: false
+    variants {
+      name: "Generic"
+      source: "COSE_CONTAINER_PURPOSE_GENERIC"
+    }
+    variants {
+      name: "IssuerMso"
+      source: "COSE_CONTAINER_PURPOSE_ISSUER_MSO"
+    }
+    variants {
+      name: "DeviceAuthentication"
+      source: "COSE_CONTAINER_PURPOSE_DEVICE_AUTHENTICATION"
+    }
+    variants {
+      name: "ReaderAuthentication"
+      source: "COSE_CONTAINER_PURPOSE_READER_AUTHENTICATION"
+    }
+    variants {
+      name: "ReaderAuthenticationAll"
+      source: "COSE_CONTAINER_PURPOSE_READER_AUTHENTICATION_ALL"
+    }
+    variants {
+      name: "MsoRevocation"
+      source: "COSE_CONTAINER_PURPOSE_MSO_REVOCATION"
+    }
+    variants {
+      name: "Vical"
+      source: "COSE_CONTAINER_PURPOSE_VICAL"
+    }
+    variants {
+      name: "Rical"
+      source: "COSE_CONTAINER_PURPOSE_RICAL"
+    }
+  }
+  selectors {
+    file: "envelope_policy.rs"
+    name: "EnvelopePolicy"
+    wire {
+      source: ".reallyme.cose.v1.CoseEnvelopePolicy"
+      rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseEnvelopePolicy"
+    }
+    error {
+      rust_type: "crate::CoseError"
+      value: "crate::error::CoseErrorReason::CommonInvalidParameter"
+    }
+    non_exhaustive: false
+    variants {
+      name: "Untagged"
+      source: "COSE_ENVELOPE_POLICY_UNTAGGED"
+    }
+    variants {
+      name: "Tagged"
+      source: "COSE_ENVELOPE_POLICY_TAGGED"
+    }
+    variants {
+      name: "Either"
+      source: "COSE_ENVELOPE_POLICY_EITHER"
+    }
+  }
+  selectors {
+    file: "end_entity_integrity.rs"
+    name: "EndEntityIntegrity"
+    wire {
+      source: ".reallyme.cose.v1.CoseEndEntityIntegrity"
+      rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseEndEntityIntegrity"
+    }
+    error {
+      rust_type: "crate::CoseError"
+      value: "crate::error::CoseErrorReason::CommonInvalidParameter"
+    }
+    non_exhaustive: false
+    variants {
+      name: "ExternalKey"
+      source: "COSE_END_ENTITY_INTEGRITY_EXTERNAL_KEY"
+    }
+    variants {
+      name: "ProtectedChain"
+      source: "COSE_END_ENTITY_INTEGRITY_PROTECTED_CHAIN"
+    }
+    variants {
+      name: "ProtectedThumbprint"
+      source: "COSE_END_ENTITY_INTEGRITY_PROTECTED_THUMBPRINT"
+    }
+    variants {
+      name: "IsoUnprotectedChain"
+      source: "COSE_END_ENTITY_INTEGRITY_ISO_UNPROTECTED_CHAIN"
+    }
+  }
+  selectors {
+    file: "signature_encoding.rs"
+    name: "SignatureEncoding"
+    wire {
+      source: ".reallyme.cose.v1.CoseSignatureEncoding"
+      rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseSignatureEncoding"
+    }
+    error {
+      rust_type: "crate::CoseError"
+      value: "crate::error::CoseErrorReason::CommonInvalidParameter"
+    }
+    non_exhaustive: false
+    variants {
+      name: "EcdsaFixed"
+      source: "COSE_SIGNATURE_ENCODING_COSE_ECDSA"
+    }
+    variants {
+      name: "EcdsaDer"
+      source: "COSE_SIGNATURE_ENCODING_ECDSA_DER"
+    }
+    variants {
+      name: "EdDsa"
+      source: "COSE_SIGNATURE_ENCODING_EDDSA"
+    }
+    variants {
+      name: "CoseNative"
+      source: "COSE_SIGNATURE_ENCODING_COSE_NATIVE"
+    }
+  }
+  selectors {
+    file: "cose_ml_kem_algorithm.rs"
+    name: "CoseMlKemAlgorithm"
+    wire {
+      source: ".reallyme.cose.v1.CoseKemAlgorithm"
+      rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseKemAlgorithm"
+    }
+    error {
+      rust_type: "crate::CoseError"
+      value: "crate::error::CoseErrorReason::CommonInvalidParameter"
+    }
+    non_exhaustive: true
+    variants {
+      name: "MlKem512"
+      source: "COSE_KEM_ALGORITHM_ML_KEM_512"
+    }
+    variants {
+      name: "MlKem768"
+      source: "COSE_KEM_ALGORITHM_ML_KEM_768"
+    }
+    variants {
+      name: "MlKem1024"
+      source: "COSE_KEM_ALGORITHM_ML_KEM_1024"
+    }
+    rejected: "COSE_KEM_ALGORITHM_X_WING_768"
+  }
+  selectors {
+    file: "cose_content_encryption_algorithm.rs"
+    name: "CoseContentEncryptionAlgorithm"
+    wire {
+      source: ".reallyme.cose.v1.CoseContentEncryptionAlgorithm"
+      rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseContentEncryptionAlgorithm"
+    }
+    error {
+      rust_type: "crate::CoseError"
+      value: "crate::error::CoseErrorReason::CommonInvalidParameter"
+    }
+    non_exhaustive: true
+    variants {
+      name: "Aes128Gcm"
+      source: "COSE_CONTENT_ENCRYPTION_ALGORITHM_AES_128_GCM"
+    }
+    variants {
+      name: "Aes192Gcm"
+      source: "COSE_CONTENT_ENCRYPTION_ALGORITHM_AES_192_GCM"
+    }
+    variants {
+      name: "Aes256Gcm"
+      source: "COSE_CONTENT_ENCRYPTION_ALGORITHM_AES_256_GCM"
+    }
+  }
+  selectors {
+    file: "cose_ml_kem_mode.rs"
+    name: "CoseMlKemMode"
+    wire {
+      source: ".reallyme.cose.v1.CoseMlKemMode"
+      rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseMlKemMode"
+    }
+    error {
+      rust_type: "crate::CoseError"
+      value: "crate::error::CoseErrorReason::CommonInvalidParameter"
+    }
+    non_exhaustive: true
+    variants {
+      name: "Direct"
+      source: "COSE_ML_KEM_MODE_DIRECT"
+    }
+    variants {
+      name: "KeyWrap"
+      source: "COSE_ML_KEM_MODE_KEY_WRAP"
+    }
+  }
+  selectors {
+    file: "x5_chain_header_placement.rs"
+    name: "X5ChainHeaderPlacement"
+    wire {
+      source: ".reallyme.cose.v1.CoseX5ChainHeaderPlacement"
+      rust_type: "reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseX5ChainHeaderPlacement"
+    }
+    error {
+      rust_type: "crate::CoseError"
+      value: "crate::error::CoseErrorReason::CommonInvalidParameter"
+    }
+    non_exhaustive: false
+    variants {
+      name: "Protected"
+      source: "COSE_X5_CHAIN_HEADER_PLACEMENT_PROTECTED"
+    }
+    variants {
+      name: "Unprotected"
+      source: "COSE_X5_CHAIN_HEADER_PLACEMENT_UNPROTECTED"
+    }
+  }
+  payloads {
+    file: "peer_key_usage.rs"
+    name: "PeerKeyUsage"
+    source: ".reallyme.cose.v1.CosePeerKeyPurpose"
+    variants {
+      name: "Signature"
+      cases: "COSE_PEER_KEY_PURPOSE_SIGNATURE"
+      payload {
+        kind: NATIVE_PAYLOAD_TUPLE
+        fields {
+          name: "value"
+          source {
+            message: ".reallyme.cose.v1.CosePeerKeyRequest"
+            path: "signature_suite"
+          }
+          representation {
+            kind: NATIVE_PAYLOAD_TYPE_VALUE
+            source: ".reallyme.cose.v1.CoseSignatureSuite"
+            rust_type: "super::SignatureSuite"
+          }
+        }
+      }
+    }
+    variants {
+      name: "Agreement"
+      cases: "COSE_PEER_KEY_PURPOSE_AGREEMENT"
+      payload {
+        kind: NATIVE_PAYLOAD_UNIT
+      }
+    }
+    variants {
+      name: "HpkeRecipient"
+      cases: "COSE_PEER_KEY_PURPOSE_HPKE_RECIPIENT"
+      payload {
+        kind: NATIVE_PAYLOAD_UNIT
+      }
+    }
+  }
+  payloads {
+    file: "signing_mode.rs"
+    name: "SigningMode"
+    source: ".reallyme.cose.v1.CoseSigningMode"
+    variants {
+      name: "Message"
+      cases: "COSE_SIGNING_MODE_MESSAGE"
+      payload {
+        kind: NATIVE_PAYLOAD_UNIT
+      }
+    }
+    variants {
+      name: "EcdsaPrehash"
+      cases: "COSE_SIGNING_MODE_ECDSA_PREHASH"
+      payload {
+        kind: NATIVE_PAYLOAD_TUPLE
+        fields {
+          name: "value"
+          source {
+            message: ".reallyme.cose.v1.CoseEcdsaPrehash"
+            path: "hash"
+          }
+          representation {
+            kind: NATIVE_PAYLOAD_TYPE_VALUE
+            source: ".reallyme.cose.v1.CoseHashAlgorithm"
+            rust_type: "super::Iso18013EcdsaHash"
+          }
+        }
+      }
+    }
+  }
+  borrowed {
+    file: "iso18013_sign1_content.rs"
+    name: "Iso18013Sign1Content"
+    source {
+      kind: NATIVE_BORROWED_SOURCE_ENUM
+      source: ".reallyme.cose.v1.CoseIsoSign1Content"
+    }
+    variants {
+      name: "IssuerAttached"
+      cases: "COSE_ISO_SIGN1_CONTENT_ISSUER_ATTACHED"
+      payload {
+        kind: NATIVE_PAYLOAD_UNIT
+      }
+    }
+    variants {
+      name: "DeviceDetached"
+      cases: "COSE_ISO_SIGN1_CONTENT_DEVICE_DETACHED"
+      payload {
+        kind: NATIVE_PAYLOAD_TUPLE
+        fields {
+          name: "value"
+          source {
+            message: ".reallyme.cose.v1.CoseIsoSign1VerifyRequest"
+            path: "detached_payload"
+          }
+          representation {
+            kind: NATIVE_PAYLOAD_TYPE_BYTES
+          }
+        }
+      }
+    }
+    variants {
+      name: "ReaderDetached"
+      cases: "COSE_ISO_SIGN1_CONTENT_READER_DETACHED"
+      payload {
+        kind: NATIVE_PAYLOAD_TUPLE
+        fields {
+          name: "value"
+          source {
+            message: ".reallyme.cose.v1.CoseIsoSign1VerifyRequest"
+            path: "detached_payload"
+          }
+          representation {
+            kind: NATIVE_PAYLOAD_TYPE_BYTES
+          }
+        }
+      }
+    }
+  }
+  borrowed {
+    file: "container_content.rs"
+    name: "ContainerContent"
+    source {
+      kind: NATIVE_BORROWED_SOURCE_ENUM
+      source: ".reallyme.cose.v1.CoseContentMode"
+    }
+    variants {
+      name: "Attached"
+      cases: "COSE_CONTENT_MODE_ATTACHED"
+      payload {
+        kind: NATIVE_PAYLOAD_UNIT
+      }
+    }
+    variants {
+      name: "Detached"
+      cases: "COSE_CONTENT_MODE_DETACHED"
+      payload {
+        kind: NATIVE_PAYLOAD_TUPLE
+        fields {
+          name: "value"
+          source {
+            message: ".reallyme.cose.v1.CoseContainerVerifyRequest"
+            path: "detached_payload"
+          }
+          representation {
+            kind: NATIVE_PAYLOAD_TYPE_BYTES
+          }
+        }
+      }
+    }
+  }
+  borrowed {
+    file: "signing_content.rs"
+    name: "SigningContent"
+    source {
+      kind: NATIVE_BORROWED_SOURCE_ENUM
+      source: ".reallyme.cose.v1.CoseContentMode"
+    }
+    variants {
+      name: "Attached"
+      cases: "COSE_CONTENT_MODE_ATTACHED"
+      payload {
+        kind: NATIVE_PAYLOAD_TUPLE
+        fields {
+          name: "value"
+          source {
+            message: ".reallyme.cose.v1.CoseContainerSignRequest"
+            path: "payload"
+          }
+          representation {
+            kind: NATIVE_PAYLOAD_TYPE_BYTES
+          }
+        }
+      }
+    }
+    variants {
+      name: "Detached"
+      cases: "COSE_CONTENT_MODE_DETACHED"
+      payload {
+        kind: NATIVE_PAYLOAD_TUPLE
+        fields {
+          name: "value"
+          source {
+            message: ".reallyme.cose.v1.CoseContainerSignRequest"
+            path: "payload"
+          }
+          representation {
+            kind: NATIVE_PAYLOAD_TYPE_BYTES
+          }
+        }
+      }
+    }
+  }
+  borrowed {
+    file: "verification_source.rs"
+    name: "VerificationSource"
+    source {
+      kind: NATIVE_BORROWED_SOURCE_ENUM
+      source: ".reallyme.cose.v1.CoseKeySource"
+    }
+    variants {
+      name: "Key"
+      cases: "COSE_KEY_SOURCE_DIRECT"
+      cases: "COSE_KEY_SOURCE_PROVIDER"
+      payload {
+        kind: NATIVE_PAYLOAD_PORT
+        port: "VerificationKey"
+      }
+    }
+    variants {
+      name: "Certificates"
+      cases: "COSE_KEY_SOURCE_CERTIFICATES"
+      payload {
+        kind: NATIVE_PAYLOAD_PORT
+        port: "CertificateValidator"
+      }
+    }
+  }
+  borrowed {
+    file: "signing_input.rs"
+    name: "SigningInput"
+    source {
+      kind: NATIVE_BORROWED_SOURCE_ONEOF
+      message: ".reallyme.cose.v1.CoseSigningInput"
+      name: "input"
+    }
+    variants {
+      name: "Message"
+      cases: "message"
+      payload {
+        kind: NATIVE_PAYLOAD_TUPLE
+        fields {
+          name: "value"
+          source {
+            message: ".reallyme.cose.v1.CoseSigningInput"
+            path: "message"
+            path: "encoded"
+          }
+          representation {
+            kind: NATIVE_PAYLOAD_TYPE_BYTES
+          }
+        }
+      }
+    }
+    variants {
+      name: "EcdsaPrehash"
+      cases: "ecdsa_prehash"
+      payload {
+        kind: NATIVE_PAYLOAD_STRUCT
+        fields {
+          name: "hash"
+          source {
+            message: ".reallyme.cose.v1.CoseSigningInput"
+            path: "ecdsa_prehash"
+            path: "hash"
+          }
+          representation {
+            kind: NATIVE_PAYLOAD_TYPE_VALUE
+            source: ".reallyme.cose.v1.CoseHashAlgorithm"
+            rust_type: "super::Iso18013EcdsaHash"
+          }
+        }
+        fields {
+          name: "digest"
+          source {
+            message: ".reallyme.cose.v1.CoseSigningInput"
+            path: "ecdsa_prehash"
+            path: "digest"
+          }
+          representation {
+            kind: NATIVE_PAYLOAD_TYPE_BYTES
+          }
+        }
+      }
+    }
+  }
+  ports {
+    name: "VerificationKey"
+    rust_trait: "crate::containers::VerificationKey"
+  }
+  ports {
+    name: "CertificateValidator"
+    rust_trait: "crate::containers::CertificateValidator"
+  }
+};

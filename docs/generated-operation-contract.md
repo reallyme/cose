@@ -5,7 +5,7 @@ The shared contract and Rust boundary are governed by the ReallyMe
 and [Engineering Philosophy](https://github.com/reallyme/.github/blob/main/ENGINEERING_PHILOSOPHY.md).
 
 The protobuf schema is authoritative for every public operation in 0.3.0.
-ReallyMe Buffa 0.1.1 generates request/result types, policy selectors, operation variants,
+ReallyMe Buffa 0.1.3 generates request/result types, policy selectors, operation variants,
 binary/JSON codecs and stable failure codes. The implementation stays behind
 that contract. Borrowed Rust and callback entrypoints remain thin adapters to
 the same semantic functions; they do not serialize and decode authenticated
@@ -31,14 +31,16 @@ policy builders and error names now derive from the schema; 0.3.0 is the
 compatibility boundary for these consolidated value types. Borrowed readers
 and callbacks continue to share the semantic implementation.
 
-The separate contract driver also generates 17 native request/result projections and five
-borrowed content/callback enums from schema metadata. Field types and byte
-presence come from the Buffa message definitions. Every source field is either
-projected or explicitly supplied by a separate capability or argument; adding a
-field or oneof case without accounting for it fails generation. Receipt byte
-owners use `Zeroizing`, including the legacy certificate-path result. Its
-`x5chain_der` field now exposes a `Zeroizing<Vec<Vec<u8>>>`; callers can borrow
-the path through `as_slice()` without copying it.
+Buffa 0.1.3 generates all 24 native enums from typed protobuf options: 17 closed
+selectors, two payload selectors and five borrowed content/callback enums. It
+validates complete descriptor coverage, exact external identities and borrowed
+payload ownership before emitting them. The contract driver only relocates and
+formats these files. Separate schema-derived companions retain 17 native
+request/result record projections, closed records, checked limits, constants,
+error aliases and equality compatibility. They emit no enum declarations.
+Receipt byte owners use `Zeroizing`, including the legacy certificate-path
+result. Its `x5chain_der` field exposes a `Zeroizing<Vec<Vec<u8>>>`; callers can
+borrow the path through `as_slice()` without copying it.
 
 Handwritten public structs are limited to generated-message builders, borrowed
 provider selections and process-local key/capability owners. They do not define
@@ -65,7 +67,7 @@ wiping on owner drop and failed point validation.
 
 | Audit requirement | Authoritative contract / implementation | Evidence |
 | --- | --- | --- |
-| One signature identity and suite | Positive `CoseSignatureAlgorithm` selectors, exact signed wire-ID metadata, one `CoseSignatureSuite`; generated native closed views and ISO aliases | Twelve independent wire registrations; original/modern identity, hash/curve and mismatch tests; published algorithm selector numbers remain frozen |
+| One signature identity and suite | Positive `CoseSignatureAlgorithm` selectors, exact signed wire-ID metadata, one `CoseSignatureSuite`; generated native closed views and ISO aliases | Eighteen distinct wire registrations; original/modern identity, hash/curve and mismatch tests; published algorithm selector numbers remain frozen |
 | Native presence | Nine optional byte fields, enum zero for absent algorithms; 11 flags reserved | Absent/empty/nonempty byte and JSON vectors; real KDF authentication and ISO receipt presence tests |
 | One policy allowlist | `CoseVerificationPolicy.allowed_algorithms`; native `CosePolicy` owns that generated message | Explicit empty denial, exact-registration roundtrip; old crypto selector builders expand immediately into the same list |
 | One error identity list | Generated `CoseErrorReason`; a fixed `thiserror` owner with compatibility aliases; no second native reason enum | Every reason maps through its proper branch; shared CBOR/key/algorithm/provider/backend reasons; retired unpublished duplicate IDs reserved |
@@ -190,7 +192,7 @@ and WASM/Node; allocation-counter checks remain native-only.
 
 ## Versions and remaining integration
 
-ReallyMe Buffa 0.1.1 supplies native cleanup and fixed standalone enum JSON
+ReallyMe Buffa 0.1.3 supplies native cleanup and fixed standalone enum JSON
 diagnostics. See the [migration matrix](buffa-migration.md) for ownership and
 diagnostic regression coverage.
 
@@ -212,9 +214,9 @@ coverage, on-device execution or reader interoperability. Existing independent
 fixture files and their expected cryptographic bytes were retained unchanged.
 
 The workspace packages are `reallyme-cose` 0.3.0 and `reallyme-cose-proto` 0.3.0,
-with `reallyme-crypto` 0.4.0 and `reallyme-codec` 0.4.0. ReallyMe Buffa and both
-generators are 0.1.1, Buf is 1.73.0, the stable compiler is Rust 1.100.0, and the
-minimum Rust version is 1.100.
+with `reallyme-crypto` 0.4.2 and `reallyme-codec` 0.4.3. The Buffa runtime remains
+0.1.2 to satisfy Codec's exact pin; both generators are 0.1.3. Buf is 1.75.0.
+The stable compiler and minimum Rust version are 1.100.
 
 Crypto implements the cryptographic primitives. Codec implements Multikey and
 CBOR content hashing. COSE still owns a local CBOR scanner and preferred-encoding

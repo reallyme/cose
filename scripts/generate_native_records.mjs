@@ -5,7 +5,8 @@ import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { nativeBorrowedProjections, nativeProjections } from "./generate_native_projections.mjs";
+import { nativeProjections } from "./generate_native_projections.mjs";
+import { nativeAdapterBindings } from "./native_adapter_bindings.mjs";
 
 const header = "// SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited\n// SPDX-License-Identifier: MIT OR Apache-2.0\n\n// Generated from cose.proto. Regenerate with scripts/generate_cose_contract.mjs.\n\n";
 const title = (value) => value.toLowerCase().split("_").map((part) => part[0].toUpperCase() + part.slice(1)).join("");
@@ -56,60 +57,23 @@ export function generateErrorAliases(schema) {
 
 export function nativeContractFiles(root, schema) {
   const directory=resolve(root,"crates/cose/src/generated_contract");
-  const files=generateClosedSelectors(schema);
+  const files=generateNativeRecords(schema);
   files.set("error_aliases.rs",generateErrorAliases(schema).native);
   files.set("constants.rs",generateConstants(schema));
   return new Map([...formattedFiles(files)].map(([name,source])=>[resolve(directory,name),source]));
 }
 
-// Buffa remains the wire model. These closed, Copy compatibility selectors are
-// emitted from enum metadata so native matching cannot introduce another list.
-export function generateClosedSelectors(schema) {
+// Buffa emits every enum. This companion only projects native records and
+// assembles modules. The orchestrator copies adapter syntax and applies rustfmt.
+function generateNativeRecords(schema) {
   const files = new Map();
   const modules = ["mod error_aliases;", "mod constants;", '#[cfg(feature="wire")]\npub use constants::CONSTANTS;', "pub use constants::values;"];
-  for (const match of schema.matchAll(/\/\/ Rust closed enum: (\w+)\nenum (\w+) \{([\s\S]*?)\n\}/gu)) {
-    const [, native, wire, body] = match;
-    const prefix = /^\s*(\w+)_UNSPECIFIED = 0;/mu.exec(body)?.[1];
-    if (prefix === undefined) throw new TypeError("closed selector requires unspecified zero");
-    const values = [];
-    const compatibility = [];
-    let pending;
-    for (const line of body.split("\n")) {
-      const variant = /\/\/ Rust variant: (\w+)([^\n]*)/u.exec(line);
-      const alias = /\/\/ Rust compatibility variant: (\w+)/u.exec(line);
-      if (variant !== null) pending = { name:variant[1],wireId:/; wire: (-?\d+)/u.exec(variant[2])?.[1],compatibilityName:/; alias: (\w+)/u.exec(variant[2])?.[1], hash:/; hash: (\w+)/u.exec(variant[2])?.[1],iso:/; iso(?:;|$)/u.test(variant[2]) };
-      if (alias !== null) pending = { name: alias[1], alias: true };
-      const field = new RegExp(`^\\s*${prefix}_(\\w+) = (-?\\d+)`, "u").exec(line);
-      if (field === null || pending === undefined) continue;
-      const value = { ...pending, wireName: title(field[1]), number: field[2] };
-      (pending.alias ? compatibility : values).push(value);
-      pending = undefined;
-    }
-    const module = native.replace(/([a-z0-9])([A-Z])/gu, "$1_$2").toLowerCase();
-    const variants = values.map((v) => `    /// Schema selector ${v.number}.\n    ${v.name},`).join("\n");
-    const from = [...values, ...compatibility].map((v) => `            Some(Wire::${v.wireName}) => Ok(Self::${v.name}),`).join("\n");
-    const into = values.map((v) => `            ${native}::${v.name} => Self::${v.wireName},`).join("\n");
-    let output = header + `use crate::CoseError;\nuse buffa::EnumValue;\nuse reallyme_cose_proto::generated::proto::reallyme::cose::v1::${wire} as Wire;\n\n/// Closed native view of the authoritative ${wire} selector.\n${body.includes("Rust non-exhaustive") ? "#[non_exhaustive]\n" : ""}#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]\npub enum ${native} {\n${variants}\n}\n\n${compatibility.length === 0 ? "" : "#[allow(deprecated)]\n"}impl TryFrom<EnumValue<Wire>> for ${native} {\n    type Error = CoseError;\n    fn try_from(value: EnumValue<Wire>) -> Result<Self, Self::Error> {\n        match value.as_known() {\n${from}\n            _ => Err(crate::error::CoseErrorReason::CommonInvalidParameter.into()),\n        }\n    }\n}\n\nimpl From<${native}> for Wire {\n    fn from(value: ${native}) -> Self {\n        match value {\n${into}\n        }\n    }\n}\n`;
-    output += `\nimpl ${native} {\n    /// Complete closed selector set, generated from the schema.\n    pub const ALL: &[Self] = &[${values.map((v) => `Self::${v.name}`).join(", ")}];\n}\n`;
-    if (values.every((v) => v.wireId !== undefined)) {
-      if (new Set(values.map((v)=>v.wireId)).size!==values.length) throw new TypeError("wire identities must remain distinct");
-      output += `\nimpl ${native} {\n    /// Exact COSE wire registration declared by the schema.\n    #[must_use]\n    pub const fn identifier(self) -> i64 {\n        match self {\n${values.map((v) => `            Self::${v.name} => ${v.wireId},`).join("\n")}\n        }\n    }\n    /// Resolve an exact wire identity without profile or provider substitution.\n    ///\n    /// # Errors\n    /// Returns UnsupportedAlgorithm for an unregistered or unsupported identity.\n    pub fn from_identifier(identifier: i64) -> Result<Self, CoseError> {\n        match identifier {\n${values.map((v) => `            ${v.wireId} => Ok(Self::${v.name}),`).join("\n")}\n            _ => Err(CoseError::UnsupportedAlgorithm),\n        }\n    }\n}\n`;
-    }
-    if (values.some((value)=>value.hash!==undefined || value.iso)) {
-      const hashType=/\/\/ Rust closed enum: (\w+)\nenum CoseHashAlgorithm /u.exec(schema)?.[1];
-      if (hashType===undefined) throw new TypeError("hash selector missing");
-      output+=`\nimpl ${native} {\n    /// Whether this is an original ISO suite registration. Entry points apply their explicit profile.\n    #[must_use]\n    pub const fn is_iso(self)->bool {matches!(self,${values.filter((value)=>value.iso).map((value)=>`Self::${value.name}`).join("|")})}\n    /// ECDSA message hash, independently of named key curve.\n    #[cfg(feature="cose-crypto")]\n    #[must_use]\n    pub const fn ecdsa_hash(self)->Option<super::${hashType}> {match self {\n${values.filter((value)=>value.hash!==undefined).map((value)=>`        Self::${value.name}=>Some(super::${hashType}::${value.hash}),`).join("\n")}\n        _=>None,\n    }}\n}\n`;
-    }
-    const aliases = values.filter((v) => v.compatibilityName !== undefined);
-    if (aliases.length !== 0) output += `\n#[allow(non_upper_case_globals)]\nimpl ${native} {\n${aliases.map((v) => `    /// Compatibility spelling for the canonical point representation.\n    pub const ${v.compatibilityName}: Self = Self::${v.name};`).join("\n")}\n}\n`;
-    files.set(`${module}.rs`, output);
-    modules.push(moduleExports(module,native,body.includes("Rust availability: core")));
+  for (const adapter of nativeAdapterBindings(schema)) {
+    modules.push(moduleExports(adapter.module,adapter.name,adapter.core));
   }
-  appendLegacySelectors(schema,files);
   generateClosedValues(schema, files, modules);
-  generatePayloadEnums(schema,files,modules);
   generateByteLimits(schema,files,modules);
-  for (const projection of [...nativeProjections(schema), ...nativeBorrowedProjections(schema)]) {
+  for (const projection of nativeProjections(schema)) {
     if(files.has(`${projection.module}.rs`)) throw new TypeError("duplicate native declaration");
     files.set(`${projection.module}.rs`, header + projection.source);
     modules.push(moduleExports(projection.module, projection.name, false));
@@ -149,18 +113,6 @@ function generateClosedValues(schema, files, modules) {
   }
 }
 
-function generatePayloadEnums(schema, files, modules) {
-  for (const [, native, , body] of schema.matchAll(/\/\/ Rust payload enum: (\w+)\nenum (\w+) \{([\s\S]*?)\n\}/gu)) {
-    const variants = [...body.matchAll(/\/\/ Rust variant: (\w+)(?:\((\w+)\))?\n\s*\w+ = \d+;/gu)].map(([, name, payload]) => ({name,payload}));
-    if (variants.length === 0) throw new TypeError("payload selector metadata missing");
-    const module = native.replace(/([a-z0-9])([A-Z])/gu,"$1_$2").toLowerCase();
-    const imports = [...new Set(variants.map((variant) => variant.payload).filter(Boolean))];
-    const output = header + `use super::{${imports.join(",")}};\n\n/// Closed callback view of the schema selector and its explicit payload.\n${body.includes("Rust non-exhaustive") ? "#[non_exhaustive]\n" : ""}#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]\npub enum ${native} {\n${variants.map((variant) => `    /// Schema-defined ${variant.name} alternative.\n    ${variant.name}${variant.payload === undefined ? "" : `(${variant.payload})`},`).join("\n")}\n}\n`;
-    files.set(`${module}.rs`,output);
-    modules.push(moduleExports(module,native,body.includes("Rust availability: core")));
-  }
-}
-
 function generateByteLimits(schema, files, modules) {
   const match = /\/\/ Rust byte limits: (\w+)\nmessage (\w+) \{([\s\S]*?)\n\}/u.exec(schema);
   if (match === null) return;
@@ -175,15 +127,4 @@ function generateByteLimits(schema, files, modules) {
 function moduleExports(module,native,core) {
   const gate=core?"":'#[cfg(feature="cose-crypto")]\n';
   return `${gate}mod ${module};\n${gate}pub use ${module}::${native};`;
-}
-
-function appendLegacySelectors(schema, files) {
-  for (const [,native,wire,body] of schema.matchAll(/\/\/ Rust legacy selector: (\w+)\nenum (\w+) \{([\s\S]*?)\n\}/gu)) {
-    const module=native.replace(/([a-z0-9])([A-Z])/gu,"$1_$2").toLowerCase();
-    const variants=[...body.matchAll(/\/\/ Rust compatibility variant: (\w+)\n\s*(\w+) = \d+;/gu)];
-    const prefix=/^\s*(\w+)_UNSPECIFIED = 0;/mu.exec(body)?.[1];
-    if(prefix===undefined || !files.has(`${module}.rs`)) throw new TypeError("legacy selector binding missing");
-    const arms=variants.map(([,target,name])=>`            Some(Legacy::${title(name.slice(prefix.length+1))})=>Ok(Self::${target}),`).join("\n");
-    files.set(`${module}.rs`,files.get(`${module}.rs`)+`\nimpl TryFrom<buffa::EnumValue<reallyme_cose_proto::generated::proto::reallyme::cose::v1::${wire}>> for ${native} {\n    type Error=crate::CoseError;\n    fn try_from(value:buffa::EnumValue<reallyme_cose_proto::generated::proto::reallyme::cose::v1::${wire}>)->Result<Self,Self::Error> {\n        use reallyme_cose_proto::generated::proto::reallyme::cose::v1::${wire} as Legacy;\n        match value.as_known() {\n${arms}\n            _=>Err(crate::error::CoseErrorReason::CommonInvalidParameter.into()),\n        }\n    }\n}\n`);
-  }
 }

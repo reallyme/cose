@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 env:
-  BUFFA_VERSION: 0.1.2
+  BUFFA_VERSION: 0.1.3
   BUF_VERSION: 1.75.0
   BUF_LINUX_X86_64_SHA256: fad1e38d6909bbb583a4da81d8c02a01046e2cd663bde7e337dd24277393764b
 

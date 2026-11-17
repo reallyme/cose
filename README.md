@@ -447,7 +447,7 @@ an unsorted protected header map.
 
 ## Protobuf Wire Boundary
 
-The protobuf schema defines every public operation. ReallyMe Buffa 0.1.1 generates its
+The protobuf schema defines every public operation. ReallyMe Buffa 0.1.3 generates its
 request/result types, policy selectors, operation discriminants and error codes.
 Use `api::contract` for those definitions and `api::execute` for typed Rust
 execution. `api::execute_with_providers` accepts explicit application-local
@@ -456,7 +456,7 @@ registry and callback messages for non-Rust implementations. Borrowed Rust reade
 to the same semantic operations.
 
 See the [operation and migration matrix](https://github.com/reallyme/cose/blob/main/docs/generated-operation-contract.md)
-for all 34 operations, preserved wire identifiers, callback/handle contracts,
+for all 49 operations, preserved wire identifiers, callback/handle contracts,
 ownership and parity coverage.
 
 The 0.3.0 [presence migration](https://github.com/reallyme/cose/blob/main/docs/protobuf-presence-migration.md)
@@ -789,20 +789,24 @@ bash scripts/install_external_type_checker.sh .local-tools
 node scripts/run_pinned_release_readiness.mjs
 ```
 
-Protobuf regeneration requires Buf 1.73.0 and the ReallyMe Buffa 0.1.1 tools:
+Protobuf regeneration requires Buf 1.75.0 and the ReallyMe Buffa 0.1.3 tools.
+The runtime remains 0.1.2 until Codec's exact dependency pin can advance.
+See the [Buffa integration](docs/buffa-migration.md) for that dependency boundary.
 
 ```sh
-cargo install reallyme-protoc-gen-buffa --version '=0.1.1' --locked
-cargo install reallyme-protoc-gen-buffa-packaging --version '=0.1.1' --locked
-test "$(protoc-gen-reallyme-buffa --version)" = "protoc-gen-reallyme-buffa 0.1.1"
-test "$(protoc-gen-reallyme-buffa-packaging --version)" = "protoc-gen-reallyme-buffa-packaging 0.1.1"
+cargo install reallyme-protoc-gen-buffa --version '=0.1.3' --locked
+cargo install reallyme-protoc-gen-buffa-packaging --version '=0.1.3' --locked
+test "$(protoc-gen-reallyme-buffa --version)" = "protoc-gen-reallyme-buffa 0.1.3"
+test "$(protoc-gen-reallyme-buffa-packaging --version)" = "protoc-gen-reallyme-buffa-packaging 0.1.3"
 node scripts/generate_cose_contract.mjs
 node scripts/run_pinned_release_readiness.mjs --generated-freshness
 ```
 
 The generation driver requires exact executable names and versions, lints the
-schema, runs both local plugins, and emits separate schema-derived compatibility
-projections. The driver formats the generated Rust with `rustfmt`. Freshness
+schema and runs both local plugins. Buffa generates all native enum adapters
+from typed protobuf options. Separate schema-derived companions retain record
+projections, constants, aliases and equality compatibility; they emit no enums.
+The driver formats the generated Rust with `rustfmt`. Freshness
 regenerates into a temporary directory and compares every output against the
 checked-in files.
 `node scripts/generate_cose_contract.mjs --check` runs that comparison directly.

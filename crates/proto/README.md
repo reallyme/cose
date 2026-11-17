@@ -11,7 +11,7 @@ This crate defines messages only; it intentionally declares no protobuf service.
 `CoseOperationRequest` is the single executable adapter request.
 `CoseOperationResponseV2` is the typed and binary response: its outcome oneof
 contains either `CoseError` or `CoseOperationResult`, whose oneof preserves the
-exact identity of all 34 operations. JSON is a generated ProtoJSON request
+exact identity of all 49 operations. JSON is a generated ProtoJSON request
 convenience; encoded executable responses remain binary protobuf messages.
 
 Algorithm selectors are family-scoped. Signature, key-agreement, KEM, and
@@ -55,8 +55,8 @@ representation conversion, suite inspection and bounded CBOR preflight.
 Borrowed Rust and callback APIs adapt these same semantic operations.
 
 The source of truth is `proto/reallyme/cose/v1/cose.proto` inside this crate.
-Use Buf 1.73.0 and the published `protoc-gen-reallyme-buffa` /
-`protoc-gen-reallyme-buffa-packaging` 0.1.1 executables. From the repository root:
+Use Buf 1.75.0 and the published `protoc-gen-reallyme-buffa` /
+`protoc-gen-reallyme-buffa-packaging` 0.1.3 executables. From the repository root:
 
 ```sh
 node scripts/generate_cose_contract.mjs
@@ -91,7 +91,8 @@ caller-owned input; their backing bytes, parser input, DOM storage and serialize
 output retain independent lifetimes. Keep sensitive transport buffers under
 explicit wipe owners.
 
-Buffa 0.1.1 generates cleanup and fixed standalone enum diagnostics directly.
+Buffa 0.1.3 generates cleanup, fixed standalone enum diagnostics and native
+enum adapters directly. The runtime remains 0.1.2 to match Codec 0.4.3.
 The [migration matrix](../../docs/buffa-migration.md) documents the ownership
 boundaries and regression coverage.
 
