@@ -36,7 +36,7 @@ reader agreement integration.
 
 Production cryptographic imports come exclusively from `reallyme-crypto`.
 The built-in adapter uses its existing key-validation, signature-conversion,
-and dispatch boundaries. This table describes the pinned `0.3.17` adapter,
+and dispatch boundaries. This table describes the pinned `0.4.0` adapter,
 with the same coverage in native and WASM builds.
 
 | Key curve | COSE curve ID | ES256 (`-7`) | ES384 (`-35`) | ES512 (`-36`) | EdDSA (`-8`) |

@@ -1,7 +1,11 @@
 # Generated COSE operation contract
 
+The shared contract and Rust boundary are governed by the ReallyMe
+[Architecture Standards](https://github.com/reallyme/.github/blob/main/ARCHITECTURE.md)
+and [Engineering Philosophy](https://github.com/reallyme/.github/blob/main/ENGINEERING_PHILOSOPHY.md).
+
 The protobuf schema is authoritative for every public operation in 0.3.0.
-ReallyMe Buffa 0.1.0 generates request/result types, policy selectors, operation variants,
+ReallyMe Buffa 0.1.1 generates request/result types, policy selectors, operation variants,
 binary/JSON codecs and stable failure codes. The implementation stays behind
 that contract. Existing borrowed Rust and callback signatures are retained as
 thin adapters to the same semantic functions; they do not serialize and decode
@@ -181,37 +185,42 @@ and WASM/Node; allocation-counter checks remain native-only.
 
 ## Versions and remaining integration
 
-The ReallyMe Buffa migration remains blocked from release while the standalone
-enum diagnostic guard is required. See the [migration matrix](buffa-migration.md)
-for the native cleanup evidence and generator follow-up.
+ReallyMe Buffa 0.1.1 supplies native cleanup and fixed standalone enum JSON
+diagnostics. See the [migration matrix](buffa-migration.md) for ownership and
+diagnostic regression coverage.
 
 | Check | Result |
 | --- | --- |
-| Release readiness | Blocked on a published standalone enum diagnostic fix |
-| Debug workspace tests, including doctests | 450 passed with the diagnostic guard |
-| Native nextest / optimized all-features nextest | 448 / 448 passed |
-| WASM/Node unit / integration tests | 109 / 3 passed |
+| Debug workspace tests, including doctests | 452 passed |
+| Native nextest / optimized all-features nextest | 450 / 450 passed |
+| WASM/Node unit / integration tests | 109 / 4 passed |
 | Independent legacy conformance vector audit | 55 cases passed |
 | Format, warnings-as-errors checks, strict Clippy and external-type checks | Passed |
 | Buffa regeneration/freshness and operation/type-contract guards | Passed |
 | Rustdoc public export inventory | 65 schema-bound free functions; no handwritten public COSE enums |
 | Seven iOS/Android Rust targets | All 14 all-target compile/Clippy checks passed; Android API 24 |
 | All four lockfiles and dependency/advisory policy | Passed; no known advisories reported |
-| Instrumented fuzz build and protobuf smoke | All targets built; 3,478 wire executions in 21 seconds, no crash |
+| Instrumented fuzz build and protobuf smoke | All targets built, with 8,882 wire executions in 21 seconds and no crash |
 
 These are compile, test and bounded smoke results, not a proof of complete fuzz
 coverage, on-device execution or reader interoperability. Existing independent
 fixture files and their expected cryptographic bytes were retained unchanged.
 
 The workspace packages are `reallyme-cose` 0.3.0 and `reallyme-cose-proto` 0.3.0,
-with unchanged published crypto/codec pins: `reallyme-crypto` 0.3.17 and
-`reallyme-codec` 0.3.2. ReallyMe Buffa and both generators are 0.1.0, Buf is 1.73.0,
-the stable compiler is Rust 1.100.0, and the minimum Rust version is 1.100.
+with `reallyme-crypto` 0.4.0 and `reallyme-codec` 0.4.0. ReallyMe Buffa and both
+generators are 0.1.1, Buf is 1.73.0, the stable compiler is Rust 1.100.0, and the
+minimum Rust version is 1.100.
 
-Brainpool, Ed448 and X448 provider implementation remains in `reallyme/crypto`.
-This repository recognizes registered mappings and fails closed where the
-published facade lacks coverage. Schema generation is not provider execution
-evidence. The suite-info provider flag reports the built-in tuple mapping,
+Crypto implements the cryptographic primitives. Codec implements Multikey and
+CBOR content hashing. COSE still owns a local CBOR scanner and preferred-encoding
+validator for signed containers and peer keys. Moving this validation to Codec
+requires preserving COSE's received spans, work limits and error mapping. The
+current COSE profile accepts NaNs only in binary16. Codec's preferred profile
+also accepts wider NaNs when shortening would lose significand bits.
+
+Brainpool, Ed448 and X448 provider coverage remains outside COSE's built-in
+adapter. COSE recognizes the registered mappings and fails closed when no
+provider is available. The suite-info provider flag reports the built-in tuple mapping,
 independently of runtime authorization or platform readiness. Reader negotiation,
 session establishment, transcript construction,
 HPKE, format schemas, certificate authority/path policy and revocation freshness

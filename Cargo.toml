@@ -16,7 +16,7 @@ publish = false
 [workspace.dependencies]
 allocation-counter = "0.8.1"
 base64 = "0.23.1"
-buffa = { package = "reallyme-buffa", version = "=0.1.0", features = ["json", "zeroize"] }
+buffa = { package = "reallyme-buffa", version = "=0.1.2", features = ["json", "zeroize"] }
 ciborium = "=0.2.2"
 coset = "0.4.2"
 criterion = "0.8.2"
@@ -25,9 +25,9 @@ half = { version = "2.7.1", default-features = false }
 p256 = { version = "0.14.0", default-features = false, features = ["ecdsa"] }
 p384 = { version = "0.14.0", default-features = false, features = ["ecdsa"] }
 p521 = { version = "0.14.0", default-features = false, features = ["ecdsa"] }
-reallyme-codec = { version = "0.3.2", default-features = false, features = ["base64url", "cbor", "multikey"] }
+reallyme-codec = { version = "0.4.3", default-features = false, features = ["base64url", "cbor", "multikey"] }
 reallyme-cose-proto = { version = "0.3.0", path = "crates/proto", default-features = false }
-reallyme-crypto = { version = "0.3.17", default-features = false }
+reallyme-crypto = { version = "0.4.2", default-features = false }
 secrecy = "0.10.3"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.154"

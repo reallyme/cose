@@ -112,7 +112,11 @@ pub(crate) fn sign_container_operation(
         headers.certificates.placement.is_some() || headers.certificates.thumbprint.is_some(),
     )?;
     if attached && request.policy.profile != super::ContainerProfile::Rfc9360 {
-        super::validate_preferred_cbor(payload)?;
+        if request.policy.purpose == super::ContainerPurpose::IssuerMso {
+            super::preflight::validate_issuer_mso_payload(payload, request.policy.profile)?;
+        } else {
+            super::validate_preferred_cbor(payload)?;
+        }
     }
     let encoding = signer.signature_encoding();
     encoding.validate_family(suite.curve())?;

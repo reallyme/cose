@@ -7,7 +7,7 @@ use coset::CoseSign1;
 use reallyme_crypto::core::Algorithm;
 use reallyme_crypto::dispatch::verify;
 
-use crate::error::verify_error_from_algorithm_error;
+use crate::error::signature_error_from_algorithm_error;
 use crate::failure::CoseFailure;
 use crate::policy::{validate_cose_sign1_policy, CosePolicy};
 use crate::CoseError;
@@ -468,5 +468,5 @@ fn verify_signature_with_backend(
     message: &[u8],
     signature: &[u8],
 ) -> Result<(), CoseError> {
-    verify(algorithm, public_key, message, signature).map_err(verify_error_from_algorithm_error)
+    verify(algorithm, public_key, message, signature).map_err(signature_error_from_algorithm_error)
 }

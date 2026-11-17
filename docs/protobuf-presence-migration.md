@@ -19,7 +19,7 @@ change, not a change to authenticated COSE encodings or algorithm registrations.
 | `CoseSign1VerifyResult` | `exact_signature_algorithm = 4`; zero means absent | 5, `has_exact_signature_algorithm` |
 | `CoseKeyBytesResult` | `signature_algorithm = 2`; zero means absent | 3, `has_signature_algorithm` |
 
-ReallyMe Buffa 0.1.0 generates `Option<SecretBytes>` for optional bytes. `None` omits the
+ReallyMe Buffa 0.1.1 generates `Option<SecretBytes>` for optional bytes. `None` omits the
 field; `Some(SecretBytes::default())` writes its tag and a zero length. Borrowed generated
 views expose `Option<&[u8]>`. Adapters borrow that presence directly, and all
 owning buffers retain redacted Debug and wipe-on-drop behavior. Clear, generated
@@ -41,9 +41,9 @@ The byte-field numbers and length-delimited wire types are retained. Nonempty
 values keep their encodings. Presence of an empty value changes its encoding:
 old implicit fields omitted it, while new optional fields encode it. A legacy
 flag cannot recover an empty value once that value was omitted. Executable
-boundaries reject retired binary or JSON flags as unknown fields; they do not
-silently reinterpret legacy flag/value pairs. Raw generated protobuf decoders
-retain unknown fields, and the strict executable boundary rejects those owners.
+boundaries reject retired binary or JSON flags as unknown fields. Buffa's
+default binary decoder can discard unknown fields, so strict decoding must
+check the original bounded bytes before forwarding a request for execution.
 
 `buf lint` passes. Against published 0.2.11's schema, the unmodified Buf `FILE`
 check reports 12 intentional compatibility changes: seven retired flags and

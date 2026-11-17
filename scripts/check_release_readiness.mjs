@@ -10,10 +10,11 @@ import { assertCompleteOperationContract } from "./check_operation_contract.mjs"
 
 import { assertOperationContractRouting } from "./release-readiness/operation-contract-routing.mjs";
 
-// CI's pinned runner supplies its own reviewed core. Local checks use the
-// vendored copy, which is verified against the same immutable upstream pin.
-const releaseReadinessCoreUrl =
-  process.env.RELEASE_READINESS_CORE_URL ?? new URL("./release-readiness/core.mjs", import.meta.url).href;
+const releaseReadinessCoreUrl = process.env.RELEASE_READINESS_CORE_URL;
+if (process.env.RELEASE_READINESS_ENFORCED_VERSION !== "0.9.6" || !releaseReadinessCoreUrl) {
+  console.error("Run the COSE checker through the pinned Release Readiness 0.9.6 runner.");
+  process.exit(1);
+}
 const { createReleaseReadinessContext } = await import(releaseReadinessCoreUrl);
 
 const {
@@ -29,9 +30,15 @@ const {
   assertNodeWorkflowJobsPinNode,
   root,
   assertWorkflowRunStep,
+  assertWorkflowUsesStepPinnedTo,
+  assertPathsAbsent,
+  extractWorkflowSteps,
+  readWorkflowStepInputs,
   assertWorkflowActionsPinned,
   assertCargoFuzzWorkflowPolicy,
-  assertReallyMeVendoredCorePolicy,
+  assertFuzzLockfileWorkflow,
+  assertReallyMeReleasePackagePolicy,
+  assertRustReleasePolicy,
   assertTextPolicy,
   assertCargoMetadataPolicy,
   assertSpdxHeaders,
@@ -47,25 +54,43 @@ const {
 assertWorkflowActionsPinned();
 assertCargoFuzzWorkflowPolicy({
   version: "0.13.2",
+  minimumInstallations: 1,
   requiredInstallSteps: [
     { job: "build", name: "Install cargo-fuzz" },
-    { job: "scheduled", name: "Install cargo-fuzz" },
   ],
 });
-assertReallyMeVendoredCorePolicy({ version: "0.7.0" });
+assertCargoFuzzWorkflowPolicy({
+  workflow: ".github/workflows/fuzz-scheduled.yml",
+  version: "0.13.2",
+  minimumInstallations: 1,
+  requiredInstallSteps: [{ job: "scheduled", name: "Install cargo-fuzz" }],
+});
+assertReallyMeReleasePackagePolicy({ version: "0.9.6" });
+assertPathsAbsent([
+  "scripts/release-readiness/core.mjs",
+  "scripts/sanitize_enum_diagnostics.mjs",
+]);
+const rustCi = { workflow: ".github/workflows/rust-ci.yml", job: "rust" };
+assertRustReleasePolicy({
+  release: { ...rustCi, step: "Test locked release toolchain" },
+  msrv: [
+    { ...rustCi, package: "reallyme-cose", step: "Test COSE at MSRV" },
+    { ...rustCi, package: "reallyme-cose-proto", step: "Test COSE protobuf at MSRV" },
+  ],
+  dependencyReview: { ...rustCi, step: "Review locked Rust dependencies" },
+});
 assertRustSourcePolicy({
   roots: ["."],
   generatedPrefixes: ["crates/proto/src/generated"],
   moduleHardLines: 150,
 });
-// The upstream core is hash-pinned and retains its own Apache-2.0 license.
 // Generated sources are covered by their crate's bundled license text.
 assertSpdxHeaders({
   extensions: [".rs", ".mjs", ".js", ".sh", ".py"],
   names: [],
   copyright: "SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited",
   license: "SPDX-License-Identifier: MIT OR Apache-2.0",
-  excludedPrefixes: ["scripts/release-readiness/core.mjs", "crates/proto/src/generated"],
+  excludedPrefixes: ["crates/proto/src/generated"],
 });
 assertContains("Cargo.toml", 'license = "MIT OR Apache-2.0"');
 for (const manifest of ["fuzz/Cargo.toml", "tools/vector-audit/Cargo.toml", "tools/vector-goldens/Cargo.toml"]) {
@@ -90,9 +115,10 @@ const expectedProtoPackageName = "reallyme-cose-proto";
 const expectedVersion = "0.3.0";
 const expectedDevelopmentRustToolchain = "1.100.0";
 const expectedBufLinuxX86_64Sha256 =
-  "8f2986298ad08f0cc1bf999b9797b7c383adf32d7edf0f73d6f1e1a701baeac1";
+  "fad1e38d6909bbb583a4da81d8c02a01046e2cd663bde7e337dd24277393764b";
 const generatedFreshnessMode = process.argv.includes("--generated-freshness");
-const policyOnlyMode = process.argv.includes("--policy-only");
+const policyOnlyMode = process.argv.includes("--policy-only") ||
+  (process.argv.length === 2 && process.env.COSE_RELEASE_READINESS_POLICY_ONLY === "1");
 const releasePackagesMode = process.argv.includes("--release-packages");
 const selectedModes = [generatedFreshnessMode, policyOnlyMode, releasePackagesMode].filter(Boolean);
 const supportedArguments = new Set([
@@ -221,12 +247,12 @@ assertContains("crates/cose/Cargo.toml", '"dep:serde"');
 assertContains("crates/cose/Cargo.toml", '"dep:serde_json"');
 assertContains(
   "Cargo.toml",
-  'reallyme-codec = { version = "0.3.2", default-features = false, features = ["base64url", "cbor", "multikey"] }',
+  'reallyme-codec = { version = "0.4.3", default-features = false, features = ["base64url", "cbor", "multikey"] }',
 );
 assertNotContains("Cargo.toml", 'path = "../codec');
 assertContains("crates/proto/Cargo.toml", '"buffa/json"');
 assertContains("crates/cose/src/lib.rs", 'reallyme-cose `wire` requires a runtime lane');
-assertContains("Cargo.toml", 'buffa = { package = "reallyme-buffa", version = "=0.1.0", features = ["json", "zeroize"] }');
+assertContains("Cargo.toml", 'buffa = { package = "reallyme-buffa", version = "=0.1.2", features = ["json", "zeroize"] }');
 assertContains("Cargo.toml", 'rust-version = "1.100"');
 assertContains("rust-toolchain.toml", `channel = "${expectedDevelopmentRustToolchain}"`);
 assertContains(
@@ -314,7 +340,7 @@ assertContains("fuzz/README.md", "`wire`");
 assertContains("fuzz/Cargo.toml", 'name = "cose_encrypt"');
 assertContains("fuzz/fuzz_targets/cose_encrypt.rs", "cose_decrypt_ml_kem_with_external_aad");
 assertContains("fuzz/README.md", "`cose_encrypt`");
-assertContains(".github/workflows/fuzz.yml", "cose_encrypt");
+assertContains(".github/workflows/fuzz-scheduled.yml", "cose_encrypt");
 assertContains("crates/cose/src/generated_contract/cose_ml_kem_algorithm.rs", "pub enum CoseMlKemAlgorithm");
 assertContains("crates/cose/src/generated_contract/cose_ml_kem_encrypt_request.rs", "#[non_exhaustive]\npub struct CoseMlKemEncryptRequest");
 assertContains("crates/cose/src/generated_contract/cose_ml_kem_encrypt_request.rs", "pub(crate) kem_algorithm: super::CoseMlKemAlgorithm");
@@ -832,131 +858,58 @@ assertContains(
   "crates/cose/src/failure.rs",
   "CoseFailureReason::EncryptUnprotectedHeaderNotAllowed",
 );
-assertContains(".github/workflows/rust-ci.yml", "paths-ignore:");
-assertContains(".github/workflows/rust-ci.yml", "tools/vector-goldens/Cargo.toml");
-assertContains(".github/workflows/rust-ci.yml", "--features native,wire");
-assertContains(".github/workflows/rust-ci.yml", "--features wasm,wire --target wasm32-unknown-unknown");
-assertContains(".github/workflows/rust-ci.yml", "cargo nextest run --release --locked --workspace --all-features");
-assertContains(".github/workflows/rust-ci.yml", "wasm-pack test --node crates/cose");
-assertContains(".github/workflows/rust-ci.yml", "CARGO_CHECK_EXTERNAL_TYPES_VERSION: 0.5.0");
-assertContains(".github/workflows/rust-ci.yml", "EXTERNAL_TYPES_NIGHTLY: nightly-2026-09-15");
-assertContains(".github/workflows/rust-ci.yml", "bash scripts/install_external_type_checker.sh .local-tools");
-assertContains(".github/workflows/rust-ci.yml", "check-external-types --manifest-path crates/cose/Cargo.toml --all-features");
-assertContains(".github/workflows/rust-ci.yml", "scripts/audit_committed_lockfiles.sh");
-assertContains(".github/workflows/fuzz.yml", "paths-ignore:");
-assertContains(".github/workflows/crates-release.yml", "CARGO_REGISTRY_TOKEN");
-assertContains(".github/workflows/crates-release.yml", "name: Crates.io Release");
-assertContains(
-  ".github/workflows/crates-release.yml",
-  "run-name: Crates.io release @ ${{ github.sha }}",
-);
-assertContains(
-  ".github/workflows/crates-release.yml",
-  "group: crates-release-${{ github.sha }}",
-);
-assertContains(
-  ".github/workflows/crates-release.yml",
-  "group: crates-release-${{ needs.verify-preflight.outputs.release_version }}-${{ needs.verify-preflight.outputs.release_sha }}",
-);
-assertContains(".github/workflows/crates-release.yml", "if: github.ref == 'refs/heads/main'");
-assertNotContains(".github/workflows/crates-release.yml", "environment:");
-assertContains(".github/workflows/crates-release.yml", "workflow_dispatch:");
-assertNotContains(".github/workflows/crates-release.yml", "${{ inputs.");
-assertContains(".github/workflows/crates-release.yml", "verify-preflight:");
-assertContains(".github/workflows/crates-release.yml", "actions: read");
-assertContains(".github/workflows/crates-release.yml", "runs-on: ubuntu-24.04");
-assertNotContains(".github/workflows/crates-release.yml", "runs-on: ubuntu-latest");
-assertContains(
-  ".github/workflows/crates-release.yml",
-  `toolchain: ${expectedDevelopmentRustToolchain}`,
-);
-assertContains(
-  ".github/workflows/crates-release.yml",
-  "node scripts/verify_release_attestation.mjs",
-);
-assertContains(
-  ".github/workflows/crates-release.yml",
-  "uses: actions/download-artifact@",
-);
-assertContains(
-  ".github/workflows/crates-release.yml",
-  "reallyme-cose-crates-preflight-${{ steps.verify-source.outputs.release_version }}-${{ steps.verify-source.outputs.release_sha }}",
-);
-assertContains(".github/workflows/crates-release.yml", "uses: actions/checkout@");
-assertContains(".github/workflows/crates-release.yml", "uses: actions/setup-node@");
-assertContains(".github/workflows/crates-release.yml", "uses: Swatinem/rust-cache@");
-assertContains(".github/workflows/crates-release.yml", "node-version: '26'");
-assertContains(
-  ".github/workflows/crates-release.yml",
-  "ref: ${{ github.sha }}",
-);
-assertContains(".github/workflows/crates-release.yml", "persist-credentials: false");
-assertContains(
-  ".github/workflows/crates-release.yml",
-  "node scripts/verify_release_source.mjs",
-);
-assertContains(
-  ".github/workflows/crates-release.yml",
-  "RELEASE_SOURCE_DERIVE_VERSION: '1'",
-);
-assertContains(
-  ".github/workflows/crates-release.yml",
-  "RELEASE_ATTESTATION_RESOLVE_ONLY: '1'",
-);
-assertContains(
-  ".github/workflows/crates-release.yml",
-  "run-id: ${{ steps.resolve-attestation.outputs.preflight_run_id }}",
-);
-assertNotContains(".github/workflows/crates-release.yml", "dry-run:");
-assertNotContains(".github/workflows/crates-release.yml", "node scripts/publish_crates_in_order.mjs inspect");
-assertNotContains(".github/workflows/crates-release.yml", "buf generate");
-assertNotContains(".github/workflows/crates-release.yml", "cargo nextest run");
-assertContains(
-  ".github/workflows/crates-package-preflight.yml",
-  "node .release-readiness/scripts/run-consumer-check.mjs --release-packages",
-);
-assertContains(
-  ".github/workflows/protobuf-ci.yml",
-  "node .release-readiness/scripts/run-consumer-check.mjs --generated-freshness",
-);
-assertContains(
-  ".github/workflows/rust-ci.yml",
-  "node .release-readiness/scripts/run-consumer-check.mjs --policy-only",
-);
-for (const releaseReadinessWorkflow of [
-  ".github/workflows/crates-package-preflight.yml",
-  ".github/workflows/protobuf-ci.yml",
-  ".github/workflows/rust-ci.yml",
+for (const command of [
+  "tools/vector-goldens/Cargo.toml",
+  "--features native,wire",
+  "--features wasm,wire --target wasm32-unknown-unknown",
+  "cargo nextest run --release --locked --workspace --all-features",
+  "cargo bench --locked --bench operation_performance --all-features",
+  "wasm-pack test --node crates/cose",
+  "WASM_BINDGEN_CLI_VERSION: 0.2.130",
+  "CARGO_CHECK_EXTERNAL_TYPES_VERSION: 0.5.0",
+  "EXTERNAL_TYPES_NIGHTLY: nightly-2026-09-15",
+  "bash scripts/install_external_type_checker.sh .local-tools",
+  "check-external-types --manifest-path crates/cose/Cargo.toml --all-features",
+  "scripts/audit_committed_lockfiles.sh",
 ]) {
-  assertContains(releaseReadinessWorkflow, "repository: reallyme/release-readiness");
-  assertContains(
-    releaseReadinessWorkflow,
-    "ref: 18a6d91d99837e80f92e41fe04effb0b043d754e",
-  );
-  assertContains(releaseReadinessWorkflow, "persist-credentials: false");
+  assertContains(rustCi.workflow, command);
 }
-assertContains(".github/workflows/crates-release.yml", "node scripts/publish_crates_in_order.mjs publish");
-assertContains(".github/workflows/crates-release.yml", 'tag="reallyme-cose-v${RELEASE_VERSION}"');
-assertContains(
+for (const workflow of [
+  ".github/workflows/release-readiness.yml",
+  ".github/workflows/protobuf-ci.yml",
+  ".github/workflows/crates-package-preflight.yml",
   ".github/workflows/crates-release.yml",
-  'if resolved_commit="$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq \'.sha\' 2>/dev/null)"; then',
-);
-assertNotContains(
-  ".github/workflows/crates-release.yml",
-  '2>/dev/null || true)',
-);
-assertContains(".github/workflows/crates-release.yml", 'gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs"');
-assertNotContains(".github/workflows/crates-release.yml", "git push");
-assertContains(".github/workflows/crates-release.yml", "gh release create");
-assertContains(".github/workflows/crates-release.yml", "- minimum Rust version 1.100");
-assertContains(".github/workflows/crates-release.yml", "- update to reallyme/crypto 0.3.17");
-assertContains(".github/workflows/crates-release.yml", "- update to reallyme/codec 0.3.2");
-assertNotContains(".github/workflows/crates-release.yml", "--generate-notes");
-assertContains(".github/workflows/crates-release.yml", "RELEASE_TAG: ${{ steps.release-tag.outputs.tag }}");
-assertNotContains(
-  ".github/workflows/crates-release.yml",
-  'tag="${{ steps.release-tag.outputs.tag }}"',
-);
+]) {
+  const checkout = "Checkout release-readiness runner";
+  assertWorkflowUsesStepPinnedTo(workflow, checkout, "actions/checkout");
+  const step = extractWorkflowSteps(workflow).find(({ name }) => name === checkout);
+  const inputs = readWorkflowStepInputs(workflow, step, readText(workflow).split(/\r?\n/u));
+  if (step.condition !== null ||
+      inputs.get("repository") !== "reallyme/release-readiness" ||
+      inputs.get("ref") !== "a89da82a662e02ecb3b7cfc6756c450aff64417a" ||
+      inputs.get("path") !== ".release-readiness" ||
+      inputs.get("persist-credentials") !== "false") {
+    fail(`${workflow} must check out the reviewed Release Readiness package without credentials`);
+  }
+}
+const preflightWorkflow = ".github/workflows/crates-package-preflight.yml";
+const publishWorkflow = ".github/workflows/crates-release.yml";
+for (const workflow of [preflightWorkflow, publishWorkflow]) {
+  const step = assertWorkflowRunStep(workflow, "Enforce package release policy",
+    "node .release-readiness/scripts/run-consumer-check.mjs --release-packages", "verify");
+  if (step.condition !== null || (step.continueOnError !== null && step.continueOnError !== "false")) {
+    fail(`${workflow} must enforce the package release policy before verifying the candidate`);
+  }
+}
+assertWorkflowRunStep(preflightWorkflow, "Inspect and stage verified crate archives",
+  "node scripts/publish_crates_in_order.mjs inspect", "crates-package");
+assertWorkflowRunStep(publishWorkflow, "Publish crates in reviewed dependency order",
+  "node scripts/publish_crates_in_order.mjs publish", "publish");
+assertNotContains(preflightWorkflow, "CARGO_REGISTRY_TOKEN");
+assertContains(publishWorkflow, "CARGO_REGISTRY_TOKEN");
+assertNotContains(publishWorkflow, "git push");
+assertContains(publishWorkflow, 'tag="reallyme-cose-v${RELEASE_VERSION}"');
+assertContains(publishWorkflow, "gh release create");
 assertContains("scripts/publish_crates_in_order.mjs", "Publish order");
 assertContains("scripts/publish_crates_in_order.mjs", "workspace publish dependency cycle");
 assertContains("scripts/publish_crates_in_order.mjs", "REQUIRED_PUBLISH_ORDER_EDGES");
@@ -988,108 +941,14 @@ assertContains(
 );
 assertNotContains(".github/workflows/protobuf-ci.yml", "git fetch origin main:refs/remotes/origin/main");
 assertNotContains(".github/workflows/protobuf-ci.yml", "buf breaking --against");
-assertContains(".github/workflows/protobuf-ci.yml", "scripts/check_release_readiness.mjs");
-assertContains(".github/workflows/protobuf-ci.yml", "scripts/generate_cose_contract.mjs");
-assertContains(".github/workflows/fuzz.yml", "- wire");
-assertContains(".github/workflows/fuzz.yml", "runs-on: ubuntu-24.04");
-assertNotContains(".github/workflows/fuzz.yml", "runs-on: ubuntu-latest");
-assertContains(".github/workflows/fuzz.yml", "CARGO_FUZZ_VERSION: 0.13.2");
-assertContains(".github/workflows/fuzz.yml", "NIGHTLY_TOOLCHAIN: nightly-2026-09-15");
-assertContains(".github/workflows/fuzz.yml", "FUZZ_MAX_TOTAL_TIME_SECONDS: 900");
-assertContains(
-  ".github/workflows/fuzz.yml",
-  "uses: actions/cache@",
-);
-assertContains(".github/workflows/fuzz.yml", "path: fuzz/corpus/${{ matrix.target }}");
-assertContains(".github/workflows/fuzz.yml", "cargo metadata --manifest-path fuzz/Cargo.toml --locked --no-deps");
+assertFuzzLockfileWorkflow(".github/workflows/fuzz.yml", "build");
+assertFuzzLockfileWorkflow(".github/workflows/fuzz-scheduled.yml", "scheduled");
 assertContains(".github/workflows/fuzz.yml", "git diff --exit-code -- fuzz/Cargo.lock");
-const cratesPackagePreflightWorkflow = ".github/workflows/crates-package-preflight.yml";
-assertContains(cratesPackagePreflightWorkflow, "name: Crates Package Preflight");
-assertContains(
-  cratesPackagePreflightWorkflow,
-  "run-name: Crates package preflight ${{ inputs.version }} @ ${{ github.sha }}",
-);
-assertContains(
-  ".github/workflows/rust-ci.yml",
-  `toolchain: ${expectedDevelopmentRustToolchain}`,
-);
-assertContains(
-  cratesPackagePreflightWorkflow,
-  `toolchain: ${expectedDevelopmentRustToolchain}`,
-);
-assertContains(cratesPackagePreflightWorkflow, "BUF_VERSION: 1.73.0");
-assertContains(cratesPackagePreflightWorkflow, "BUFFA_VERSION: 0.1.0");
-assertContains(cratesPackagePreflightWorkflow, "CARGO_DENY_VERSION: 0.20.2");
-assertContains(cratesPackagePreflightWorkflow, "CARGO_AUDIT_VERSION: 0.22.2");
-assertContains(cratesPackagePreflightWorkflow, "scripts/audit_committed_lockfiles.sh");
-assertContains(cratesPackagePreflightWorkflow, "CARGO_NEXTEST_VERSION: 0.9.146");
-assertContains(cratesPackagePreflightWorkflow, "CARGO_CHECK_EXTERNAL_TYPES_VERSION: 0.5.0");
-assertContains(cratesPackagePreflightWorkflow, "bash scripts/install_external_type_checker.sh .local-tools");
-assertContains(cratesPackagePreflightWorkflow, "CARGO_FUZZ_VERSION: 0.13.2");
-assertContains(cratesPackagePreflightWorkflow, "EXTERNAL_TYPES_NIGHTLY: nightly-2026-09-15");
-assertContains(cratesPackagePreflightWorkflow, "FUZZ_NIGHTLY: nightly-2026-09-15");
-assertContains(cratesPackagePreflightWorkflow, "WASM_PACK_VERSION: 0.15.0");
-assertContains(cratesPackagePreflightWorkflow, "WASM_BINDGEN_CLI_VERSION: 0.2.129");
+assertContains(".github/workflows/fuzz-scheduled.yml", "- wire");
+assertContains(".github/workflows/fuzz-scheduled.yml", "FUZZ_MAX_TOTAL_TIME_SECONDS: 900");
+assertContains(".github/workflows/fuzz-scheduled.yml", "path: fuzz/corpus/${{ matrix.target }}");
 assertContains("deny.toml", 'yanked = "deny"');
-assertContains(cratesPackagePreflightWorkflow, "version:");
-assertContains(cratesPackagePreflightWorkflow, `default: ${expectedVersion}`);
-assertContains(
-  cratesPackagePreflightWorkflow,
-  "group: crates-package-preflight-${{ inputs.version }}-${{ github.sha }}",
-);
-assertContains(cratesPackagePreflightWorkflow, "verify-source-sha:");
-assertContains(cratesPackagePreflightWorkflow, "crates-package:");
-assertContains(cratesPackagePreflightWorkflow, "runs-on: ubuntu-24.04");
-assertNotContains(cratesPackagePreflightWorkflow, "runs-on: ubuntu-latest");
-assertContains(cratesPackagePreflightWorkflow, "ref: ${{ github.sha }}");
-assertContains(cratesPackagePreflightWorkflow, "fetch-depth: 0");
-assertContains(cratesPackagePreflightWorkflow, "node scripts/verify_release_source.mjs");
-assertContains(cratesPackagePreflightWorkflow, "uses: actions/checkout@");
-assertContains(cratesPackagePreflightWorkflow, "uses: actions/setup-node@");
-assertContains(cratesPackagePreflightWorkflow, "uses: Swatinem/rust-cache@");
-assertContains(
-  cratesPackagePreflightWorkflow,
-  "uses: actions/upload-artifact@",
-);
-assertContains(cratesPackagePreflightWorkflow, "node scripts/write_release_attestation.mjs");
-assertContains(
-  cratesPackagePreflightWorkflow,
-  "reallyme-cose-crates-preflight-${{ inputs.version }}-${{ github.sha }}",
-);
-assertContains(cratesPackagePreflightWorkflow, "node-version: '26'");
-assertContains(
-  cratesPackagePreflightWorkflow,
-  `BUF_LINUX_X86_64_SHA256: ${expectedBufLinuxX86_64Sha256}`,
-);
-assertContains(cratesPackagePreflightWorkflow, "sha256sum --check --strict");
-assertContains(
-  ".github/workflows/protobuf-ci.yml",
-  `BUF_LINUX_X86_64_SHA256: ${expectedBufLinuxX86_64Sha256}`,
-);
-assertContains(".github/workflows/protobuf-ci.yml", "sha256sum --check --strict");
-assertContains(cratesPackagePreflightWorkflow, "uses: taiki-e/install-action@");
-assertContains(cratesPackagePreflightWorkflow, 'protoc-gen-reallyme-buffa --version)" = "protoc-gen-reallyme-buffa $BUFFA_VERSION"');
-assertContains(cratesPackagePreflightWorkflow, 'protoc-gen-reallyme-buffa-packaging --version)" = "protoc-gen-reallyme-buffa-packaging $BUFFA_VERSION"');
-assertContains(cratesPackagePreflightWorkflow, 'cargo install cargo-fuzz --version "$CARGO_FUZZ_VERSION" --locked');
-assertContains(
-  cratesPackagePreflightWorkflow,
-  "node .release-readiness/scripts/run-consumer-check.mjs --release-packages",
-);
-assertContains("scripts/run_pinned_release_readiness.mjs", "18a6d91d99837e80f92e41fe04effb0b043d754e");
-assertContains("scripts/run_pinned_release_readiness.mjs", "7614b0cbf9e36a4653c2fa9008bee0d1e22542de0e4a08a10e640c836a5c93db");
-assertContains("scripts/verify_release_source.mjs", "main:refs/remotes/origin/main");
-assertContains("scripts/verify_release_source.mjs", "manifest-version-mismatch");
-assertContains("scripts/verify_release_attestation.mjs", 'value.conclusion !== "success"');
-assertContains("scripts/verify_release_attestation.mjs", 'value.event !== "workflow_dispatch"');
-assertContains("scripts/verify_release_attestation.mjs", "attestation-input-mismatch");
-assertContains("scripts/verify_release_attestation.mjs", 'value.run_attempt !== 1');
-assertContains("scripts/verify_release_attestation.mjs", "selectLatestPreflightRun");
-assertContains("scripts/verify_release_attestation.mjs", "latest-preflight-run-not-successful");
-assertContains("scripts/verify_release_attestation.mjs", "preflight-version-mismatch");
-assertContains("scripts/verify_release_attestation.mjs", "preflight-run-id-changed");
-assertContains("scripts/write_release_attestation.mjs", "reallyme.cose.crates_preflight.v1");
-assertContains(".github/workflows/rust-ci.yml", "runs-on: ubuntu-24.04");
-assertNotContains(".github/workflows/rust-ci.yml", "runs-on: ubuntu-latest");
+assertContains("scripts/run_pinned_release_readiness.mjs", "a89da82a662e02ecb3b7cfc6756c450aff64417a");
 assertContains(".gitignore", "/.release-readiness/");
 assertContains(".gitignore", "/.local-tools/");
 assertContains(
@@ -1115,13 +974,13 @@ assertCargoMetadataPolicy({
       dependencies: [
         {
           name: "reallyme-codec",
-          requirement: "^0.3.2",
+          requirement: "^0.4.3",
           source: "registry",
           defaultFeatures: false,
         },
         {
           name: "reallyme-crypto",
-          requirement: "^0.3.17",
+          requirement: "^0.4.2",
           source: "registry",
           defaultFeatures: false,
         },
@@ -1152,12 +1011,7 @@ const validationCommands = [
   ["node", ["--test", "scripts/generate_cose_contract.test.mjs"]],
   ["node", ["--test", "scripts/release-readiness/operation-contract-routing.test.mjs"]],
   ["node", ["--test", "scripts/check_operation_contract.test.mjs", "scripts/check_type_contract.test.mjs"]],
-  ["node", ["--test", "scripts/verify_release_attestation.test.mjs"]],
-  ["node", ["--test", "scripts/verify_release_source.test.mjs"]],
   ["node", ["--check", "scripts/run_pinned_release_readiness.mjs"]],
-  ["node", ["--check", "scripts/verify_release_source.mjs"]],
-  ["node", ["--check", "scripts/write_release_attestation.mjs"]],
-  ["node", ["--check", "scripts/verify_release_attestation.mjs"]],
   ["node", ["--check", "scripts/generate_cose_contract.mjs"]],
   ["node", ["scripts/generate_cose_contract.mjs", "--check"]],
   ["cargo", ["fmt", "--check"]],
@@ -1240,15 +1094,8 @@ const validationCommands = [
   ["cargo", ["audit", "--deny", "warnings"]],
 ];
 
-if (!policyOnlyMode && !generatedFreshnessMode) {
+if (selectedModes.length === 0) {
   runCommands(validationCommands);
-}
-
-// Cleanup is native, but the user-facing fixed enum-diagnostic contract is
-// still supplied by a source guard. Do not advertise a ready release until a
-// published generator can satisfy it without that transformation.
-if (!generatedFreshnessMode && readText("scripts/generate_cose_contract.mjs").includes("sanitizeEnumDiagnostics")) {
-  fail("release blocked: a published ReallyMe Buffa fix must remove the standalone enum diagnostic source guard");
 }
 
 const readinessMode = generatedFreshnessMode

@@ -5,42 +5,26 @@
 name: Protobuf Checks
 
 on:
-  workflow_dispatch:
-  pull_request:
-    paths:
-      - ".github/workflows/protobuf-ci.yml"
-      - "buf.yaml"
-      - "buf.gen.yaml"
-      - "crates/proto/**"
-      - "scripts/check_release_readiness.mjs"
-      - "scripts/release-readiness/core.mjs"
-      - "scripts/generate_cose_contract.mjs"
-      - "scripts/**"
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/protobuf-ci.yml"
-      - "buf.yaml"
-      - "buf.gen.yaml"
-      - "crates/proto/**"
-      - "scripts/check_release_readiness.mjs"
-      - "scripts/release-readiness/core.mjs"
-      - "scripts/generate_cose_contract.mjs"
-      - "scripts/**"
+  workflow_call:
+    outputs:
+      verified_sha:
+        value: ${{ jobs.protobuf.outputs.verified_sha }}
 
 permissions:
   contents: read
 
 env:
-  BUFFA_VERSION: 0.1.0
-  BUF_VERSION: 1.73.0
-  BUF_LINUX_X86_64_SHA256: 8f2986298ad08f0cc1bf999b9797b7c383adf32d7edf0f73d6f1e1a701baeac1
+  BUFFA_VERSION: 0.1.2
+  BUF_VERSION: 1.75.0
+  BUF_LINUX_X86_64_SHA256: fad1e38d6909bbb583a4da81d8c02a01046e2cd663bde7e337dd24277393764b
 
 jobs:
   protobuf:
     name: lint, generated freshness
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    outputs:
+      verified_sha: ${{ steps.verified.outputs.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -48,7 +32,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # master
         with:
           toolchain: 1.100.0
           components: rustfmt
@@ -60,6 +44,8 @@ jobs:
 
       - name: Cache Cargo
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          key: buffa-${{ env.BUFFA_VERSION }}
 
       - name: Install buf
         shell: bash
@@ -88,9 +74,20 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: reallyme/release-readiness
-          ref: 18a6d91d99837e80f92e41fe04effb0b043d754e
+          ref: a89da82a662e02ecb3b7cfc6756c450aff64417a
           path: .release-readiness
           persist-credentials: false
 
       - name: Check release readiness generated freshness
         run: node .release-readiness/scripts/run-consumer-check.mjs --generated-freshness
+
+      - name: Test repository scripts
+        run: node --test scripts/*.test.mjs scripts/release-readiness/*.test.mjs
+
+      - name: Record verified source
+        id: verified
+        shell: bash
+        run: |
+          sha=$(git rev-parse --verify HEAD)
+          test "$sha" = "$GITHUB_SHA"
+          printf 'sha=%s\n' "$sha" >>"$GITHUB_OUTPUT"

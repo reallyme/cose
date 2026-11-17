@@ -42,6 +42,13 @@ certificate-validation boundary. An empty allowlist permits nothing. ISO
 containers require untagged envelopes and empty AAD. Generic RFC 9360 callers
 choose untagged, tagged, or either explicitly and supply their own AAD.
 
+`IssuerMso` payload preflight follows the selected schema profile. ISO 2021
+checks minimum argument widths for major types 0–5 and retains permitted tag
+and floating-point widths. The edition-2 profile checks preferred tag and float
+widths as well. Envelope and header preflight remain preferred in both profiles.
+Signature authentication uses the exact original payload. The standalone
+`validate_preferred_cbor` operation retains its strict preferred-width contract.
+
 The parser borrows validated spans instead of allocating CBOR trees. Protected
 header bytes are placed unchanged in Sig_structure. Unsorted maps are accepted;
 duplicate labels, including semantic duplicate compound map keys, are rejected.
@@ -128,18 +135,14 @@ checks the ISO pair table.
 
 Public point validation executes for P-256/P-384/P-521, Ed25519 and X25519.
 Agreement/HPKE usage excludes Edwards keys; signatures exclude X25519/X448.
-Brainpool, Ed448 and X448 inspection is tested, but validated import and built-in
-signature verification fail closed with `ContainerErrorReason::Provider` where
-the pinned published facade lacks coverage. Enum/width recognition is not
-execution evidence. The independently generated unavailable-curve fixtures do
-not establish an integrated provider.
+Brainpool, Ed448 and X448 inspection is tested. COSE's built-in adapter returns
+`ContainerErrorReason::Provider` for these curves. The independent fixtures
+exercise the registered encodings and the provider boundary.
 
-Crypto work remains in `reallyme/crypto`: named Brainpool point/subgroup
-validation and the four required ECDSA pairs, pure Ed448 validation/sign/verify,
-and X448 public validation/agreement through the published facade. Platform
-signers need message-versus-prehash and declared DER/raw adapters implementing
-these contracts. No platform private key is imported into COSE. The application
-must implement certificate validation and bind its stable context identity.
+Provider integration for the remaining combinations belongs at the Crypto
+boundary. Platform signers need message-versus-prehash and declared DER/raw
+adapters implementing these contracts. The application implements certificate
+validation and binds its stable context identity.
 
 ## Versions and feature recipes
 
@@ -147,9 +150,12 @@ must implement certificate validation and bind its stable context identity.
 | --- | --- |
 | reallyme-cose | 0.3.0 (unreleased) |
 | reallyme-cose-proto | 0.3.0 (complete generated operation contract) |
-| reallyme-crypto | 0.3.17 |
-| reallyme-codec | 0.3.2 |
+| reallyme-crypto | 0.4.0 |
+| reallyme-codec | 0.4.0 |
 | half (CBOR float-width checks only) | 2.7.1 |
+
+COSE uses the same Crypto and Codec facade versions for native Rust, WASM, and
+native Rust builds for Android and Apple targets.
 
 Production cryptography, hashing and constant-time equality are imported solely
 through `reallyme-crypto`. Independent crypto dependencies appear only in tests.

@@ -7,7 +7,9 @@ use coset::{Header, Label, ProtectedHeader, RegisteredLabelWithPrivate};
 use reallyme_crypto::{core::Algorithm, dispatch::sign};
 use zeroize::Zeroizing;
 
-use crate::{algorithm::CoseSignatureAlgorithm, error::sign_error_from_algorithm_error, CoseError};
+use crate::{
+    algorithm::CoseSignatureAlgorithm, error::signature_error_from_algorithm_error, CoseError,
+};
 
 use super::{
     build_sig_structure::build_sig_structure,
@@ -79,7 +81,7 @@ pub(super) fn sign_payload(
 
     let mut backend_signature = match signing_source {
         CoseSign1SigningSource::PrivateKey(private_key) => Zeroizing::new(
-            sign(alg, private_key, &to_sign).map_err(sign_error_from_algorithm_error)?,
+            sign(alg, private_key, &to_sign).map_err(signature_error_from_algorithm_error)?,
         ),
         CoseSign1SigningSource::Provider(provider) => provider.sign(&to_sign)?,
     };

@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use super::read_cbor::{head, Cursor, Item, MAX_DEPTH, MAX_SCAN_WORK};
+use super::read_cbor::{head_with_width_policy, Cursor, Item, MAX_DEPTH, MAX_SCAN_WORK};
 use super::{ContainerError, ContainerErrorReason as Reason};
+use zeroize::Zeroizing;
 
 const MAX_NODES: usize = 65_536;
 const MAX_COMPARISONS: usize = 1_048_576;
@@ -21,6 +22,20 @@ pub fn validate_preferred_cbor(encoded: &[u8]) -> Result<(), ContainerError> {
 }
 
 pub(crate) fn validate_preferred_cbor_operation(encoded: &[u8]) -> Result<(), ContainerError> {
+    validate_with_width_policy(encoded, false)
+}
+
+pub(super) fn validate_issuer_mso_payload(
+    encoded: &[u8],
+    profile: super::ContainerProfile,
+) -> Result<(), ContainerError> {
+    // ISO 2021 requires minimum argument widths for major types 0 through 5.
+    // Tags and floating-point widths remain part of the exact signed payload.
+    // The edition-2 profile and every public preferred-CBOR operation stay strict.
+    validate_with_width_policy(encoded, profile == super::ContainerProfile::Iso2021)
+}
+
+fn validate_with_width_policy(encoded: &[u8], legacy_widths: bool) -> Result<(), ContainerError> {
     if encoded.len() > crate::limits::MAX_DETACHED_PAYLOAD_BYTES {
         return Err(Reason::Limit.into());
     }
@@ -28,6 +43,7 @@ pub(crate) fn validate_preferred_cbor_operation(encoded: &[u8]) -> Result<(), Co
         nodes: 0,
         comparisons: 0,
         scans: MAX_SCAN_WORK,
+        legacy_widths,
     };
     let consumed = validate(encoded, 0, &mut work)?;
     if consumed != encoded.len() {
@@ -40,6 +56,7 @@ struct Work {
     nodes: usize,
     comparisons: usize,
     scans: usize,
+    legacy_widths: bool,
 }
 
 fn validate(input: &[u8], depth: usize, work: &mut Work) -> Result<usize, ContainerError> {
@@ -47,7 +64,7 @@ fn validate(input: &[u8], depth: usize, work: &mut Work) -> Result<usize, Contai
     if depth > MAX_DEPTH || work.nodes > MAX_NODES {
         return Err(Reason::Limit.into());
     }
-    let (major, additional, arg, start) = head(input)?;
+    let (major, additional, arg, start) = head_with_width_policy(input, work.legacy_widths)?;
     let next_depth = depth.checked_add(1).ok_or(Reason::Limit)?;
     match major {
         0 | 1 => Ok(start),
@@ -76,10 +93,13 @@ fn validate(input: &[u8], depth: usize, work: &mut Work) -> Result<usize, Contai
                 let size = validate(input.get(end..).ok_or(Reason::Malformed)?, next_depth, work)?;
                 end = end.checked_add(size).ok_or(Reason::Limit)?;
                 if major == 5 {
-                    let current =
-                        Item::from_validated(input.get(key_start..end).ok_or(Reason::Malformed)?)?;
+                    let current = Item::from_profiled_input(
+                        input.get(key_start..end).ok_or(Reason::Malformed)?,
+                        work.legacy_widths,
+                    )?;
                     let mut previous = Cursor {
                         remaining: input.get(start..key_start).ok_or(Reason::Malformed)?,
+                        legacy_widths: work.legacy_widths,
                     };
                     while !previous.remaining.is_empty() {
                         if equivalent(previous.next_with_budget(&mut work.scans)?, current, work)? {
@@ -95,7 +115,9 @@ fn validate(input: &[u8], depth: usize, work: &mut Work) -> Result<usize, Contai
             Ok(end)
         }
         7 => {
-            validate_simple(additional, arg)?;
+            if !(work.legacy_widths && matches!(additional, 25..=27)) {
+                validate_simple(additional, arg)?;
+            }
             Ok(start)
         }
         _ => Err(Reason::Malformed.into()),
@@ -117,6 +139,12 @@ fn equivalent(a: Item<'_>, b: Item<'_>, work: &mut Work) -> Result<bool, Contain
     }
     if a.encoded == b.encoded {
         return Ok(true);
+    }
+    if work.legacy_widths && a.major == 7 && b.major == 7 {
+        if let (Some(a), Some(b)) = (float_value(a)?, float_value(b)?) {
+            // Different permitted widths must not conceal a duplicate key.
+            return Ok(*a == *b || (a.is_nan() && b.is_nan()));
+        }
     }
     if a.major != b.major || a.argument != b.argument {
         return Ok(false);
@@ -159,6 +187,19 @@ fn equivalent(a: Item<'_>, b: Item<'_>, work: &mut Work) -> Result<bool, Contain
     }
 }
 
+fn float_value(item: Item<'_>) -> Result<Option<Zeroizing<f64>>, ContainerError> {
+    let value = match item.additional {
+        25 => half::f16::from_bits(u16::try_from(item.argument).map_err(|_| Reason::Malformed)?)
+            .to_f64(),
+        26 => f64::from(f32::from_bits(
+            u32::try_from(item.argument).map_err(|_| Reason::Malformed)?,
+        )),
+        27 => f64::from_bits(item.argument),
+        _ => return Ok(None),
+    };
+    Ok(Some(Zeroizing::new(value)))
+}
+
 fn validate_simple(additional: u8, arg: u64) -> Result<(), ContainerError> {
     match additional {
         0..=23 => Ok(()),
@@ -186,6 +227,18 @@ fn validate_simple(additional: u8, arg: u64) -> Result<(), ContainerError> {
 
 impl<'a> Item<'a> {
     pub(super) fn from_validated(encoded: &'a [u8]) -> Result<Self, ContainerError> {
-        Cursor { remaining: encoded }.next()
+        Self::from_profiled_input(encoded, false)
+    }
+
+    fn from_profiled_input(encoded: &'a [u8], legacy_widths: bool) -> Result<Self, ContainerError> {
+        Cursor {
+            remaining: encoded,
+            legacy_widths,
+        }
+        .next()
     }
 }
+
+#[cfg(test)]
+#[path = "iso2021_payload_tests.rs"]
+mod iso2021_payload_tests;

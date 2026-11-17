@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 use crate::api::contract::{
-    CoseByteLimits, CoseKeyFromPrivateBytesRequest, CoseMultikeyToCoseKeyRequest,
-    CoseOperationRequest, CoseOperationRequestOwnedView, CoseOperationRequestView,
-    CoseSign1CreateRequest, CoseSign1CreateRequestOwnedView, CoseSign1CreateRequestView,
+    __buffa::oneof::cose_operation_request::Operation, CoseByteLimits,
+    CoseKeyFromPrivateBytesRequest, CoseMultikeyToCoseKeyRequest, CoseOperationRequest,
+    CoseOperationRequestOwnedView, CoseOperationRequestView, CoseSign1CreateRequest,
+    CoseSign1CreateRequestOwnedView, CoseSign1CreateRequestView,
 };
 use crate::CoseError;
 use buffa::{bytes::Buf, DecodeOptions, Message, MessageView};
@@ -154,5 +155,32 @@ fn whole_view_json_is_denied_for_empty_secret_and_containing_views() -> Result<(
         .map_err(|_| CoseError::Cbor)?;
     assert!(serde_json::to_string(&owned).is_err());
     assert!(serde_json::to_string(&eager).is_err());
+
+    let containing = CoseOperationRequest {
+        operation: Some(Operation::Sign1Create(Box::new(
+            CoseSign1CreateRequest::default().with_private_key(vec![0xa5; 32]),
+        ))),
+    };
+    let encoded = zeroize::Zeroizing::new(containing.encode_to_vec());
+    let decode = DecodeOptions::new().reject_unknown_fields();
+    let eager = decode
+        .decode_view::<CoseOperationRequestView>(&encoded)
+        .map_err(|_| CoseError::Cbor)?;
+    let owned =
+        CoseOperationRequestOwnedView::from_owned(&containing).map_err(|_| CoseError::Cbor)?;
+    let eager_operation = eager.operation.as_ref().ok_or(CoseError::InvalidFormat)?;
+    let owned_operation = owned.operation().ok_or(CoseError::InvalidFormat)?;
+    for debug in [
+        format!("{eager:?}"),
+        format!("{owned:?}"),
+        format!("{eager_operation:?}"),
+        format!("{owned_operation:?}"),
+    ] {
+        assert!(debug.contains("REDACTED"));
+        assert!(!debug.contains("165"));
+        assert!(!debug.contains("Sign1Create"));
+    }
+    assert!(serde_json::to_string(&eager).is_err());
+    assert!(serde_json::to_string(&owned).is_err());
     Ok(())
 }

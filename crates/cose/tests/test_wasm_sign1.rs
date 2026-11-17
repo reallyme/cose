@@ -7,7 +7,10 @@
 #![allow(clippy::expect_used, missing_docs)]
 #![cfg(all(feature = "wasm", target_arch = "wasm32"))]
 
-use reallyme_cose::{cose_sign1, cose_verify1, Algorithm, CoseError};
+use reallyme_cose::{
+    cose_key_to_multikey, cose_key_to_vec, cose_sign1, cose_verify1,
+    derive_kid_from_cose_key_public, multikey_to_cose_key, Algorithm, CoseError,
+};
 use wasm_bindgen_test::wasm_bindgen_test;
 
 // RFC 8032 test vector 1 is public test material, not a deployed secret.
@@ -79,4 +82,37 @@ fn cbor_lengths_exceeding_usize_are_still_rejected_on_wasm32() {
         reallyme_cose::cose_key_from_slice(&encoded).err(),
         Some(CoseError::ResourceLimitExceeded),
     );
+}
+
+#[wasm_bindgen_test]
+fn codec_multikey_and_kid_match_the_independent_vector() -> Result<(), CoseError> {
+    // Use the same independent Ed25519 answer as the native conformance suite.
+    let suite: serde_json::Value =
+        serde_json::from_str(include_str!("../../../vectors/cose-key.json"))
+            .map_err(|_| CoseError::InvalidFormat)?;
+    let case = suite["cases"]
+        .as_array()
+        .and_then(|cases| {
+            cases
+                .iter()
+                .find(|case| case["id"] == "cose-key-ed25519-public")
+        })
+        .ok_or(CoseError::InvalidFormat)?;
+    let expected = |field| case[field].as_str().ok_or(CoseError::InvalidFormat);
+    let multikey = expected("multikey")?;
+    let key = multikey_to_cose_key(multikey)?;
+    assert_eq!(cose_key_to_multikey(&key)?.as_str(), multikey);
+    assert_eq!(
+        hex::encode(cose_key_to_vec(&key)?.as_slice()),
+        expected("cose_key_hex")?
+    );
+    assert_eq!(
+        hex::encode(derive_kid_from_cose_key_public(&key)?.as_slice()),
+        expected("kid_hex")?
+    );
+    assert_eq!(
+        multikey_to_cose_key("uAA").err(),
+        Some(CoseError::InvalidMultikey)
+    );
+    Ok(())
 }

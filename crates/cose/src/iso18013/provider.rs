@@ -4,7 +4,7 @@
 
 use zeroize::{ZeroizeOnDrop, Zeroizing};
 
-use crate::error::verify_error_from_algorithm_error;
+use crate::error::signature_error_from_algorithm_error;
 use crate::key::validate_public_key;
 use crate::sign1::backend_signature_from_cose;
 use crate::CoseError;
@@ -126,7 +126,7 @@ impl Iso18013Verifier for Iso18013CryptoVerifier {
             sig_structure,
             &backend_signature,
         )
-        .map_err(verify_error_from_algorithm_error)
+        .map_err(signature_error_from_algorithm_error)
     }
 }
 

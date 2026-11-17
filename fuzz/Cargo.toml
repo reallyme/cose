@@ -13,10 +13,10 @@ workspace = true
 cargo-fuzz = true
 
 [dependencies]
-buffa = { package = "reallyme-buffa", version = "=0.1.0", features = ["json", "zeroize"] }
+buffa = { package = "reallyme-buffa", version = "=0.1.2", features = ["json", "zeroize"] }
 libfuzzer-sys = "0.4.13"
 reallyme-cose = { path = "../crates/cose", default-features = false, features = ["native", "wire"] }
-reallyme-crypto = { version = "0.3.17", default-features = false, features = ["native", "ml-kem-512", "ml-kem-768", "ml-kem-1024"] }
+reallyme-crypto = { version = "0.4.2", default-features = false, features = ["native", "ml-kem-512", "ml-kem-768", "ml-kem-1024"] }
 serde_json = "1.0.154"
 zeroize = "1.9.1"
 

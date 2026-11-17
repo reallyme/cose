@@ -6,6 +6,10 @@ cryptographic checks. Kani checks the actual Rust functions with symbolic
 inputs. The existing interoperability vectors and fuzz targets cover larger
 inputs, real cryptographic providers, and the byte-entry points.
 
+The [Formal Verification workflow](../.github/workflows/formal-verification.yml)
+runs only on explicit manual dispatch for the selected revision. Automatic
+Required CI retains build, interoperability, fuzz-build, and dependency checks.
+
 ## Proofs in CI
 
 | Area | Obligation | Scope |

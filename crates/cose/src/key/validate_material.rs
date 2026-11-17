@@ -6,14 +6,14 @@
 
 use reallyme_crypto::core::Algorithm;
 #[cfg(feature = "cose-crypto")]
-use reallyme_crypto::core::CryptoError;
+use reallyme_crypto::core::{CryptoError, CryptoErrorReason};
 #[cfg(feature = "cose-crypto")]
 use reallyme_crypto::dispatch::{derive_shared_secret, sign, verify};
 #[cfg(feature = "cose-crypto")]
 use zeroize::{Zeroize, Zeroizing};
 
 #[cfg(feature = "cose-crypto")]
-use crate::error::{sign_error_from_algorithm_error, verify_error_from_algorithm_error};
+use crate::error::signature_error_from_algorithm_error;
 use crate::CoseError;
 
 #[cfg(feature = "cose-crypto")]
@@ -69,10 +69,8 @@ pub(crate) fn validate_public_key(
         // A verifier can report malformed points as an invalid signature.
         // Validate the encoding and subgroup before the dummy verification can
         // treat that result as evidence of a usable public key.
-        reallyme_crypto::ed25519::assert_public_key(public_key).map_err(|error| match error {
-            CryptoError::InvalidKey => CoseError::InvalidKeyMaterial,
-            _ => CoseError::Crypto,
-        })?;
+        reallyme_crypto::ed25519::assert_public_key(public_key)
+            .map_err(signature_error_from_algorithm_error)?;
     }
 
     if algorithm == Algorithm::X25519 {
@@ -82,7 +80,7 @@ pub(crate) fn validate_public_key(
                 shared_secret.zeroize();
                 Ok(())
             }
-            Err(error) => match sign_error_from_algorithm_error(error) {
+            Err(error) => match signature_error_from_algorithm_error(error) {
                 CoseError::ProviderUnavailable => Err(CoseError::ProviderUnavailable),
                 CoseError::UnsupportedAlgorithm => Err(CoseError::UnsupportedAlgorithm),
                 _ => Err(CoseError::InvalidKeyMaterial),
@@ -114,7 +112,7 @@ pub(crate) fn validate_public_key(
     let result = verify(algorithm, public_key, KEY_VALIDATION_MESSAGE, signature);
     match result {
         Ok(()) => Ok(()),
-        Err(error) => match verify_error_from_algorithm_error(error) {
+        Err(error) => match signature_error_from_algorithm_error(error) {
             CoseError::InvalidSignature => Ok(()),
             other => Err(other),
         },
@@ -149,10 +147,10 @@ pub(crate) fn validate_private_public_pair(
 
     let mut signature = Zeroizing::new(
         sign(algorithm, private_key, KEY_VALIDATION_MESSAGE)
-            .map_err(sign_error_from_algorithm_error)?,
+            .map_err(signature_error_from_algorithm_error)?,
     );
     let verification = verify(algorithm, public_key, KEY_VALIDATION_MESSAGE, &signature)
-        .map_err(verify_error_from_algorithm_error);
+        .map_err(signature_error_from_algorithm_error);
     signature.zeroize();
     match verification {
         Err(CoseError::InvalidSignature) => Err(CoseError::InvalidKeyMaterial),
@@ -206,8 +204,8 @@ fn ml_kem_decapsulate(
 
 #[cfg(feature = "cose-crypto")]
 fn ml_kem_key_operation_error(error: CryptoError) -> CoseError {
-    match error {
-        CryptoError::InvalidKey | CryptoError::InvalidCiphertextLength { .. } => {
+    match error.reason() {
+        CryptoErrorReason::PrimitiveInvalidKey | CryptoErrorReason::PrimitiveInvalidLength => {
             CoseError::InvalidKeyMaterial
         }
         _ => CoseError::Crypto,

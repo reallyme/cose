@@ -127,7 +127,7 @@ This example generates its key pair with `reallyme-crypto`, so add that direct
 dependency alongside `reallyme-cose`:
 
 ```toml
-reallyme-crypto = { version = "0.3.17", default-features = false, features = ["native", "dispatch", "ed25519"] }
+reallyme-crypto = { version = "0.4.2", default-features = false, features = ["native", "dispatch", "ed25519"] }
 ```
 
 ```rust
@@ -439,7 +439,7 @@ an unsorted protected header map.
 
 ## Protobuf Wire Boundary
 
-The protobuf schema defines every public operation. ReallyMe Buffa 0.1.0 generates its
+The protobuf schema defines every public operation. ReallyMe Buffa 0.1.1 generates its
 request/result types, policy selectors, operation discriminants and error codes.
 Use `api::contract` for those definitions and `api::execute` for typed Rust
 execution. `api::execute_with_providers` accepts explicit application-local
@@ -508,10 +508,7 @@ use `DecodeOptions::reject_unknown_fields()` on the original bounded bytes;
 a default decoder with storage disabled cannot preserve unknown-field evidence.
 
 See the [Buffa security migration matrix](https://github.com/reallyme/cose/blob/main/docs/buffa-migration.md).
-Native cleanup replaces the former generated-source ownership patches. A narrow
-standalone-enum diagnostic guard remains because published 0.1.0 still formats
-numeric input in those errors. Complete migration and release readiness require
-a published generator fix that removes that final source transformation.
+Buffa generates cleanup and fixed standalone enum diagnostics directly.
 
 ## ReallyMe ML-KEM COSE Profile
 
@@ -723,20 +720,22 @@ bash scripts/install_external_type_checker.sh .local-tools
 node scripts/check_release_readiness.mjs
 ```
 
-Protobuf regeneration requires Buf 1.73.0 and the ReallyMe Buffa 0.1.0 tools:
+Protobuf regeneration requires Buf 1.73.0 and the ReallyMe Buffa 0.1.1 tools:
 
 ```sh
-cargo install reallyme-protoc-gen-buffa --version '=0.1.0' --locked
-cargo install reallyme-protoc-gen-buffa-packaging --version '=0.1.0' --locked
+cargo install reallyme-protoc-gen-buffa --version '=0.1.1' --locked
+cargo install reallyme-protoc-gen-buffa-packaging --version '=0.1.1' --locked
+test "$(protoc-gen-reallyme-buffa --version)" = "protoc-gen-reallyme-buffa 0.1.1"
+test "$(protoc-gen-reallyme-buffa-packaging --version)" = "protoc-gen-reallyme-buffa-packaging 0.1.1"
 node scripts/generate_cose_contract.mjs
 node scripts/check_release_readiness.mjs --generated-freshness
 ```
 
 The generation driver requires exact executable names and versions, lints the
 schema, runs both local plugins, and emits separate schema-derived compatibility
-projections. Cleanup needs no source rewriting. The documented enum diagnostic
-guard is the remaining release blocker. Freshness regenerates into a temporary
-directory and compares every output without repairing the checked-in evidence.
+projections. The driver formats the generated Rust with `rustfmt`. Freshness
+regenerates into a temporary directory and compares every output against the
+checked-in files.
 `node scripts/generate_cose_contract.mjs --check` runs that comparison directly.
 CI uses the pinned shared release-readiness runner;
 crate publication additionally requires its package-preflight checks. Locally,
@@ -748,7 +747,7 @@ The [formal verification guide](https://github.com/reallyme/cose/blob/main/docs/
 documents the Kani checks, their input bounds, and how to run them locally.
 
 Release readiness requires crates.io dependencies for the published ReallyMe
-foundational crates: `reallyme-crypto` `^0.3.17` and `reallyme-codec` `^0.3.2`.
+foundational crates: `reallyme-crypto` `^0.4.2` and `reallyme-codec` `^0.4.3`.
 Local `../crypto` or `../codec` path dependencies are not accepted for release.
 
 The package preflight verifies the requested release commit and crate version,

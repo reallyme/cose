@@ -225,7 +225,7 @@ impl crate::sign1::CoseSigner for ModernSigner<'_> {
                     message,
                     &signature,
                 )
-                .map_err(crate::error::verify_error_from_algorithm_error)?;
+                .map_err(crate::error::signature_error_from_algorithm_error)?;
                 Ok(signature)
             }
             _ => Err(CoseError::Crypto),

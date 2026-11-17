@@ -9,7 +9,6 @@ import {dirname,join,resolve} from "node:path";
 import {fileURLToPath} from "node:url";
 import {generateErrorAliases,nativeContractFiles} from "./generate_native_contract.mjs";
 import {equalityExtensions} from "./schema_contract.mjs";
-import {sanitizeEnumDiagnostics} from "./sanitize_enum_diagnostics.mjs";
 
 export const generatedPaths = [
   "crates/proto/src/generated", "crates/proto/src/contract_extensions.rs",
@@ -25,9 +24,9 @@ function run(command,args,cwd) {
 
 export function checkGeneratorVersions(root) {
   for(const [tool,version] of [
-    ["buf","1.73.0"],
-    ["protoc-gen-reallyme-buffa","protoc-gen-reallyme-buffa 0.1.0"],
-    ["protoc-gen-reallyme-buffa-packaging","protoc-gen-reallyme-buffa-packaging 0.1.0"],
+    ["buf","1.75.0"],
+    ["protoc-gen-reallyme-buffa","protoc-gen-reallyme-buffa 0.1.2"],
+    ["protoc-gen-reallyme-buffa-packaging","protoc-gen-reallyme-buffa-packaging 0.1.2"],
   ]) {
     if(run(tool,["--version"],root)!==version) throw new TypeError(`unsupported generator name or version: ${tool}`);
   }
@@ -43,8 +42,6 @@ function generateInPlace(root) {
   checkGeneratorVersions(root);
   run("buf",["lint"],root);
   run("buf",["generate"],root);
-  const enumSource=join(root,"crates/proto/src/generated/buffa/reallyme.cose.v1.cose.rs");
-  writeFileSync(enumSource,sanitizeEnumDiagnostics(readFileSync(enumSource,"utf8")));
   const schema=readFileSync(join(root,schemaPath),"utf8");
   // These are schema-derived compatibility projections, not edits to Buffa
   // output. Keeping the companion separate makes regeneration auditable.

@@ -13,6 +13,8 @@ pub(super) struct Item<'a> {
     pub data: &'a [u8],
     pub major: u8,
     pub argument: u64,
+    pub additional: u8,
+    pub legacy_widths: bool,
 }
 
 impl<'a> Item<'a> {
@@ -45,12 +47,14 @@ impl<'a> Item<'a> {
     pub(super) fn cursor(self) -> Cursor<'a> {
         Cursor {
             remaining: self.data,
+            legacy_widths: self.legacy_widths,
         }
     }
 }
 
 pub(super) struct Cursor<'a> {
     pub remaining: &'a [u8],
+    pub legacy_widths: bool,
 }
 
 impl<'a> Cursor<'a> {
@@ -65,13 +69,16 @@ impl<'a> Cursor<'a> {
         &mut self,
         remaining_work: &mut usize,
     ) -> Result<Item<'a>, ContainerError> {
-        let (item, consumed) = scan(self.remaining, 0, remaining_work)?;
+        let (item, consumed) = scan(self.remaining, 0, remaining_work, self.legacy_widths)?;
         self.remaining = self.remaining.get(consumed..).ok_or(Reason::Malformed)?;
         Ok(item)
     }
 }
 
-pub(super) fn head(input: &[u8]) -> Result<(u8, u8, u64, usize), ContainerError> {
+pub(super) fn head_with_width_policy(
+    input: &[u8],
+    legacy_widths: bool,
+) -> Result<(u8, u8, u64, usize), ContainerError> {
     let first = *input.first().ok_or(Reason::Malformed)?;
     let major = first >> 5;
     let additional = first & 31;
@@ -90,6 +97,7 @@ pub(super) fn head(input: &[u8]) -> Result<(u8, u8, u64, usize), ContainerError>
         value = (value << 8) | u64::from(*byte);
     }
     if major != 7
+        && !(legacy_widths && major == 6)
         && ((width == 1 && value < 24)
             || (width == 2 && value <= 0xff)
             || (width == 4 && value <= 0xffff)
@@ -104,12 +112,13 @@ fn scan<'a>(
     input: &'a [u8],
     depth: usize,
     remaining_work: &mut usize,
+    legacy_widths: bool,
 ) -> Result<(Item<'a>, usize), ContainerError> {
     *remaining_work = remaining_work.checked_sub(1).ok_or(Reason::Limit)?;
     if depth > MAX_DEPTH {
         return Err(Reason::Limit.into());
     }
-    let (major, _, argument, start) = head(input)?;
+    let (major, additional, argument, start) = head_with_width_policy(input, legacy_widths)?;
     let mut end = start;
     match major {
         2 | 3 => {
@@ -128,6 +137,7 @@ fn scan<'a>(
                     input.get(end..).ok_or(Reason::Malformed)?,
                     depth.checked_add(1).ok_or(Reason::Limit)?,
                     remaining_work,
+                    legacy_widths,
                 )?;
                 end = end.checked_add(size).ok_or(Reason::Limit)?;
             }
@@ -141,6 +151,8 @@ fn scan<'a>(
             data: input.get(start..end).ok_or(Reason::Malformed)?,
             major,
             argument,
+            additional,
+            legacy_widths,
         },
         end,
     ))

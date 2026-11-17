@@ -2,10 +2,6 @@ name: Formal verification
 
 on:
   workflow_dispatch:
-  pull_request:
-  push:
-    branches:
-      - main
 
 permissions:
   contents: read
@@ -22,10 +18,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.sha }}
           persist-credentials: false
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # master
         with:
           toolchain: 1.100.0
 
@@ -41,24 +38,14 @@ jobs:
 
       - name: Verify proof obligations
         shell: bash
+        working-directory: .
         timeout-minutes: 35
         run: |
-          cargo fetch --locked
-          sha256sum Cargo.lock > "$RUNNER_TEMP/workspace-lock.sha256"
-          results="$RUNNER_TEMP/verification.json"
-          CARGO_NET_OFFLINE=true cargo kani --package reallyme-cose --lib --no-default-features --features native \
-            --output-format terse -Z stubbing -Z unstable-options --harness-timeout 360s --export-json "$results" \
-            2>&1 | tee "$RUNNER_TEMP/verification.log"
-          sha256sum --check --strict "$RUNNER_TEMP/workspace-lock.sha256"
-          # Unmet cover goals alone do not fail the verifier. Require the
-          # positive and negative scenarios declared by every harness.
-          jq --exit-status '
-            .verification_results.results as $results
-            | ($results | length > 0) and all($results[];
-                .status == "Success"
-                and ([.checks[] | select(.category == "cover")] as $covers
-                  | ($covers | length > 0) and all($covers[]; .status == "Satisfied")))
-          ' "$results"
+          test "$(git rev-parse --verify HEAD)" = "$GITHUB_SHA"
+          git diff --no-ext-diff --exit-code "$GITHUB_SHA" --
+          bash -e -o pipefail scripts/verify_formal_obligations.sh
+          test "$(git rev-parse --verify HEAD)" = "$GITHUB_SHA"
+          git diff --no-ext-diff --exit-code "$GITHUB_SHA" --
 
       - name: Summarize proof durations
         if: always()

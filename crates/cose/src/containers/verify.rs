@@ -81,7 +81,11 @@ pub(crate) fn verify_container_operation(
             | ContainerPurpose::Vical
             | ContainerPurpose::Rical
     ) {
-        super::validate_preferred_cbor(payload)?;
+        if request.policy.purpose == ContainerPurpose::IssuerMso {
+            super::preflight::validate_issuer_mso_payload(payload, request.policy.profile)?;
+        } else {
+            super::validate_preferred_cbor(payload)?;
+        }
     }
     // An exact key curve can be resolved only by the trusted boundary. Before
     // that work, the signature must at least fit one explicitly permitted pair.
