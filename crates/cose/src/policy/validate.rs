@@ -51,8 +51,8 @@ impl CosePolicy {
         &self.contract
     }
     /// Validate an owned generated policy before entering native semantics.
-    /// Byte limits are normalized to their schema-defined hard maxima while
-    /// preserving absent limits and explicit zero ceilings.
+    /// Encoded budgets above the schema's absolute ceiling are rejected.
+    /// Other byte limits retain clamping, absent limits and explicit zero ceilings.
     ///
     /// # Errors
     /// Rejects unknown selectors, contradictory allowlist modes, invalid typ,
@@ -86,13 +86,13 @@ impl CosePolicy {
     pub fn allowed_cose_algorithms(&self) -> impl Iterator<Item = CoseSignatureAlgorithm> + '_ {
         exact_signature_registrations(&self.contract.allowed_algorithms)
     }
-    /// Effective encoded Sign1 ceiling, bounded by the implementation maximum.
+    /// Selected encoded Sign1 budget; operation boundaries reject unsupported values.
     pub fn max_cose_sign1_bytes(&self) -> usize {
         self.contract
             .limits
             .as_option()
             .map_or(MAX_COSE_SIGN1_BYTES, |limits| {
-                native_limit(limits.encoded_bytes, MAX_COSE_SIGN1_BYTES)
+                native_limit(limits.encoded_bytes, usize::MAX)
             })
     }
     /// Effective payload ceiling, including detached content.
@@ -192,9 +192,9 @@ impl CosePolicy {
         }
         self.contract.limits.get_or_insert_default()
     }
-    /// Tighten the encoded Sign1 ceiling.
+    /// Select an encoded Sign1 budget; unsupported budgets fail at the operation boundary.
     pub fn with_max_cose_sign1_bytes(mut self, value: usize) -> Self {
-        self.limits().encoded_bytes = portable_limit(value, MAX_COSE_SIGN1_BYTES);
+        self.limits().encoded_bytes = portable_limit(value, usize::MAX);
         self
     }
     /// Tighten the detached payload ceiling.

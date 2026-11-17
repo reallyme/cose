@@ -2910,13 +2910,15 @@ impl ::serde::Serialize for CoseSignatureSuiteOwnedView {
         ::serde::Serialize::serialize(&self.0, __s)
     }
 }
-/// If this message is absent, operation-specific hard defaults apply. If
-/// present, zero is a real zero ceiling; callers cannot raise hard maxima.
-/// Imported values above a field's hard maximum are clamped to that maximum.
+/// If this message is absent, operation-specific defaults apply. If present,
+/// zero is a real zero ceiling. Sign1 encoded budgets may exceed the historical
+/// 65,536-byte default up to the absolute 1,048,576-byte ceiling; larger encoded
+/// budgets are rejected with COMMON_RESOURCE_LIMIT_EXCEEDED. Payload and AAD
+/// values above their unchanged hard maxima are clamped to those maxima.
 /// Rust byte limits: ContainerLimits
 #[derive(Clone, Default)]
 pub struct CoseByteLimitsView<'a> {
-    /// Rust maximum: MAX_COSE_SIGN1_BYTES
+    /// Rust maximum: MAX_COSE_SIGN1_ENCODED_BYTES; default: MAX_COSE_SIGN1_BYTES; reject
     ///
     /// Field 1: `encoded_bytes`
     pub encoded_bytes: u64,
@@ -3154,7 +3156,7 @@ impl CoseByteLimitsOwnedView {
     pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
         self.0.into_bytes()
     }
-    /// Rust maximum: MAX_COSE_SIGN1_BYTES
+    /// Rust maximum: MAX_COSE_SIGN1_ENCODED_BYTES; default: MAX_COSE_SIGN1_BYTES; reject
     ///
     /// Field 1: `encoded_bytes`
     #[must_use]
@@ -27317,8 +27319,9 @@ pub struct CoseSign1OptionsView<'a> {
     ///
     /// Field 1: `tag`
     pub tag: bool,
-    /// Optional maximum encoded COSE_Sign1 size. A value of 0 uses the crate
-    /// default.
+    /// Optional maximum encoded COSE_Sign1 size. Zero selects the 65,536-byte
+    /// default. Explicit budgets through 1,048,576 bytes are supported; larger
+    /// budgets fail with COMMON_RESOURCE_LIMIT_EXCEEDED.
     ///
     /// Field 2: `max_cose_sign1_bytes`
     pub max_cose_sign1_bytes: u64,
@@ -27713,8 +27716,9 @@ impl CoseSign1OptionsOwnedView {
     pub fn tag(&self) -> bool {
         self.0.reborrow().tag
     }
-    /// Optional maximum encoded COSE_Sign1 size. A value of 0 uses the crate
-    /// default.
+    /// Optional maximum encoded COSE_Sign1 size. Zero selects the 65,536-byte
+    /// default. Explicit budgets through 1,048,576 bytes are supported; larger
+    /// budgets fail with COMMON_RESOURCE_LIMIT_EXCEEDED.
     ///
     /// Field 2: `max_cose_sign1_bytes`
     #[must_use]
@@ -29795,8 +29799,9 @@ pub struct CoseSign1VerifyRequestView<'a> {
     ///
     /// Field 2: `public_key`
     pub public_key: &'a [u8],
-    /// Optional maximum accepted encoded COSE_Sign1 size. A value of 0 uses the
-    /// crate default.
+    /// Optional encoded budget with the same 65,536-byte default and 1,048,576-byte
+    /// absolute ceiling as CoseSign1Options. Zero selects the default; unsupported
+    /// budgets fail with COMMON_RESOURCE_LIMIT_EXCEEDED.
     ///
     /// Field 3: `max_cose_sign1_bytes`
     pub max_cose_sign1_bytes: u64,
@@ -30277,8 +30282,9 @@ impl CoseSign1VerifyRequestOwnedView {
     pub fn public_key(&self) -> &'_ [u8] {
         self.0.reborrow().public_key
     }
-    /// Optional maximum accepted encoded COSE_Sign1 size. A value of 0 uses the
-    /// crate default.
+    /// Optional encoded budget with the same 65,536-byte default and 1,048,576-byte
+    /// absolute ceiling as CoseSign1Options. Zero selects the default; unsupported
+    /// budgets fail with COMMON_RESOURCE_LIMIT_EXCEEDED.
     ///
     /// Field 3: `max_cose_sign1_bytes`
     #[must_use]
@@ -30413,8 +30419,9 @@ pub struct CoseSign1VerifyDetachedRequestView<'a> {
     ///
     /// Field 3: `public_key`
     pub public_key: &'a [u8],
-    /// Optional maximum accepted encoded COSE_Sign1 size. A value of 0 uses the
-    /// crate default.
+    /// Optional encoded budget with the same 65,536-byte default and 1,048,576-byte
+    /// absolute ceiling as CoseSign1Options. Zero selects the default; unsupported
+    /// budgets fail with COMMON_RESOURCE_LIMIT_EXCEEDED.
     ///
     /// Field 4: `max_cose_sign1_bytes`
     pub max_cose_sign1_bytes: u64,
@@ -30922,8 +30929,9 @@ impl CoseSign1VerifyDetachedRequestOwnedView {
     pub fn public_key(&self) -> &'_ [u8] {
         self.0.reborrow().public_key
     }
-    /// Optional maximum accepted encoded COSE_Sign1 size. A value of 0 uses the
-    /// crate default.
+    /// Optional encoded budget with the same 65,536-byte default and 1,048,576-byte
+    /// absolute ceiling as CoseSign1Options. Zero selects the default; unsupported
+    /// budgets fail with COMMON_RESOURCE_LIMIT_EXCEEDED.
     ///
     /// Field 4: `max_cose_sign1_bytes`
     #[must_use]

@@ -287,6 +287,7 @@ fn create_cose_sign1_impl(
     input: CoseSign1CreateInput<'_>,
     payload_mode: Sign1PayloadMode,
 ) -> Result<Zeroizing<Vec<u8>>, CoseError> {
+    crate::limits::check_sign1_limit(input.options.max_cose_sign1_bytes())?;
     validate_detached_payload_with_limit(input.payload, input.options.max_payload_bytes())?;
     validate_detached_payload_with_limit(
         input.external_aad,

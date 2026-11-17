@@ -85,6 +85,10 @@ pub const CONSTANTS: &[(Wire, i64)] = &[
         Wire::COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_PROTO_JSON_BYTES,
         3145728,
     ),
+    (
+        Wire::COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_SIGN1_ENCODED_BYTES,
+        1048576,
+    ),
 ];
 
 pub mod values {
@@ -131,6 +135,8 @@ pub mod values {
     /// Public contract constant.
     #[cfg(feature = "wire")]
     pub const MAX_COSE_PROTO_JSON_BYTES: usize = 3145728;
+    /// Public contract constant.
+    pub const MAX_COSE_SIGN1_ENCODED_BYTES: usize = 1048576;
     #[cfg(feature = "cose-crypto")]
     pub(crate) const MAX_ALLOWLIST_ENTRIES: usize = 32;
     #[cfg(feature = "cose-crypto")]

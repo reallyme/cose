@@ -42,12 +42,12 @@ impl CoseSign1EncodeOptions {
     /// Maximum encoded size; absent legacy zero retains the historical default.
     pub fn max_cose_sign1_bytes(&self) -> usize {
         if let Some(limits) = self.contract.limits.as_option() {
-            return native_limit(limits.encoded_bytes, MAX_COSE_SIGN1_BYTES);
+            return native_limit(limits.encoded_bytes, usize::MAX);
         }
         if self.contract.max_cose_sign1_bytes == 0 {
             MAX_COSE_SIGN1_BYTES
         } else {
-            native_limit(self.contract.max_cose_sign1_bytes, MAX_COSE_SIGN1_BYTES)
+            native_limit(self.contract.max_cose_sign1_bytes, usize::MAX)
         }
     }
     pub(super) fn max_payload_bytes(&self) -> usize {
@@ -92,7 +92,7 @@ impl CoseSign1EncodeOptions {
         self.contract.tag = value;
         self
     }
-    /// Tighten the output ceiling.
+    /// Select an encoded Sign1 budget; unsupported budgets fail at the operation boundary.
     pub fn with_max_cose_sign1_bytes(mut self, value: usize) -> Self {
         if self.contract.limits.as_option().is_none() {
             self.contract.limits =
@@ -106,7 +106,7 @@ impl CoseSign1EncodeOptions {
                 });
         }
         self.contract.limits.get_or_insert_default().encoded_bytes =
-            portable_limit(value, MAX_COSE_SIGN1_BYTES);
+            portable_limit(value, usize::MAX);
         self
     }
     #[cfg(feature = "wire")]

@@ -8,7 +8,9 @@ use crate::api::contract::{
     CoseSign1VerifyProfileRequest, CoseSign1VerifyRequest, CoseSignatureAlgorithm,
     CoseVerificationPolicy,
 };
-use crate::limits::{MAX_COSE_SIGN1_BYTES, MAX_DETACHED_PAYLOAD_BYTES};
+use crate::limits::{
+    MAX_COSE_SIGN1_BYTES, MAX_COSE_SIGN1_ENCODED_BYTES, MAX_DETACHED_PAYLOAD_BYTES,
+};
 use crate::{Algorithm, CoseError, CosePolicy, CoseSign1EncodeOptions};
 use zeroize::Zeroizing;
 
@@ -28,7 +30,8 @@ fn policy(limits: CoseByteLimits) -> CoseVerificationPolicy {
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 #[test]
-fn sign1_policy_limits_clamp_builders_and_portable_contracts() -> Result<(), CoseError> {
+fn sign1_policy_limits_preserve_explicit_budgets_and_reject_unsupported_values(
+) -> Result<(), CoseError> {
     let defaults = CosePolicy::default();
     assert_eq!(defaults.max_cose_sign1_bytes(), MAX_COSE_SIGN1_BYTES);
     assert_eq!(
@@ -36,7 +39,9 @@ fn sign1_policy_limits_clamp_builders_and_portable_contracts() -> Result<(), Cos
         MAX_DETACHED_PAYLOAD_BYTES
     );
     assert_eq!(defaults.max_external_aad_bytes(), MAX_COSE_SIGN1_BYTES);
-    let encoded_max =
+    let encoded_max = u64::try_from(MAX_COSE_SIGN1_ENCODED_BYTES)
+        .map_err(|_| CoseError::ResourceLimitExceeded)?;
+    let aad_max =
         u64::try_from(MAX_COSE_SIGN1_BYTES).map_err(|_| CoseError::ResourceLimitExceeded)?;
     let payload_max =
         u64::try_from(MAX_DETACHED_PAYLOAD_BYTES).map_err(|_| CoseError::ResourceLimitExceeded)?;
@@ -44,14 +49,13 @@ fn sign1_policy_limits_clamp_builders_and_portable_contracts() -> Result<(), Cos
         ((0, 0, 0), (0, 0, 0)),
         ((1, 1, 1), (1, 1, 1)),
         (
-            (encoded_max, payload_max, encoded_max),
-            (encoded_max, payload_max, encoded_max),
+            (encoded_max, payload_max, aad_max),
+            (encoded_max, payload_max, aad_max),
         ),
         (
-            (u64::MAX, u64::MAX, u64::MAX),
-            (encoded_max, payload_max, encoded_max),
+            (700_000, u64::MAX, u64::MAX),
+            (700_000, payload_max, aad_max),
         ),
-        ((u64::MAX, 0, 1), (encoded_max, 0, 1)),
         ((0, u64::MAX, 0), (0, payload_max, 0)),
     ] {
         let value =
@@ -92,6 +96,26 @@ fn sign1_policy_limits_clamp_builders_and_portable_contracts() -> Result<(), Cos
             Some(&limits(expected.0, expected.1, expected.2))
         );
     }
+    for encoded in [
+        encoded_max
+            .checked_add(1)
+            .ok_or(CoseError::ResourceLimitExceeded)?,
+        u64::MAX,
+    ] {
+        let requested = limits(encoded, 0, 0);
+        assert_eq!(
+            CosePolicy::from_contract(policy(requested.clone())).err(),
+            Some(CoseError::ResourceLimitExceeded)
+        );
+        assert_eq!(
+            crate::containers::ContainerLimits::try_from(&requested).err(),
+            Some(CoseError::ResourceLimitExceeded)
+        );
+        assert_eq!(
+            CoseSign1EncodeOptions::new().with_limits(requested).err(),
+            Some(CoseError::ResourceLimitExceeded)
+        );
+    }
     let absent = CosePolicy::from_contract(
         CoseVerificationPolicy::default().with_allow_any_algorithm(true),
     )?;
@@ -99,7 +123,7 @@ fn sign1_policy_limits_clamp_builders_and_portable_contracts() -> Result<(), Cos
     let built = CosePolicy::default()
         .with_max_cose_sign1_bytes(usize::MAX)
         .with_max_detached_payload_bytes(usize::MAX);
-    assert_eq!(built.max_cose_sign1_bytes(), MAX_COSE_SIGN1_BYTES);
+    assert_eq!(built.max_cose_sign1_bytes(), usize::MAX);
     assert_eq!(
         built.max_detached_payload_bytes(),
         MAX_DETACHED_PAYLOAD_BYTES
@@ -111,17 +135,22 @@ fn sign1_policy_limits_clamp_builders_and_portable_contracts() -> Result<(), Cos
     assert_eq!(built.max_detached_payload_bytes(), 0);
     assert_eq!(built.max_external_aad_bytes(), MAX_COSE_SIGN1_BYTES);
     let options = CoseSign1EncodeOptions::new().with_max_cose_sign1_bytes(usize::MAX);
-    assert_eq!(options.max_cose_sign1_bytes(), MAX_COSE_SIGN1_BYTES);
+    assert_eq!(options.max_cose_sign1_bytes(), usize::MAX);
     Ok(())
 }
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 #[test]
 fn sign1_verification_limits_reject_before_parsing_or_resolving() -> Result<(), CoseError> {
-    let policy = CosePolicy::from_contract(policy(limits(u64::MAX, u64::MAX, u64::MAX)))?;
+    let policy = CosePolicy::from_contract(policy(limits(
+        u64::try_from(MAX_COSE_SIGN1_ENCODED_BYTES)
+            .map_err(|_| CoseError::ResourceLimitExceeded)?,
+        u64::MAX,
+        u64::MAX,
+    )))?;
     let encoded = vec![
         0;
-        MAX_COSE_SIGN1_BYTES
+        MAX_COSE_SIGN1_ENCODED_BYTES
             .checked_add(1)
             .ok_or(CoseError::ResourceLimitExceeded)?
     ];
@@ -267,7 +296,12 @@ fn sign1_signing_preserves_all_canonical_limits_and_zero_presence() -> Result<()
         ] {
             let options = CoseSign1Options::default()
                 .with_max_cose_sign1_bytes(u64::MAX)
-                .with_limits(limits(u64::MAX, payload_limit, aad_limit));
+                .with_limits(limits(
+                    u64::try_from(MAX_COSE_SIGN1_ENCODED_BYTES)
+                        .map_err(|_| CoseError::ResourceLimitExceeded)?,
+                    payload_limit,
+                    aad_limit,
+                ));
             let response = if detached {
                 codec_parity(Operation::Sign1CreateDetached(Box::new(
                     CoseSign1CreateDetachedRequest::default()
@@ -317,7 +351,12 @@ fn sign1_aad_hard_boundary_is_identical_for_signing_and_verification() -> Result
     let mut aad = vec![0x5a; MAX_COSE_SIGN1_BYTES];
     for detached in [false, true] {
         let encoded = sign(&private, b"data", &aad, detached)?;
-        let policy = CosePolicy::from_contract(policy(limits(u64::MAX, u64::MAX, u64::MAX)))?;
+        let policy = CosePolicy::from_contract(policy(limits(
+            u64::try_from(MAX_COSE_SIGN1_ENCODED_BYTES)
+                .map_err(|_| CoseError::ResourceLimitExceeded)?,
+            u64::MAX,
+            u64::MAX,
+        )))?;
         let result = if detached {
             crate::cose_verify1_detached_with_policy_and_external_aad(
                 &encoded,
@@ -359,8 +398,7 @@ fn sign1_aad_hard_boundary_is_identical_for_signing_and_verification() -> Result
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 #[test]
-fn sign1_75_kb_envelope_cannot_raise_the_hard_limit_with_a_portable_maximum(
-) -> Result<(), CoseError> {
+fn sign1_75_kb_envelope_requires_an_explicit_supported_budget() -> Result<(), CoseError> {
     use ciborium::value::Value;
 
     const PAYLOAD_BYTES: usize = 75_000;
@@ -369,7 +407,12 @@ fn sign1_75_kb_envelope_cannot_raise_the_hard_limit_with_a_portable_maximum(
     let (public, private) = keypair()?;
     let payload = Zeroizing::new(vec![0x42; PAYLOAD_BYTES]);
     let detached = sign(&private, &payload, &[], true)?;
-    let imported = policy(limits(u64::MAX, u64::MAX, u64::MAX));
+    let imported = policy(limits(
+        u64::try_from(MAX_COSE_SIGN1_ENCODED_BYTES)
+            .map_err(|_| CoseError::ResourceLimitExceeded)?,
+        u64::MAX,
+        u64::MAX,
+    ));
     let bounded = CosePolicy::from_contract(imported.clone())?;
     let verified =
         crate::cose_verify1_detached_with_policy(&detached, &payload, &bounded, |_, _| {
@@ -382,7 +425,7 @@ fn sign1_75_kb_envelope_cannot_raise_the_hard_limit_with_a_portable_maximum(
 
     // Attached and detached Sign1 authenticate the same protected bytes and
     // intended content. Reuse the valid detached signature while independently
-    // encoding a 75 KB attached envelope; normal creation correctly caps it.
+    // encoding a 75 KB attached envelope; default creation still rejects it.
     let mut value: Value =
         ciborium::de::from_reader(detached.as_slice()).map_err(|_| CoseError::Cbor)?;
     let Value::Array(fields) = &mut value else {
@@ -404,7 +447,10 @@ fn sign1_75_kb_envelope_cannot_raise_the_hard_limit_with_a_portable_maximum(
     ciborium::ser::into_writer(&value, &mut *encoded).map_err(|_| CoseError::Cbor)?;
     assert_eq!(encoded.len(), expected_size);
     assert!(encoded.len() > MAX_COSE_SIGN1_BYTES);
-    for selected in [&CosePolicy::default(), &bounded] {
+    for selected in [
+        &CosePolicy::default(),
+        &CosePolicy::default().with_max_cose_sign1_bytes(MAX_COSE_SIGN1_BYTES),
+    ] {
         let resolved = core::cell::Cell::new(false);
         assert_eq!(
             crate::cose_verify1_with_policy(&encoded, selected, |_, _| {
@@ -424,11 +470,8 @@ fn sign1_75_kb_envelope_cannot_raise_the_hard_limit_with_a_portable_maximum(
                 .with_public_key_algorithm(crate::wire::CoseSignatureAlgorithm::Ed25519),
         )
         .with_policy(imported);
-    assert_eq!(
-        reason(&codec_parity(Operation::Sign1VerifyProfile(Box::new(
-            input
-        )))?),
-        CoseErrorReason::CommonResourceLimitExceeded
-    );
+    success(codec_parity(Operation::Sign1VerifyProfile(Box::new(
+        input,
+    )))?);
     Ok(())
 }

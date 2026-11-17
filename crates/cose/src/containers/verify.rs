@@ -142,7 +142,8 @@ pub(crate) fn verify_container_operation(
 }
 
 pub(super) fn check_limits(request: &ContainerVerifyRequest<'_>) -> Result<(), ContainerError> {
-    if request.encoded.len() > request.limits.encoded_bytes.min(MAX_COSE_SIGN1_BYTES)
+    let encoded_limit = crate::limits::check_sign1_limit(request.limits.encoded_bytes)?;
+    if request.encoded.len() > encoded_limit
         || request.external_aad.len() > request.limits.external_aad_bytes.min(MAX_COSE_SIGN1_BYTES)
     {
         return Err(Reason::Limit.into());

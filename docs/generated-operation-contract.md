@@ -25,6 +25,13 @@ the generated operation contract. No service or platform SDK is introduced.
 
 All 49 operation/result identifiers are paired: 48 cryptographic/format
 operations and a generated constant-catalog operation. Independent COSE vector bytes and retained protobuf field numbers are preserved.
+Sign1 defaults to a 65,536-byte encoded budget. An explicit `CoseByteLimits`
+encoded budget, retained native builder or legacy scalar may select up to
+1,048,576 bytes. Native signing, container signing, parsing, verification and
+protobuf response admission preserve that selection. Larger encoded budgets
+return `COMMON_RESOURCE_LIMIT_EXCEEDED`; the default and all payload, AAD,
+certificate and structural ceilings remain unchanged.
+
 The [0.3.0 presence migration](protobuf-presence-migration.md) deliberately retires
 manual flags and adds explicit byte presence. Native selectors,
 policy builders and error names now derive from the schema; 0.3.0 is the

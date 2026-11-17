@@ -5,7 +5,7 @@
 use crate::build_authentication_structure::{
     build_authentication_structure, AuthenticationContext,
 };
-use crate::limits::{MAX_COSE_SIGN1_BYTES, MAX_DETACHED_PAYLOAD_BYTES};
+use crate::limits::MAX_DETACHED_PAYLOAD_BYTES;
 use crate::CoseError;
 
 use super::decode::decode;
@@ -37,7 +37,7 @@ pub(crate) fn verify_iso18013_operation(
     verifier: &dyn Iso18013Verifier,
 ) -> Result<VerifiedIso18013Sign1, CoseError> {
     crate::containers::validate_allowlists::iso_suites(request.allowed_suites)?;
-    let encoded_limit = request.limits.encoded_bytes.min(MAX_COSE_SIGN1_BYTES);
+    let encoded_limit = crate::limits::check_sign1_limit(request.limits.encoded_bytes)?;
     let payload_limit = request.limits.payload_bytes.min(MAX_DETACHED_PAYLOAD_BYTES);
     if request.encoded.len() > encoded_limit {
         return Err(CoseError::ResourceLimitExceeded);

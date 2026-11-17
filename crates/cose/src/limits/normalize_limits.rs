@@ -3,16 +3,20 @@
 
 use reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseByteLimits;
 
-use super::profile::{native_limit, MAX_COSE_SIGN1_BYTES, MAX_DETACHED_PAYLOAD_BYTES};
+use super::profile::{
+    check_sign1_limit, native_limit, MAX_COSE_SIGN1_BYTES, MAX_DETACHED_PAYLOAD_BYTES,
+};
 use crate::CoseError;
 
 pub(crate) fn normalize_byte_limits(limits: &mut CoseByteLimits) -> Result<(), CoseError> {
-    // Use the schema-derived maxima and the same checked clamping as native
-    // accessors. This boundary also works without a cryptographic runtime.
+    // Encoded budgets retain the caller's exact selection within the absolute
+    // ceiling. Payload and AAD retain their existing clamping semantics.
     // Replacing only an already-present message preserves absent vs zero.
     *limits = CoseByteLimits {
-        encoded_bytes: u64::try_from(native_limit(limits.encoded_bytes, MAX_COSE_SIGN1_BYTES))
-            .map_err(|_| CoseError::ResourceLimitExceeded)?,
+        encoded_bytes: u64::try_from(check_sign1_limit(
+            usize::try_from(limits.encoded_bytes).map_err(|_| CoseError::ResourceLimitExceeded)?,
+        )?)
+        .map_err(|_| CoseError::ResourceLimitExceeded)?,
         payload_bytes: u64::try_from(native_limit(
             limits.payload_bytes,
             MAX_DETACHED_PAYLOAD_BYTES,

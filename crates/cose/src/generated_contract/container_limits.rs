@@ -29,10 +29,16 @@ impl Default for ContainerLimits {
 impl TryFrom<&Wire> for ContainerLimits {
     type Error = CoseError;
     fn try_from(value: &Wire) -> Result<Self, Self::Error> {
+        if value.encoded_bytes
+            > u64::try_from(values::MAX_COSE_SIGN1_ENCODED_BYTES)
+                .map_err(|_| CoseError::ResourceLimitExceeded)?
+        {
+            return Err(CoseError::ResourceLimitExceeded);
+        }
         Ok(Self {
             encoded_bytes: usize::try_from(
                 value.encoded_bytes.min(
-                    u64::try_from(values::MAX_COSE_SIGN1_BYTES)
+                    u64::try_from(values::MAX_COSE_SIGN1_ENCODED_BYTES)
                         .map_err(|_| CoseError::ResourceLimitExceeded)?,
                 ),
             )

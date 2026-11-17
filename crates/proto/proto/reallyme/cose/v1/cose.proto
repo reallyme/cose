@@ -218,12 +218,14 @@ message CoseSignatureSuite {
   CoseNamedCurve curve = 2;
 }
 
-// If this message is absent, operation-specific hard defaults apply. If
-// present, zero is a real zero ceiling; callers cannot raise hard maxima.
-// Imported values above a field's hard maximum are clamped to that maximum.
+// If this message is absent, operation-specific defaults apply. If present,
+// zero is a real zero ceiling. Sign1 encoded budgets may exceed the historical
+// 65,536-byte default up to the absolute 1,048,576-byte ceiling; larger encoded
+// budgets are rejected with COMMON_RESOURCE_LIMIT_EXCEEDED. Payload and AAD
+// values above their unchanged hard maxima are clamped to those maxima.
 // Rust byte limits: ContainerLimits
 message CoseByteLimits {
-  // Rust maximum: MAX_COSE_SIGN1_BYTES
+  // Rust maximum: MAX_COSE_SIGN1_ENCODED_BYTES; default: MAX_COSE_SIGN1_BYTES; reject
   uint64 encoded_bytes = 1;
   // Rust maximum: MAX_DETACHED_PAYLOAD_BYTES
   uint64 payload_bytes = 2;
@@ -924,6 +926,11 @@ enum CoseImplementationConstant {
   // Rust constant: wire.rs#MAX_COSE_PROTO_JSON_BYTES: usize; feature: wire
   // Value: 3145728
   COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_PROTO_JSON_BYTES = 20;
+  // Absolute encoded Sign1 ceiling. MAX_COSE_SIGN1_BYTES retains its historical
+  // value as the default for compatibility; choosing a larger budget is explicit.
+  // Rust constant: limits/profile.rs#MAX_COSE_SIGN1_ENCODED_BYTES: usize
+  // Value: 1048576
+  COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_SIGN1_ENCODED_BYTES = 21;
 }
 
 message CoseNamedConstant {
@@ -1237,8 +1244,9 @@ message CoseSign1Options {
   // Emit the registered COSE_Sign1 root tag (18). False emits the untagged
   // COSE_Sign1 structure used by most byte-level SDK APIs.
   bool tag = 1;
-  // Optional maximum encoded COSE_Sign1 size. A value of 0 uses the crate
-  // default.
+  // Optional maximum encoded COSE_Sign1 size. Zero selects the 65,536-byte
+  // default. Explicit budgets through 1,048,576 bytes are supported; larger
+  // budgets fail with COMMON_RESOURCE_LIMIT_EXCEEDED.
   uint64 max_cose_sign1_bytes = 2;
   // Optional RFC 9360 x5chain carried in protected or unprotected label 33.
   CoseX5Chain x5chain = 3;
@@ -1352,8 +1360,9 @@ message CoseSign1VerifyRequest {
   // Raw public key bytes selected by the caller for the protected-header kid.
   // SENSITIVE: identifying bytes; generated owners wipe and redact them.
   bytes public_key = 2;
-  // Optional maximum accepted encoded COSE_Sign1 size. A value of 0 uses the
-  // crate default.
+  // Optional encoded budget with the same 65,536-byte default and 1,048,576-byte
+  // absolute ceiling as CoseSign1Options. Zero selects the default; unsupported
+  // budgets fail with COMMON_RESOURCE_LIMIT_EXCEEDED.
   uint64 max_cose_sign1_bytes = 3;
   // Maximum external AAD size for attached verification. A value of 0 uses
   // the crate default; the field also bounds detached payloads in detached
@@ -1397,8 +1406,9 @@ message CoseSign1VerifyDetachedRequest {
   // Raw public key bytes selected by the caller for the protected-header kid.
   // SENSITIVE: identifying bytes; generated owners wipe and redact them.
   bytes public_key = 3;
-  // Optional maximum accepted encoded COSE_Sign1 size. A value of 0 uses the
-  // crate default.
+  // Optional encoded budget with the same 65,536-byte default and 1,048,576-byte
+  // absolute ceiling as CoseSign1Options. Zero selects the default; unsupported
+  // budgets fail with COMMON_RESOURCE_LIMIT_EXCEEDED.
   uint64 max_cose_sign1_bytes = 4;
   // Optional maximum accepted detached payload size. A value of 0 uses the
   // crate default.

@@ -63,10 +63,7 @@ pub(crate) fn sign_container_operation(
         EnvelopePolicy::Tagged => true,
         EnvelopePolicy::Either => return Err(Reason::Profile.into()),
     };
-    let limit = request
-        .limits
-        .encoded_bytes
-        .min(crate::limits::MAX_COSE_SIGN1_BYTES);
+    let limit = crate::limits::check_sign1_limit(request.limits.encoded_bytes)?;
     if request.protected_headers.len() > limit
         || request.unprotected_headers.len() > limit
         || payload.len()

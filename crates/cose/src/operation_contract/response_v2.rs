@@ -217,9 +217,12 @@ fn validate_result(result: &CoseOperationResult) -> CoseWireResult<()> {
         Some(CoseOperationResultBranch::SignatureSuiteInfo(value)) => {
             super::profile_response::suite_info(value)
         }
+        Some(CoseOperationResultBranch::ContainerSign(value)) => {
+            !value.encoded.is_empty()
+                && value.encoded.len() <= crate::limits::MAX_COSE_SIGN1_ENCODED_BYTES
+        }
         Some(
-            CoseOperationResultBranch::ContainerSign(value)
-            | CoseOperationResultBranch::SignatureToCose(value)
+            CoseOperationResultBranch::SignatureToCose(value)
             | CoseOperationResultBranch::SignatureToDer(value),
         ) => {
             !value.encoded.is_empty() && value.encoded.len() <= crate::limits::MAX_COSE_SIGN1_BYTES

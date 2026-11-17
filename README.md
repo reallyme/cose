@@ -690,22 +690,24 @@ do not include payloads, keys, raw CBOR, or resolver-provided material.
 Public byte-boundary APIs enforce deterministic limits before COSE structure
 decoding:
 
-- COSE_Sign1 input: 65,536 bytes.
+- COSE_Sign1 input: 65,536 bytes by default; explicit budgets up to 1,048,576 bytes.
 - COSE_Key input: 16,384 bytes.
 - COSE_Encrypt input: 1,114,112 bytes.
 - Detached payload input: 1,048,576 bytes.
 
-The encoded COSE_Sign1 hard maximum is 65,536 bytes. Signing options and
-verification policy can tighten this ceiling; larger requested limits are
-clamped to the hard maximum. Detached payloads can contain up to 1,048,576
-bytes, and Sign1 external AAD has an independent 65,536-byte hard maximum.
+The encoded COSE_Sign1 default is 65,536 bytes. Signing options and verification
+policies can explicitly select budgets through the schema-owned absolute ceiling
+of 1,048,576 bytes. Unsupported encoded budgets return the fixed resource-limit
+error rather than being silently reduced. `MAX_COSE_SIGN1_BYTES` retains its
+historical default value; `MAX_COSE_SIGN1_ENCODED_BYTES` names the absolute ceiling.
+Detached payloads can contain up to 1,048,576 bytes, and Sign1 external AAD has an independent 65,536-byte hard maximum.
 A present `CoseByteLimits` message treats zero as a real zero ceiling for each
 field. Payload and AAD ceilings are enforced independently for signing and
 verification. Larger reports can use detached content within its payload
 ceiling.
-Importing a verification policy or signing options normalizes the stored
-generated limits to these maxima while retaining absent limits and explicit
-zero ceilings.
+Importing a verification policy or signing options preserves a supported encoded
+budget and rejects an unsupported one. Payload and AAD retain their existing
+clamping behavior, including absent limits and explicit zero ceilings.
 
 `reallyme_cose::sign1::build_sign1_signature_structure` constructs standalone
 RFC 9052 Signature1 authentication input with an explicit complete-output

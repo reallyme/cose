@@ -3150,6 +3150,11 @@ pub enum CoseImplementationConstant {
     /// Rust constant: wire.rs#MAX_COSE_PROTO_JSON_BYTES: usize; feature: wire
     /// Value: 3145728
     COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_PROTO_JSON_BYTES = 20i32,
+    /// Absolute encoded Sign1 ceiling. MAX_COSE_SIGN1_BYTES retains its historical
+    /// value as the default for compatibility; choosing a larger budget is explicit.
+    /// Rust constant: limits/profile.rs#MAX_COSE_SIGN1_ENCODED_BYTES: usize
+    /// Value: 1048576
+    COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_SIGN1_ENCODED_BYTES = 21i32,
 }
 impl CoseImplementationConstant {
     ///Idiomatic alias for [`Self::COSE_IMPLEMENTATION_CONSTANT_UNSPECIFIED`]; `Debug` prints the variant name.
@@ -3230,6 +3235,10 @@ impl CoseImplementationConstant {
     #[allow(non_upper_case_globals)]
     pub const MaxCoseProtoJsonBytes: Self =
         Self::COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_PROTO_JSON_BYTES;
+    ///Idiomatic alias for [`Self::COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_SIGN1_ENCODED_BYTES`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const MaxCoseSign1EncodedBytes: Self =
+        Self::COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_SIGN1_ENCODED_BYTES;
 }
 impl ::core::default::Default for CoseImplementationConstant {
     fn default() -> Self {
@@ -3333,6 +3342,9 @@ impl ::buffa::Enumeration for CoseImplementationConstant {
             20i32 => ::core::option::Option::Some(
                 Self::COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_PROTO_JSON_BYTES,
             ),
+            21i32 => ::core::option::Option::Some(
+                Self::COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_SIGN1_ENCODED_BYTES,
+            ),
             _ => ::core::option::Option::None,
         }
     }
@@ -3403,6 +3415,9 @@ impl ::buffa::Enumeration for CoseImplementationConstant {
             }
             Self::COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_PROTO_JSON_BYTES => {
                 "COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_PROTO_JSON_BYTES"
+            }
+            Self::COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_SIGN1_ENCODED_BYTES => {
+                "COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_SIGN1_ENCODED_BYTES"
             }
         }
     }
@@ -3499,6 +3514,11 @@ impl ::buffa::Enumeration for CoseImplementationConstant {
                     Self::COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_PROTO_JSON_BYTES,
                 )
             }
+            "COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_SIGN1_ENCODED_BYTES" => {
+                ::core::option::Option::Some(
+                    Self::COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_SIGN1_ENCODED_BYTES,
+                )
+            }
             _ => ::core::option::Option::None,
         }
     }
@@ -3525,6 +3545,7 @@ impl ::buffa::Enumeration for CoseImplementationConstant {
             Self::COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_X5CHAIN_TOTAL_BYTES,
             Self::COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_PROTO_MESSAGE_BYTES,
             Self::COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_PROTO_JSON_BYTES,
+            Self::COSE_IMPLEMENTATION_CONSTANT_MAX_COSE_SIGN1_ENCODED_BYTES,
         ]
     }
 }
@@ -7756,13 +7777,15 @@ pub const __COSE_SIGNATURE_SUITE_JSON_ANY: ::buffa::type_registry::JsonAnyEntry 
         from_json: ::buffa::type_registry::any_from_json::<CoseSignatureSuite>,
         is_wkt: false,
     };
-/// If this message is absent, operation-specific hard defaults apply. If
-/// present, zero is a real zero ceiling; callers cannot raise hard maxima.
-/// Imported values above a field's hard maximum are clamped to that maximum.
+/// If this message is absent, operation-specific defaults apply. If present,
+/// zero is a real zero ceiling. Sign1 encoded budgets may exceed the historical
+/// 65,536-byte default up to the absolute 1,048,576-byte ceiling; larger encoded
+/// budgets are rejected with COMMON_RESOURCE_LIMIT_EXCEEDED. Payload and AAD
+/// values above their unchanged hard maxima are clamped to those maxima.
 /// Rust byte limits: ContainerLimits
 #[derive(Clone, PartialEq, Default, ::serde::Serialize)]
 pub struct CoseByteLimits {
-    /// Rust maximum: MAX_COSE_SIGN1_BYTES
+    /// Rust maximum: MAX_COSE_SIGN1_ENCODED_BYTES; default: MAX_COSE_SIGN1_BYTES; reject
     ///
     /// Field 1: `encoded_bytes`
     #[serde(
@@ -32177,8 +32200,9 @@ pub struct CoseSign1Options {
     )]
     #[serde(default)]
     pub tag: bool,
-    /// Optional maximum encoded COSE_Sign1 size. A value of 0 uses the crate
-    /// default.
+    /// Optional maximum encoded COSE_Sign1 size. Zero selects the 65,536-byte
+    /// default. Explicit budgets through 1,048,576 bytes are supported; larger
+    /// budgets fail with COMMON_RESOURCE_LIMIT_EXCEEDED.
     ///
     /// Field 2: `max_cose_sign1_bytes`
     #[serde(
@@ -34773,8 +34797,9 @@ pub struct CoseSign1VerifyRequest {
     )]
     #[serde(default)]
     pub public_key: crate::SecretBytes,
-    /// Optional maximum accepted encoded COSE_Sign1 size. A value of 0 uses the
-    /// crate default.
+    /// Optional encoded budget with the same 65,536-byte default and 1,048,576-byte
+    /// absolute ceiling as CoseSign1Options. Zero selects the default; unsupported
+    /// budgets fail with COMMON_RESOURCE_LIMIT_EXCEEDED.
     ///
     /// Field 3: `max_cose_sign1_bytes`
     #[serde(
@@ -35666,8 +35691,9 @@ pub struct CoseSign1VerifyDetachedRequest {
     )]
     #[serde(default)]
     pub public_key: crate::SecretBytes,
-    /// Optional maximum accepted encoded COSE_Sign1 size. A value of 0 uses the
-    /// crate default.
+    /// Optional encoded budget with the same 65,536-byte default and 1,048,576-byte
+    /// absolute ceiling as CoseSign1Options. Zero selects the default; unsupported
+    /// budgets fail with COMMON_RESOURCE_LIMIT_EXCEEDED.
     ///
     /// Field 4: `max_cose_sign1_bytes`
     #[serde(

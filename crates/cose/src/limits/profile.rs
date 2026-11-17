@@ -8,8 +8,11 @@ use crate::CoseError;
 
 use super::validate::{validate_cbor_bytes, CborItemRole};
 
-/// Maximum accepted encoded COSE_Sign1 size.
+/// Historical default encoded COSE_Sign1 budget, retained for compatibility.
 pub use crate::generated_contract::values::MAX_COSE_SIGN1_BYTES;
+
+/// Absolute encoded COSE_Sign1 ceiling for explicit per-call budgets.
+pub use crate::generated_contract::values::MAX_COSE_SIGN1_ENCODED_BYTES;
 
 /// Maximum accepted encoded detached COSE_Mac0 size.
 pub use crate::generated_contract::values::MAX_COSE_MAC0_BYTES;
@@ -53,6 +56,13 @@ pub(crate) fn portable_limit(value: usize, maximum: usize) -> u64 {
     u64::try_from(value.min(maximum)).unwrap_or(u64::MAX)
 }
 
+pub(crate) fn check_sign1_limit(value: usize) -> Result<usize, CoseError> {
+    if value > MAX_COSE_SIGN1_ENCODED_BYTES {
+        return Err(CoseError::ResourceLimitExceeded);
+    }
+    Ok(value)
+}
+
 pub(super) fn next_depth(depth: usize) -> Result<usize, CoseError> {
     depth.checked_add(1).ok_or(CoseError::ResourceLimitExceeded)
 }
@@ -69,6 +79,7 @@ pub(crate) fn validate_cose_sign1_bytes_with_limit(
     bytes: &[u8],
     max_len: usize,
 ) -> Result<(), CoseError> {
+    check_sign1_limit(max_len)?;
     validate_cbor_bytes(bytes, max_len, CborItemRole::CoseSign1Top)
 }
 

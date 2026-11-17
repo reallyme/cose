@@ -31,6 +31,8 @@ mod public_key_vec;
 mod recipient_ciphertext;
 #[path = "contract_secp256k1_provider_tests.rs"]
 mod secp256k1_provider;
+#[path = "contract_sign1_budget_tests.rs"]
+mod sign1_budget;
 #[path = "contract_signature_tests.rs"]
 mod signature;
 #[path = "contract_signature_structure_tests.rs"]

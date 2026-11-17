@@ -11,8 +11,8 @@ use reallyme_crypto::core::Algorithm;
 
 use crate::algorithm::CoseSignatureAlgorithm as NativeCoseSignatureAlgorithm;
 use crate::limits::{
-    MAX_COSE_SIGN1_BYTES, MAX_COSE_X5CHAIN_CERTIFICATES, MAX_COSE_X5CHAIN_CERTIFICATE_BYTES,
-    MAX_COSE_X5CHAIN_TOTAL_BYTES, MAX_DETACHED_PAYLOAD_BYTES,
+    MAX_COSE_SIGN1_BYTES, MAX_COSE_SIGN1_ENCODED_BYTES, MAX_COSE_X5CHAIN_CERTIFICATES,
+    MAX_COSE_X5CHAIN_CERTIFICATE_BYTES, MAX_COSE_X5CHAIN_TOTAL_BYTES, MAX_DETACHED_PAYLOAD_BYTES,
 };
 use crate::wire::{
     CoseAlgorithmIdentifier, CoseContentEncryptionAlgorithm,
@@ -82,10 +82,7 @@ pub(crate) fn encode_options_from_proto(
             .with_limits(limits)
             .map_err(|error| CoseWireError::from_reason(error.reason()))?
     } else {
-        result.with_max_cose_sign1_bytes(optional_limit_to_usize(
-            options.max_cose_sign1_bytes,
-            MAX_COSE_SIGN1_BYTES,
-        )?)
+        result.with_max_cose_sign1_bytes(optional_sign1_limit(options.max_cose_sign1_bytes)?)
     };
     if let Some(value) = options
         .protected_type
@@ -120,10 +117,7 @@ pub(crate) fn policy_from_parts(
     let mut policy = CosePolicy::new()
         .with_require_kid(require_kid)
         .with_require_tagged_sign1(require_tagged_sign1)
-        .with_max_cose_sign1_bytes(optional_limit_to_usize(
-            max_cose_sign1_bytes,
-            MAX_COSE_SIGN1_BYTES,
-        )?)
+        .with_max_cose_sign1_bytes(optional_sign1_limit(max_cose_sign1_bytes)?)
         .with_max_detached_payload_bytes(optional_limit_to_usize(
             max_detached_payload_bytes,
             MAX_DETACHED_PAYLOAD_BYTES,
@@ -147,6 +141,20 @@ pub(crate) fn policy_from_parts(
         policy = policy.with_expected_type(native_type);
     }
     Ok(policy)
+}
+
+fn optional_sign1_limit(value: u64) -> CoseWireResult<usize> {
+    let maximum = u64::try_from(MAX_COSE_SIGN1_ENCODED_BYTES).map_err(|_| {
+        CoseWireError::primitive_internal(CoseErrorReason::CommonResourceLimitExceeded)
+    })?;
+    // Compare in the schema's integer domain first, so unsupported budgets have
+    // the same reason on 32-bit WASM and 64-bit native targets.
+    if value > maximum {
+        return Err(CoseWireError::primitive_internal(
+            CoseErrorReason::CommonResourceLimitExceeded,
+        ));
+    }
+    optional_limit_to_usize(value, MAX_COSE_SIGN1_BYTES)
 }
 
 fn optional_limit_to_usize(value: u64, default: usize) -> CoseWireResult<usize> {

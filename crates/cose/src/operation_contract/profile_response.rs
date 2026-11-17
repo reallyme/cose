@@ -129,7 +129,7 @@ pub(crate) fn iso(value: &CoseIsoSign1VerifyResult) -> bool {
         .as_option()
         .is_some_and(|s| iso_suite(s).is_ok())
         && !value.protected_headers.is_empty()
-        && value.protected_headers.len() <= crate::limits::MAX_COSE_SIGN1_BYTES
+        && value.protected_headers.len() <= crate::limits::MAX_COSE_SIGN1_ENCODED_BYTES
         && value
             .attached_payload
             .as_ref()
@@ -152,9 +152,9 @@ pub(crate) fn working_key(value: &CoseWorkingKey) -> bool {
 
 pub(crate) fn container(value: &CoseContainerVerifyResult) -> bool {
     if value.encoded.is_empty()
-        || value.encoded.len() > crate::limits::MAX_COSE_SIGN1_BYTES
-        || value.protected_headers.len() > crate::limits::MAX_COSE_SIGN1_BYTES
-        || value.unprotected_headers.len() > crate::limits::MAX_COSE_SIGN1_BYTES
+        || value.encoded.len() > crate::limits::MAX_COSE_SIGN1_ENCODED_BYTES
+        || value.protected_headers.len() > crate::limits::MAX_COSE_SIGN1_ENCODED_BYTES
+        || value.unprotected_headers.len() > crate::limits::MAX_COSE_SIGN1_ENCODED_BYTES
         || value.payload.len() > crate::limits::MAX_DETACHED_PAYLOAD_BYTES
         || policy(value.policy.as_option()).is_err()
         || !value.key.as_option().is_some_and(working_key)
