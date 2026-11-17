@@ -53,13 +53,16 @@ pub use crate::generated_contract::VerifiedCoseSign1WithX5Chain;
 
 /// Verify COSE_Sign1 with an attached payload.
 ///
+/// Resolve `(CoseSignatureAlgorithm, protected_kid)` as one authorized identity.
+/// A shared primitive does not authorize another COSE registration.
+///
 /// # Errors
 ///
 /// Returns [`CoseError`] for malformed or oversized COSE, unsupported or
 /// disallowed algorithms, unresolved keys, invalid keys, or invalid signatures.
 pub fn cose_verify1(
     cose_bytes: &[u8],
-    public_key_resolver: impl Fn(Algorithm, &[u8]) -> Option<Vec<u8>>,
+    public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[u8]) -> Option<Vec<u8>>,
 ) -> Result<Zeroizing<Vec<u8>>, CoseError> {
     let verified =
         cose_verify1_with_policy(cose_bytes, &CosePolicy::default(), public_key_resolver)?;
@@ -74,7 +77,7 @@ pub fn cose_verify1(
 /// disallowed algorithms, unresolved keys, invalid keys, or invalid signatures.
 pub fn cose_verify1_with_metadata(
     cose_bytes: &[u8],
-    public_key_resolver: impl Fn(Algorithm, &[u8]) -> Option<Vec<u8>>,
+    public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[u8]) -> Option<Vec<u8>>,
 ) -> Result<VerifiedCoseSign1, CoseError> {
     cose_verify1_with_policy(cose_bytes, &CosePolicy::default(), public_key_resolver)
 }
@@ -88,7 +91,7 @@ pub fn cose_verify1_with_metadata(
 pub fn cose_verify1_with_policy(
     cose_bytes: &[u8],
     policy: &CosePolicy,
-    public_key_resolver: impl Fn(Algorithm, &[u8]) -> Option<Vec<u8>>,
+    public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[u8]) -> Option<Vec<u8>>,
 ) -> Result<VerifiedCoseSign1, CoseError> {
     cose_verify1_with_policy_and_external_aad(cose_bytes, &[], policy, public_key_resolver)
 }
@@ -103,13 +106,9 @@ pub fn cose_verify1_with_policy_and_external_aad(
     cose_bytes: &[u8],
     external_aad: &[u8],
     policy: &CosePolicy,
-    public_key_resolver: impl Fn(Algorithm, &[u8]) -> Option<Vec<u8>>,
+    public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[u8]) -> Option<Vec<u8>>,
 ) -> Result<VerifiedCoseSign1, CoseError> {
-    verify_cose_sign1(
-        CoseSign1VerifyInput::new(cose_bytes, external_aad, policy),
-        |algorithm, kid| super::resolve_key::primitive(algorithm, kid, &public_key_resolver),
-    )
-    .map_err(CoseFailure::into_native_error)
+    cose_verify1_with_exact_algorithm(cose_bytes, external_aad, policy, public_key_resolver)
 }
 
 /// Verify an attached COSE_Sign1 while resolving by its exact registration.
@@ -139,6 +138,8 @@ pub fn cose_verify1_with_exact_algorithm(
 
 /// Verify an attached COSE_Sign1 carrying an RFC 9360 `x5chain` header.
 ///
+/// The trust resolver receives the exact COSE registration, keeping ES256
+/// distinct from ESP256 even when their certificate keys use the same curve.
 /// The ordinary verification APIs continue to reject unprotected extensions.
 /// This profile-specific entry point requires a non-empty, bounded path in
 /// label 33 and supplies it to the caller's trust resolver before signature
@@ -160,14 +161,9 @@ pub fn cose_verify1_with_exact_algorithm(
 pub fn cose_verify1_with_x5chain(
     cose_bytes: &[u8],
     policy: &CosePolicy,
-    public_key_resolver: impl FnOnce(Algorithm, &[Vec<u8>]) -> Option<Vec<u8>>,
+    public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[Vec<u8>]) -> Option<Vec<u8>>,
 ) -> Result<VerifiedCoseSign1WithX5Chain, CoseError> {
-    cose_verify1_with_x5chain_and_exact_algorithm(cose_bytes, policy, |algorithm, certificates| {
-        algorithm
-            .crypto_algorithm()
-            .ok()
-            .and_then(|primitive| public_key_resolver(primitive, certificates))
-    })
+    cose_verify1_with_x5chain_and_exact_algorithm(cose_bytes, policy, public_key_resolver)
 }
 
 /// Verify an attached certificate-bearing COSE_Sign1 with exact algorithm
@@ -215,6 +211,9 @@ fn verify_x5chain_signature(
 
 /// Verify COSE_Sign1 with a detached payload.
 ///
+/// The resolver receives the exact registration and protected kid, never only
+/// the primitive. Resolve and authorize both values together.
+///
 /// # Errors
 ///
 /// Returns [`CoseError`] for malformed or oversized COSE, an attached payload,
@@ -222,7 +221,7 @@ fn verify_x5chain_signature(
 pub fn cose_verify1_detached(
     cose_bytes: &[u8],
     payload: &[u8],
-    public_key_resolver: impl Fn(Algorithm, &[u8]) -> Option<Vec<u8>>,
+    public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[u8]) -> Option<Vec<u8>>,
 ) -> Result<(), CoseError> {
     cose_verify1_detached_with_policy(
         cose_bytes,
@@ -242,7 +241,7 @@ pub fn cose_verify1_detached(
 pub fn cose_verify1_detached_with_metadata(
     cose_bytes: &[u8],
     payload: &[u8],
-    public_key_resolver: impl Fn(Algorithm, &[u8]) -> Option<Vec<u8>>,
+    public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[u8]) -> Option<Vec<u8>>,
 ) -> Result<VerifiedDetachedCoseSign1, CoseError> {
     cose_verify1_detached_with_policy(
         cose_bytes,
@@ -262,7 +261,7 @@ pub fn cose_verify1_detached_with_policy(
     cose_bytes: &[u8],
     payload: &[u8],
     policy: &CosePolicy,
-    public_key_resolver: impl Fn(Algorithm, &[u8]) -> Option<Vec<u8>>,
+    public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[u8]) -> Option<Vec<u8>>,
 ) -> Result<VerifiedDetachedCoseSign1, CoseError> {
     cose_verify1_detached_with_policy_and_external_aad(
         cose_bytes,
@@ -284,13 +283,15 @@ pub fn cose_verify1_detached_with_policy_and_external_aad(
     payload: &[u8],
     external_aad: &[u8],
     policy: &CosePolicy,
-    public_key_resolver: impl Fn(Algorithm, &[u8]) -> Option<Vec<u8>>,
+    public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[u8]) -> Option<Vec<u8>>,
 ) -> Result<VerifiedDetachedCoseSign1, CoseError> {
-    verify_detached_cose_sign1(
-        CoseSign1DetachedVerifyInput::new(cose_bytes, payload, external_aad, policy),
-        |algorithm, kid| super::resolve_key::primitive(algorithm, kid, &public_key_resolver),
+    cose_verify1_detached_with_exact_algorithm(
+        cose_bytes,
+        payload,
+        external_aad,
+        policy,
+        public_key_resolver,
     )
-    .map_err(CoseFailure::into_native_error)
 }
 
 /// Verify a detached COSE_Sign1 while resolving by its exact registration.
@@ -417,7 +418,9 @@ pub(super) fn verify_cose_signature(
         }
         #[cfg(feature = "wire")]
         CoseSign1KeyResolution::AlgorithmMismatch => {
-            return Err(CoseFailure::from(CoseError::UnsupportedAlgorithm));
+            return Err(CoseFailure::from(CoseError::from(
+                crate::error::CoseErrorReason::KeyAlgorithmMismatch,
+            )));
         }
         #[cfg(feature = "wire")]
         CoseSign1KeyResolution::Rejected(error) => return Err(CoseFailure::from(error)),

@@ -214,7 +214,8 @@ fn es256_sign1_roundtrip_reports_exact_registration_and_policy_distinguishes_it(
     let policy = CosePolicy::new().allow_cose_algorithm(CoseSignatureAlgorithm::Es256);
 
     let verified = cose_verify1_with_policy(&cose, &policy, |algorithm, kid| {
-        (algorithm == Algorithm::P256 && kid == test_kid()).then(|| keypair.public.clone())
+        (algorithm == CoseSignatureAlgorithm::Es256 && kid == test_kid())
+            .then(|| keypair.public.clone())
     })
     .expect("ES256 COSE_Sign1 must verify");
     assert_eq!(verified.alg, Algorithm::P256);
@@ -356,8 +357,9 @@ fn x5chain_verification_is_explicit_bounded_and_preserves_exact_es256() {
     );
     let expected_certificates = vec![LEAF_CERTIFICATE_DER.to_vec()];
     let verified = cose_verify1_with_x5chain(&cose, &policy, |algorithm, certificates| {
-        (algorithm == Algorithm::P256 && certificates == expected_certificates.as_slice())
-            .then(|| keypair.public.clone())
+        (algorithm == CoseSignatureAlgorithm::Es256
+            && certificates == expected_certificates.as_slice())
+        .then(|| keypair.public.clone())
     })
     .expect("explicit x5chain profile must verify");
     assert_eq!(verified.payload.as_slice(), b"payload");
@@ -416,8 +418,9 @@ fn x5chain_verification_is_explicit_bounded_and_preserves_exact_es256() {
         &unprotected_chain,
         &unprotected_policy,
         |algorithm, certificates| {
-            (algorithm == Algorithm::P256 && certificates == expected_certificates.as_slice())
-                .then(|| keypair.public.clone())
+            (algorithm == CoseSignatureAlgorithm::Es256
+                && certificates == expected_certificates.as_slice())
+            .then(|| keypair.public.clone())
         },
     )
     .expect("RFC 9360 unprotected x5chain must verify when explicitly enabled");

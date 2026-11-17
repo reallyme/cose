@@ -10452,7 +10452,11 @@ impl ::serde::Serialize for CoseSign1CreateProfileRequestOwnedView {
     }
 }
 /// Callback-aware verification contract. A resolver handle requires an empty
-/// direct public_key. The x5chain operation requires attached content and empty AAD.
+/// direct public_key. Resolvers receive the exact COSE registration and kid;
+/// authorizing only a cryptographic primitive is insufficient. With a direct key,
+/// request.public_key_algorithm is required. For an exact resolver it is an
+/// optional additional filter; certificate callbacks return an exact bound suite.
+/// The x5chain operation requires attached content and empty AAD.
 #[derive(Clone, Default)]
 pub struct CoseSign1VerifyProfileRequestView<'a> {
     /// Field 1: `request`
@@ -13974,6 +13978,9 @@ impl ::serde::Serialize for CoseProviderVerifyRequestOwnedView {
 }
 #[derive(Clone, Default)]
 pub struct CoseProviderResolveKeyRequestView<'a> {
+    /// Exact authorized registration, never a collapsed primitive selector. Resolve
+    /// (algorithm, kid) together; ES256 and ESP256 remain separate key namespaces.
+    ///
     /// Field 1: `algorithm`
     pub algorithm: ::buffa::EnumValue<super::super::CoseSignatureAlgorithm>,
     /// SENSITIVE: exact authenticated kid.
@@ -14207,6 +14214,9 @@ impl CoseProviderResolveKeyRequestOwnedView {
     pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
         self.0.into_bytes()
     }
+    /// Exact authorized registration, never a collapsed primitive selector. Resolve
+    /// (algorithm, kid) together; ES256 and ESP256 remain separate key namespaces.
+    ///
     /// Field 1: `algorithm`
     #[must_use]
     pub fn algorithm(&self) -> ::buffa::EnumValue<super::super::CoseSignatureAlgorithm> {
@@ -29705,8 +29715,11 @@ pub struct CoseSign1VerifyRequestView<'a> {
     ///
     /// Field 10: `expected_type`
     pub expected_type: ::buffa::MessageFieldView<super::super::__buffa::view::CoseTypeView<'a>>,
-    /// Exact registration authorized for public_key. UNSPECIFIED preserves the
-    /// legacy primitive-only binding; set this for suite-bound credentials.
+    /// Required exact registration authorized for a direct public_key. UNSPECIFIED
+    /// is rejected with COMMON_INVALID_PARAMETER; it never opts out of key binding.
+    /// In callback-aware profile operations only, an exact-registration resolver
+    /// or certificate callback can supply the binding instead. There this field
+    /// is an optional additional exact-registration filter.
     ///
     /// Field 11: `public_key_algorithm`
     pub public_key_algorithm: ::buffa::EnumValue<super::super::CoseSignatureAlgorithm>,
@@ -30212,8 +30225,11 @@ impl CoseSign1VerifyRequestOwnedView {
     ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseTypeView<'_>> {
         &self.0.reborrow().expected_type
     }
-    /// Exact registration authorized for public_key. UNSPECIFIED preserves the
-    /// legacy primitive-only binding; set this for suite-bound credentials.
+    /// Required exact registration authorized for a direct public_key. UNSPECIFIED
+    /// is rejected with COMMON_INVALID_PARAMETER; it never opts out of key binding.
+    /// In callback-aware profile operations only, an exact-registration resolver
+    /// or certificate callback can supply the binding instead. There this field
+    /// is an optional additional exact-registration filter.
     ///
     /// Field 11: `public_key_algorithm`
     #[must_use]
@@ -30316,8 +30332,11 @@ pub struct CoseSign1VerifyDetachedRequestView<'a> {
     ///
     /// Field 11: `expected_type`
     pub expected_type: ::buffa::MessageFieldView<super::super::__buffa::view::CoseTypeView<'a>>,
-    /// Exact registration authorized for public_key. UNSPECIFIED preserves the
-    /// legacy primitive-only binding; set this for suite-bound credentials.
+    /// Required exact registration authorized for a direct public_key. UNSPECIFIED
+    /// is rejected with COMMON_INVALID_PARAMETER; it never opts out of key binding.
+    /// In callback-aware profile operations only, an exact-registration resolver
+    /// or certificate callback can supply the binding instead. There this field
+    /// is an optional additional exact-registration filter.
     ///
     /// Field 12: `public_key_algorithm`
     pub public_key_algorithm: ::buffa::EnumValue<super::super::CoseSignatureAlgorithm>,
@@ -30850,8 +30869,11 @@ impl CoseSign1VerifyDetachedRequestOwnedView {
     ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseTypeView<'_>> {
         &self.0.reborrow().expected_type
     }
-    /// Exact registration authorized for public_key. UNSPECIFIED preserves the
-    /// legacy primitive-only binding; set this for suite-bound credentials.
+    /// Required exact registration authorized for a direct public_key. UNSPECIFIED
+    /// is rejected with COMMON_INVALID_PARAMETER; it never opts out of key binding.
+    /// In callback-aware profile operations only, an exact-registration resolver
+    /// or certificate callback can supply the binding instead. There this field
+    /// is an optional additional exact-registration filter.
     ///
     /// Field 12: `public_key_algorithm`
     #[must_use]

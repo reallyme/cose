@@ -31,7 +31,7 @@ export const OPERATION_CONTRACT_ROUTES = Object.freeze([
     "verify_cose_sign1",
     "verified_attached",
     "sign1/verify.rs",
-    "cose_verify1_with_policy_and_external_aad",
+    "cose_verify1_with_exact_algorithm",
   ),
   route(
     "Sign1VerifyDetached",
@@ -40,7 +40,7 @@ export const OPERATION_CONTRACT_ROUTES = Object.freeze([
     "verify_detached_cose_sign1",
     "verified_detached",
     "sign1/verify.rs",
-    "cose_verify1_detached_with_policy_and_external_aad",
+    "cose_verify1_detached_with_exact_algorithm",
   ),
   route(
     "KeyFromPublicBytes",

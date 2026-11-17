@@ -8,7 +8,7 @@
 //!
 //! ```
 //! # #[cfg(feature = "cose-crypto")]
-//! use reallyme_cose::{cose_sign1, cose_verify1_with_policy, Algorithm, CoseError, CosePolicy};
+//! use reallyme_cose::{cose_sign1, cose_verify1_with_policy, Algorithm, CoseError, CosePolicy, CoseSignatureAlgorithm};
 //! # #[cfg(feature = "cose-crypto")]
 //! use reallyme_crypto::dispatch::generate_keypair;
 //!
@@ -24,7 +24,7 @@
 //!         .allow_algorithm(Algorithm::Ed25519);
 //!
 //!     let verified = cose_verify1_with_policy(&cose_bytes, &policy, |algorithm, requested_kid| {
-//!         (algorithm == Algorithm::Ed25519 && requested_kid == kid).then(|| public_key.clone())
+//!         (algorithm == CoseSignatureAlgorithm::Ed25519 && requested_kid == kid).then(|| public_key.clone())
 //!     })?;
 //!     assert_eq!(verified.payload.as_slice(), b"payload");
 //!     assert_eq!(verified.alg, Algorithm::Ed25519);

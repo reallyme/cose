@@ -7,9 +7,14 @@ and [Engineering Philosophy](https://github.com/reallyme/.github/blob/main/ENGIN
 The protobuf schema is authoritative for every public operation in 0.3.0.
 ReallyMe Buffa 0.1.1 generates request/result types, policy selectors, operation variants,
 binary/JSON codecs and stable failure codes. The implementation stays behind
-that contract. Existing borrowed Rust and callback signatures are retained as
-thin adapters to the same semantic functions; they do not serialize and decode
-authenticated bytes to cross the boundary.
+that contract. Borrowed Rust and callback entrypoints remain thin adapters to
+the same semantic functions; they do not serialize and decode authenticated
+bytes to cross the boundary. Sign1 resolver callbacks now receive the exact
+`CoseSignatureAlgorithm`, including entrypoints with historical names. Direct
+protobuf keys require `public_key_algorithm`; exact resolver/certificate
+capabilities provide their own binding. See the
+[Sign1 key-binding migration](sign1-key-binding.md) for the deliberate Rust
+signature and request-validation changes.
 
 `api::contract` exposes the generated definitions. `api::execute` accepts
 `CoseOperationRequest` and returns `CoseOperationResponseV2` directly.
@@ -18,7 +23,7 @@ use `wire::execute_operation_proto` / `execute_operation_proto_json`, or the
 corresponding provider-aware methods in `api`. Both `native` and `wasm` include
 the generated operation contract. No service or platform SDK is introduced.
 
-All 34 operation/result identifiers are paired: 33 cryptographic/format
+All 48 operation/result identifiers are paired: 47 cryptographic/format
 operations and a generated constant-catalog operation. Independent COSE vector bytes and retained protobuf field numbers are preserved.
 The [0.3.0 presence migration](protobuf-presence-migration.md) deliberately retires
 manual flags and adds explicit byte presence. Native selectors,

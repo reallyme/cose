@@ -25,7 +25,7 @@ pub(crate) fn attached_result(
     let public_key = core::mem::take(&mut request.public_key).into_zeroizing();
     let external_aad = core::mem::take(&mut request.external_aad).into_zeroizing();
     let expected_kid = core::mem::take(&mut request.expected_kid).into_zeroizing();
-    let key_algorithm = expected_key_algorithm(request.public_key_algorithm)?;
+    let key_algorithm = required_key_algorithm(request.public_key_algorithm)?;
     let policy = policy_from_parts(
         request.max_cose_sign1_bytes,
         request.max_detached_payload_bytes,
@@ -58,7 +58,7 @@ pub(crate) fn detached_result(
     let public_key = core::mem::take(&mut request.public_key).into_zeroizing();
     let external_aad = core::mem::take(&mut request.external_aad).into_zeroizing();
     let expected_kid = core::mem::take(&mut request.expected_kid).into_zeroizing();
-    let key_algorithm = expected_key_algorithm(request.public_key_algorithm)?;
+    let key_algorithm = required_key_algorithm(request.public_key_algorithm)?;
     let policy = policy_from_parts(
         request.max_cose_sign1_bytes,
         request.max_detached_payload_bytes,
@@ -85,12 +85,12 @@ pub(crate) fn detached_result(
 
 fn resolve_request_key(
     expected_algorithm: crate::CoseSignatureAlgorithm,
-    key_algorithm: Option<crate::CoseSignatureAlgorithm>,
+    key_algorithm: crate::CoseSignatureAlgorithm,
     protected_kid: &[u8],
     expected_kid: &[u8],
     public_key: Zeroizing<Vec<u8>>,
 ) -> CoseSign1KeyResolution {
-    if key_algorithm.is_some_and(|configured| configured != expected_algorithm) {
+    if key_algorithm != expected_algorithm {
         return CoseSign1KeyResolution::AlgorithmMismatch;
     }
     if expected_kid.is_empty()
@@ -102,11 +102,19 @@ fn resolve_request_key(
     }
 }
 
-pub(super) fn expected_key_algorithm(
+pub(super) fn optional_key_algorithm(
     value: buffa::EnumValue<WireSignatureAlgorithm>,
 ) -> CoseWireResult<Option<crate::CoseSignatureAlgorithm>> {
     if value.as_known() == Some(WireSignatureAlgorithm::Unspecified) {
         return Ok(None);
     }
     signature_algorithm_from_proto(value).map(Some)
+}
+
+pub(super) fn required_key_algorithm(
+    value: buffa::EnumValue<WireSignatureAlgorithm>,
+) -> CoseWireResult<crate::CoseSignatureAlgorithm> {
+    // UNSPECIFIED and unknown values are rejected by the sole checked enum
+    // conversion. An algorithm allowlist cannot substitute for a key binding.
+    signature_algorithm_from_proto(value)
 }

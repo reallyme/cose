@@ -11,7 +11,7 @@ use std::io::Cursor;
 
 use ciborium::{ser::into_writer, value::Value};
 use coset::{CborSerializable, CoseSign1};
-use reallyme_cose::{cose_sign1, cose_verify1, CoseError};
+use reallyme_cose::{cose_sign1, cose_verify1, CoseError, CoseSignatureAlgorithm};
 use reallyme_crypto::core::Algorithm;
 use reallyme_crypto::dispatch::sign;
 
@@ -116,11 +116,12 @@ fn resolver_binds_same_width_ec_keys_to_the_expected_algorithm() {
     let p256 = gen_p256();
     let secp256k1 = gen_secp256k1();
 
-    for (signed, wrong_key) in [
+    for (signed, wrong_key, wrong_registration) in [
         (
             cose_sign1(p256.alg, &payload, &p256.private, Some(test_kid()))
                 .expect("P-256 fixture must sign"),
             &secp256k1,
+            CoseSignatureAlgorithm::Es256K,
         ),
         (
             cose_sign1(
@@ -131,10 +132,11 @@ fn resolver_binds_same_width_ec_keys_to_the_expected_algorithm() {
             )
             .expect("secp256k1 fixture must sign"),
             &p256,
+            CoseSignatureAlgorithm::Esp256,
         ),
     ] {
         let error = cose_verify1(&signed, |expected_algorithm, kid| {
-            (expected_algorithm == wrong_key.alg && kid == test_kid())
+            (expected_algorithm == wrong_registration && kid == test_kid())
                 .then(|| wrong_key.public.clone())
         })
         .expect_err("resolver must not return a key bound to another algorithm");

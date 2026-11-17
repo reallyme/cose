@@ -624,7 +624,11 @@ message CoseSign1CreateProfileRequest {
 }
 
 // Callback-aware verification contract. A resolver handle requires an empty
-// direct public_key. The x5chain operation requires attached content and empty AAD.
+// direct public_key. Resolvers receive the exact COSE registration and kid;
+// authorizing only a cryptographic primitive is insufficient. With a direct key,
+// request.public_key_algorithm is required. For an exact resolver it is an
+// optional additional filter; certificate callbacks return an exact bound suite.
+// The x5chain operation requires attached content and empty AAD.
 message CoseSign1VerifyProfileRequest {
   CoseSign1VerifyRequest request = 1;
   // SENSITIVE: exact detached bytes, including an intentionally empty payload.
@@ -795,6 +799,8 @@ message CoseProviderVerifyRequest {
 }
 
 message CoseProviderResolveKeyRequest {
+  // Exact authorized registration, never a collapsed primitive selector. Resolve
+  // (algorithm, kid) together; ES256 and ESP256 remain separate key namespaces.
   CoseSignatureAlgorithm algorithm = 1;
   // SENSITIVE: exact authenticated kid.
   bytes kid = 2;
@@ -1058,6 +1064,8 @@ message CoseOperationRequest {
     // Rust adapter: sign1/verify.rs#cose_verify1_with_metadata
     // Rust adapter: sign1/verify.rs#cose_verify1_with_policy
     // Rust adapter: sign1/verify.rs#cose_verify1_with_policy_and_external_aad
+    // Every native Sign1 resolver adapter receives CoseSignatureAlgorithm.
+    // Historical function names no longer expose a primitive-only callback.
     CoseSign1VerifyProfileRequest sign1_verify_profile = 1016;
     // Rust adapter: sign1/verify.rs#cose_verify1_with_x5chain
     // Rust adapter: sign1/verify.rs#cose_verify1_with_x5chain_and_exact_algorithm
@@ -1443,8 +1451,11 @@ message CoseSign1VerifyRequest {
   bool require_tagged_sign1 = 9;
   // When set, require this exact authenticated protected typ value.
   CoseType expected_type = 10;
-  // Exact registration authorized for public_key. UNSPECIFIED preserves the
-  // legacy primitive-only binding; set this for suite-bound credentials.
+  // Required exact registration authorized for a direct public_key. UNSPECIFIED
+  // is rejected with COMMON_INVALID_PARAMETER; it never opts out of key binding.
+  // In callback-aware profile operations only, an exact-registration resolver
+  // or certificate callback can supply the binding instead. There this field
+  // is an optional additional exact-registration filter.
   CoseSignatureAlgorithm public_key_algorithm = 11;
 }
 
@@ -1484,8 +1495,11 @@ message CoseSign1VerifyDetachedRequest {
   bool require_tagged_sign1 = 10;
   // When set, require this exact authenticated protected typ value.
   CoseType expected_type = 11;
-  // Exact registration authorized for public_key. UNSPECIFIED preserves the
-  // legacy primitive-only binding; set this for suite-bound credentials.
+  // Required exact registration authorized for a direct public_key. UNSPECIFIED
+  // is rejected with COMMON_INVALID_PARAMETER; it never opts out of key binding.
+  // In callback-aware profile operations only, an exact-registration resolver
+  // or certificate callback can supply the binding instead. There this field
+  // is an optional additional exact-registration filter.
   CoseSignatureAlgorithm public_key_algorithm = 12;
 }
 

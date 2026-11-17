@@ -132,7 +132,7 @@ reallyme-crypto = { version = "0.4.2", default-features = false, features = ["na
 ```
 
 ```rust
-use reallyme_cose::{cose_sign1, cose_verify1_with_policy, Algorithm, CoseError, CosePolicy};
+use reallyme_cose::{cose_sign1, cose_verify1_with_policy, Algorithm, CoseError, CosePolicy, CoseSignatureAlgorithm};
 use reallyme_crypto::dispatch::generate_keypair;
 
 fn sign_and_verify() -> Result<(), CoseError> {
@@ -146,7 +146,7 @@ fn sign_and_verify() -> Result<(), CoseError> {
         .allow_algorithm(Algorithm::Ed25519);
 
     let verified = cose_verify1_with_policy(&cose_bytes, &policy, |algorithm, requested_kid| {
-        (algorithm == Algorithm::Ed25519 && requested_kid == kid).then(|| public_key.clone())
+        (algorithm == CoseSignatureAlgorithm::Ed25519 && requested_kid == kid).then(|| public_key.clone())
     })?;
     assert_eq!(verified.payload.as_slice(), b"payload");
     assert_eq!(verified.alg, Algorithm::Ed25519);
@@ -195,7 +195,7 @@ let policy = CosePolicy::new()
     .with_max_cose_sign1_bytes(32 * 1024);
 
 let verified = cose_verify1_with_policy(&cose, &policy, |algorithm, requested_kid| {
-    (algorithm == Algorithm::Ed25519 && requested_kid == kid).then(|| public_key.clone())
+    (algorithm == CoseSignatureAlgorithm::Ed25519 && requested_kid == kid).then(|| public_key.clone())
 })?;
 assert_eq!(verified.alg, Algorithm::Ed25519);
 assert_eq!(
@@ -722,16 +722,26 @@ allow-list. Policy and signing-option structs are constructed with builders
 rather than public fields so new policy controls can be added without breaking
 downstream callers.
 
-The exact-algorithm native verifier variants pass
-`(CoseSignatureAlgorithm, protected_kid)` to the key resolver. Use both values
-as the lookup identity when a key is registered for a specific COSE algorithm.
-The legacy resolver variants, including `cose_verify1_with_x5chain`, pass the
-broader cryptographic primitive `Algorithm`; they cannot distinguish ES256
-from ESP256. Protobuf verification can bind a supplied key to an exact
-registration with `public_key_algorithm`; its algorithm allow-list and
-`expected_kid` provide separate policy controls. A legacy wire
-`ECDSA_P256_SHA256` allow-list entry denotes ESP256 only; use the `ES256`
-entry to permit ES256.
+All native Sign1 verifier variants pass the exact `CoseSignatureAlgorithm`
+to the resolver. Identifier callbacks receive `(registration, protected_kid)`;
+certificate callbacks receive `(registration, certificates)`. Authorize the
+exact registration together with the key identity. ES256 and ESP256 remain
+distinct even when they use the same P-256 key. The former primitive-only Rust
+callback signatures deliberately change to retain exact identity; `_with_exact_algorithm`
+entrypoints remain supported with the same exact-resolution semantics.
+
+Direct protobuf Sign1 verification requires `public_key_algorithm`.
+`UNSPECIFIED` and unknown values fail with `COMMON_INVALID_PARAMETER`;
+a registration mismatch fails with `KEY_ALGORITHM_MISMATCH`. An algorithm
+allowlist or a matching key shape cannot replace this key binding.
+Callback-aware profile operations obtain their binding from the exact-registration
+resolver or checked certificate result; there `public_key_algorithm` is an
+optional additional filter. `expected_kid` remains a separate identity check.
+The legacy protobuf selector `ECDSA_P256_SHA256` denotes ESP256 only; use the
+`ES256` selector to permit ES256. Use `cose_algorithm` in native receipts and
+`exact_signature_algorithm` in protobuf receipts for authorization; the
+compatibility primitive metadata is for crypto dispatch.
+See the [Sign1 key-binding migration](https://github.com/reallyme/cose/blob/main/docs/sign1-key-binding.md).
 
 The protobuf operation lane has an independent 2 MiB request-message cap.
 Operation-specific hard maxima apply equally to native Rust and protobuf

@@ -429,7 +429,7 @@ fn verify_request(
         expected_kid: expected_kid.to_vec().into(),
         require_tagged_sign1: false,
         expected_type: buffa::MessageField::none(),
-        public_key_algorithm: EnumValue::from(0),
+        public_key_algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
     }
 }
 
@@ -455,7 +455,7 @@ fn verify_detached_request(
         expected_kid: expected_kid.to_vec().into(),
         require_tagged_sign1: false,
         expected_type: buffa::MessageField::none(),
-        public_key_algorithm: EnumValue::from(0),
+        public_key_algorithm: EnumValue::from(CoseSignatureAlgorithm::Ed25519),
     }
 }
 

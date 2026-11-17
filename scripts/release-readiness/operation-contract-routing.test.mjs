@@ -103,6 +103,25 @@ test("shared encryption adapters must invoke the selected operation exactly once
   assert.match(violations.join("\n"), /encrypt_result must call operation exactly 1 time.*found 0/u);
 });
 
+test("historical Sign1 names must delegate to exact-registration facades", () => {
+  const path = "crates/cose/src/sign1/verify.rs";
+  for (const [entrypoint, facade, semantic] of [
+    ["cose_verify1_with_policy_and_external_aad", "cose_verify1_with_exact_algorithm", "verify_cose_sign1"],
+    ["cose_verify1_detached_with_policy_and_external_aad", "cose_verify1_detached_with_exact_algorithm", "verify_detached_cose_sign1"],
+  ]) {
+    const violations = violationsAfter(path, (source) => {
+      const body = rustFunctionBody(source, entrypoint);
+      assert.notEqual(body, null);
+      const start = source.indexOf(body);
+      assert.notEqual(start, -1);
+      const replacement = replaceOnce(body, `${facade}(`, `${semantic}(`);
+      return source.slice(0, start) + replacement + source.slice(start + body.length);
+    });
+    assert.ok(violations.some((message) => message.includes(`${entrypoint} must call ${facade} exactly 1`)));
+    assert.ok(violations.some((message) => message.includes(`${entrypoint} must call ${semantic} exactly 0`)));
+  }
+});
+
 test("adapters cannot introduce independent error classification", () => {
   const violations = violationsAfter("crates/cose/src/operation_contract/encrypt/decrypt.rs", (source) =>
     replaceOnce(

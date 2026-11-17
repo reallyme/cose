@@ -107,7 +107,7 @@ fn sign1_resolver_failures_stop_before_p256_backend_dispatch() {
         ),
         _ => (
             CoseSign1KeyResolution::AlgorithmMismatch,
-            CoseFailureReason::CommonUnsupportedAlgorithm,
+            CoseFailureReason::KeyAlgorithmMismatch,
         ),
     };
     let resolver_called = Cell::new(false);
@@ -132,7 +132,7 @@ fn sign1_resolver_failures_stop_before_p256_backend_dispatch() {
     let es256 = exact == CoseSignatureAlgorithm::Es256;
     let not_resolved = reason == Some(CoseFailureReason::Sign1KeyNotResolved);
     let kid_mismatch = reason == Some(CoseFailureReason::Sign1KidKeyMismatch);
-    let algorithm_mismatch = reason == Some(CoseFailureReason::CommonUnsupportedAlgorithm);
+    let algorithm_mismatch = reason == Some(CoseFailureReason::KeyAlgorithmMismatch);
     kani::cover!(es256 && not_resolved, "ES256 key not resolved");
     kani::cover!(!es256 && not_resolved, "ESP256 key not resolved");
     kani::cover!(es256 && kid_mismatch, "ES256 kid mismatch");

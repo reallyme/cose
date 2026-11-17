@@ -344,6 +344,18 @@ export function collectOperationContractRoutingViolations(readText) {
 
   for (const [path, functionName, delegate, forbidden] of [
     [
+      "crates/cose/src/sign1/verify.rs",
+      "cose_verify1_with_policy_and_external_aad",
+      "cose_verify1_with_exact_algorithm",
+      "verify_cose_sign1",
+    ],
+    [
+      "crates/cose/src/sign1/verify.rs",
+      "cose_verify1_detached_with_policy_and_external_aad",
+      "cose_verify1_detached_with_exact_algorithm",
+      "verify_detached_cose_sign1",
+    ],
+    [
       "crates/cose/src/encrypt/create.rs",
       "cose_encrypt_ml_kem_direct",
       "cose_encrypt_ml_kem_direct_with_external_aad",
@@ -380,6 +392,8 @@ export function collectOperationContractRoutingViolations(readText) {
     "cose_sign1_detached_with_options_and_external_aad",
     "cose_verify1_with_policy_and_external_aad",
     "cose_verify1_detached_with_policy_and_external_aad",
+    "cose_verify1_with_exact_algorithm",
+    "cose_verify1_detached_with_exact_algorithm",
     "cose_encrypt_ml_kem_direct_with_external_aad",
     "cose_encrypt_ml_kem_key_wrap_with_external_aad",
     "cose_decrypt_ml_kem_with_external_aad",

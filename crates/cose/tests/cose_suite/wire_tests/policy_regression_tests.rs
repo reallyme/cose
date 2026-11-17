@@ -37,7 +37,7 @@ fn wire_public_key_registration_must_match_protected_algorithm() {
     verify.allowed_algorithms = vec![EnumValue::from(CoseSignatureAlgorithm::Es256)].into();
     verify.public_key_algorithm = EnumValue::from(CoseSignatureAlgorithm::Esp256);
     let output = execute_cose_sign1_verify_request(&verify.encode_to_vec());
-    assert_error_reason(&output, CoseErrorReason::CommonUnsupportedAlgorithm);
+    assert_error_reason(&output, CoseErrorReason::KeyAlgorithmMismatch);
 }
 
 #[test]

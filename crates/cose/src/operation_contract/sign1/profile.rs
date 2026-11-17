@@ -121,7 +121,13 @@ pub(crate) fn verify(
     if resolver_handle != 0 && !input.public_key.is_empty() {
         return Err(invalid());
     }
-    let key_algorithm = super::verify::expected_key_algorithm(input.public_key_algorithm)?;
+    let key_algorithm = if resolver_handle == 0 {
+        Some(super::verify::required_key_algorithm(
+            input.public_key_algorithm,
+        )?)
+    } else {
+        super::verify::optional_key_algorithm(input.public_key_algorithm)?
+    };
     let legacy_policy = policy_from_parts(
         input.max_cose_sign1_bytes,
         input.max_detached_payload_bytes,
@@ -221,7 +227,7 @@ pub(crate) fn x5chain(
     {
         return Err(invalid());
     }
-    let key_algorithm = super::verify::expected_key_algorithm(input.public_key_algorithm)?;
+    let key_algorithm = super::verify::optional_key_algorithm(input.public_key_algorithm)?;
     let legacy_policy = policy_from_parts(
         input.max_cose_sign1_bytes,
         input.max_detached_payload_bytes,
@@ -257,7 +263,7 @@ pub(crate) fn x5chain(
         &policy,
         |algorithm, placement, chain| {
             if key_algorithm.is_some_and(|configured| configured != algorithm) {
-                return Err(crate::CoseError::KeyNotResolved);
+                return Err(CoseErrorReason::KeyAlgorithmMismatch.into());
             }
             providers.resolve_x5chain_key(
                 resolver_handle,

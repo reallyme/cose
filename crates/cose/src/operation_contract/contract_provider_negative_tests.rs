@@ -166,6 +166,7 @@ fn canonical_policy_has_one_allowlist_and_explicit_empty_denial() -> Result<(), 
     let mut verify = wire::CoseSign1VerifyRequest::default();
     verify.cose_sign1 = encoded.to_vec().into();
     verify.public_key = public.into();
+    verify.public_key_algorithm = wire::CoseSignatureAlgorithm::Ed25519.into();
     let input = wire::CoseSign1VerifyProfileRequest {
         request: field(verify),
         policy: field(wire::CoseVerificationPolicy::default()),

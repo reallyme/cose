@@ -374,11 +374,15 @@ assertContains(
 );
 assertContains(
   "README.md",
-  "The exact-algorithm native verifier variants pass",
+  "All native Sign1 verifier variants pass",
 );
 assertContains(
   "crates/cose/src/sign1/verify.rs",
-  "public_key_resolver: impl Fn(Algorithm, &[u8])",
+  "public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[u8])",
+);
+assertNotMatches(
+  "crates/cose/src/sign1/verify.rs",
+  /public_key_resolver:\s*impl\s+Fn(?:Once|Mut)?\(\s*Algorithm\b/u,
 );
 assertContains(
   "crates/cose/src/key/ec.rs",

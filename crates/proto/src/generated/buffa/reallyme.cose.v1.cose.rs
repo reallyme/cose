@@ -16331,7 +16331,11 @@ pub const __COSE_SIGN1CREATE_PROFILE_REQUEST_JSON_ANY: ::buffa::type_registry::J
         is_wkt: false,
     };
 /// Callback-aware verification contract. A resolver handle requires an empty
-/// direct public_key. The x5chain operation requires attached content and empty AAD.
+/// direct public_key. Resolvers receive the exact COSE registration and kid;
+/// authorizing only a cryptographic primitive is insufficient. With a direct key,
+/// request.public_key_algorithm is required. For an exact resolver it is an
+/// optional additional filter; certificate callbacks return an exact bound suite.
+/// The x5chain operation requires attached content and empty AAD.
 #[derive(Clone, PartialEq, Default, ::serde::Serialize)]
 pub struct CoseSign1VerifyProfileRequest {
     /// Field 1: `request`
@@ -19559,6 +19563,9 @@ pub const __COSE_PROVIDER_VERIFY_REQUEST_JSON_ANY: ::buffa::type_registry::JsonA
     };
 #[derive(Clone, PartialEq, Default, ::serde::Serialize)]
 pub struct CoseProviderResolveKeyRequest {
+    /// Exact authorized registration, never a collapsed primitive selector. Resolve
+    /// (algorithm, kid) together; ES256 and ESP256 remain separate key namespaces.
+    ///
     /// Field 1: `algorithm`
     #[serde(
         rename = "algorithm",
@@ -34773,8 +34780,11 @@ pub struct CoseSign1VerifyRequest {
     )]
     #[serde(default)]
     pub expected_type: ::buffa::MessageField<CoseType, ::buffa::Inline<CoseType>>,
-    /// Exact registration authorized for public_key. UNSPECIFIED preserves the
-    /// legacy primitive-only binding; set this for suite-bound credentials.
+    /// Required exact registration authorized for a direct public_key. UNSPECIFIED
+    /// is rejected with COMMON_INVALID_PARAMETER; it never opts out of key binding.
+    /// In callback-aware profile operations only, an exact-registration resolver
+    /// or certificate callback can supply the binding instead. There this field
+    /// is an optional additional exact-registration filter.
     ///
     /// Field 11: `public_key_algorithm`
     #[serde(
@@ -35662,8 +35672,11 @@ pub struct CoseSign1VerifyDetachedRequest {
     )]
     #[serde(default)]
     pub expected_type: ::buffa::MessageField<CoseType, ::buffa::Inline<CoseType>>,
-    /// Exact registration authorized for public_key. UNSPECIFIED preserves the
-    /// legacy primitive-only binding; set this for suite-bound credentials.
+    /// Required exact registration authorized for a direct public_key. UNSPECIFIED
+    /// is rejected with COMMON_INVALID_PARAMETER; it never opts out of key binding.
+    /// In callback-aware profile operations only, an exact-registration resolver
+    /// or certificate callback can supply the binding instead. There this field
+    /// is an optional additional exact-registration filter.
     ///
     /// Field 12: `public_key_algorithm`
     #[serde(

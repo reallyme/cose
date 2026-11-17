@@ -67,3 +67,6 @@ mod mac_message;
 
 #[path = "contract_counter_tests.rs"]
 mod counter;
+
+#[path = "contract_sign1_key_binding_tests.rs"]
+mod sign1_key_binding;

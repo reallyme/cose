@@ -207,7 +207,7 @@ fn sign1_verification_enforces_independent_zero_and_exact_limits() -> Result<(),
             let contract = policy(limits(encoded_limit, payload_limit, aad_limit));
             let native = CosePolicy::from_contract(contract.clone())?;
             let resolved = core::cell::Cell::new(false);
-            let resolver = |_: Algorithm, _: &[u8]| {
+            let resolver = |_: crate::CoseSignatureAlgorithm, _: &[u8]| {
                 resolved.set(true);
                 Some(public.clone())
             };
@@ -230,6 +230,7 @@ fn sign1_verification_enforces_independent_zero_and_exact_limits() -> Result<(),
             let request = CoseSign1VerifyRequest::default()
                 .with_cose_sign1(encoded.to_vec())
                 .with_public_key(public.clone())
+                .with_public_key_algorithm(CoseSignatureAlgorithm::Ed25519)
                 .with_external_aad(aad.to_vec());
             let mut request = CoseSign1VerifyProfileRequest::default()
                 .with_request(request)
@@ -419,7 +420,8 @@ fn sign1_75_kb_envelope_cannot_raise_the_hard_limit_with_a_portable_maximum(
         .with_request(
             CoseSign1VerifyRequest::default()
                 .with_cose_sign1(encoded.to_vec())
-                .with_public_key(public),
+                .with_public_key(public)
+                .with_public_key_algorithm(crate::wire::CoseSignatureAlgorithm::Ed25519),
         )
         .with_policy(imported);
     assert_eq!(

@@ -24,8 +24,6 @@ mod exact;
 #[cfg(feature = "cose-crypto")]
 mod provider;
 #[cfg(feature = "cose-crypto")]
-mod resolve_key;
-#[cfg(feature = "cose-crypto")]
 pub(crate) mod sign;
 #[cfg(feature = "cose-crypto")]
 pub(crate) mod types;

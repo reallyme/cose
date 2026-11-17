@@ -173,6 +173,36 @@ fn x5chain_provider_rejects_registration_and_curve_mismatches_before_signature_v
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 #[test]
+fn x5chain_provider_supplies_exact_binding_when_the_extra_filter_is_omitted(
+) -> Result<(), CoseError> {
+    for selected in [None, Some(suite(-9, 1)?), Some(suite(-7, 2)?)] {
+        let (mut input, mut port, _) = fixture("issuer-protected-chain")?;
+        input
+            .request
+            .as_option_mut()
+            .ok_or(CoseError::InvalidFormat)?
+            .public_key_algorithm = wire::CoseSignatureAlgorithm::Unspecified.into();
+        let mismatch = selected.is_some();
+        port.replacement_suite = selected;
+        let response = execute(input, &port)?;
+        assert_eq!(
+            port.algorithm.get(),
+            Some(wire::CoseSignatureAlgorithm::Es256)
+        );
+        if mismatch {
+            assert_eq!(
+                reason(&response),
+                wire::CoseErrorReason::KeyAlgorithmMismatch
+            );
+        } else {
+            let _ = success(response);
+        }
+    }
+    Ok(())
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
 fn x5chain_provider_preserves_policy_and_bounds_at_the_certificate_boundary(
 ) -> Result<(), CoseError> {
     let (mut input, mut port, _) = fixture("issuer-2021")?;
