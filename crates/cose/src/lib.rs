@@ -64,6 +64,7 @@ pub mod error;
 pub use error::CoseError;
 
 mod build_authentication_structure;
+mod cbor_boundary;
 mod encode_cbor;
 mod failure;
 #[cfg(test)]

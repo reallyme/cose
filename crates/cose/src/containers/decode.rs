@@ -24,12 +24,12 @@ pub(super) fn decode(encoded: &[u8]) -> Result<Envelope<'_>, ContainerError> {
         if item.argument != COSE_SIGN1_TAG {
             return Err(Reason::Profile.into());
         }
-        item = item.cursor().next()?;
+        item = item.cursor()?.next()?;
     }
     if item.count(4)? != 4 {
         return Err(Reason::Malformed.into());
     }
-    let mut cursor = item.cursor();
+    let mut cursor = item.cursor()?;
     let protected = cursor.next()?.bytes()?;
     let unprotected = cursor.next()?;
     let headers = read_headers(protected, unprotected)?;

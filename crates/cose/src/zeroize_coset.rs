@@ -16,7 +16,7 @@ use coset::{
     CoseEncrypt, CoseRecipient, CoseSign1, CoseSignature, Header, Label, ProtectedHeader,
     RegisteredLabel, RegisteredLabelWithPrivate,
 };
-use zeroize::{Zeroize, Zeroizing};
+use zeroize::{Zeroize, ZeroizeOnDrop};
 
 use crate::limits::validate_cose_key_bytes;
 #[cfg(feature = "cose-crypto")]
@@ -77,19 +77,17 @@ impl SensitiveCborValue {
     }
 
     fn decode_validated(bytes: &[u8]) -> Result<Self, CoseError> {
-        let mut reader = bytes;
-        // Ciborium copies strings and byte strings through its scratch space.
-        // An input-sized wipe owner prevents both its default unwiped stack
-        // scratch and heap growth for values larger than that default.
-        let mut scratch = Zeroizing::new(vec![0_u8; bytes.len().max(1)]);
-        let value = ciborium::de::from_reader_with_buffer(&mut reader, scratch.as_mut_slice())
-            .map_err(|_| CoseError::Cbor)?;
-        if !reader.is_empty() {
-            let mut value = value;
-            zeroize_value(&mut value);
-            return Err(CoseError::Cbor);
-        }
-        Ok(Self { value })
+        let frame = reallyme_codec::cbor::general::frame_exact(
+            bytes,
+            crate::cbor_boundary::limits()?,
+            reallyme_codec::cbor::general::LengthPolicy::DefiniteOnly,
+        )
+        .map_err(crate::cbor_boundary::error)?;
+        crate::cbor_boundary::decode(&frame)
+    }
+
+    pub(crate) fn take_value(&mut self) -> Value {
+        core::mem::replace(&mut self.value, Value::Null)
     }
 
     pub(crate) fn value_mut(&mut self) -> &mut Value {
@@ -106,6 +104,8 @@ impl Drop for SensitiveCborValue {
         zeroize_value(&mut self.value);
     }
 }
+
+impl ZeroizeOnDrop for SensitiveCborValue {}
 
 #[cfg(feature = "cose-crypto")]
 pub(crate) fn zeroize_cose_encrypt(cose: &mut CoseEncrypt) {

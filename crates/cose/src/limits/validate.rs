@@ -1,43 +1,27 @@
 // SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
-
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-//! Resource limits and deterministic CBOR boundary checks.
+//! COSE grammar admission over the shared codec's exact borrowed CBOR receipts.
 
-use std::collections::HashSet;
+use reallyme_codec::cbor::general::{self, Frame, MajorType};
 
 #[cfg(feature = "cose-crypto")]
 use super::profile::validate_protected_header_bytes;
 use super::profile::{next_depth, validate_item_depth};
-use crate::CoseError;
+use crate::{cbor_boundary, CoseError};
 
-const CBOR_INDEFINITE_ADDITIONAL_INFO: u8 = 0x1f;
-const CBOR_ADDITIONAL_INFO_MASK: u8 = 0x1f;
-const CBOR_MAJOR_TYPE_SHIFT: u8 = 5;
-const CBOR_UINT_MAJOR: u8 = 0;
-const CBOR_NEGATIVE_INT_MAJOR: u8 = 1;
-const CBOR_BYTES_MAJOR: u8 = 2;
-const CBOR_TEXT_MAJOR: u8 = 3;
+#[cfg(feature = "cose-crypto")]
 const CBOR_ARRAY_MAJOR: u8 = 4;
+#[cfg(feature = "cose-crypto")]
 const CBOR_MAP_MAJOR: u8 = 5;
-const CBOR_TAG_MAJOR: u8 = 6;
-const CBOR_SIMPLE_MAJOR: u8 = 7;
-const CBOR_FALSE: u8 = 20;
-const CBOR_TRUE: u8 = 21;
-const CBOR_NULL: u8 = 22;
-const CBOR_ONE_BYTE_LENGTH: u8 = 24;
-const CBOR_TWO_BYTE_LENGTH: u8 = 25;
-const CBOR_FOUR_BYTE_LENGTH: u8 = 26;
-const CBOR_EIGHT_BYTE_LENGTH: u8 = 27;
+#[cfg(feature = "cose-crypto")]
+const MAX_COSE_HEADER_PARAMETERS: usize = 32;
 #[cfg(feature = "cose-crypto")]
 const COSE_SIGN1_TAG: u64 = 18;
 #[cfg(feature = "cose-crypto")]
 const COSE_MAC0_TAG: u64 = 17;
 #[cfg(feature = "cose-crypto")]
 const COSE_ENCRYPT_TAG: u64 = 96;
-const MAX_CBOR_COLLECTION_ITEMS: usize = 1_024;
-#[cfg(feature = "cose-crypto")]
-const MAX_COSE_HEADER_PARAMETERS: usize = 32;
 
 pub(super) fn validate_cbor_bytes(
     bytes: &[u8],
@@ -47,17 +31,14 @@ pub(super) fn validate_cbor_bytes(
     if bytes.is_empty() {
         return Err(CoseError::Cbor);
     }
-
     if bytes.len() > max_len {
         return Err(CoseError::ResourceLimitExceeded);
     }
-
-    let parsed_len = parse_cbor_item(bytes, 0, 0, role)?;
-    if parsed_len == bytes.len() {
-        Ok(())
-    } else {
-        Err(CoseError::Cbor)
+    let consumed = parse_cbor_item(bytes, 0, 0, role)?;
+    if consumed != bytes.len() {
+        return Err(CoseError::Cbor);
     }
+    Ok(())
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -97,248 +78,127 @@ fn parse_cbor_item(
     role: CborItemRole,
 ) -> Result<usize, CoseError> {
     validate_item_depth(depth)?;
+    let input = bytes.get(offset..).ok_or(CoseError::Cbor)?;
+    // Keep early shape failures deterministic even if an invalid declared
+    // array has no body. Codec remains the sole decoder of the header.
+    let header = general::read_header_prefix(input)
+        .map_err(|error| cbor_boundary::primitive_error(error, input))?;
+    validate_role_header(&header, role)?;
+    let profile = cbor_boundary::preferred(false)?
+        .with_floats(general::FloatPolicy::Reject)
+        .with_map_ordering(
+            if matches!(role, CborItemRole::CoseKeyTop | CborItemRole::CoseKeyValue) {
+                general::MapOrdering::Bytewise
+            } else {
+                general::MapOrdering::Received
+            },
+        );
+    let (item, _) = general::validate_prefix(input, profile, cbor_boundary::limits()?)
+        .map_err(|error| cbor_boundary::primitive_error(error, input))?;
+    validate_role(item.frame(), depth, role)?;
+    offset
+        .checked_add(item.frame().received_bytes().len())
+        .ok_or(CoseError::ResourceLimitExceeded)
+}
 
-    let first = *bytes.get(offset).ok_or(CoseError::Cbor)?;
-    let major = first >> CBOR_MAJOR_TYPE_SHIFT;
-    let additional = first & CBOR_ADDITIONAL_INFO_MASK;
-    let value_start = offset
-        .checked_add(1)
-        .ok_or(CoseError::ResourceLimitExceeded)?;
-
-    if additional == CBOR_INDEFINITE_ADDITIONAL_INFO {
-        return match major {
-            CBOR_BYTES_MAJOR | CBOR_TEXT_MAJOR | CBOR_ARRAY_MAJOR | CBOR_MAP_MAJOR => {
-                Err(CoseError::NonCanonicalCbor)
-            }
-            _ => Err(CoseError::Cbor),
-        };
-    }
-
-    #[cfg(feature = "cose-crypto")]
-    if role == CborItemRole::ProtectedHeaderMap && major != CBOR_MAP_MAJOR {
-        return Err(CoseError::InvalidFormat);
-    }
-    #[cfg(feature = "cose-crypto")]
-    if role == CborItemRole::CoseIsoKeyTop && major != CBOR_MAP_MAJOR {
-        return Err(CoseError::InvalidFormat);
-    }
-    #[cfg(feature = "cose-crypto")]
-    if matches!(
-        role,
-        CborItemRole::CoseEncryptBody
-            | CborItemRole::CoseMac0Body
-            | CborItemRole::CoseRecipientList
-            | CborItemRole::CoseRecipient
-    ) && major != CBOR_ARRAY_MAJOR
-    {
-        return Err(CoseError::InvalidFormat);
-    }
-    #[cfg(feature = "cose-crypto")]
-    if role == CborItemRole::CoseEncryptTop && major != CBOR_ARRAY_MAJOR && major != CBOR_TAG_MAJOR
-    {
-        return Err(CoseError::InvalidFormat);
-    }
-
-    #[cfg(feature = "cose-crypto")]
-    if role == CborItemRole::CoseMac0Top && major != CBOR_ARRAY_MAJOR && major != CBOR_TAG_MAJOR {
-        return Err(CoseError::InvalidFormat);
-    }
-
-    match major {
-        CBOR_UINT_MAJOR | CBOR_NEGATIVE_INT_MAJOR => {
-            read_argument(bytes, value_start, additional).map(|(_, next_offset)| next_offset)
-        }
-        CBOR_BYTES_MAJOR => {
-            let (len, data_offset) = read_length(bytes, value_start, additional)?;
-            data_offset
-                .checked_add(len)
-                .filter(|end| *end <= bytes.len())
-                .ok_or(CoseError::Cbor)
-        }
-        CBOR_TEXT_MAJOR => {
-            let (len, data_offset) = read_length(bytes, value_start, additional)?;
-            let end = data_offset
-                .checked_add(len)
-                .filter(|end| *end <= bytes.len())
-                .ok_or(CoseError::Cbor)?;
-            let text = bytes.get(data_offset..end).ok_or(CoseError::Cbor)?;
-            core::str::from_utf8(text).map_err(|_| CoseError::Cbor)?;
-            Ok(end)
-        }
-        CBOR_ARRAY_MAJOR => {
-            let (len, mut next_offset) = read_length(bytes, value_start, additional)?;
-            validate_collection_length(role, CBOR_ARRAY_MAJOR, len)?;
-            let remaining = bytes
-                .len()
-                .checked_sub(next_offset)
-                .ok_or(CoseError::Cbor)?;
-            if len > remaining {
-                return Err(CoseError::Cbor);
-            }
-            for index in 0..len {
+// Generic CBOR has already been validated by codec. This walk checks only the
+// COSE grammar, profile exclusions needed by coset's value model, and embedded
+// protected maps. A byte string remains opaque except in the protected slot.
+fn validate_role(frame: &Frame<'_>, depth: usize, role: CborItemRole) -> Result<(), CoseError> {
+    validate_item_depth(depth)?;
+    let header = frame.header();
+    validate_role_header(header, role)?;
+    match header.major_type() {
+        MajorType::Array | MajorType::Map => {
+            for (index, child) in frame.children().map_err(cbor_boundary::error)?.enumerate() {
+                let child = child.map_err(cbor_boundary::error)?;
                 let child_depth = next_depth(depth)?;
-                if protected_header_first_item(role) && index == 0 {
-                    if let Some(end) =
-                        parse_protected_header_bstr_if_present(bytes, next_offset, child_depth)?
+                if header.major_type() == MajorType::Array {
+                    #[cfg(feature = "cose-crypto")]
+                    if index == 0
+                        && protected_header_first_item(role)
+                        && child.header().major_type() == MajorType::Bytes
                     {
-                        next_offset = end;
+                        validate_item_depth(child_depth)?;
+                        validate_protected_header_bytes(
+                            child.as_bytes().map_err(cbor_boundary::error)?,
+                        )?;
                         continue;
                     }
+                    validate_role(&child, child_depth, array_child_role(role, index))?;
+                } else {
+                    let child_role =
+                        if matches!(role, CborItemRole::CoseKeyTop | CborItemRole::CoseKeyValue) {
+                            CborItemRole::CoseKeyValue
+                        } else {
+                            CborItemRole::Normal
+                        };
+                    validate_role(&child, child_depth, child_role)?;
                 }
-                let child_role = array_child_role(role, index);
-                next_offset = parse_cbor_item(bytes, next_offset, child_depth, child_role)?;
             }
-            Ok(next_offset)
         }
-        CBOR_MAP_MAJOR => {
-            let (len, mut next_offset) = read_length(bytes, value_start, additional)?;
-            validate_collection_length(role, CBOR_MAP_MAJOR, len)?;
-            let remaining = bytes
-                .len()
-                .checked_sub(next_offset)
-                .ok_or(CoseError::Cbor)?;
-            if len > remaining / 2 {
-                return Err(CoseError::Cbor);
-            }
-            let mut keys = HashSet::new();
-            keys.try_reserve(len)
-                .map_err(|_| CoseError::ResourceLimitExceeded)?;
-            let mut previous_key: Option<&[u8]> = None;
-            for _ in 0..len {
-                let child_depth = next_depth(depth)?;
-                let key_start = next_offset;
-                let child_role =
-                    if matches!(role, CborItemRole::CoseKeyTop | CborItemRole::CoseKeyValue) {
-                        CborItemRole::CoseKeyValue
-                    } else {
-                        CborItemRole::Normal
-                    };
-                let key_end = parse_cbor_item(bytes, next_offset, child_depth, child_role)?;
-                let key = bytes.get(key_start..key_end).ok_or(CoseError::Cbor)?;
-                // Container-valued keys can cause their encoded bytes to be
-                // visited once per enclosing map. The global byte, item, and
-                // depth limits deliberately bound that duplicate-key work.
-                if !keys.insert(key) {
-                    return Err(CoseError::DuplicateMapLabel);
-                }
-                if matches!(role, CborItemRole::CoseKeyTop | CborItemRole::CoseKeyValue)
-                    && previous_key.is_some_and(|previous| {
-                        deterministic_key_order(previous, key) != core::cmp::Ordering::Less
-                    })
-                {
-                    return Err(CoseError::NonCanonicalCbor);
-                }
-                previous_key = Some(key);
-                next_offset = key_end;
-                next_offset = parse_cbor_item(bytes, next_offset, child_depth, child_role)?;
-            }
-            Ok(next_offset)
+        MajorType::Tag => {
+            let role = tag_child_role(role, header.argument().ok_or(CoseError::Cbor)?)?;
+            let mut children = frame.children().map_err(cbor_boundary::error)?;
+            let child = children
+                .next()
+                .ok_or(CoseError::Cbor)?
+                .map_err(cbor_boundary::error)?;
+            validate_role(&child, next_depth(depth)?, role)?;
         }
-        CBOR_TAG_MAJOR => {
-            let (tag, next_offset) = read_argument(bytes, value_start, additional)?;
-            let child_role = tag_child_role(role, tag)?;
-            parse_cbor_item(bytes, next_offset, next_depth(depth)?, child_role)
+        MajorType::Simple
+            if !matches!(frame.simple_value().map_err(cbor_boundary::error)?, 20..=22) =>
+        {
+            return Err(CoseError::Cbor)
         }
-        CBOR_SIMPLE_MAJOR => parse_simple(bytes, value_start, additional),
-        _ => Err(CoseError::Cbor),
+        _ => {}
     }
+    Ok(())
 }
 
-fn read_length(bytes: &[u8], offset: usize, additional: u8) -> Result<(usize, usize), CoseError> {
-    let (value, next) = read_argument(bytes, offset, additional)?;
-    let length = usize::try_from(value).map_err(|_| CoseError::ResourceLimitExceeded)?;
-    Ok((length, next))
-}
-
-// Integer values are not lengths: retain all 64 wire bits on wasm32 too.
-fn read_argument(bytes: &[u8], offset: usize, additional: u8) -> Result<(u64, usize), CoseError> {
-    match additional {
-        value if value < CBOR_ONE_BYTE_LENGTH => Ok((u64::from(value), offset)),
-        CBOR_ONE_BYTE_LENGTH => {
-            let value = *bytes.get(offset).ok_or(CoseError::Cbor)?;
-            if value < CBOR_ONE_BYTE_LENGTH {
-                return Err(CoseError::NonCanonicalCbor);
-            }
-            Ok((
-                u64::from(value),
-                offset
-                    .checked_add(1)
-                    .ok_or(CoseError::ResourceLimitExceeded)?,
-            ))
+fn validate_role_header(header: &general::Header<'_>, role: CborItemRole) -> Result<(), CoseError> {
+    let major = cbor_boundary::major_code(header.major_type())?;
+    #[cfg(feature = "cose-crypto")]
+    {
+        if matches!(
+            role,
+            CborItemRole::ProtectedHeaderMap | CborItemRole::CoseIsoKeyTop
+        ) && major != CBOR_MAP_MAJOR
+        {
+            return Err(CoseError::InvalidFormat);
         }
-        CBOR_TWO_BYTE_LENGTH => {
-            let end = offset
-                .checked_add(2)
-                .ok_or(CoseError::ResourceLimitExceeded)?;
-            let data = bytes.get(offset..end).ok_or(CoseError::Cbor)?;
-            let value = u16::from_be_bytes([data[0], data[1]]);
-            if value <= u16::from(u8::MAX) {
-                return Err(CoseError::NonCanonicalCbor);
-            }
-            Ok((u64::from(value), end))
+        if matches!(
+            role,
+            CborItemRole::CoseEncryptBody
+                | CborItemRole::CoseMac0Body
+                | CborItemRole::CoseRecipientList
+                | CborItemRole::CoseRecipient
+        ) && major != CBOR_ARRAY_MAJOR
+        {
+            return Err(CoseError::InvalidFormat);
         }
-        CBOR_FOUR_BYTE_LENGTH => {
-            let end = offset
-                .checked_add(4)
-                .ok_or(CoseError::ResourceLimitExceeded)?;
-            let data = bytes.get(offset..end).ok_or(CoseError::Cbor)?;
-            let value = u32::from_be_bytes([data[0], data[1], data[2], data[3]]);
-            if value <= u32::from(u16::MAX) {
-                return Err(CoseError::NonCanonicalCbor);
-            }
-            Ok((u64::from(value), end))
+        if matches!(
+            role,
+            CborItemRole::CoseEncryptTop | CborItemRole::CoseMac0Top
+        ) && !matches!(header.major_type(), MajorType::Array | MajorType::Tag)
+        {
+            return Err(CoseError::InvalidFormat);
         }
-        CBOR_EIGHT_BYTE_LENGTH => {
-            let end = offset
-                .checked_add(8)
-                .ok_or(CoseError::ResourceLimitExceeded)?;
-            let data = bytes.get(offset..end).ok_or(CoseError::Cbor)?;
-            let value = u64::from_be_bytes([
-                data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7],
-            ]);
-            if value <= u64::from(u32::MAX) {
-                return Err(CoseError::NonCanonicalCbor);
-            }
-            Ok((value, end))
-        }
-        _ => Err(CoseError::Cbor),
     }
-}
-
-fn parse_simple(bytes: &[u8], offset: usize, additional: u8) -> Result<usize, CoseError> {
-    match additional {
-        CBOR_FALSE | CBOR_TRUE | CBOR_NULL => Ok(offset),
-        CBOR_ONE_BYTE_LENGTH => {
-            let value = *bytes.get(offset).ok_or(CoseError::Cbor)?;
-            if value < CBOR_ONE_BYTE_LENGTH {
-                return Err(CoseError::NonCanonicalCbor);
-            }
-            Err(CoseError::Cbor)
+    if matches!(header.major_type(), MajorType::Array | MajorType::Map) {
+        if let Some(count) = header.argument() {
+            validate_collection_length(
+                role,
+                major,
+                usize::try_from(count).map_err(|_| CoseError::ResourceLimitExceeded)?,
+            )?;
         }
-        CBOR_TWO_BYTE_LENGTH | CBOR_FOUR_BYTE_LENGTH | CBOR_EIGHT_BYTE_LENGTH => {
-            // COSE profiles do not require floating-point extension values.
-            // Rejecting them avoids accepting encodings without enforcing the
-            // RFC 8949 preferred-width and canonical-NaN requirements.
-            Err(CoseError::NonCanonicalCbor)
-        }
-        // Ciborium collapses undefined into null and cannot represent other
-        // simple values. Reject them before it allocates a sensitive tree:
-        // undefined must not satisfy a required COSE null, and decoder errors
-        // must not abandon partially decoded secret buffers.
-        _ => Err(CoseError::Cbor),
     }
-}
-
-fn deterministic_key_order(left: &[u8], right: &[u8]) -> core::cmp::Ordering {
-    // RFC 8949 core deterministic encoding sorts map keys bytewise by their
-    // deterministic encodings. Length-first ordering is the distinct legacy
-    // alternative in RFC 8949 Section 4.2.3 and must not be used for the core
-    // deterministic profile that stabilizes COSE_Key-derived identifiers.
-    left.cmp(right)
+    Ok(())
 }
 
 fn validate_collection_length(role: CborItemRole, major: u8, len: usize) -> Result<(), CoseError> {
-    if len > MAX_CBOR_COLLECTION_ITEMS {
+    if len > cbor_boundary::MAX_COLLECTION_ENTRIES {
         return Err(CoseError::ResourceLimitExceeded);
     }
 
@@ -402,6 +262,7 @@ fn tag_child_role(role: CborItemRole, tag: u64) -> Result<CborItemRole, CoseErro
     }
 }
 
+#[cfg(feature = "cose-crypto")]
 fn protected_header_first_item(role: CborItemRole) -> bool {
     match role {
         #[cfg(feature = "cose-crypto")]
@@ -447,48 +308,6 @@ fn array_child_role(role: CborItemRole, index: usize) -> CborItemRole {
         CborItemRole::CoseRecipientList => CborItemRole::CoseRecipient,
         _ => CborItemRole::Normal,
     }
-}
-
-#[cfg(feature = "cose-crypto")]
-fn parse_protected_header_bstr_if_present(
-    bytes: &[u8],
-    offset: usize,
-    depth: usize,
-) -> Result<Option<usize>, CoseError> {
-    validate_item_depth(depth)?;
-
-    let first = *bytes.get(offset).ok_or(CoseError::Cbor)?;
-    let major = first >> CBOR_MAJOR_TYPE_SHIFT;
-    if major != CBOR_BYTES_MAJOR {
-        return Ok(None);
-    }
-
-    let additional = first & CBOR_ADDITIONAL_INFO_MASK;
-    let value_start = offset
-        .checked_add(1)
-        .ok_or(CoseError::ResourceLimitExceeded)?;
-    if additional == CBOR_INDEFINITE_ADDITIONAL_INFO {
-        return Err(CoseError::NonCanonicalCbor);
-    }
-
-    let (len, data_offset) = read_length(bytes, value_start, additional)?;
-    let end = data_offset
-        .checked_add(len)
-        .filter(|candidate| *candidate <= bytes.len())
-        .ok_or(CoseError::Cbor)?;
-    let protected = bytes.get(data_offset..end).ok_or(CoseError::Cbor)?;
-    validate_protected_header_bytes(protected)?;
-
-    Ok(Some(end))
-}
-
-#[cfg(not(feature = "cose-crypto"))]
-fn parse_protected_header_bstr_if_present(
-    _bytes: &[u8],
-    _offset: usize,
-    _depth: usize,
-) -> Result<Option<usize>, CoseError> {
-    Ok(None)
 }
 
 #[cfg(all(kani, feature = "cose-crypto"))]

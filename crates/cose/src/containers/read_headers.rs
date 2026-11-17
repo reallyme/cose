@@ -63,7 +63,7 @@ pub(super) fn read_headers<'a>(
         if count > MAX_HEADERS {
             return Err(Reason::Limit.into());
         }
-        let mut cursor = map.cursor();
+        let mut cursor = map.cursor()?;
         for _ in 0..count {
             let label = cursor.next()?;
             if !matches!(label.major, 0 | 1 | 3) {
@@ -119,7 +119,7 @@ pub(super) fn read_headers<'a>(
                     if value.count(4)? != 2 {
                         return Err(Reason::Malformed.into());
                     }
-                    let mut pair = value.cursor();
+                    let mut pair = value.cursor()?;
                     if pair
                         .next()?
                         .integer()
@@ -158,7 +158,7 @@ fn read_chain<'a>(
     if count > MAX_COSE_X5CHAIN_CERTIFICATES {
         return Err(Reason::Limit.into());
     }
-    let mut cursor = value.cursor();
+    let mut cursor = value.cursor()?;
     for _ in 0..count {
         append_certificate(cursor.next()?.bytes()?, output, &mut total)?;
     }

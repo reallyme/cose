@@ -50,7 +50,7 @@ pub(crate) fn inspect_peer_key_operation(
     if count > MAX_KEY_PARAMETERS {
         return Err(Reason::Limit.into());
     }
-    let mut cursor = map.cursor();
+    let mut cursor = map.cursor()?;
     let (mut kty, mut curve, mut x, mut y) = (None, None, None, None);
     for _ in 0..count {
         let label = cursor.next()?.integer()?;
@@ -154,7 +154,7 @@ fn check_operations(value: Item<'_>, usage: PeerKeyUsage) -> Result<(), Containe
     if count == 0 || count > MAX_KEY_OPERATIONS {
         return Err(Reason::Key.into());
     }
-    let mut cursor = value.cursor();
+    let mut cursor = value.cursor()?;
     let mut seen: u16 = 0;
     let mut permitted = false;
     for _ in 0..count {

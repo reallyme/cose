@@ -204,3 +204,31 @@ fn integer_values_retain_their_full_wire_range_on_every_target() {
         );
     }
 }
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
+fn duplicate_compound_keys_match_shared_codec_semantics() {
+    let encoded = b"\xa2\xa2\x00\x01\x02\x03\x00\xa2\x02\x03\x00\x01\x01";
+    assert_eq!(
+        validate_cbor_bytes(encoded, encoded.len(), CborItemRole::Normal),
+        Err(CoseError::DuplicateMapLabel)
+    );
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
+fn primitive_depth_limit_includes_empty_leaf_containers() {
+    for leaf in [0x80, 0xa0] {
+        let mut encoded = vec![0x81; 32];
+        encoded.push(leaf);
+        assert_eq!(
+            validate_cbor_bytes(&encoded, encoded.len(), CborItemRole::Normal),
+            Ok(())
+        );
+        encoded.insert(0, 0x81);
+        assert_eq!(
+            validate_cbor_bytes(&encoded, encoded.len(), CborItemRole::Normal),
+            Err(CoseError::ResourceLimitExceeded)
+        );
+    }
+}

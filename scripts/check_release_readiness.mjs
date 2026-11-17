@@ -358,7 +358,15 @@ for (const sensitiveCborEncoder of [
 }
 assertContains("crates/cose/src/sign1/sign.rs", "encode_protected_header(protected)?");
 assertNotContains("crates/cose/src/sign1/sign.rs", "protected.clone().to_vec()");
-assertContains("crates/cose/src/limits/validate.rs", "core::str::from_utf8(text)");
+assertContains("crates/cose/src/limits/validate.rs", "general::validate_prefix(");
+assertContains("crates/cose/src/containers/preflight.rs", "general::validate_exact(");
+assertContains("crates/cose/src/containers/read_cbor.rs", "general::Cursor::new(");
+assertContains("crates/cose/src/containers/read_cbor.rs", "general::frame_exact(");
+assertContains("crates/cose/src/zeroize_coset.rs", "crate::cbor_boundary::decode(&frame)");
+assertNotContains("crates/cose/src/zeroize_coset.rs", "ciborium::de::");
+for (const boundary of ["limits/validate.rs", "containers/preflight.rs", "containers/read_cbor.rs"]) {
+  assertNotMatches(`crates/cose/src/${boundary}`, /fn\s+(?:scan|read_argument|read_length|parse_simple|head_with_width_policy)\s*\(/u);
+}
 assertContains("README.md", "generated `PartialEq` is a schema");
 assertContains(
   "README.md",

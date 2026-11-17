@@ -40,8 +40,6 @@ pub use crate::generated_contract::values::MAX_COSE_X5CHAIN_CERTIFICATE_BYTES;
 /// Maximum aggregate DER bytes accepted for one RFC 9360 `x5chain` header.
 pub use crate::generated_contract::values::MAX_COSE_X5CHAIN_TOTAL_BYTES;
 
-const MAX_CBOR_DEPTH: usize = 32;
-
 pub(crate) fn native_limit(value: u64, maximum: usize) -> usize {
     // A portable request can exceed a 32-bit address space. Conversion failure
     // must retain the hard ceiling rather than widen it or vary by platform.
@@ -60,7 +58,7 @@ pub(super) fn next_depth(depth: usize) -> Result<usize, CoseError> {
 }
 
 pub(super) fn validate_item_depth(depth: usize) -> Result<(), CoseError> {
-    if depth > MAX_CBOR_DEPTH {
+    if depth > crate::cbor_boundary::MAX_ITEM_DEPTH {
         return Err(CoseError::ResourceLimitExceeded);
     }
     Ok(())
