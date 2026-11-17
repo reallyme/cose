@@ -14,6 +14,15 @@ silently taken from the primary signature, encryption or MAC operation.
 The indexed key binding must match the selected full counter, or be zero for
 a standalone/abbreviated counter.
 
+**High-S ECDSA is accepted for P-256, P-384 and P-521 by the built-in
+verifiers; secp256k1 enforces low-S.** COSE permits high-S signatures under
+[RFC 9053 section 2.1](https://www.rfc-editor.org/rfc/rfc9053.html#section-2.1).
+Both `(r, s)` and `(r, n-s)` can verify for the same message and key, where `n`
+is the curve's subgroup order. ECDSA signatures are therefore malleable.
+**Never deduplicate messages or detect replays using a hash of the COSE bytes.**
+Use a stable authenticated message identity within the application's protocol
+context.
+
 Targets include Sign, Sign1, Signature, Encrypt, Encrypt0, Mac, Mac0, Recipient
 and a full countersignature for chaining. The implementation extracts the
 protected bytes, second logical byte-string field and any following root

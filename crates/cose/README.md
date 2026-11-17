@@ -276,9 +276,12 @@ are deliberately not public struct-literal surface. Use
 - ECDSA signatures on the COSE wire use fixed-width `r || s` encoding;
   DER is accepted only at the NIST-curve signing-provider boundary, not as
   a COSE signature.
-- NIST-curve verification accepts both `(r, s)` and `(r, n-s)` signatures,
-  as permitted by RFC 9053. Applications deduplicating signed messages must
-  use an authenticated message identity rather than raw COSE bytes.
+- **High-S ECDSA is accepted for P-256, P-384 and P-521; secp256k1 enforces
+  low-S.** This is permitted by [RFC 9053 section 2.1](https://www.rfc-editor.org/rfc/rfc9053.html#section-2.1).
+  Both `(r, s)` and `(r, n-s)` can verify for the same message and key, making
+  ECDSA signatures malleable. **Never deduplicate messages or detect replays
+  using a hash of the COSE bytes.** Use a stable authenticated message identity
+  within the application's protocol context.
 - Verification accepts untagged COSE_Sign1 input and input carrying the
   registered COSE_Sign1 tag (18).
 - `cose_verify1_with_policy` and `cose_verify1_detached_with_policy` enforce

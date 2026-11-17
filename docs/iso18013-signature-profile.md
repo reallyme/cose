@@ -51,6 +51,15 @@ with the same coverage in native and WASM builds.
 | Ed25519 | 6 | Incompatible family | Incompatible family | Incompatible family | Built in |
 | Ed448 | 7 | Incompatible family | Incompatible family | Incompatible family | External provider required |
 
+**High-S ECDSA is accepted for P-256, P-384 and P-521 by the built-in
+verifiers; secp256k1 enforces low-S.** COSE permits high-S signatures under
+[RFC 9053 section 2.1](https://www.rfc-editor.org/rfc/rfc9053.html#section-2.1).
+Both `(r, s)` and `(r, n-s)` can verify for the same message and key, where `n`
+is the curve's subgroup order. ECDSA signatures are therefore malleable.
+**Never deduplicate messages or detect replays using a hash of the COSE bytes.**
+Use a stable authenticated message identity within the application's protocol
+context.
+
 For compatible pairs without a built-in implementation,
 `Iso18013CryptoVerifier::new` and `from_cose_key` return the fixed
 `CoseError::ProviderUnavailable`. They never try an identically sized curve or

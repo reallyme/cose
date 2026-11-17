@@ -29,6 +29,15 @@ missing crypto coverage fail with the fixed provider-unavailable reason.
 No algorithm is enabled implicitly. The existing explicit ISO Sign1 profiles
 remain separate and retain their compatibility rules.
 
+**High-S ECDSA is accepted for P-256, P-384 and P-521 by the built-in
+verifiers; secp256k1 enforces low-S.** COSE permits high-S signatures under
+[RFC 9053 section 2.1](https://www.rfc-editor.org/rfc/rfc9053.html#section-2.1).
+Both `(r, s)` and `(r, n-s)` can verify for the same message and key, where `n`
+is the curve's subgroup order. ECDSA signatures are therefore malleable.
+**Never deduplicate messages or detect replays using a hash of the COSE bytes.**
+Use a stable authenticated message identity within the application's protocol
+context.
+
 | Requirement | Focused native/WASM test |
 | --- | --- |
 | RFC 9052 C.1.1 and C.1.2 independent single/multiple signatures | `sign_rfc_single_and_multiple_signatures_verify_exact_bytes` |
