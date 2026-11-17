@@ -32,6 +32,16 @@ fuzz_target!(|data: &[u8]| {
     // bytes. Wrap every input so all migrated key-family routes remain
     // continuously reachable through both generated transport lanes.
     let signature_algorithm = signature_algorithm(data);
+    let key_set_policy = reallyme_cose::api::contract::CoseKeySetPolicy {
+        projection: reallyme_cose::api::contract::CoseKeySetProjection::SensitiveStorage.into(),
+        allowed_key_types: vec![reallyme_cose::api::contract::CoseKeySetKeyType::Ec2.into()].into(),
+    };
+    execute(Operation::KeySetParse(Box::new(reallyme_cose::api::contract::CoseKeySetParseRequest {
+        encoded: data.to_vec().into(), policy: buffa::MessageField::some(key_set_policy.clone()),
+    })));
+    execute(Operation::KeySetCreate(Box::new(reallyme_cose::api::contract::CoseKeySetCreateRequest {
+        keys: vec![data.to_vec().into()].into(), policy: buffa::MessageField::some(key_set_policy),
+    })));
     execute(Operation::KeyParse(Box::new(key_request(data))));
     execute(Operation::KeyFromPublicBytes(Box::new(
         CoseKeyFromPublicBytesRequest {

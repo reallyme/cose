@@ -406,6 +406,8 @@ pub mod cose_operation_request {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
                 Self::KeyToPublicVec(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::KeySetParse(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::KeySetCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::MlKemEncryptDirect(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -583,6 +585,16 @@ pub mod cose_operation_request {
                 super::super::super::super::__buffa::view::CoseKeyBytesRequestView<'a>,
             >,
         ),
+        KeySetParse(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseKeySetParseRequestView<'a>,
+            >,
+        ),
+        KeySetCreate(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseKeySetCreateRequestView<'a>,
+            >,
+        ),
         MlKemEncryptDirect(
             ::buffa::alloc::boxed::Box<
                 super::super::super::super::__buffa::view::CoseMlKemEncryptRequestView<'a>,
@@ -726,6 +738,8 @@ pub mod cose_operation_result {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
                 Self::KeyToPublicVec(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::KeySetParse(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::KeySetCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::MlKemEncryptDirect(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -903,6 +917,16 @@ pub mod cose_operation_result {
                 super::super::super::super::__buffa::view::CoseKeyBytesResultView<'a>,
             >,
         ),
+        KeySetParse(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseKeySetParseResultView<'a>,
+            >,
+        ),
+        KeySetCreate(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseKeySetCreateResultView<'a>,
+            >,
+        ),
         MlKemEncryptDirect(
             ::buffa::alloc::boxed::Box<
                 super::super::super::super::__buffa::view::CoseMlKemEncryptResultView<'a>,
@@ -965,6 +989,38 @@ pub mod cose_type {
     impl<'a> ::core::fmt::Debug for Value<'a> {
         fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             f.write_str("Value([REDACTED])")
+        }
+    }
+}
+pub mod cose_key_set_entry {
+    #[allow(unused_imports)]
+    use super::*;
+    impl<'a> ::buffa::sensitive::Zeroize for Outcome<'a> {
+        fn zeroize(&mut self) {
+            match self {
+                Self::Key(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::Rejected(value) => ::buffa::sensitive::Zeroize::zeroize(value),
+            }
+        }
+    }
+    impl<'a> ::buffa::sensitive::ZeroizeOnDrop for Outcome<'a> {}
+    impl<'a> ::core::ops::Drop for Outcome<'a> {
+        fn drop(&mut self) {
+            ::buffa::sensitive::Zeroize::zeroize(self);
+        }
+    }
+    #[derive(Clone)]
+    pub enum Outcome<'a> {
+        Key(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseKeySetMemberView<'a>,
+            >,
+        ),
+        Rejected(::buffa::EnumValue<super::super::super::super::CoseErrorReason>),
+    }
+    impl<'a> ::core::fmt::Debug for Outcome<'a> {
+        fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            f.write_str("Outcome([REDACTED])")
         }
     }
 }

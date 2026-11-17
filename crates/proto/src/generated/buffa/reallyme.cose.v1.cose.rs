@@ -3660,6 +3660,244 @@ impl ::buffa::Enumeration for CoseX5ChainHeaderPlacement {
         ]
     }
 }
+/// KeySet parsing is independent per member (RFC 9052 section 7). Recognized
+/// members have validated COSE key parameter types, not cryptographic point,
+/// modulus, private/public binding, trust or operation authorization validation.
+#[allow(non_camel_case_types)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[repr(i32)]
+pub enum CoseKeySetKeyType {
+    COSE_KEY_SET_KEY_TYPE_UNSPECIFIED = 0i32,
+    COSE_KEY_SET_KEY_TYPE_OKP = 100i32,
+    COSE_KEY_SET_KEY_TYPE_EC2 = 200i32,
+    COSE_KEY_SET_KEY_TYPE_RSA = 300i32,
+    COSE_KEY_SET_KEY_TYPE_SYMMETRIC = 400i32,
+    COSE_KEY_SET_KEY_TYPE_AKP = 700i32,
+}
+impl CoseKeySetKeyType {
+    ///Idiomatic alias for [`Self::COSE_KEY_SET_KEY_TYPE_UNSPECIFIED`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Unspecified: Self = Self::COSE_KEY_SET_KEY_TYPE_UNSPECIFIED;
+    ///Idiomatic alias for [`Self::COSE_KEY_SET_KEY_TYPE_OKP`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Okp: Self = Self::COSE_KEY_SET_KEY_TYPE_OKP;
+    ///Idiomatic alias for [`Self::COSE_KEY_SET_KEY_TYPE_EC2`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Ec2: Self = Self::COSE_KEY_SET_KEY_TYPE_EC2;
+    ///Idiomatic alias for [`Self::COSE_KEY_SET_KEY_TYPE_RSA`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Rsa: Self = Self::COSE_KEY_SET_KEY_TYPE_RSA;
+    ///Idiomatic alias for [`Self::COSE_KEY_SET_KEY_TYPE_SYMMETRIC`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Symmetric: Self = Self::COSE_KEY_SET_KEY_TYPE_SYMMETRIC;
+    ///Idiomatic alias for [`Self::COSE_KEY_SET_KEY_TYPE_AKP`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Akp: Self = Self::COSE_KEY_SET_KEY_TYPE_AKP;
+}
+impl ::core::default::Default for CoseKeySetKeyType {
+    fn default() -> Self {
+        Self::COSE_KEY_SET_KEY_TYPE_UNSPECIFIED
+    }
+}
+impl ::buffa::sensitive::Zeroize for CoseKeySetKeyType {
+    fn zeroize(&mut self) {
+        ::buffa::sensitive::reset_copy(self);
+    }
+}
+impl ::serde::Serialize for CoseKeySetKeyType {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        s.serialize_str(::buffa::Enumeration::proto_name(self))
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CoseKeySetKeyType {
+    fn deserialize<__D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        ::buffa::json_helpers::closed_enum::deserialize_strict(d)
+    }
+}
+impl ::buffa::json_helpers::ProtoElemJson for CoseKeySetKeyType {
+    fn serialize_proto_json<__S: ::serde::Serializer>(
+        v: &Self,
+        s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(v, s)
+    }
+    fn deserialize_proto_json<'de, __D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        <Self as ::serde::Deserialize>::deserialize(d)
+    }
+}
+impl ::buffa::Enumeration for CoseKeySetKeyType {
+    fn from_i32(value: i32) -> ::core::option::Option<Self> {
+        match value {
+            0i32 => ::core::option::Option::Some(Self::COSE_KEY_SET_KEY_TYPE_UNSPECIFIED),
+            100i32 => ::core::option::Option::Some(Self::COSE_KEY_SET_KEY_TYPE_OKP),
+            200i32 => ::core::option::Option::Some(Self::COSE_KEY_SET_KEY_TYPE_EC2),
+            300i32 => ::core::option::Option::Some(Self::COSE_KEY_SET_KEY_TYPE_RSA),
+            400i32 => ::core::option::Option::Some(Self::COSE_KEY_SET_KEY_TYPE_SYMMETRIC),
+            700i32 => ::core::option::Option::Some(Self::COSE_KEY_SET_KEY_TYPE_AKP),
+            _ => ::core::option::Option::None,
+        }
+    }
+    fn to_i32(&self) -> i32 {
+        *self as i32
+    }
+    fn proto_name(&self) -> &'static str {
+        match self {
+            Self::COSE_KEY_SET_KEY_TYPE_UNSPECIFIED => "COSE_KEY_SET_KEY_TYPE_UNSPECIFIED",
+            Self::COSE_KEY_SET_KEY_TYPE_OKP => "COSE_KEY_SET_KEY_TYPE_OKP",
+            Self::COSE_KEY_SET_KEY_TYPE_EC2 => "COSE_KEY_SET_KEY_TYPE_EC2",
+            Self::COSE_KEY_SET_KEY_TYPE_RSA => "COSE_KEY_SET_KEY_TYPE_RSA",
+            Self::COSE_KEY_SET_KEY_TYPE_SYMMETRIC => "COSE_KEY_SET_KEY_TYPE_SYMMETRIC",
+            Self::COSE_KEY_SET_KEY_TYPE_AKP => "COSE_KEY_SET_KEY_TYPE_AKP",
+        }
+    }
+    fn from_proto_name(name: &str) -> ::core::option::Option<Self> {
+        match name {
+            "COSE_KEY_SET_KEY_TYPE_UNSPECIFIED" => {
+                ::core::option::Option::Some(Self::COSE_KEY_SET_KEY_TYPE_UNSPECIFIED)
+            }
+            "COSE_KEY_SET_KEY_TYPE_OKP" => {
+                ::core::option::Option::Some(Self::COSE_KEY_SET_KEY_TYPE_OKP)
+            }
+            "COSE_KEY_SET_KEY_TYPE_EC2" => {
+                ::core::option::Option::Some(Self::COSE_KEY_SET_KEY_TYPE_EC2)
+            }
+            "COSE_KEY_SET_KEY_TYPE_RSA" => {
+                ::core::option::Option::Some(Self::COSE_KEY_SET_KEY_TYPE_RSA)
+            }
+            "COSE_KEY_SET_KEY_TYPE_SYMMETRIC" => {
+                ::core::option::Option::Some(Self::COSE_KEY_SET_KEY_TYPE_SYMMETRIC)
+            }
+            "COSE_KEY_SET_KEY_TYPE_AKP" => {
+                ::core::option::Option::Some(Self::COSE_KEY_SET_KEY_TYPE_AKP)
+            }
+            _ => ::core::option::Option::None,
+        }
+    }
+    fn values() -> &'static [Self] {
+        &[
+            Self::COSE_KEY_SET_KEY_TYPE_UNSPECIFIED,
+            Self::COSE_KEY_SET_KEY_TYPE_OKP,
+            Self::COSE_KEY_SET_KEY_TYPE_EC2,
+            Self::COSE_KEY_SET_KEY_TYPE_RSA,
+            Self::COSE_KEY_SET_KEY_TYPE_SYMMETRIC,
+            Self::COSE_KEY_SET_KEY_TYPE_AKP,
+        ]
+    }
+}
+#[allow(non_camel_case_types)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[repr(i32)]
+pub enum CoseKeySetProjection {
+    COSE_KEY_SET_PROJECTION_UNSPECIFIED = 0i32,
+    /// Retain complete received key bytes. Every member is sensitive storage,
+    /// including opaque extensions that may contain private material.
+    COSE_KEY_SET_PROJECTION_SENSITIVE_STORAGE = 1i32,
+    /// Emit only registered public parameters and exact alg when present. Drop
+    /// private fields, all extensions, kid, key_ops and Base IV. Symmetric keys
+    /// have no public parameters. Import projected keys before cryptographic use.
+    COSE_KEY_SET_PROJECTION_PUBLIC_PARAMETERS = 2i32,
+}
+impl CoseKeySetProjection {
+    ///Idiomatic alias for [`Self::COSE_KEY_SET_PROJECTION_UNSPECIFIED`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Unspecified: Self = Self::COSE_KEY_SET_PROJECTION_UNSPECIFIED;
+    ///Idiomatic alias for [`Self::COSE_KEY_SET_PROJECTION_SENSITIVE_STORAGE`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const SensitiveStorage: Self = Self::COSE_KEY_SET_PROJECTION_SENSITIVE_STORAGE;
+    ///Idiomatic alias for [`Self::COSE_KEY_SET_PROJECTION_PUBLIC_PARAMETERS`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const PublicParameters: Self = Self::COSE_KEY_SET_PROJECTION_PUBLIC_PARAMETERS;
+}
+impl ::core::default::Default for CoseKeySetProjection {
+    fn default() -> Self {
+        Self::COSE_KEY_SET_PROJECTION_UNSPECIFIED
+    }
+}
+impl ::buffa::sensitive::Zeroize for CoseKeySetProjection {
+    fn zeroize(&mut self) {
+        ::buffa::sensitive::reset_copy(self);
+    }
+}
+impl ::serde::Serialize for CoseKeySetProjection {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        s.serialize_str(::buffa::Enumeration::proto_name(self))
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CoseKeySetProjection {
+    fn deserialize<__D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        ::buffa::json_helpers::closed_enum::deserialize_strict(d)
+    }
+}
+impl ::buffa::json_helpers::ProtoElemJson for CoseKeySetProjection {
+    fn serialize_proto_json<__S: ::serde::Serializer>(
+        v: &Self,
+        s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(v, s)
+    }
+    fn deserialize_proto_json<'de, __D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        <Self as ::serde::Deserialize>::deserialize(d)
+    }
+}
+impl ::buffa::Enumeration for CoseKeySetProjection {
+    fn from_i32(value: i32) -> ::core::option::Option<Self> {
+        match value {
+            0i32 => ::core::option::Option::Some(Self::COSE_KEY_SET_PROJECTION_UNSPECIFIED),
+            1i32 => ::core::option::Option::Some(Self::COSE_KEY_SET_PROJECTION_SENSITIVE_STORAGE),
+            2i32 => ::core::option::Option::Some(Self::COSE_KEY_SET_PROJECTION_PUBLIC_PARAMETERS),
+            _ => ::core::option::Option::None,
+        }
+    }
+    fn to_i32(&self) -> i32 {
+        *self as i32
+    }
+    fn proto_name(&self) -> &'static str {
+        match self {
+            Self::COSE_KEY_SET_PROJECTION_UNSPECIFIED => "COSE_KEY_SET_PROJECTION_UNSPECIFIED",
+            Self::COSE_KEY_SET_PROJECTION_SENSITIVE_STORAGE => {
+                "COSE_KEY_SET_PROJECTION_SENSITIVE_STORAGE"
+            }
+            Self::COSE_KEY_SET_PROJECTION_PUBLIC_PARAMETERS => {
+                "COSE_KEY_SET_PROJECTION_PUBLIC_PARAMETERS"
+            }
+        }
+    }
+    fn from_proto_name(name: &str) -> ::core::option::Option<Self> {
+        match name {
+            "COSE_KEY_SET_PROJECTION_UNSPECIFIED" => {
+                ::core::option::Option::Some(Self::COSE_KEY_SET_PROJECTION_UNSPECIFIED)
+            }
+            "COSE_KEY_SET_PROJECTION_SENSITIVE_STORAGE" => {
+                ::core::option::Option::Some(Self::COSE_KEY_SET_PROJECTION_SENSITIVE_STORAGE)
+            }
+            "COSE_KEY_SET_PROJECTION_PUBLIC_PARAMETERS" => {
+                ::core::option::Option::Some(Self::COSE_KEY_SET_PROJECTION_PUBLIC_PARAMETERS)
+            }
+            _ => ::core::option::Option::None,
+        }
+    }
+    fn values() -> &'static [Self] {
+        &[
+            Self::COSE_KEY_SET_PROJECTION_UNSPECIFIED,
+            Self::COSE_KEY_SET_PROJECTION_SENSITIVE_STORAGE,
+            Self::COSE_KEY_SET_PROJECTION_PUBLIC_PARAMETERS,
+        ]
+    }
+}
 /// CoseErrorReason is the component-owned reason-code enum for reallyme/cose.
 /// Values are stable public boundary codes; internal Rust errors must map into
 /// one of these before crossing RPC, SDK, FFI, storage, audit, or telemetry
@@ -23370,6 +23608,8 @@ const _: fn() = || {
     __requires_wipe_owner::<CosePeerKeyRequest>();
     __requires_wipe_owner::<CoseVerificationKeyImportRequest>();
     __requires_wipe_owner::<CoseKeyBytesRequest>();
+    __requires_wipe_owner::<CoseKeySetParseRequest>();
+    __requires_wipe_owner::<CoseKeySetCreateRequest>();
     __requires_wipe_owner::<CoseMlKemEncryptRequest>();
     __requires_wipe_owner::<CoseMlKemEncryptRequest>();
     __requires_wipe_owner::<CoseMlKemDecryptRequest>();
@@ -23616,6 +23856,20 @@ impl ::buffa::Message for CoseOperationRequest {
                         2u64 + ::buffa::encoding::varint_len(inner as u64) as u64 + inner as u64;
                 }
                 __buffa::oneof::cose_operation_request::Operation::KeyToPublicVec(x) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size +=
+                        2u64 + ::buffa::encoding::varint_len(inner as u64) as u64 + inner as u64;
+                }
+                __buffa::oneof::cose_operation_request::Operation::KeySetParse(x) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size +=
+                        2u64 + ::buffa::encoding::varint_len(inner as u64) as u64 + inner as u64;
+                }
+                __buffa::oneof::cose_operation_request::Operation::KeySetCreate(x) => {
                     let __slot = __cache.reserve();
                     let inner = x.compute_size(__cache);
                     __cache.set(__slot, inner);
@@ -23910,6 +24164,22 @@ impl ::buffa::Message for CoseOperationRequest {
                 __buffa::oneof::cose_operation_request::Operation::KeyToPublicVec(x) => {
                     ::buffa::types::put_len_delimited_header(
                         2013u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                __buffa::oneof::cose_operation_request::Operation::KeySetParse(x) => {
+                    ::buffa::types::put_len_delimited_header(
+                        2014u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                __buffa::oneof::cose_operation_request::Operation::KeySetCreate(x) => {
+                    ::buffa::types::put_len_delimited_header(
+                        2015u32,
                         u64::from(__cache.consume_next()),
                         buf,
                     );
@@ -24630,6 +24900,50 @@ impl ::buffa::Message for CoseOperationRequest {
                     ::buffa::Message::merge_length_delimited(&mut val, buf, ctx)?;
                     self.operation = ::core::option::Option::Some(
                         __buffa::oneof::cose_operation_request::Operation::KeyToPublicVec(
+                            ::buffa::alloc::boxed::Box::new(val),
+                        ),
+                    );
+                }
+            }
+            2014u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                if let ::core::option::Option::Some(
+                    __buffa::oneof::cose_operation_request::Operation::KeySetParse(
+                        ref mut existing,
+                    ),
+                ) = self.operation
+                {
+                    ::buffa::Message::merge_length_delimited(&mut **existing, buf, ctx)?;
+                } else {
+                    let mut val = ::core::default::Default::default();
+                    ::buffa::Message::merge_length_delimited(&mut val, buf, ctx)?;
+                    self.operation = ::core::option::Option::Some(
+                        __buffa::oneof::cose_operation_request::Operation::KeySetParse(
+                            ::buffa::alloc::boxed::Box::new(val),
+                        ),
+                    );
+                }
+            }
+            2015u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                if let ::core::option::Option::Some(
+                    __buffa::oneof::cose_operation_request::Operation::KeySetCreate(
+                        ref mut existing,
+                    ),
+                ) = self.operation
+                {
+                    ::buffa::Message::merge_length_delimited(&mut **existing, buf, ctx)?;
+                } else {
+                    let mut val = ::core::default::Default::default();
+                    ::buffa::Message::merge_length_delimited(&mut val, buf, ctx)?;
+                    self.operation = ::core::option::Option::Some(
+                        __buffa::oneof::cose_operation_request::Operation::KeySetCreate(
                             ::buffa::alloc::boxed::Box::new(val),
                         ),
                     );
@@ -25372,6 +25686,46 @@ impl<'de> ::serde::Deserialize<'de> for CoseOperationRequest {
                                 __r.operation = Some(__variant);
                             }
                         }
+                        "keySetParse" | "key_set_parse" => {
+                            let v: ::core::option::Option<CoseKeySetParseRequest> = map
+                                .next_value_seed(::buffa::json_helpers::NullableDeserializeSeed(
+                                    ::buffa::json_helpers::DefaultDeserializeSeed::<
+                                        CoseKeySetParseRequest,
+                                    >::new(),
+                                ))?;
+                            if let Some(v) = v {
+                                let __variant =
+                                    __buffa::oneof::cose_operation_request::Operation::KeySetParse(
+                                        ::buffa::alloc::boxed::Box::new(v),
+                                    );
+                                if __r.operation.is_some() {
+                                    return Err(::serde::de::Error::custom(
+                                        "multiple oneof fields set for 'operation'",
+                                    ));
+                                }
+                                __r.operation = Some(__variant);
+                            }
+                        }
+                        "keySetCreate" | "key_set_create" => {
+                            let v: ::core::option::Option<CoseKeySetCreateRequest> = map
+                                .next_value_seed(::buffa::json_helpers::NullableDeserializeSeed(
+                                    ::buffa::json_helpers::DefaultDeserializeSeed::<
+                                        CoseKeySetCreateRequest,
+                                    >::new(),
+                                ))?;
+                            if let Some(v) = v {
+                                let __variant =
+                                    __buffa::oneof::cose_operation_request::Operation::KeySetCreate(
+                                        ::buffa::alloc::boxed::Box::new(v),
+                                    );
+                                if __r.operation.is_some() {
+                                    return Err(::serde::de::Error::custom(
+                                        "multiple oneof fields set for 'operation'",
+                                    ));
+                                }
+                                __r.operation = Some(__variant);
+                            }
+                        }
                         "mlKemEncryptDirect" | "ml_kem_encrypt_direct" => {
                             let v: ::core::option::Option<CoseMlKemEncryptRequest> = map
                                 .next_value_seed(::buffa::json_helpers::NullableDeserializeSeed(
@@ -25879,6 +26233,8 @@ const _: fn() = || {
     __requires_wipe_owner::<CosePeerKeyResult>();
     __requires_wipe_owner::<CoseWorkingKey>();
     __requires_wipe_owner::<CoseKeyBytesResult>();
+    __requires_wipe_owner::<CoseKeySetParseResult>();
+    __requires_wipe_owner::<CoseKeySetCreateResult>();
     __requires_wipe_owner::<CoseMlKemEncryptResult>();
     __requires_wipe_owner::<CoseMlKemEncryptResult>();
     __requires_wipe_owner::<CoseMlKemDecryptResult>();
@@ -26123,6 +26479,20 @@ impl ::buffa::Message for CoseOperationResult {
                         2u64 + ::buffa::encoding::varint_len(inner as u64) as u64 + inner as u64;
                 }
                 __buffa::oneof::cose_operation_result::Result::KeyToPublicVec(x) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size +=
+                        2u64 + ::buffa::encoding::varint_len(inner as u64) as u64 + inner as u64;
+                }
+                __buffa::oneof::cose_operation_result::Result::KeySetParse(x) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size +=
+                        2u64 + ::buffa::encoding::varint_len(inner as u64) as u64 + inner as u64;
+                }
+                __buffa::oneof::cose_operation_result::Result::KeySetCreate(x) => {
                     let __slot = __cache.reserve();
                     let inner = x.compute_size(__cache);
                     __cache.set(__slot, inner);
@@ -26415,6 +26785,22 @@ impl ::buffa::Message for CoseOperationResult {
                 __buffa::oneof::cose_operation_result::Result::KeyToPublicVec(x) => {
                     ::buffa::types::put_len_delimited_header(
                         2013u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                __buffa::oneof::cose_operation_result::Result::KeySetParse(x) => {
+                    ::buffa::types::put_len_delimited_header(
+                        2014u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                __buffa::oneof::cose_operation_result::Result::KeySetCreate(x) => {
+                    ::buffa::types::put_len_delimited_header(
+                        2015u32,
                         u64::from(__cache.consume_next()),
                         buf,
                     );
@@ -27119,6 +27505,46 @@ impl ::buffa::Message for CoseOperationResult {
                     ::buffa::Message::merge_length_delimited(&mut val, buf, ctx)?;
                     self.result = ::core::option::Option::Some(
                         __buffa::oneof::cose_operation_result::Result::KeyToPublicVec(
+                            ::buffa::alloc::boxed::Box::new(val),
+                        ),
+                    );
+                }
+            }
+            2014u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                if let ::core::option::Option::Some(
+                    __buffa::oneof::cose_operation_result::Result::KeySetParse(ref mut existing),
+                ) = self.result
+                {
+                    ::buffa::Message::merge_length_delimited(&mut **existing, buf, ctx)?;
+                } else {
+                    let mut val = ::core::default::Default::default();
+                    ::buffa::Message::merge_length_delimited(&mut val, buf, ctx)?;
+                    self.result = ::core::option::Option::Some(
+                        __buffa::oneof::cose_operation_result::Result::KeySetParse(
+                            ::buffa::alloc::boxed::Box::new(val),
+                        ),
+                    );
+                }
+            }
+            2015u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                if let ::core::option::Option::Some(
+                    __buffa::oneof::cose_operation_result::Result::KeySetCreate(ref mut existing),
+                ) = self.result
+                {
+                    ::buffa::Message::merge_length_delimited(&mut **existing, buf, ctx)?;
+                } else {
+                    let mut val = ::core::default::Default::default();
+                    ::buffa::Message::merge_length_delimited(&mut val, buf, ctx)?;
+                    self.result = ::core::option::Option::Some(
+                        __buffa::oneof::cose_operation_result::Result::KeySetCreate(
                             ::buffa::alloc::boxed::Box::new(val),
                         ),
                     );
@@ -27863,6 +28289,46 @@ impl<'de> ::serde::Deserialize<'de> for CoseOperationResult {
                             if let Some(v) = v {
                                 let __variant =
                                     __buffa::oneof::cose_operation_result::Result::KeyToPublicVec(
+                                        ::buffa::alloc::boxed::Box::new(v),
+                                    );
+                                if __r.result.is_some() {
+                                    return Err(::serde::de::Error::custom(
+                                        "multiple oneof fields set for 'result'",
+                                    ));
+                                }
+                                __r.result = Some(__variant);
+                            }
+                        }
+                        "keySetParse" | "key_set_parse" => {
+                            let v: ::core::option::Option<CoseKeySetParseResult> = map
+                                .next_value_seed(::buffa::json_helpers::NullableDeserializeSeed(
+                                    ::buffa::json_helpers::DefaultDeserializeSeed::<
+                                        CoseKeySetParseResult,
+                                    >::new(),
+                                ))?;
+                            if let Some(v) = v {
+                                let __variant =
+                                    __buffa::oneof::cose_operation_result::Result::KeySetParse(
+                                        ::buffa::alloc::boxed::Box::new(v),
+                                    );
+                                if __r.result.is_some() {
+                                    return Err(::serde::de::Error::custom(
+                                        "multiple oneof fields set for 'result'",
+                                    ));
+                                }
+                                __r.result = Some(__variant);
+                            }
+                        }
+                        "keySetCreate" | "key_set_create" => {
+                            let v: ::core::option::Option<CoseKeySetCreateResult> = map
+                                .next_value_seed(::buffa::json_helpers::NullableDeserializeSeed(
+                                    ::buffa::json_helpers::DefaultDeserializeSeed::<
+                                        CoseKeySetCreateResult,
+                                    >::new(),
+                                ))?;
+                            if let Some(v) = v {
+                                let __variant =
+                                    __buffa::oneof::cose_operation_result::Result::KeySetCreate(
                                         ::buffa::alloc::boxed::Box::new(v),
                                     );
                                 if __r.result.is_some() {
@@ -34896,6 +35362,1862 @@ pub const __COSE_SIGN1VERIFY_RESULT_JSON_ANY: ::buffa::type_registry::JsonAnyEnt
         type_url: "type.googleapis.com/reallyme.cose.v1.CoseSign1VerifyResult",
         to_json: ::buffa::type_registry::any_to_json::<CoseSign1VerifyResult>,
         from_json: ::buffa::type_registry::any_from_json::<CoseSign1VerifyResult>,
+        is_wkt: false,
+    };
+#[derive(Clone, PartialEq, Default, ::serde::Serialize)]
+pub struct CoseKeySetPolicy {
+    /// Field 1: `projection`
+    #[serde(
+        rename = "projection",
+        with = "::buffa::json_helpers::guarded_enum::open",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_default_enum_value"
+    )]
+    #[serde(default)]
+    pub projection: ::buffa::EnumValue<CoseKeySetProjection>,
+    /// Required nonempty unique allowlist, at most five recognized key classes.
+    ///
+    /// Field 2: `allowed_key_types`
+    #[serde(
+        rename = "allowedKeyTypes",
+        alias = "allowed_key_types",
+        with = "::buffa::json_helpers::enum_list::open",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_vec"
+    )]
+    #[serde(default)]
+    pub allowed_key_types: ::buffa::sensitive::List<::buffa::EnumValue<CoseKeySetKeyType>>,
+}
+impl ::core::fmt::Debug for CoseKeySetPolicy {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseKeySetPolicy")
+            .field("projection", &::core::format_args!("[REDACTED]"))
+            .field("allowed_key_types", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl CoseKeySetPolicy {
+    /// Protobuf type URL for this message, for use with `Any::pack` and
+    /// `Any::unpack_if`.
+    ///
+    /// Format: `type.googleapis.com/<fully.qualified.TypeName>`
+    pub const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseKeySetPolicy";
+}
+impl CoseKeySetPolicy {
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::projection`] to `value`, consuming and returning `self`.
+    pub fn with_projection(
+        mut self,
+        value: impl ::core::convert::Into<::buffa::EnumValue<CoseKeySetProjection>>,
+    ) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.projection);
+        self.projection = value.into();
+        self
+    }
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::allowed_key_types`] to `value`, consuming and returning `self`.
+    pub fn with_allowed_key_types(
+        mut self,
+        value: impl ::core::convert::Into<
+            ::buffa::sensitive::List<::buffa::EnumValue<CoseKeySetKeyType>>,
+        >,
+    ) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.allowed_key_types);
+        self.allowed_key_types = value.into();
+        self
+    }
+}
+const _: fn() = || {
+    fn __requires_wipe_owner<T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop>() {
+    }
+    __requires_wipe_owner::<::buffa::sensitive::List<::buffa::EnumValue<CoseKeySetKeyType>>>();
+};
+impl ::buffa::sensitive::Zeroize for CoseKeySetPolicy {
+    fn zeroize(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.projection);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.allowed_key_types);
+    }
+}
+impl ::buffa::sensitive::ZeroizeOnDrop for CoseKeySetPolicy {}
+impl ::core::ops::Drop for CoseKeySetPolicy {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+::buffa::impl_default_instance!(CoseKeySetPolicy);
+impl ::buffa::MessageName for CoseKeySetPolicy {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseKeySetPolicy";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseKeySetPolicy";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseKeySetPolicy";
+}
+impl ::buffa::Message for CoseKeySetPolicy {
+    /// Returns the total encoded size in bytes.
+    ///
+    /// Accumulates in `u64` (which cannot overflow for in-memory
+    /// data) and saturates to `u32` at return, so a message whose
+    /// encoded size exceeds the 2 GiB protobuf limit yields a value
+    /// above [`::buffa::MAX_MESSAGE_BYTES`] that the encode entry
+    /// points reject, never a silently wrapped size.
+    #[allow(clippy::let_and_return)]
+    fn compute_size(&self, _cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        {
+            let val = self.projection.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        if !self.allowed_key_types.is_empty() {
+            let payload: u64 = self
+                .allowed_key_types
+                .iter()
+                .map(|v| ::buffa::types::int32_encoded_len(v.to_i32()) as u64)
+                .sum::<u64>();
+            size += 1u64 + ::buffa::encoding::varint_len(payload) as u64 + payload;
+        }
+        ::buffa::saturate_size(size)
+    }
+    fn write_to(&self, _cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        {
+            let val = self.projection.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(1u32, val, buf);
+            }
+        }
+        if !self.allowed_key_types.is_empty() {
+            let payload: u64 = self
+                .allowed_key_types
+                .iter()
+                .map(|v| ::buffa::types::int32_encoded_len(v.to_i32()) as u64)
+                .sum::<u64>();
+            ::buffa::types::put_len_delimited_header(2u32, payload, buf);
+            for v in self.allowed_key_types.iter() {
+                ::buffa::types::encode_int32(v.to_i32(), buf);
+            }
+        }
+    }
+    fn merge_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        buf: &mut impl ::buffa::bytes::Buf,
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<(), ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::bytes::Buf as _;
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                self.projection = ::buffa::EnumValue::from(::buffa::types::decode_int32(buf)?);
+            }
+            2u32 => {
+                #[allow(unused_imports)]
+                use ::buffa::ProtoList as _;
+                if tag.wire_type() == ::buffa::encoding::WireType::LengthDelimited {
+                    let len = ::buffa::encoding::decode_varint(buf)?;
+                    let len =
+                        usize::try_from(len).map_err(|_| ::buffa::DecodeError::MessageTooLarge)?;
+                    if buf.remaining() < len {
+                        return ::core::result::Result::Err(::buffa::DecodeError::UnexpectedEof);
+                    }
+                    ::buffa::ProtoList::reserve(&mut self.allowed_key_types, len);
+                    let mut limited = buf.take(len);
+                    while limited.has_remaining() {
+                        self.allowed_key_types.push(::buffa::EnumValue::from(
+                            ::buffa::types::decode_int32_packed(&mut limited)?,
+                        ));
+                    }
+                    let leftover = limited.remaining();
+                    if leftover > 0 {
+                        limited.advance(leftover);
+                    }
+                } else if tag.wire_type() == ::buffa::encoding::WireType::Varint {
+                    self.allowed_key_types
+                        .push(::buffa::EnumValue::from(::buffa::types::decode_int32(buf)?));
+                } else {
+                    return ::core::result::Result::Err(::buffa::encoding::wire_type_mismatch(
+                        tag,
+                        ::buffa::encoding::WireType::LengthDelimited,
+                    ));
+                }
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(())
+    }
+    fn clear(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+        self.projection = ::buffa::EnumValue::from(0);
+        ::buffa::ProtoList::clear(&mut self.allowed_key_types);
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CoseKeySetPolicy {
+    fn deserialize<__D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        struct _V;
+        impl<'de> ::serde::de::Visitor<'de> for _V {
+            type Value = CoseKeySetPolicy;
+            fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+                f.write_str("struct CoseKeySetPolicy")
+            }
+            #[allow(clippy::field_reassign_with_default)]
+            fn visit_map<__A: ::serde::de::MapAccess<'de>>(
+                self,
+                mut map: __A,
+            ) -> ::core::result::Result<CoseKeySetPolicy, __A::Error> {
+                let mut __r = <CoseKeySetPolicy as ::core::default::Default>::default();
+                let mut __f_projection = false;
+                let mut __f_allowed_key_types = false;
+                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                    let key = ::buffa::sensitive::Zeroizing::new(key);
+                    match key.as_str() {
+                        "projection" => {
+                            if __f_projection {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "projection",
+                                ));
+                            }
+                            __f_projection = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = ::buffa::EnumValue<CoseKeySetProjection>;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<
+                                        ::buffa::EnumValue<CoseKeySetProjection>,
+                                        __D::Error,
+                                    > {
+                                        ::buffa::json_helpers::guarded_enum::open::deserialize(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.projection);
+                            __r.projection = value;
+                        }
+                        "allowedKeyTypes" | "allowed_key_types" => {
+                            if __f_allowed_key_types {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "allowed_key_types",
+                                ));
+                            }
+                            __f_allowed_key_types = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = ::buffa::sensitive::List<
+                                        ::buffa::EnumValue<CoseKeySetKeyType>,
+                                    >;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<
+                                        ::buffa::sensitive::List<
+                                            ::buffa::EnumValue<CoseKeySetKeyType>,
+                                        >,
+                                        __D::Error,
+                                    > {
+                                        ::buffa::json_helpers::enum_list::open::deserialize(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.allowed_key_types);
+                            __r.allowed_key_types = value;
+                        }
+                        __unknown => {
+                            return ::core::result::Result::Err(
+                                <__A::Error as ::serde::de::Error>::custom(
+                                    ::buffa::sensitive::JsonErrorReason::UnknownField,
+                                ),
+                            );
+                        }
+                    }
+                }
+                Ok(__r)
+            }
+        }
+        d.deserialize_map(_V)
+    }
+}
+impl ::buffa::json_helpers::ProtoElemJson for CoseKeySetPolicy {
+    fn serialize_proto_json<__S: ::serde::Serializer>(
+        v: &Self,
+        s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(v, s)
+    }
+    fn deserialize_proto_json<'de, __D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        <Self as ::serde::Deserialize>::deserialize(d)
+    }
+}
+#[doc(hidden)]
+pub const __COSE_KEY_SET_POLICY_JSON_ANY: ::buffa::type_registry::JsonAnyEntry =
+    ::buffa::type_registry::JsonAnyEntry {
+        type_url: "type.googleapis.com/reallyme.cose.v1.CoseKeySetPolicy",
+        to_json: ::buffa::type_registry::any_to_json::<CoseKeySetPolicy>,
+        from_json: ::buffa::type_registry::any_from_json::<CoseKeySetPolicy>,
+        is_wkt: false,
+    };
+#[derive(Clone, PartialEq, Default, ::serde::Serialize)]
+pub struct CoseKeySetParseRequest {
+    /// SENSITIVE: complete received untagged KeySet, at most 1 MiB and 64 keys.
+    ///
+    /// Field 1: `encoded`
+    #[serde(
+        rename = "encoded",
+        with = "::buffa::json_helpers::bytes_policy",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_bytes"
+    )]
+    #[serde(default)]
+    pub encoded: crate::SecretBytes,
+    /// Field 2: `policy`
+    #[serde(
+        rename = "policy",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_unset_message_field"
+    )]
+    #[serde(default)]
+    pub policy: ::buffa::MessageField<CoseKeySetPolicy, ::buffa::Inline<CoseKeySetPolicy>>,
+}
+impl ::core::fmt::Debug for CoseKeySetParseRequest {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseKeySetParseRequest")
+            .field("encoded", &::core::format_args!("[REDACTED]"))
+            .field("policy", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl CoseKeySetParseRequest {
+    /// Protobuf type URL for this message, for use with `Any::pack` and
+    /// `Any::unpack_if`.
+    ///
+    /// Format: `type.googleapis.com/<fully.qualified.TypeName>`
+    pub const TYPE_URL: &'static str =
+        "type.googleapis.com/reallyme.cose.v1.CoseKeySetParseRequest";
+}
+impl CoseKeySetParseRequest {
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::encoded`] to `value`, consuming and returning `self`.
+    pub fn with_encoded(mut self, value: impl ::core::convert::Into<crate::SecretBytes>) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.encoded);
+        self.encoded = value.into();
+        self
+    }
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::policy`] to `value`, consuming and returning `self`.
+    pub fn with_policy(
+        mut self,
+        value: impl ::core::convert::Into<
+            ::buffa::MessageField<CoseKeySetPolicy, ::buffa::Inline<CoseKeySetPolicy>>,
+        >,
+    ) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.policy);
+        self.policy = value.into();
+        self
+    }
+}
+const _: fn() = || {
+    fn __requires_wipe_owner<T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop>() {
+    }
+    __requires_wipe_owner::<crate::SecretBytes>();
+    __requires_wipe_owner::<CoseKeySetPolicy>();
+};
+impl ::buffa::sensitive::Zeroize for CoseKeySetParseRequest {
+    fn zeroize(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.encoded);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.policy);
+    }
+}
+impl ::buffa::sensitive::ZeroizeOnDrop for CoseKeySetParseRequest {}
+impl ::core::ops::Drop for CoseKeySetParseRequest {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+::buffa::impl_default_instance!(CoseKeySetParseRequest);
+impl ::buffa::MessageName for CoseKeySetParseRequest {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseKeySetParseRequest";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseKeySetParseRequest";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseKeySetParseRequest";
+}
+impl ::buffa::Message for CoseKeySetParseRequest {
+    /// Returns the total encoded size in bytes.
+    ///
+    /// Accumulates in `u64` (which cannot overflow for in-memory
+    /// data) and saturates to `u32` at return, so a message whose
+    /// encoded size exceeds the 2 GiB protobuf limit yields a value
+    /// above [`::buffa::MAX_MESSAGE_BYTES`] that the encode entry
+    /// points reject, never a silently wrapped size.
+    #[allow(clippy::let_and_return)]
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if !self.encoded.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.encoded) as u64;
+        }
+        if let ::core::option::Option::Some(__v) = self.policy.as_option() {
+            let __slot = __cache.reserve();
+            let inner_size = __v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        ::buffa::saturate_size(size)
+    }
+    fn write_to(&self, __cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if !self.encoded.is_empty() {
+            ::buffa::types::put_shared_bytes_field(1u32, &self.encoded, buf);
+        }
+        if let ::core::option::Option::Some(__v) = self.policy.as_option() {
+            ::buffa::types::put_len_delimited_header(2u32, u64::from(__cache.consume_next()), buf);
+            __v.write_to(__cache, buf);
+        }
+    }
+    fn merge_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        buf: &mut impl ::buffa::bytes::Buf,
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<(), ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::bytes::Buf as _;
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                ::buffa::Message::merge_length_delimited(
+                    self.policy.get_or_insert_default(),
+                    buf,
+                    ctx,
+                )?;
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(())
+    }
+    fn clear(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+        self.encoded = ::core::default::Default::default();
+        self.policy = ::buffa::MessageField::none();
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CoseKeySetParseRequest {
+    fn deserialize<__D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        struct _V;
+        impl<'de> ::serde::de::Visitor<'de> for _V {
+            type Value = CoseKeySetParseRequest;
+            fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+                f.write_str("struct CoseKeySetParseRequest")
+            }
+            #[allow(clippy::field_reassign_with_default)]
+            fn visit_map<__A: ::serde::de::MapAccess<'de>>(
+                self,
+                mut map: __A,
+            ) -> ::core::result::Result<CoseKeySetParseRequest, __A::Error> {
+                let mut __r = <CoseKeySetParseRequest as ::core::default::Default>::default();
+                let mut __f_encoded = false;
+                let mut __f_policy = false;
+                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                    let key = ::buffa::sensitive::Zeroizing::new(key);
+                    match key.as_str() {
+                        "encoded" => {
+                            if __f_encoded {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "encoded",
+                                ));
+                            }
+                            __f_encoded = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = crate::SecretBytes;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<crate::SecretBytes, __D::Error>
+                                    {
+                                        ::buffa::json_helpers::bytes_policy::deserialize(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.encoded);
+                            __r.encoded = value;
+                        }
+                        "policy" => {
+                            if __f_policy {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "policy",
+                                ));
+                            }
+                            __f_policy = true;
+                            let value = map.next_value::<::buffa::MessageField<
+                                CoseKeySetPolicy,
+                                ::buffa::Inline<CoseKeySetPolicy>,
+                            >>()?;
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.policy);
+                            __r.policy = value;
+                        }
+                        __unknown => {
+                            return ::core::result::Result::Err(
+                                <__A::Error as ::serde::de::Error>::custom(
+                                    ::buffa::sensitive::JsonErrorReason::UnknownField,
+                                ),
+                            );
+                        }
+                    }
+                }
+                Ok(__r)
+            }
+        }
+        d.deserialize_map(_V)
+    }
+}
+impl ::buffa::json_helpers::ProtoElemJson for CoseKeySetParseRequest {
+    fn serialize_proto_json<__S: ::serde::Serializer>(
+        v: &Self,
+        s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(v, s)
+    }
+    fn deserialize_proto_json<'de, __D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        <Self as ::serde::Deserialize>::deserialize(d)
+    }
+}
+#[doc(hidden)]
+pub const __COSE_KEY_SET_PARSE_REQUEST_JSON_ANY: ::buffa::type_registry::JsonAnyEntry =
+    ::buffa::type_registry::JsonAnyEntry {
+        type_url: "type.googleapis.com/reallyme.cose.v1.CoseKeySetParseRequest",
+        to_json: ::buffa::type_registry::any_to_json::<CoseKeySetParseRequest>,
+        from_json: ::buffa::type_registry::any_from_json::<CoseKeySetParseRequest>,
+        is_wkt: false,
+    };
+#[derive(Clone, PartialEq, Default, ::serde::Serialize)]
+pub struct CoseKeySetMember {
+    /// Field 1: `key_type`
+    #[serde(
+        rename = "keyType",
+        alias = "key_type",
+        with = "::buffa::json_helpers::guarded_enum::open",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_default_enum_value"
+    )]
+    #[serde(default)]
+    pub key_type: ::buffa::EnumValue<CoseKeySetKeyType>,
+    /// SENSITIVE: exact received key for storage, or explicit public projection.
+    ///
+    /// Field 2: `encoded`
+    #[serde(
+        rename = "encoded",
+        with = "::buffa::json_helpers::bytes_policy",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_bytes"
+    )]
+    #[serde(default)]
+    pub encoded: crate::SecretBytes,
+}
+impl ::core::fmt::Debug for CoseKeySetMember {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseKeySetMember")
+            .field("key_type", &::core::format_args!("[REDACTED]"))
+            .field("encoded", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl CoseKeySetMember {
+    /// Protobuf type URL for this message, for use with `Any::pack` and
+    /// `Any::unpack_if`.
+    ///
+    /// Format: `type.googleapis.com/<fully.qualified.TypeName>`
+    pub const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseKeySetMember";
+}
+impl CoseKeySetMember {
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::key_type`] to `value`, consuming and returning `self`.
+    pub fn with_key_type(
+        mut self,
+        value: impl ::core::convert::Into<::buffa::EnumValue<CoseKeySetKeyType>>,
+    ) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.key_type);
+        self.key_type = value.into();
+        self
+    }
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::encoded`] to `value`, consuming and returning `self`.
+    pub fn with_encoded(mut self, value: impl ::core::convert::Into<crate::SecretBytes>) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.encoded);
+        self.encoded = value.into();
+        self
+    }
+}
+const _: fn() = || {
+    fn __requires_wipe_owner<T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop>() {
+    }
+    __requires_wipe_owner::<crate::SecretBytes>();
+};
+impl ::buffa::sensitive::Zeroize for CoseKeySetMember {
+    fn zeroize(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.key_type);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.encoded);
+    }
+}
+impl ::buffa::sensitive::ZeroizeOnDrop for CoseKeySetMember {}
+impl ::core::ops::Drop for CoseKeySetMember {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+::buffa::impl_default_instance!(CoseKeySetMember);
+impl ::buffa::MessageName for CoseKeySetMember {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseKeySetMember";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseKeySetMember";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseKeySetMember";
+}
+impl ::buffa::Message for CoseKeySetMember {
+    /// Returns the total encoded size in bytes.
+    ///
+    /// Accumulates in `u64` (which cannot overflow for in-memory
+    /// data) and saturates to `u32` at return, so a message whose
+    /// encoded size exceeds the 2 GiB protobuf limit yields a value
+    /// above [`::buffa::MAX_MESSAGE_BYTES`] that the encode entry
+    /// points reject, never a silently wrapped size.
+    #[allow(clippy::let_and_return)]
+    fn compute_size(&self, _cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        {
+            let val = self.key_type.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        if !self.encoded.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.encoded) as u64;
+        }
+        ::buffa::saturate_size(size)
+    }
+    fn write_to(&self, _cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        {
+            let val = self.key_type.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(1u32, val, buf);
+            }
+        }
+        if !self.encoded.is_empty() {
+            ::buffa::types::put_shared_bytes_field(2u32, &self.encoded, buf);
+        }
+    }
+    fn merge_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        buf: &mut impl ::buffa::bytes::Buf,
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<(), ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::bytes::Buf as _;
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                self.key_type = ::buffa::EnumValue::from(::buffa::types::decode_int32(buf)?);
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(())
+    }
+    fn clear(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+        self.key_type = ::buffa::EnumValue::from(0);
+        self.encoded = ::core::default::Default::default();
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CoseKeySetMember {
+    fn deserialize<__D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        struct _V;
+        impl<'de> ::serde::de::Visitor<'de> for _V {
+            type Value = CoseKeySetMember;
+            fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+                f.write_str("struct CoseKeySetMember")
+            }
+            #[allow(clippy::field_reassign_with_default)]
+            fn visit_map<__A: ::serde::de::MapAccess<'de>>(
+                self,
+                mut map: __A,
+            ) -> ::core::result::Result<CoseKeySetMember, __A::Error> {
+                let mut __r = <CoseKeySetMember as ::core::default::Default>::default();
+                let mut __f_key_type = false;
+                let mut __f_encoded = false;
+                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                    let key = ::buffa::sensitive::Zeroizing::new(key);
+                    match key.as_str() {
+                        "keyType" | "key_type" => {
+                            if __f_key_type {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "key_type",
+                                ));
+                            }
+                            __f_key_type = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = ::buffa::EnumValue<CoseKeySetKeyType>;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<
+                                        ::buffa::EnumValue<CoseKeySetKeyType>,
+                                        __D::Error,
+                                    > {
+                                        ::buffa::json_helpers::guarded_enum::open::deserialize(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.key_type);
+                            __r.key_type = value;
+                        }
+                        "encoded" => {
+                            if __f_encoded {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "encoded",
+                                ));
+                            }
+                            __f_encoded = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = crate::SecretBytes;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<crate::SecretBytes, __D::Error>
+                                    {
+                                        ::buffa::json_helpers::bytes_policy::deserialize(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.encoded);
+                            __r.encoded = value;
+                        }
+                        __unknown => {
+                            return ::core::result::Result::Err(
+                                <__A::Error as ::serde::de::Error>::custom(
+                                    ::buffa::sensitive::JsonErrorReason::UnknownField,
+                                ),
+                            );
+                        }
+                    }
+                }
+                Ok(__r)
+            }
+        }
+        d.deserialize_map(_V)
+    }
+}
+impl ::buffa::json_helpers::ProtoElemJson for CoseKeySetMember {
+    fn serialize_proto_json<__S: ::serde::Serializer>(
+        v: &Self,
+        s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(v, s)
+    }
+    fn deserialize_proto_json<'de, __D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        <Self as ::serde::Deserialize>::deserialize(d)
+    }
+}
+#[doc(hidden)]
+pub const __COSE_KEY_SET_MEMBER_JSON_ANY: ::buffa::type_registry::JsonAnyEntry =
+    ::buffa::type_registry::JsonAnyEntry {
+        type_url: "type.googleapis.com/reallyme.cose.v1.CoseKeySetMember",
+        to_json: ::buffa::type_registry::any_to_json::<CoseKeySetMember>,
+        from_json: ::buffa::type_registry::any_from_json::<CoseKeySetMember>,
+        is_wkt: false,
+    };
+#[derive(Clone, PartialEq, Default, ::serde::Serialize)]
+pub struct CoseKeySetEntry {
+    /// Field 1: `source_index`
+    #[serde(
+        rename = "sourceIndex",
+        alias = "source_index",
+        with = "::buffa::json_helpers::uint32",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_zero_u32"
+    )]
+    #[serde(default)]
+    pub source_index: u32,
+    #[serde(flatten)]
+    pub outcome: ::core::option::Option<__buffa::oneof::cose_key_set_entry::Outcome>,
+}
+impl ::core::fmt::Debug for CoseKeySetEntry {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseKeySetEntry")
+            .field("source_index", &::core::format_args!("[REDACTED]"))
+            .field("outcome", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl CoseKeySetEntry {
+    /// Protobuf type URL for this message, for use with `Any::pack` and
+    /// `Any::unpack_if`.
+    ///
+    /// Format: `type.googleapis.com/<fully.qualified.TypeName>`
+    pub const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseKeySetEntry";
+}
+impl CoseKeySetEntry {
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::source_index`] to `value`, consuming and returning `self`.
+    pub fn with_source_index(mut self, value: u32) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.source_index);
+        self.source_index = value;
+        self
+    }
+    /// Sets this oneof, wiping an earlier value before replacement.
+    #[must_use]
+    pub fn with_outcome(mut self, value: __buffa::oneof::cose_key_set_entry::Outcome) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.outcome);
+        self.outcome = Some(value);
+        self
+    }
+}
+const _: fn() = || {
+    fn __requires_wipe_owner<T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop>() {
+    }
+    __requires_wipe_owner::<CoseKeySetMember>();
+};
+impl ::buffa::sensitive::Zeroize for CoseKeySetEntry {
+    fn zeroize(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.source_index);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.outcome);
+    }
+}
+impl ::buffa::sensitive::ZeroizeOnDrop for CoseKeySetEntry {}
+impl ::core::ops::Drop for CoseKeySetEntry {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+::buffa::impl_default_instance!(CoseKeySetEntry);
+impl ::buffa::MessageName for CoseKeySetEntry {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseKeySetEntry";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseKeySetEntry";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseKeySetEntry";
+}
+impl ::buffa::Message for CoseKeySetEntry {
+    /// Returns the total encoded size in bytes.
+    ///
+    /// Accumulates in `u64` (which cannot overflow for in-memory
+    /// data) and saturates to `u32` at return, so a message whose
+    /// encoded size exceeds the 2 GiB protobuf limit yields a value
+    /// above [`::buffa::MAX_MESSAGE_BYTES`] that the encode entry
+    /// points reject, never a silently wrapped size.
+    #[allow(clippy::let_and_return)]
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if self.source_index != 0u32 {
+            size += 1u64 + ::buffa::types::uint32_encoded_len(self.source_index) as u64;
+        }
+        if let ::core::option::Option::Some(ref v) = self.outcome {
+            match v {
+                __buffa::oneof::cose_key_set_entry::Outcome::Key(x) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size +=
+                        1u64 + ::buffa::encoding::varint_len(inner as u64) as u64 + inner as u64;
+                }
+                __buffa::oneof::cose_key_set_entry::Outcome::Rejected(x) => {
+                    size += 1u64 + ::buffa::types::int32_encoded_len(x.to_i32()) as u64;
+                }
+            }
+        }
+        ::buffa::saturate_size(size)
+    }
+    fn write_to(&self, __cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if self.source_index != 0u32 {
+            ::buffa::types::put_uint32_field(1u32, self.source_index, buf);
+        }
+        if let ::core::option::Option::Some(ref v) = self.outcome {
+            match v {
+                __buffa::oneof::cose_key_set_entry::Outcome::Key(x) => {
+                    ::buffa::types::put_len_delimited_header(
+                        2u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                __buffa::oneof::cose_key_set_entry::Outcome::Rejected(x) => {
+                    ::buffa::types::put_int32_field(3u32, x.to_i32(), buf);
+                }
+            }
+        }
+    }
+    fn merge_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        buf: &mut impl ::buffa::bytes::Buf,
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<(), ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::bytes::Buf as _;
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                self.source_index = ::buffa::types::decode_uint32(buf)?;
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                if let ::core::option::Option::Some(
+                    __buffa::oneof::cose_key_set_entry::Outcome::Key(ref mut existing),
+                ) = self.outcome
+                {
+                    ::buffa::Message::merge_length_delimited(&mut **existing, buf, ctx)?;
+                } else {
+                    let mut val = ::core::default::Default::default();
+                    ::buffa::Message::merge_length_delimited(&mut val, buf, ctx)?;
+                    self.outcome = ::core::option::Option::Some(
+                        __buffa::oneof::cose_key_set_entry::Outcome::Key(
+                            ::buffa::alloc::boxed::Box::new(val),
+                        ),
+                    );
+                }
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                self.outcome = ::core::option::Option::Some(
+                    __buffa::oneof::cose_key_set_entry::Outcome::Rejected(
+                        ::buffa::EnumValue::from(::buffa::types::decode_int32(buf)?),
+                    ),
+                );
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(())
+    }
+    fn clear(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+        self.source_index = 0u32;
+        self.outcome = ::core::option::Option::None;
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CoseKeySetEntry {
+    fn deserialize<__D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        struct _V;
+        impl<'de> ::serde::de::Visitor<'de> for _V {
+            type Value = CoseKeySetEntry;
+            fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+                f.write_str("struct CoseKeySetEntry")
+            }
+            #[allow(clippy::field_reassign_with_default)]
+            fn visit_map<__A: ::serde::de::MapAccess<'de>>(
+                self,
+                mut map: __A,
+            ) -> ::core::result::Result<CoseKeySetEntry, __A::Error> {
+                let mut __r = <CoseKeySetEntry as ::core::default::Default>::default();
+                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                    let key = ::buffa::sensitive::Zeroizing::new(key);
+                    match key.as_str() {
+                        "sourceIndex" | "source_index" => {
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = u32;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<u32, __D::Error>
+                                    {
+                                        ::buffa::json_helpers::uint32::deserialize(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.source_index);
+                            __r.source_index = value;
+                        }
+                        "key" => {
+                            let v: ::core::option::Option<CoseKeySetMember> =
+                                map.next_value_seed(
+                                    ::buffa::json_helpers::NullableDeserializeSeed(
+                                        ::buffa::json_helpers::DefaultDeserializeSeed::<
+                                            CoseKeySetMember,
+                                        >::new(),
+                                    ),
+                                )?;
+                            if let Some(v) = v {
+                                let __variant = __buffa::oneof::cose_key_set_entry::Outcome::Key(
+                                    ::buffa::alloc::boxed::Box::new(v),
+                                );
+                                if __r.outcome.is_some() {
+                                    return Err(::serde::de::Error::custom(
+                                        "multiple oneof fields set for 'outcome'",
+                                    ));
+                                }
+                                __r.outcome = Some(__variant);
+                            }
+                        }
+                        "rejected" => {
+                            struct _DeserSeed;
+                            impl<'de> ::serde::de::DeserializeSeed<'de> for _DeserSeed {
+                                type Value =
+                                    ::core::option::Option<::buffa::EnumValue<CoseErrorReason>>;
+                                fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                    self,
+                                    d: __D,
+                                ) -> ::core::result::Result<Self::Value, __D::Error>
+                                {
+                                    ::buffa::json_helpers::guarded_enum::optional_open::deserialize(
+                                        d,
+                                    )
+                                }
+                            }
+                            let v = map.next_value_seed(_DeserSeed)?;
+                            if let Some(v) = v {
+                                let __variant =
+                                    __buffa::oneof::cose_key_set_entry::Outcome::Rejected(v);
+                                if __r.outcome.is_some() {
+                                    return Err(::serde::de::Error::custom(
+                                        "multiple oneof fields set for 'outcome'",
+                                    ));
+                                }
+                                __r.outcome = Some(__variant);
+                            }
+                        }
+                        __unknown => {
+                            return ::core::result::Result::Err(
+                                <__A::Error as ::serde::de::Error>::custom(
+                                    ::buffa::sensitive::JsonErrorReason::UnknownField,
+                                ),
+                            );
+                        }
+                    }
+                }
+                Ok(__r)
+            }
+        }
+        d.deserialize_map(_V)
+    }
+}
+impl ::buffa::json_helpers::ProtoElemJson for CoseKeySetEntry {
+    fn serialize_proto_json<__S: ::serde::Serializer>(
+        v: &Self,
+        s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(v, s)
+    }
+    fn deserialize_proto_json<'de, __D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        <Self as ::serde::Deserialize>::deserialize(d)
+    }
+}
+#[doc(hidden)]
+pub const __COSE_KEY_SET_ENTRY_JSON_ANY: ::buffa::type_registry::JsonAnyEntry =
+    ::buffa::type_registry::JsonAnyEntry {
+        type_url: "type.googleapis.com/reallyme.cose.v1.CoseKeySetEntry",
+        to_json: ::buffa::type_registry::any_to_json::<CoseKeySetEntry>,
+        from_json: ::buffa::type_registry::any_from_json::<CoseKeySetEntry>,
+        is_wkt: false,
+    };
+pub mod cose_key_set_entry {
+    #[doc(inline)]
+    pub use super::__buffa::oneof::cose_key_set_entry::Outcome;
+    #[doc(inline)]
+    pub use super::__buffa::view::oneof::cose_key_set_entry::Outcome as OutcomeView;
+    #[allow(unused_imports)]
+    use super::*;
+}
+#[derive(Clone, PartialEq, Default, ::serde::Serialize)]
+pub struct CoseKeySetParseResult {
+    /// Field 1: `entries`
+    #[serde(
+        rename = "entries",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_vec",
+        deserialize_with = "::buffa::json_helpers::null_as_default"
+    )]
+    #[serde(default)]
+    pub entries: ::buffa::sensitive::List<CoseKeySetEntry>,
+}
+impl ::core::fmt::Debug for CoseKeySetParseResult {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseKeySetParseResult")
+            .field("entries", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl CoseKeySetParseResult {
+    /// Protobuf type URL for this message, for use with `Any::pack` and
+    /// `Any::unpack_if`.
+    ///
+    /// Format: `type.googleapis.com/<fully.qualified.TypeName>`
+    pub const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseKeySetParseResult";
+}
+impl CoseKeySetParseResult {
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::entries`] to `value`, consuming and returning `self`.
+    pub fn with_entries(
+        mut self,
+        value: impl ::core::convert::Into<::buffa::sensitive::List<CoseKeySetEntry>>,
+    ) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.entries);
+        self.entries = value.into();
+        self
+    }
+}
+const _: fn() = || {
+    fn __requires_wipe_owner<T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop>() {
+    }
+    __requires_wipe_owner::<CoseKeySetEntry>();
+    __requires_wipe_owner::<::buffa::sensitive::List<CoseKeySetEntry>>();
+};
+impl ::buffa::sensitive::Zeroize for CoseKeySetParseResult {
+    fn zeroize(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.entries);
+    }
+}
+impl ::buffa::sensitive::ZeroizeOnDrop for CoseKeySetParseResult {}
+impl ::core::ops::Drop for CoseKeySetParseResult {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+::buffa::impl_default_instance!(CoseKeySetParseResult);
+impl ::buffa::MessageName for CoseKeySetParseResult {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseKeySetParseResult";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseKeySetParseResult";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseKeySetParseResult";
+}
+impl ::buffa::Message for CoseKeySetParseResult {
+    /// Returns the total encoded size in bytes.
+    ///
+    /// Accumulates in `u64` (which cannot overflow for in-memory
+    /// data) and saturates to `u32` at return, so a message whose
+    /// encoded size exceeds the 2 GiB protobuf limit yields a value
+    /// above [`::buffa::MAX_MESSAGE_BYTES`] that the encode entry
+    /// points reject, never a silently wrapped size.
+    #[allow(clippy::let_and_return)]
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        for v in self.entries.iter() {
+            let __slot = __cache.reserve();
+            let inner_size = v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        ::buffa::saturate_size(size)
+    }
+    fn write_to(&self, __cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        for v in self.entries.iter() {
+            ::buffa::types::put_len_delimited_header(1u32, u64::from(__cache.consume_next()), buf);
+            v.write_to(__cache, buf);
+        }
+    }
+    fn merge_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        buf: &mut impl ::buffa::bytes::Buf,
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<(), ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::bytes::Buf as _;
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        match tag.field_number() {
+            1u32 => {
+                #[allow(unused_imports)]
+                use ::buffa::ProtoList as _;
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let mut elem = ::core::default::Default::default();
+                ctx.register_element_memory(::buffa::__private::element_footprint(&elem))?;
+                ::buffa::Message::merge_length_delimited(&mut elem, buf, ctx)?;
+                self.entries.push(elem);
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(())
+    }
+    fn clear(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+        ::buffa::ProtoList::clear(&mut self.entries);
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CoseKeySetParseResult {
+    fn deserialize<__D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        struct _V;
+        impl<'de> ::serde::de::Visitor<'de> for _V {
+            type Value = CoseKeySetParseResult;
+            fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+                f.write_str("struct CoseKeySetParseResult")
+            }
+            #[allow(clippy::field_reassign_with_default)]
+            fn visit_map<__A: ::serde::de::MapAccess<'de>>(
+                self,
+                mut map: __A,
+            ) -> ::core::result::Result<CoseKeySetParseResult, __A::Error> {
+                let mut __r = <CoseKeySetParseResult as ::core::default::Default>::default();
+                let mut __f_entries = false;
+                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                    let key = ::buffa::sensitive::Zeroizing::new(key);
+                    match key.as_str() {
+                        "entries" => {
+                            if __f_entries {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "entries",
+                                ));
+                            }
+                            __f_entries = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = ::buffa::sensitive::List<CoseKeySetEntry>;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<
+                                        ::buffa::sensitive::List<CoseKeySetEntry>,
+                                        __D::Error,
+                                    > {
+                                        ::buffa::json_helpers::null_as_default(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.entries);
+                            __r.entries = value;
+                        }
+                        __unknown => {
+                            return ::core::result::Result::Err(
+                                <__A::Error as ::serde::de::Error>::custom(
+                                    ::buffa::sensitive::JsonErrorReason::UnknownField,
+                                ),
+                            );
+                        }
+                    }
+                }
+                Ok(__r)
+            }
+        }
+        d.deserialize_map(_V)
+    }
+}
+impl ::buffa::json_helpers::ProtoElemJson for CoseKeySetParseResult {
+    fn serialize_proto_json<__S: ::serde::Serializer>(
+        v: &Self,
+        s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(v, s)
+    }
+    fn deserialize_proto_json<'de, __D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        <Self as ::serde::Deserialize>::deserialize(d)
+    }
+}
+#[doc(hidden)]
+pub const __COSE_KEY_SET_PARSE_RESULT_JSON_ANY: ::buffa::type_registry::JsonAnyEntry =
+    ::buffa::type_registry::JsonAnyEntry {
+        type_url: "type.googleapis.com/reallyme.cose.v1.CoseKeySetParseResult",
+        to_json: ::buffa::type_registry::any_to_json::<CoseKeySetParseResult>,
+        from_json: ::buffa::type_registry::any_from_json::<CoseKeySetParseResult>,
+        is_wkt: false,
+    };
+#[derive(Clone, PartialEq, Default, ::serde::Serialize)]
+pub struct CoseKeySetCreateRequest {
+    /// SENSITIVE: individual complete encoded COSE_Key maps, one to 64 members.
+    ///
+    /// Field 1: `keys`
+    #[serde(
+        rename = "keys",
+        with = "::buffa::json_helpers::proto_list",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_vec"
+    )]
+    #[serde(default)]
+    pub keys: ::buffa::sensitive::List<crate::SecretBytes>,
+    /// Field 2: `policy`
+    #[serde(
+        rename = "policy",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_unset_message_field"
+    )]
+    #[serde(default)]
+    pub policy: ::buffa::MessageField<CoseKeySetPolicy, ::buffa::Inline<CoseKeySetPolicy>>,
+}
+impl ::core::fmt::Debug for CoseKeySetCreateRequest {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseKeySetCreateRequest")
+            .field("keys", &::core::format_args!("[REDACTED]"))
+            .field("policy", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl CoseKeySetCreateRequest {
+    /// Protobuf type URL for this message, for use with `Any::pack` and
+    /// `Any::unpack_if`.
+    ///
+    /// Format: `type.googleapis.com/<fully.qualified.TypeName>`
+    pub const TYPE_URL: &'static str =
+        "type.googleapis.com/reallyme.cose.v1.CoseKeySetCreateRequest";
+}
+impl CoseKeySetCreateRequest {
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::keys`] to `value`, consuming and returning `self`.
+    pub fn with_keys(
+        mut self,
+        value: impl ::core::convert::Into<::buffa::sensitive::List<crate::SecretBytes>>,
+    ) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.keys);
+        self.keys = value.into();
+        self
+    }
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::policy`] to `value`, consuming and returning `self`.
+    pub fn with_policy(
+        mut self,
+        value: impl ::core::convert::Into<
+            ::buffa::MessageField<CoseKeySetPolicy, ::buffa::Inline<CoseKeySetPolicy>>,
+        >,
+    ) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.policy);
+        self.policy = value.into();
+        self
+    }
+}
+const _: fn() = || {
+    fn __requires_wipe_owner<T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop>() {
+    }
+    __requires_wipe_owner::<crate::SecretBytes>();
+    __requires_wipe_owner::<::buffa::sensitive::List<crate::SecretBytes>>();
+    __requires_wipe_owner::<CoseKeySetPolicy>();
+};
+impl ::buffa::sensitive::Zeroize for CoseKeySetCreateRequest {
+    fn zeroize(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.keys);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.policy);
+    }
+}
+impl ::buffa::sensitive::ZeroizeOnDrop for CoseKeySetCreateRequest {}
+impl ::core::ops::Drop for CoseKeySetCreateRequest {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+::buffa::impl_default_instance!(CoseKeySetCreateRequest);
+impl ::buffa::MessageName for CoseKeySetCreateRequest {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseKeySetCreateRequest";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseKeySetCreateRequest";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseKeySetCreateRequest";
+}
+impl ::buffa::Message for CoseKeySetCreateRequest {
+    /// Returns the total encoded size in bytes.
+    ///
+    /// Accumulates in `u64` (which cannot overflow for in-memory
+    /// data) and saturates to `u32` at return, so a message whose
+    /// encoded size exceeds the 2 GiB protobuf limit yields a value
+    /// above [`::buffa::MAX_MESSAGE_BYTES`] that the encode entry
+    /// points reject, never a silently wrapped size.
+    #[allow(clippy::let_and_return)]
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        for v in self.keys.iter() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
+        }
+        if let ::core::option::Option::Some(__v) = self.policy.as_option() {
+            let __slot = __cache.reserve();
+            let inner_size = __v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        ::buffa::saturate_size(size)
+    }
+    fn write_to(&self, __cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        for v in self.keys.iter() {
+            ::buffa::types::put_shared_bytes_field(1u32, v, buf);
+        }
+        if let ::core::option::Option::Some(__v) = self.policy.as_option() {
+            ::buffa::types::put_len_delimited_header(2u32, u64::from(__cache.consume_next()), buf);
+            __v.write_to(__cache, buf);
+        }
+    }
+    fn merge_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        buf: &mut impl ::buffa::bytes::Buf,
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<(), ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::bytes::Buf as _;
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        match tag.field_number() {
+            1u32 => {
+                #[allow(unused_imports)]
+                use ::buffa::ProtoList as _;
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __elem = ::buffa::types::decode_bytes_to(buf)?;
+                ctx.register_element_memory(::buffa::__private::element_footprint(&__elem))?;
+                self.keys.push(__elem);
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                ::buffa::Message::merge_length_delimited(
+                    self.policy.get_or_insert_default(),
+                    buf,
+                    ctx,
+                )?;
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(())
+    }
+    fn clear(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+        ::buffa::ProtoList::clear(&mut self.keys);
+        self.policy = ::buffa::MessageField::none();
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CoseKeySetCreateRequest {
+    fn deserialize<__D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        struct _V;
+        impl<'de> ::serde::de::Visitor<'de> for _V {
+            type Value = CoseKeySetCreateRequest;
+            fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+                f.write_str("struct CoseKeySetCreateRequest")
+            }
+            #[allow(clippy::field_reassign_with_default)]
+            fn visit_map<__A: ::serde::de::MapAccess<'de>>(
+                self,
+                mut map: __A,
+            ) -> ::core::result::Result<CoseKeySetCreateRequest, __A::Error> {
+                let mut __r = <CoseKeySetCreateRequest as ::core::default::Default>::default();
+                let mut __f_keys = false;
+                let mut __f_policy = false;
+                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                    let key = ::buffa::sensitive::Zeroizing::new(key);
+                    match key.as_str() {
+                        "keys" => {
+                            if __f_keys {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "keys",
+                                ));
+                            }
+                            __f_keys = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = ::buffa::sensitive::List<crate::SecretBytes>;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<
+                                        ::buffa::sensitive::List<crate::SecretBytes>,
+                                        __D::Error,
+                                    > {
+                                        ::buffa::json_helpers::proto_list::deserialize(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.keys);
+                            __r.keys = value;
+                        }
+                        "policy" => {
+                            if __f_policy {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "policy",
+                                ));
+                            }
+                            __f_policy = true;
+                            let value = map.next_value::<::buffa::MessageField<
+                                CoseKeySetPolicy,
+                                ::buffa::Inline<CoseKeySetPolicy>,
+                            >>()?;
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.policy);
+                            __r.policy = value;
+                        }
+                        __unknown => {
+                            return ::core::result::Result::Err(
+                                <__A::Error as ::serde::de::Error>::custom(
+                                    ::buffa::sensitive::JsonErrorReason::UnknownField,
+                                ),
+                            );
+                        }
+                    }
+                }
+                Ok(__r)
+            }
+        }
+        d.deserialize_map(_V)
+    }
+}
+impl ::buffa::json_helpers::ProtoElemJson for CoseKeySetCreateRequest {
+    fn serialize_proto_json<__S: ::serde::Serializer>(
+        v: &Self,
+        s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(v, s)
+    }
+    fn deserialize_proto_json<'de, __D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        <Self as ::serde::Deserialize>::deserialize(d)
+    }
+}
+#[doc(hidden)]
+pub const __COSE_KEY_SET_CREATE_REQUEST_JSON_ANY: ::buffa::type_registry::JsonAnyEntry =
+    ::buffa::type_registry::JsonAnyEntry {
+        type_url: "type.googleapis.com/reallyme.cose.v1.CoseKeySetCreateRequest",
+        to_json: ::buffa::type_registry::any_to_json::<CoseKeySetCreateRequest>,
+        from_json: ::buffa::type_registry::any_from_json::<CoseKeySetCreateRequest>,
+        is_wkt: false,
+    };
+#[derive(Clone, PartialEq, Default, ::serde::Serialize)]
+pub struct CoseKeySetCreateResult {
+    /// SENSITIVE: encoded KeySet. Storage mode can contain private parameters.
+    ///
+    /// Field 1: `encoded`
+    #[serde(
+        rename = "encoded",
+        with = "::buffa::json_helpers::bytes_policy",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_bytes"
+    )]
+    #[serde(default)]
+    pub encoded: crate::SecretBytes,
+    /// Field 2: `key_count`
+    #[serde(
+        rename = "keyCount",
+        alias = "key_count",
+        with = "::buffa::json_helpers::uint32",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_zero_u32"
+    )]
+    #[serde(default)]
+    pub key_count: u32,
+}
+impl ::core::fmt::Debug for CoseKeySetCreateResult {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseKeySetCreateResult")
+            .field("encoded", &::core::format_args!("[REDACTED]"))
+            .field("key_count", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl CoseKeySetCreateResult {
+    /// Protobuf type URL for this message, for use with `Any::pack` and
+    /// `Any::unpack_if`.
+    ///
+    /// Format: `type.googleapis.com/<fully.qualified.TypeName>`
+    pub const TYPE_URL: &'static str =
+        "type.googleapis.com/reallyme.cose.v1.CoseKeySetCreateResult";
+}
+impl CoseKeySetCreateResult {
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::encoded`] to `value`, consuming and returning `self`.
+    pub fn with_encoded(mut self, value: impl ::core::convert::Into<crate::SecretBytes>) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.encoded);
+        self.encoded = value.into();
+        self
+    }
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::key_count`] to `value`, consuming and returning `self`.
+    pub fn with_key_count(mut self, value: u32) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.key_count);
+        self.key_count = value;
+        self
+    }
+}
+const _: fn() = || {
+    fn __requires_wipe_owner<T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop>() {
+    }
+    __requires_wipe_owner::<crate::SecretBytes>();
+};
+impl ::buffa::sensitive::Zeroize for CoseKeySetCreateResult {
+    fn zeroize(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.encoded);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.key_count);
+    }
+}
+impl ::buffa::sensitive::ZeroizeOnDrop for CoseKeySetCreateResult {}
+impl ::core::ops::Drop for CoseKeySetCreateResult {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+::buffa::impl_default_instance!(CoseKeySetCreateResult);
+impl ::buffa::MessageName for CoseKeySetCreateResult {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseKeySetCreateResult";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseKeySetCreateResult";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseKeySetCreateResult";
+}
+impl ::buffa::Message for CoseKeySetCreateResult {
+    /// Returns the total encoded size in bytes.
+    ///
+    /// Accumulates in `u64` (which cannot overflow for in-memory
+    /// data) and saturates to `u32` at return, so a message whose
+    /// encoded size exceeds the 2 GiB protobuf limit yields a value
+    /// above [`::buffa::MAX_MESSAGE_BYTES`] that the encode entry
+    /// points reject, never a silently wrapped size.
+    #[allow(clippy::let_and_return)]
+    fn compute_size(&self, _cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if !self.encoded.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.encoded) as u64;
+        }
+        if self.key_count != 0u32 {
+            size += 1u64 + ::buffa::types::uint32_encoded_len(self.key_count) as u64;
+        }
+        ::buffa::saturate_size(size)
+    }
+    fn write_to(&self, _cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if !self.encoded.is_empty() {
+            ::buffa::types::put_shared_bytes_field(1u32, &self.encoded, buf);
+        }
+        if self.key_count != 0u32 {
+            ::buffa::types::put_uint32_field(2u32, self.key_count, buf);
+        }
+    }
+    fn merge_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        buf: &mut impl ::buffa::bytes::Buf,
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<(), ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::bytes::Buf as _;
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                self.key_count = ::buffa::types::decode_uint32(buf)?;
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(())
+    }
+    fn clear(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+        self.encoded = ::core::default::Default::default();
+        self.key_count = 0u32;
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CoseKeySetCreateResult {
+    fn deserialize<__D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        struct _V;
+        impl<'de> ::serde::de::Visitor<'de> for _V {
+            type Value = CoseKeySetCreateResult;
+            fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+                f.write_str("struct CoseKeySetCreateResult")
+            }
+            #[allow(clippy::field_reassign_with_default)]
+            fn visit_map<__A: ::serde::de::MapAccess<'de>>(
+                self,
+                mut map: __A,
+            ) -> ::core::result::Result<CoseKeySetCreateResult, __A::Error> {
+                let mut __r = <CoseKeySetCreateResult as ::core::default::Default>::default();
+                let mut __f_encoded = false;
+                let mut __f_key_count = false;
+                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                    let key = ::buffa::sensitive::Zeroizing::new(key);
+                    match key.as_str() {
+                        "encoded" => {
+                            if __f_encoded {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "encoded",
+                                ));
+                            }
+                            __f_encoded = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = crate::SecretBytes;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<crate::SecretBytes, __D::Error>
+                                    {
+                                        ::buffa::json_helpers::bytes_policy::deserialize(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.encoded);
+                            __r.encoded = value;
+                        }
+                        "keyCount" | "key_count" => {
+                            if __f_key_count {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "key_count",
+                                ));
+                            }
+                            __f_key_count = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = u32;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<u32, __D::Error>
+                                    {
+                                        ::buffa::json_helpers::uint32::deserialize(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.key_count);
+                            __r.key_count = value;
+                        }
+                        __unknown => {
+                            return ::core::result::Result::Err(
+                                <__A::Error as ::serde::de::Error>::custom(
+                                    ::buffa::sensitive::JsonErrorReason::UnknownField,
+                                ),
+                            );
+                        }
+                    }
+                }
+                Ok(__r)
+            }
+        }
+        d.deserialize_map(_V)
+    }
+}
+impl ::buffa::json_helpers::ProtoElemJson for CoseKeySetCreateResult {
+    fn serialize_proto_json<__S: ::serde::Serializer>(
+        v: &Self,
+        s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(v, s)
+    }
+    fn deserialize_proto_json<'de, __D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        <Self as ::serde::Deserialize>::deserialize(d)
+    }
+}
+#[doc(hidden)]
+pub const __COSE_KEY_SET_CREATE_RESULT_JSON_ANY: ::buffa::type_registry::JsonAnyEntry =
+    ::buffa::type_registry::JsonAnyEntry {
+        type_url: "type.googleapis.com/reallyme.cose.v1.CoseKeySetCreateResult",
+        to_json: ::buffa::type_registry::any_to_json::<CoseKeySetCreateResult>,
+        from_json: ::buffa::type_registry::any_from_json::<CoseKeySetCreateResult>,
         is_wkt: false,
     };
 /// CoseKeyFromPublicBytesRequest builds a public COSE_Key from raw public key

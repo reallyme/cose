@@ -687,6 +687,8 @@ pub mod cose_operation_request {
             ::buffa::alloc::boxed::Box<super::super::super::CoseVerificationKeyImportRequest>,
         ),
         KeyToPublicVec(::buffa::alloc::boxed::Box<super::super::super::CoseKeyBytesRequest>),
+        KeySetParse(::buffa::alloc::boxed::Box<super::super::super::CoseKeySetParseRequest>),
+        KeySetCreate(::buffa::alloc::boxed::Box<super::super::super::CoseKeySetCreateRequest>),
         MlKemEncryptDirect(
             ::buffa::alloc::boxed::Box<super::super::super::CoseMlKemEncryptRequest>,
         ),
@@ -770,6 +772,8 @@ pub mod cose_operation_request {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
                 Self::KeyToPublicVec(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::KeySetParse(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::KeySetCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::MlKemEncryptDirect(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -974,6 +978,30 @@ pub mod cose_operation_request {
             Self::Some(Operation::from(v))
         }
     }
+    impl ::core::convert::From<super::super::super::CoseKeySetParseRequest> for Operation {
+        fn from(v: super::super::super::CoseKeySetParseRequest) -> Self {
+            Self::KeySetParse(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseKeySetParseRequest>
+        for ::core::option::Option<Operation>
+    {
+        fn from(v: super::super::super::CoseKeySetParseRequest) -> Self {
+            Self::Some(Operation::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseKeySetCreateRequest> for Operation {
+        fn from(v: super::super::super::CoseKeySetCreateRequest) -> Self {
+            Self::KeySetCreate(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseKeySetCreateRequest>
+        for ::core::option::Option<Operation>
+    {
+        fn from(v: super::super::super::CoseKeySetCreateRequest) -> Self {
+            Self::Some(Operation::from(v))
+        }
+    }
     impl ::core::convert::From<super::super::super::CoseMlKemDecryptRequest> for Operation {
         fn from(v: super::super::super::CoseMlKemDecryptRequest) -> Self {
             Self::MlKemDecrypt(::buffa::alloc::boxed::Box::new(v))
@@ -1120,6 +1148,12 @@ pub mod cose_operation_request {
                 Self::KeyToPublicVec(v) => {
                     map.serialize_entry("keyToPublicVec", &**v)?;
                 }
+                Self::KeySetParse(v) => {
+                    map.serialize_entry("keySetParse", &**v)?;
+                }
+                Self::KeySetCreate(v) => {
+                    map.serialize_entry("keySetCreate", &**v)?;
+                }
                 Self::MlKemEncryptDirect(v) => {
                     map.serialize_entry("mlKemEncryptDirect", &**v)?;
                 }
@@ -1251,6 +1285,8 @@ pub mod cose_operation_result {
         PeerKeyValidate(::buffa::alloc::boxed::Box<super::super::super::CosePeerKeyResult>),
         VerificationKeyImport(::buffa::alloc::boxed::Box<super::super::super::CoseWorkingKey>),
         KeyToPublicVec(::buffa::alloc::boxed::Box<super::super::super::CoseKeyBytesResult>),
+        KeySetParse(::buffa::alloc::boxed::Box<super::super::super::CoseKeySetParseResult>),
+        KeySetCreate(::buffa::alloc::boxed::Box<super::super::super::CoseKeySetCreateResult>),
         MlKemEncryptDirect(::buffa::alloc::boxed::Box<super::super::super::CoseMlKemEncryptResult>),
         MlKemEncryptKeyWrap(
             ::buffa::alloc::boxed::Box<super::super::super::CoseMlKemEncryptResult>,
@@ -1334,6 +1370,8 @@ pub mod cose_operation_result {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
                 Self::KeyToPublicVec(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::KeySetParse(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::KeySetCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::MlKemEncryptDirect(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -1437,6 +1475,30 @@ pub mod cose_operation_result {
     }
     impl ::core::convert::From<super::super::super::CoseWorkingKey> for ::core::option::Option<Result> {
         fn from(v: super::super::super::CoseWorkingKey) -> Self {
+            Self::Some(Result::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseKeySetParseResult> for Result {
+        fn from(v: super::super::super::CoseKeySetParseResult) -> Self {
+            Self::KeySetParse(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseKeySetParseResult>
+        for ::core::option::Option<Result>
+    {
+        fn from(v: super::super::super::CoseKeySetParseResult) -> Self {
+            Self::Some(Result::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseKeySetCreateResult> for Result {
+        fn from(v: super::super::super::CoseKeySetCreateResult) -> Self {
+            Self::KeySetCreate(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseKeySetCreateResult>
+        for ::core::option::Option<Result>
+    {
+        fn from(v: super::super::super::CoseKeySetCreateResult) -> Self {
             Self::Some(Result::from(v))
         }
     }
@@ -1574,6 +1636,12 @@ pub mod cose_operation_result {
                 Self::KeyToPublicVec(v) => {
                     map.serialize_entry("keyToPublicVec", &**v)?;
                 }
+                Self::KeySetParse(v) => {
+                    map.serialize_entry("keySetParse", &**v)?;
+                }
+                Self::KeySetCreate(v) => {
+                    map.serialize_entry("keySetCreate", &**v)?;
+                }
                 Self::MlKemEncryptDirect(v) => {
                     map.serialize_entry("mlKemEncryptDirect", &**v)?;
                 }
@@ -1643,6 +1711,65 @@ pub mod cose_type {
                 }
                 Self::ContentFormat(v) => {
                     map.serialize_entry("contentFormat", &::buffa::json_helpers::ProtoJson(v))?;
+                }
+            }
+            map.end()
+        }
+    }
+}
+pub mod cose_key_set_entry {
+    #[allow(unused_imports)]
+    use super::*;
+    #[derive(Clone, PartialEq)]
+    pub enum Outcome {
+        Key(::buffa::alloc::boxed::Box<super::super::super::CoseKeySetMember>),
+        Rejected(::buffa::EnumValue<super::super::super::CoseErrorReason>),
+    }
+    impl ::core::fmt::Debug for Outcome {
+        fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            f.write_str("Outcome([REDACTED])")
+        }
+    }
+    impl ::buffa::sensitive::Zeroize for Outcome {
+        fn zeroize(&mut self) {
+            match self {
+                Self::Key(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::Rejected(value) => ::buffa::sensitive::Zeroize::zeroize(value),
+            }
+        }
+    }
+    impl ::buffa::sensitive::ZeroizeOnDrop for Outcome {}
+    impl ::core::ops::Drop for Outcome {
+        fn drop(&mut self) {
+            ::buffa::sensitive::Zeroize::zeroize(self);
+        }
+    }
+    impl ::buffa::Oneof for Outcome {}
+    impl ::core::convert::From<super::super::super::CoseKeySetMember> for Outcome {
+        fn from(v: super::super::super::CoseKeySetMember) -> Self {
+            Self::Key(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseKeySetMember>
+        for ::core::option::Option<Outcome>
+    {
+        fn from(v: super::super::super::CoseKeySetMember) -> Self {
+            Self::Some(Outcome::from(v))
+        }
+    }
+    impl ::serde::Serialize for Outcome {
+        fn serialize<__S: ::serde::Serializer>(
+            &self,
+            s: __S,
+        ) -> ::core::result::Result<__S::Ok, __S::Error> {
+            use ::serde::ser::SerializeMap;
+            let mut map = s.serialize_map(Some(1))?;
+            match self {
+                Self::Key(v) => {
+                    map.serialize_entry("key", &**v)?;
+                }
+                Self::Rejected(v) => {
+                    map.serialize_entry("rejected", v)?;
                 }
             }
             map.end()

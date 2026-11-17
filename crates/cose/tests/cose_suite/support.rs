@@ -220,6 +220,8 @@ fn operation_output_from_response(
 #[cfg(feature = "wire")]
 fn encode_result_branch(mut result: reallyme_cose::wire::CoseOperationResult) -> Vec<u8> {
     match result.result.as_mut() {
+        Some(cose_operation_result::Result::KeySetParse(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::KeySetCreate(message)) => message.encode_to_vec(),
         Some(cose_operation_result::Result::Sign1SignatureStructure(message)) => {
             message.encode_to_vec()
         }

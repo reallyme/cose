@@ -2,8 +2,6 @@
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-//! COSE helpers for ReallyMe identity software.
-//!
 //! COSE operations are defined by protobuf and generated with Buffa.
 //!
 //! # Example
@@ -70,6 +68,8 @@ mod failure;
 #[cfg(test)]
 mod failure_tests;
 mod generated_contract;
+#[cfg(all(feature = "wire", feature = "cose-crypto"))]
+mod messages;
 
 /// Explicit signed-container, certificate, peer-key and opaque-signing contracts.
 #[cfg(feature = "cose-crypto")]

@@ -100,6 +100,13 @@ pub mod __buffa {
         reg.register_json_any(super::__COSE_SIGN1VERIFY_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN1VERIFY_DETACHED_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN1VERIFY_RESULT_JSON_ANY);
+        reg.register_json_any(super::__COSE_KEY_SET_POLICY_JSON_ANY);
+        reg.register_json_any(super::__COSE_KEY_SET_PARSE_REQUEST_JSON_ANY);
+        reg.register_json_any(super::__COSE_KEY_SET_MEMBER_JSON_ANY);
+        reg.register_json_any(super::__COSE_KEY_SET_ENTRY_JSON_ANY);
+        reg.register_json_any(super::__COSE_KEY_SET_PARSE_RESULT_JSON_ANY);
+        reg.register_json_any(super::__COSE_KEY_SET_CREATE_REQUEST_JSON_ANY);
+        reg.register_json_any(super::__COSE_KEY_SET_CREATE_RESULT_JSON_ANY);
         reg.register_json_any(super::__COSE_KEY_FROM_PUBLIC_BYTES_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_KEY_FROM_PRIVATE_BYTES_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_KEY_BYTES_REQUEST_JSON_ANY);
@@ -206,6 +213,34 @@ pub use self::__buffa::view::CoseKeyFromPrivateBytesRequestView;
 pub use self::__buffa::view::CoseKeyFromPublicBytesRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseKeyFromPublicBytesRequestView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseKeySetCreateRequestOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseKeySetCreateRequestView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseKeySetCreateResultOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseKeySetCreateResultView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseKeySetEntryOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseKeySetEntryView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseKeySetMemberOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseKeySetMemberView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseKeySetParseRequestOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseKeySetParseRequestView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseKeySetParseResultOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseKeySetParseResultView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseKeySetPolicyOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseKeySetPolicyView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseMac0VerifyRequestOwnedView;
 #[doc(inline)]

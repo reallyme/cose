@@ -12,6 +12,7 @@ pub(crate) mod execute;
 pub(crate) mod input;
 pub(crate) mod iso_verify;
 pub(crate) mod key;
+pub(crate) mod key_set;
 pub(crate) mod mac0;
 mod map_failure;
 pub(crate) mod map_profile_failure;

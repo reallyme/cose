@@ -9,6 +9,8 @@ mod container;
 mod guarded;
 #[path = "contract_key_tests.rs"]
 mod key;
+#[path = "contract_key_set_tests.rs"]
+mod key_set;
 #[path = "contract_limit_tests.rs"]
 mod limits;
 #[path = "contract_mac_tests.rs"]

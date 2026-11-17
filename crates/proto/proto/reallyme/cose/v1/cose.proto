@@ -1104,6 +1104,8 @@ message CoseOperationRequest {
     // extension, kid, key_ops and Base IV fields. Preserve exact alg or absence.
     // Rust adapter: key/facade.rs#cose_key_to_public_vec
     CoseKeyBytesRequest key_to_public_vec = 2013;
+    CoseKeySetParseRequest key_set_parse = 2014;
+    CoseKeySetCreateRequest key_set_create = 2015;
 
     // COSE_Encrypt and COSE_Recipient operations: 3000-3999.
     // Rust adapter: encrypt/create.rs#cose_encrypt_ml_kem_direct
@@ -1173,6 +1175,8 @@ message CoseOperationResult {
     CosePeerKeyResult peer_key_validate = 2011;
     CoseWorkingKey verification_key_import = 2012;
     CoseKeyBytesResult key_to_public_vec = 2013;
+    CoseKeySetParseResult key_set_parse = 2014;
+    CoseKeySetCreateResult key_set_create = 2015;
 
     // COSE_Encrypt and COSE_Recipient results: 3000-3999.
     CoseMlKemEncryptResult ml_kem_encrypt_direct = 3000;
@@ -1484,6 +1488,72 @@ message CoseSign1VerifyResult {
   reserved "has_exact_signature_algorithm";
   // Authenticated protected typ, if one was present.
   CoseType protected_type = 6;
+}
+
+// KeySet parsing is independent per member (RFC 9052 section 7). Recognized
+// members have validated COSE key parameter types, not cryptographic point,
+// modulus, private/public binding, trust or operation authorization validation.
+enum CoseKeySetKeyType {
+  COSE_KEY_SET_KEY_TYPE_UNSPECIFIED = 0;
+  COSE_KEY_SET_KEY_TYPE_OKP = 100;
+  COSE_KEY_SET_KEY_TYPE_EC2 = 200;
+  COSE_KEY_SET_KEY_TYPE_RSA = 300;
+  COSE_KEY_SET_KEY_TYPE_SYMMETRIC = 400;
+  COSE_KEY_SET_KEY_TYPE_AKP = 700;
+}
+
+enum CoseKeySetProjection {
+  COSE_KEY_SET_PROJECTION_UNSPECIFIED = 0;
+  // Retain complete received key bytes. Every member is sensitive storage,
+  // including opaque extensions that may contain private material.
+  COSE_KEY_SET_PROJECTION_SENSITIVE_STORAGE = 1;
+  // Emit only registered public parameters and exact alg when present. Drop
+  // private fields, all extensions, kid, key_ops and Base IV. Symmetric keys
+  // have no public parameters. Import projected keys before cryptographic use.
+  COSE_KEY_SET_PROJECTION_PUBLIC_PARAMETERS = 2;
+}
+
+message CoseKeySetPolicy {
+  CoseKeySetProjection projection = 1;
+  // Required nonempty unique allowlist, at most five recognized key classes.
+  repeated CoseKeySetKeyType allowed_key_types = 2;
+}
+
+message CoseKeySetParseRequest {
+  // SENSITIVE: complete received untagged KeySet, at most 1 MiB and 64 keys.
+  bytes encoded = 1;
+  CoseKeySetPolicy policy = 2;
+}
+
+message CoseKeySetMember {
+  CoseKeySetKeyType key_type = 1;
+  // SENSITIVE: exact received key for storage, or explicit public projection.
+  bytes encoded = 2;
+}
+
+message CoseKeySetEntry {
+  uint32 source_index = 1;
+  oneof outcome {
+    CoseKeySetMember key = 2;
+    // Malformed/unrecognized/disallowed members do not discard valid peers.
+    CoseErrorReason rejected = 3;
+  }
+}
+
+message CoseKeySetParseResult {
+  repeated CoseKeySetEntry entries = 1;
+}
+
+message CoseKeySetCreateRequest {
+  // SENSITIVE: individual complete encoded COSE_Key maps, one to 64 members.
+  repeated bytes keys = 1;
+  CoseKeySetPolicy policy = 2;
+}
+
+message CoseKeySetCreateResult {
+  // SENSITIVE: encoded KeySet. Storage mode can contain private parameters.
+  bytes encoded = 1;
+  uint32 key_count = 2;
 }
 
 // CoseKeyFromPublicBytesRequest builds a public COSE_Key from raw public key

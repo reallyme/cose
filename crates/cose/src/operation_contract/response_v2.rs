@@ -101,6 +101,12 @@ fn validate_for_request(
 
 fn validate_result(result: &CoseOperationResult) -> CoseWireResult<()> {
     let valid = match result.result.as_ref() {
+        Some(CoseOperationResultBranch::KeySetParse(result)) => {
+            crate::messages::key_set::valid_parsed_result(result)
+        }
+        Some(CoseOperationResultBranch::KeySetCreate(result)) => {
+            crate::messages::key_set::valid_created_result(result)
+        }
         Some(
             CoseOperationResultBranch::Sign1Create(_)
             | CoseOperationResultBranch::Sign1CreateDetached(_)
@@ -305,6 +311,12 @@ fn result_matches_request(request: &CoseOperationRequest, result: &CoseOperation
         ) | (
             Some(cose_operation_request::Operation::KeyToPublicVec(_)),
             Some(CoseOperationResultBranch::KeyToPublicVec(_)),
+        ) | (
+            Some(cose_operation_request::Operation::KeySetParse(_)),
+            Some(CoseOperationResultBranch::KeySetParse(_)),
+        ) | (
+            Some(cose_operation_request::Operation::KeySetCreate(_)),
+            Some(CoseOperationResultBranch::KeySetCreate(_)),
         ) | (
             Some(cose_operation_request::Operation::KeyToPrivateBytes(_)),
             Some(CoseOperationResultBranch::KeyToPrivateBytes(_)),

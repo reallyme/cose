@@ -127,6 +127,12 @@ fn dispatch_operation(
         cose_operation_request::Operation::KeyToPublicVec(request) => {
             super::key::convert::to_public_vec_result(core::mem::take(&mut **request))
         }
+        cose_operation_request::Operation::KeySetParse(request) => {
+            super::key_set::parse(core::mem::take(&mut **request))
+        }
+        cose_operation_request::Operation::KeySetCreate(request) => {
+            super::key_set::create(core::mem::take(&mut **request))
+        }
         cose_operation_request::Operation::KeyToPrivateBytes(request) => {
             super::key::convert::to_private_bytes_result(core::mem::take(&mut **request))
         }
