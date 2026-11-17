@@ -303,6 +303,25 @@ if (mode === MODE_ORDER) {
   process.exit(0);
 }
 
+function checkPrivacy(args) {
+  const result = run("python3", ["scripts/check_repository_privacy.py", ...args], { capture: true });
+  if (result.status !== 0) {
+    console.error("repository privacy verification failed; publication is blocked");
+    process.exit(result.status ?? 1);
+  }
+}
+
+function checkArchivePrivacy(pkg, archive) {
+  if (typeof pkg.manifest_path !== "string" || !path.isAbsolute(pkg.manifest_path)) {
+    console.error("package provenance is missing; publication is blocked");
+    process.exit(1);
+  }
+  const prefix = path.relative(process.cwd(), path.dirname(pkg.manifest_path));
+  checkPrivacy(["--archive", archive, "--prefix", prefix]);
+}
+
+checkPrivacy(["--index", "--history"]);
+
 const unpackDirectory = path.join(packageDirectory, "release-preflight");
 
 if (mode === MODE_INSPECT) {
@@ -322,6 +341,7 @@ if (mode === MODE_INSPECT) {
   }
   for (const pkg of ordered) {
     const archive = path.join(packageDirectory, `${pkg.name}-${pkg.version}.crate`);
+    checkArchivePrivacy(pkg, archive);
     // Keep the exact archives inspected below. Later Cargo dry runs can
     // replace files under target/package.
     if (archiveDirectory !== undefined) {
@@ -441,10 +461,12 @@ function archiveChecksum(file) {
 }
 
 function verifyReviewedArchive(pkg) {
+  checkArchivePrivacy(pkg, path.join(packageDirectory, `${pkg.name}-${pkg.version}.crate`));
   if (archiveDirectory === undefined) {
     return;
   }
   const name = `${pkg.name}-${pkg.version}.crate`;
+  checkArchivePrivacy(pkg, path.join(archiveDirectory, name));
   try {
     if (archiveChecksum(path.join(packageDirectory, name)) ===
         archiveChecksum(path.join(archiveDirectory, name))) {

@@ -685,6 +685,14 @@ The following structures and features are not implemented:
 Unsupported inputs fail closed with typed `CoseError` variants. Error messages
 do not include payloads, keys, raw CBOR, or resolver-provided material.
 
+## Repository Privacy
+
+Ignored local state is rejected by the staged-index, push-history, CI and crate
+publication guards. Install the local hooks with
+`python3 scripts/install_repository_privacy_hooks.py`. See the
+[repository privacy policy](https://github.com/reallyme/cose/blob/main/docs/repository-privacy.md)
+for enforcement, archive checks and hosting limitations.
+
 ## Resource Limits
 
 Public byte-boundary APIs enforce deterministic limits before COSE structure

@@ -17,12 +17,18 @@ target/
 .idea/
 
 # Local environment and developer state
+# BEGIN LOCAL-ONLY PATHS
+AGENTS.md
+.claude/
+.codex/
+.local/
+.build/
+.agents/
+# END LOCAL-ONLY PATHS
 .env
 .env.*
 !.env.example
 .secrets/
-/.agents/
-/.codex/
 
 # Local test and release outputs
 coverage/
@@ -36,3 +42,7 @@ proptest-regressions/
 # Node tooling used by repository checks
 node_modules/
 npm-debug.log*
+
+# Python repository tooling
+__pycache__/
+*.pyc

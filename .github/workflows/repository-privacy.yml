@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
+
+name: Repository Privacy
+
+on:
+  push:
+  pull_request:
+  merge_group:
+
+permissions:
+  contents: read
+
+jobs:
+  repository-privacy:
+    name: No local-only tracked or packaged files
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout complete history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Reject ignored paths in tracked files and reachable history
+        run: python3 scripts/check_repository_privacy.py --index --history
+      - name: Test privacy enforcement
+        run: python3 -m unittest discover -s scripts -p test_repository_privacy.py

@@ -48,6 +48,8 @@ const {
   requireTrackedFiles: true,
 });
 
+runCommands([["python3", ["scripts/check_repository_privacy.py", "--index"]]]);
+
 // The workflow `uses` lines are the single source of truth for action identities.
 // Enforcing immutable SHAs here preserves supply-chain review without duplicating
 // each SHA in policy code, which would make legitimate Dependabot updates fail CI.

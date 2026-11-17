@@ -43,6 +43,8 @@ childProcess.spawnSync = (command, args) => {
   calls.push([command, ...args]);
   writeFileSync(${JSON.stringify(callsPath)}, JSON.stringify(calls));
   const ok = { status: 0, stdout: "", stderr: "" };
+  if (command === "python3") return scenario === "privacy-failure" ||
+    (scenario === "archive-privacy-failure" && args.includes("--archive")) ? { ...ok, status: 1 } : ok;
   if (command === "curl") {
     const remote = scenario === "registry-mismatch" ? "changed registry bytes" : "reviewed bytes";
     writeFileSync(args[args.indexOf("--output") + 1], remote);
@@ -52,10 +54,10 @@ childProcess.spawnSync = (command, args) => {
   if (args[0] === "metadata") return { ...ok, stdout: JSON.stringify({
     target_directory: ${JSON.stringify(directory)},
     packages: [
-      { name: "reallyme-cose", version: ${JSON.stringify(version)}, publish: null,
+      { name: "reallyme-cose", manifest_path: ${JSON.stringify(join(directory,"crates/cose/Cargo.toml"))}, version: ${JSON.stringify(version)}, publish: null,
         dependencies: [{ name: "reallyme-cose-proto", source: null, path: "crates/proto",
           kind: null, req: ${JSON.stringify(requirement)} }] },
-      { name: "reallyme-cose-proto", version: ${JSON.stringify(version)}, publish: null,
+      { name: "reallyme-cose-proto", manifest_path: ${JSON.stringify(join(directory,"crates/proto/Cargo.toml"))}, version: ${JSON.stringify(version)}, publish: null,
         dependencies: [] },
     ],
   }) };
@@ -151,4 +153,13 @@ test("CI verifies the registry bytes before publishing dependent crates", () => 
   assert.match(result.stderr, /published from different source bytes/);
   assert.deepEqual(result.calls.filter((call) => call[1] === "publish").map((call) => call[3]),
     ["reallyme-cose-proto"]);
+});
+
+test("privacy failures stop publication before registry mutation", () => {
+  for (const scenario of ["privacy-failure", "archive-privacy-failure"]) {
+    const result = runFixture({ scenario });
+    assert.notEqual(result.status, 0);
+    assert.ok(result.calls.some((call) => call[0] === "python3"));
+    assert.ok(result.calls.every((call) => !(call[0] === "cargo" && call[1] === "publish")));
+  }
 });
