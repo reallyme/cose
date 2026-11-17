@@ -4,7 +4,9 @@
 use super::support::{codec_parity, field, hex, keys, reason, success};
 use crate::api::contract::{
     __buffa::oneof::{cose_operation_request::Operation, cose_operation_result::Result as Branch},
-    CoseAgreementOptionalParameters, CosePeerKeyPurpose, CosePeerKeyRequest, CoseSignatureSuite,
+    CoseAgreementEc2EncodingPolicy, CoseAgreementKeyParseRequest, CoseAgreementKeyPolicy,
+    CoseAgreementOptionalParameters, CoseNamedCurve, CosePeerKeyPurpose, CosePeerKeyRequest,
+    CoseProviderKind, CoseSignatureSuite,
 };
 use crate::containers::{
     inspect_peer_key, AgreementEc2EncodingPolicy, AgreementKey, AgreementKeyPolicy,
@@ -131,6 +133,24 @@ fn check(
             assert_eq!(provider.0.get(), 1);
         } else {
             assert_eq!(provider.0.get(), 0);
+        }
+        let input = CoseAgreementKeyParseRequest {
+            cose_key: encoded.to_vec().into(),
+            policy: field(CoseAgreementKeyPolicy {
+                allowed_curves: vec![CoseNamedCurve::P256.into()].into(),
+                optional_parameters: CoseAgreementOptionalParameters::from(optional).into(),
+                ec2_encoding: CoseAgreementEc2EncodingPolicy::FullCoordinatesOnly.into(),
+            }),
+            capability: super::support::capability(0, CoseProviderKind::AgreementKeyNormalizer),
+        };
+        let response = codec_parity(Operation::AgreementKeyParse(Box::new(input)))?;
+        if let Some(expected) = expected {
+            assert_eq!(reason(&response), expected);
+        } else {
+            let Branch::AgreementKeyParse(parsed) = &success(response) else {
+                return Err(Reason::Malformed.into());
+            };
+            assert_eq!(parsed.cose_key, encoded);
         }
     }
     Ok(())
@@ -271,6 +291,90 @@ fn iso_peer_retains_unknown_parameters_and_well_typed_base_iv() -> Result<(), Co
             OptionalKeyPolicy::IsoPeer,
             Some(Reason::Key),
         )?;
+    }
+    Ok(())
+}
+
+// Splice raw bytes rather than using a value encoder, which would normalize
+// overlong simple values and could hide the exact encoding under test.
+fn replace_y(encoded: &[u8], replacement: &[u8]) -> Result<Zeroizing<Vec<u8>>, CoseError> {
+    use reallyme_codec::cbor::general::{frame_exact, LengthPolicy, Limits};
+    let frame = frame_exact(encoded, Limits::default(), LengthPolicy::DefiniteOnly)
+        .map_err(|_| CoseError::Cbor)?;
+    let mut children = frame.children().map_err(|_| CoseError::Cbor)?;
+    while let Some(label) = children.next() {
+        let label = label.map_err(|_| CoseError::Cbor)?;
+        let start = frame
+            .header()
+            .received_bytes()
+            .len()
+            .checked_add(children.consumed_bytes().len())
+            .ok_or(CoseError::ResourceLimitExceeded)?;
+        let value = children
+            .next()
+            .ok_or(CoseError::Cbor)?
+            .map_err(|_| CoseError::Cbor)?;
+        if label.integer().map_err(|_| CoseError::Cbor)?.to_i128() != -3 {
+            continue;
+        }
+        let end = start
+            .checked_add(value.received_bytes().len())
+            .ok_or(CoseError::ResourceLimitExceeded)?;
+        let size = encoded
+            .len()
+            .checked_sub(value.received_bytes().len())
+            .and_then(|len| len.checked_add(replacement.len()))
+            .ok_or(CoseError::ResourceLimitExceeded)?;
+        let mut changed = Zeroizing::new(Vec::new());
+        changed
+            .try_reserve_exact(size)
+            .map_err(|_| CoseError::ResourceLimitExceeded)?;
+        changed.extend_from_slice(encoded.get(..start).ok_or(CoseError::Cbor)?);
+        changed.extend_from_slice(replacement);
+        changed.extend_from_slice(encoded.get(end..).ok_or(CoseError::Cbor)?);
+        return Ok(changed);
+    }
+    Err(CoseError::InvalidFormat)
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
+fn peer_and_agreement_y_require_exact_booleans_in_every_transport() -> Result<(), CoseError> {
+    let baseline = key(&[])?;
+    let signature = PeerKeyUsage::Signature(selected()?);
+    for optional in [OptionalKeyPolicy::Cose, OptionalKeyPolicy::IsoPeer] {
+        for valid in [b"\xf4".as_slice(), b"\xf5".as_slice()] {
+            check(&replace_y(&baseline, valid)?, signature, optional, None)?;
+        }
+        for (replacement, expected) in [
+            (b"\xf9\x00\x14".as_slice(), Reason::Key),
+            (b"\xf9\x00\x15".as_slice(), Reason::Key),
+            (b"\xfa\x00\x00\x00\x14".as_slice(), Reason::Key),
+            (b"\xfa\x00\x00\x00\x15".as_slice(), Reason::Key),
+            (
+                b"\xfb\x00\x00\x00\x00\x00\x00\x00\x14".as_slice(),
+                Reason::Key,
+            ),
+            (
+                b"\xfb\x00\x00\x00\x00\x00\x00\x00\x15".as_slice(),
+                Reason::Key,
+            ),
+            (b"\xf8\x14".as_slice(), Reason::Malformed),
+            (b"\xf8\x15".as_slice(), Reason::Malformed),
+            (b"\x14".as_slice(), Reason::Key),
+            (b"\x15".as_slice(), Reason::Key),
+            (b"\xf6".as_slice(), Reason::Key),
+            (b"\xf7".as_slice(), Reason::Key),
+            (b"\xc0\xf4".as_slice(), Reason::Key),
+            (b"\xc0\xf5".as_slice(), Reason::Key),
+            (b"\x80".as_slice(), Reason::Key),
+            (b"\xa0".as_slice(), Reason::Key),
+        ] {
+            let encoded = replace_y(&baseline, replacement)?;
+            for usage in [signature, PeerKeyUsage::Agreement] {
+                check(&encoded, usage, optional, Some(expected))?;
+            }
+        }
     }
     Ok(())
 }

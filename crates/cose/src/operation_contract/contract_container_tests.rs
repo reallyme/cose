@@ -281,7 +281,8 @@ fn replace_payload_slot(
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 #[test]
-fn detached_payload_slot_requires_nil_and_rejects_all_float_widths() -> Result<(), CoseError> {
+fn detached_payload_slot_requires_exact_nil_and_rejects_scalar_substitutions(
+) -> Result<(), CoseError> {
     let vectors: Vectors =
         serde_json::from_str(include_str!("../../tests/fixtures/containers.json"))
             .map_err(|_| CoseError::Cbor)?;
@@ -298,14 +299,43 @@ fn detached_payload_slot_requires_nil_and_rejects_all_float_widths() -> Result<(
             [0x42; 32],
         )?;
         let payload = hex(&case.payload);
-        for slot in [
-            b"\xf6".as_slice(),
-            b"\xf9\x00\x16".as_slice(),
-            b"\xfa\x00\x00\x00\x16".as_slice(),
-            b"\xfb\x00\x00\x00\x00\x00\x00\x00\x16".as_slice(),
+        for (slot, preferred, primitive_failure) in [
+            (b"\xf6".as_slice(), true, None),
+            (
+                b"\xf9\x00\x16".as_slice(),
+                true,
+                Some(CoseError::NonCanonicalCbor),
+            ),
+            (
+                b"\xfa\x00\x00\x00\x16".as_slice(),
+                true,
+                Some(CoseError::NonCanonicalCbor),
+            ),
+            (
+                b"\xfb\x00\x00\x00\x00\x00\x00\x00\x16".as_slice(),
+                true,
+                Some(CoseError::NonCanonicalCbor),
+            ),
+            // Invalid overlong simple encoding must not normalize to null.
+            (b"\xf8\x16".as_slice(), false, None),
+            (b"\xf4".as_slice(), true, None),
+            (b"\xf5".as_slice(), true, None),
+            (b"\xf7".as_slice(), true, None),
+            (b"\x16".as_slice(), true, None),
+            (b"\xc0\xf6".as_slice(), true, None),
+            (b"\x80".as_slice(), true, None),
+            (b"\xa0".as_slice(), true, None),
         ] {
             let mut encoded = replace_payload_slot(&baseline.encoded, slot)?;
-            crate::containers::validate_preferred_cbor(&encoded)?;
+            let preflight = crate::containers::validate_preferred_cbor(&encoded);
+            if preferred {
+                preflight?;
+            } else {
+                assert_eq!(
+                    preflight.err().map(CoseError::reason),
+                    Some(Reason::Malformed)
+                );
+            }
             let native = crate::containers::verify_container(
                 crate::containers::ContainerVerifyRequest {
                     encoded: &encoded,
@@ -328,13 +358,15 @@ fn detached_payload_slot_requires_nil_and_rejects_all_float_widths() -> Result<(
                     native.err().map(|error| error.reason()),
                     Some(Reason::Malformed)
                 );
-                assert_eq!(
-                    crate::cose_verify1_detached(&encoded, &payload, |_, _| Some(hex(
-                        &case.public_key
-                    )))
-                    .err(),
-                    Some(CoseError::NonCanonicalCbor)
-                );
+                if let Some(expected) = primitive_failure {
+                    assert_eq!(
+                        crate::cose_verify1_detached(&encoded, &payload, |_, _| Some(hex(
+                            &case.public_key
+                        )))
+                        .err(),
+                        Some(expected)
+                    );
+                }
             }
             let mut changed = baseline.clone();
             changed.encoded = core::mem::take(&mut *encoded).into();

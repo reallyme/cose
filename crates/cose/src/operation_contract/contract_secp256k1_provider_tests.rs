@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use super::support::{field, hex, reason, request, success};
+use super::support::{codec_parity_with_providers, field, hex, reason, request, success};
 use crate::api::{self, contract as wire, ProviderTransport};
 use crate::{Algorithm, CoseError};
 use buffa::Message;
@@ -31,6 +31,7 @@ struct Port {
     private: Zeroizing<Vec<u8>>,
     encoding: wire::CoseSignatureEncoding,
     corrupt: bool,
+    replacement_signature: Option<Zeroizing<Vec<u8>>>,
     signatures: Cell<usize>,
 }
 impl Port {
@@ -78,6 +79,9 @@ impl Port {
                 assert_eq!(signature.len(), 64);
                 if self.corrupt {
                     *signature.first_mut().ok_or(CoseError::InvalidFormat)? ^= 1;
+                }
+                if let Some(replacement) = &self.replacement_signature {
+                    signature = Zeroizing::new(replacement.to_vec());
                 }
                 Ok(Branch::Sign(Box::new(wire::CoseOpaqueBytes {
                     encoded: core::mem::take(&mut *signature).into(),
@@ -134,6 +138,7 @@ fn fixture(detached: bool) -> Result<(Case, Port), CoseError> {
         private: Zeroizing::new(hex(&case.private_key_seed_hex)),
         encoding: wire::CoseSignatureEncoding::CoseEcdsa,
         corrupt: false,
+        replacement_signature: None,
         signatures: Cell::new(0),
     };
     Ok((case, port))
@@ -196,30 +201,64 @@ fn secp256k1_provider_raw_signatures_match_portable_attached_and_detached_vector
 #[test]
 fn secp256k1_provider_rejects_declared_der_before_signing_and_tampered_raw_output(
 ) -> Result<(), CoseError> {
-    for encoding in [
-        wire::CoseSignatureEncoding::EcdsaDer,
-        wire::CoseSignatureEncoding::CoseNative,
-    ] {
-        let (case, mut port) = fixture(false)?;
-        port.encoding = encoding;
+    for detached in [false, true] {
+        for encoding in [
+            wire::CoseSignatureEncoding::EcdsaDer,
+            wire::CoseSignatureEncoding::CoseNative,
+        ] {
+            let (case, mut port) = fixture(detached)?;
+            port.encoding = encoding;
+            assert_eq!(
+                reason(&api::execute_with_provider_transport(
+                    input(&case, detached),
+                    &port
+                )),
+                CoseError::InvalidSignatureEncoding.reason()
+            );
+            assert_eq!(port.signatures.get(), 0);
+        }
+        let (case, mut port) = fixture(detached)?;
+        port.corrupt = true;
         assert_eq!(
             reason(&api::execute_with_provider_transport(
-                input(&case, false),
+                input(&case, detached),
                 &port
             )),
-            CoseError::InvalidSignatureEncoding.reason()
+            CoseError::InvalidSignature.reason()
         );
-        assert_eq!(port.signatures.get(), 0);
+        assert_eq!(port.signatures.get(), 1);
     }
-    let (case, mut port) = fixture(false)?;
-    port.corrupt = true;
-    assert_eq!(
-        reason(&api::execute_with_provider_transport(
-            input(&case, false),
-            &port
-        )),
-        CoseError::InvalidSignature.reason()
-    );
-    assert_eq!(port.signatures.get(), 1);
+    Ok(())
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
+fn secp256k1_provider_rejects_malformed_raw_output_in_every_transport() -> Result<(), CoseError> {
+    for detached in [false, true] {
+        // A description declaring raw COSE ECDSA does not authorize arbitrary
+        // output. Cover wrong lengths, invalid scalars and DER bytes presented
+        // as raw; the returned signature is checked before an envelope exists.
+        for replacement in [
+            Vec::new(),
+            vec![0; 63],
+            vec![0; 65],
+            vec![0; 64],
+            hex("3006020101020101"),
+        ] {
+            let (case, mut port) = fixture(detached)?;
+            port.replacement_signature = Some(Zeroizing::new(replacement));
+            let session = crate::operation_contract::provider_transport::Session::new(&port);
+            let operation = input(&case, detached)
+                .operation
+                .take()
+                .ok_or(CoseError::InvalidFormat)?;
+            assert_eq!(
+                reason(&codec_parity_with_providers(operation, &session)?),
+                CoseError::InvalidSignature.reason()
+            );
+            assert_eq!(session.take_failure(), None);
+            assert_eq!(port.signatures.get(), 3);
+        }
+    }
     Ok(())
 }
