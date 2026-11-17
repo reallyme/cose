@@ -18238,6 +18238,9 @@ pub struct CoseProviderSignerDescription {
     )]
     #[serde(default)]
     pub prehash: ::buffa::EnumValue<CoseHashAlgorithm>,
+    /// Modern Sign1 providers use ECDSA_DER for NIST ECDSA, COSE_ECDSA for
+    /// secp256k1 (64-byte r || s), EDDSA for Ed25519, and COSE_NATIVE for ML-DSA.
+    ///
     /// Field 4: `signature_encoding`
     #[serde(
         rename = "signatureEncoding",

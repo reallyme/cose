@@ -13212,6 +13212,9 @@ pub struct CoseProviderSignerDescriptionView<'a> {
     pub signing_mode: ::buffa::EnumValue<super::super::CoseSigningMode>,
     /// Field 3: `prehash`
     pub prehash: ::buffa::EnumValue<super::super::CoseHashAlgorithm>,
+    /// Modern Sign1 providers use ECDSA_DER for NIST ECDSA, COSE_ECDSA for
+    /// secp256k1 (64-byte r || s), EDDSA for Ed25519, and COSE_NATIVE for ML-DSA.
+    ///
     /// Field 4: `signature_encoding`
     pub signature_encoding: ::buffa::EnumValue<super::super::CoseSignatureEncoding>,
     /// Optional independently authorized verification capability. If absent, the
@@ -13579,6 +13582,9 @@ impl CoseProviderSignerDescriptionOwnedView {
     pub fn prehash(&self) -> ::buffa::EnumValue<super::super::CoseHashAlgorithm> {
         self.0.reborrow().prehash
     }
+    /// Modern Sign1 providers use ECDSA_DER for NIST ECDSA, COSE_ECDSA for
+    /// secp256k1 (64-byte r || s), EDDSA for Ed25519, and COSE_NATIVE for ML-DSA.
+    ///
     /// Field 4: `signature_encoding`
     #[must_use]
     pub fn signature_encoding(&self) -> ::buffa::EnumValue<super::super::CoseSignatureEncoding> {

@@ -171,7 +171,7 @@ impl<'a> ModernSigner<'a> {
             ),
             Algorithm::Secp256k1 => (
                 contract::CoseNamedCurve::Secp256k1,
-                contract::CoseSignatureEncoding::EcdsaDer,
+                contract::CoseSignatureEncoding::CoseEcdsa,
             ),
             Algorithm::Ed25519 => (
                 contract::CoseNamedCurve::Ed25519,
@@ -218,7 +218,8 @@ impl crate::sign1::CoseSigner for ModernSigner<'_> {
                 if signature.len() > crate::limits::MAX_COSE_KEY_BYTES {
                     return Err(CoseError::ResourceLimitExceeded);
                 }
-                // The compatibility signer has historically returned DER for EC.
+                // Match the crypto verifier's declared format: DER for NIST
+                // ECDSA, raw r || s for secp256k1, native bytes for EdDSA/PQ.
                 reallyme_crypto::dispatch::verify(
                     self.primitive,
                     &self.public,
