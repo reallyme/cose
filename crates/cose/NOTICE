@@ -12,9 +12,10 @@ Rust dependencies. Those dependencies retain their own license terms;
 consult their package manifests and license files. Cargo.lock records the
 resolved dependency versions, and deny.toml defines the dependency policy.
 
-The repository-only scripts/release-readiness/core.mjs file is an unmodified,
-hash-pinned copy from reallyme/release-readiness and retains its Apache-2.0
-license. It is not included in either published crate.
+The repository uses ReallyMe Release Readiness from an immutable revision of
+reallyme/release-readiness through scripts/run_pinned_release_readiness.mjs.
+That upstream tooling is licensed under MIT OR Apache-2.0 and is not included
+in either published crate.
 
 This NOTICE file is informational and does not modify the license terms in
 LICENSE or any third-party dependency license.

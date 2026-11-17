@@ -720,6 +720,9 @@ not an npm package. The exact artifact scope is recorded in
 
 ## Development Checks
 
+Internal crates must declare `publish = false` in their own `[package]` section.
+The approved public crates explicitly enable publication in their manifests.
+
 The workspace declares Rust 1.100 as its minimum supported version; the development
 toolchain is pinned in `rust-toolchain.toml`. Run the repository gate for format,
 feature-matrix, lint, test, allocation, WASM runtime, vector, fuzz-build, and
@@ -727,7 +730,7 @@ dependency checks after installing the pinned external-type checker:
 
 ```sh
 bash scripts/install_external_type_checker.sh .local-tools
-node scripts/check_release_readiness.mjs
+node scripts/run_pinned_release_readiness.mjs
 ```
 
 Protobuf regeneration requires Buf 1.73.0 and the ReallyMe Buffa 0.1.1 tools:
@@ -738,7 +741,7 @@ cargo install reallyme-protoc-gen-buffa-packaging --version '=0.1.1' --locked
 test "$(protoc-gen-reallyme-buffa --version)" = "protoc-gen-reallyme-buffa 0.1.1"
 test "$(protoc-gen-reallyme-buffa-packaging --version)" = "protoc-gen-reallyme-buffa-packaging 0.1.1"
 node scripts/generate_cose_contract.mjs
-node scripts/check_release_readiness.mjs --generated-freshness
+node scripts/run_pinned_release_readiness.mjs --generated-freshness
 ```
 
 The generation driver requires exact executable names and versions, lints the
@@ -749,9 +752,11 @@ checked-in files.
 `node scripts/generate_cose_contract.mjs --check` runs that comparison directly.
 CI uses the pinned shared release-readiness runner;
 crate publication additionally requires its package-preflight checks. Locally,
-`node scripts/run_pinned_release_readiness.mjs` verifies the vendored core against
-the pinned upstream copy before running the same gate (requires network access). Fuzzing
-commands and runtime limits are documented in
+`node scripts/run_pinned_release_readiness.mjs` executes the shared package from
+the immutable upstream revision pinned in that runner, then runs the repository
+gate. It requires npm and network access to retrieve the pinned package.
+Use `--policy-only` to check repository policy without the full build and runtime
+suite. Fuzzing commands and runtime limits are documented in
 [the fuzzing guide](https://github.com/reallyme/cose/blob/main/fuzz/README.md).
 The [formal verification guide](https://github.com/reallyme/cose/blob/main/docs/formal-verification.md)
 documents the Kani checks, their input bounds, and how to run them locally.
