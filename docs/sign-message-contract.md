@@ -29,6 +29,13 @@ missing crypto coverage fail with the fixed provider-unavailable reason.
 No algorithm is enabled implicitly. The existing explicit ISO Sign1 profiles
 remain separate and retain their compatibility rules.
 
+Verification additionally supports PS256/384/512 and RS256/384/512 with an
+explicit suite allowlist, curve UNSPECIFIED and an RSA SPKI public key. This
+does not extend the primitive signing selector: RSA creation fails with
+`PROVIDER_UNAVAILABLE` because crypto currently supplies verification only.
+The [RSA verification contract](rsa-verification.md) specifies padding, key
+limits, exact algorithm identities and independent tests.
+
 **High-S ECDSA is accepted for P-256, P-384 and P-521 by the built-in
 verifiers; secp256k1 enforces low-S.** COSE permits high-S signatures under
 [RFC 9053 section 2.1](https://www.rfc-editor.org/rfc/rfc9053.html#section-2.1).

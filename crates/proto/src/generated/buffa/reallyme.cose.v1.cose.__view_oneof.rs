@@ -376,6 +376,7 @@ pub mod cose_operation_request {
                 Self::Sign1SignatureStructure(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::RsaSign1Verify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::SignCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::SignVerify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::CounterSignatureCreate(value) => {
@@ -534,6 +535,11 @@ pub mod cose_operation_request {
                 super::super::super::super::__buffa::view::CoseSign1SignatureStructureRequestView<
                     'a,
                 >,
+            >,
+        ),
+        RsaSign1Verify(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseRsaSign1VerifyRequestView<'a>,
             >,
         ),
         SignCreate(
@@ -794,6 +800,7 @@ pub mod cose_operation_result {
                 Self::Sign1SignatureStructure(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::RsaSign1Verify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::SignCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::SignVerify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::CounterSignatureCreate(value) => {
@@ -952,6 +959,11 @@ pub mod cose_operation_result {
                 super::super::super::super::__buffa::view::CoseSign1SignatureStructureResultView<
                     'a,
                 >,
+            >,
+        ),
+        RsaSign1Verify(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseRsaSign1VerifyResultView<'a>,
             >,
         ),
         SignCreate(

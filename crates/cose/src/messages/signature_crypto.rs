@@ -6,11 +6,27 @@ use crate::api::contract::{CoseNamedCurve as Curve, CoseSignatureSuite};
 use crate::{CoseError, CoseSignatureAlgorithm as Registration};
 use reallyme_crypto::core::Algorithm;
 
-pub(super) fn algorithm(suite: &CoseSignatureSuite) -> Result<Algorithm, CoseError> {
+pub(super) const MAX_ALLOWED_SUITES: usize = 32;
+
+#[derive(Clone, Copy)]
+pub(super) enum Backend {
+    Primitive(Algorithm),
+    Rsa(Registration),
+}
+
+pub(super) fn algorithm(suite: &CoseSignatureSuite) -> Result<Backend, CoseError> {
     let registration = Registration::try_from(suite.registration)?;
+    if super::rsa::parameters(registration).is_some() {
+        if suite.curve != Curve::Unspecified {
+            return Err(CoseError::InvalidKeyMaterial);
+        }
+        return Ok(Backend::Rsa(registration));
+    }
     if registration.is_iso() {
         let curve = crate::iso18013::Iso18013SignatureCurve::try_from(suite.curve)?;
-        return crate::containers::SignatureSuite::new(registration, curve)?.crypto_algorithm();
+        return crate::containers::SignatureSuite::new(registration, curve)?
+            .crypto_algorithm()
+            .map(Backend::Primitive);
     }
     let expected = match registration {
         Registration::Ed25519 => Curve::Ed25519,
@@ -24,15 +40,15 @@ pub(super) fn algorithm(suite: &CoseSignatureSuite) -> Result<Algorithm, CoseErr
     if suite.curve != expected {
         return Err(CoseError::InvalidKeyMaterial);
     }
-    registration.crypto_algorithm()
+    registration.crypto_algorithm().map(Backend::Primitive)
 }
 
 pub(super) fn authorize(
     suite: &CoseSignatureSuite,
     allowed: &[CoseSignatureSuite],
     received: i64,
-) -> Result<Algorithm, CoseError> {
-    if allowed.is_empty() || allowed.len() > 32 {
+) -> Result<Backend, CoseError> {
+    if allowed.is_empty() || allowed.len() > MAX_ALLOWED_SUITES {
         return Err(CoseError::UnsupportedAlgorithm);
     }
     for (index, candidate) in allowed.iter().enumerate() {
@@ -76,10 +92,13 @@ pub(super) fn same_suite(a: &CoseSignatureSuite, b: &CoseSignatureSuite) -> bool
 }
 
 pub(super) fn sign(
-    algorithm: Algorithm,
+    backend: Backend,
     key: &[u8],
     message: &[u8],
 ) -> Result<reallyme_cose_proto::SecretBytes, CoseError> {
+    let Backend::Primitive(algorithm) = backend else {
+        return Err(CoseError::ProviderUnavailable);
+    };
     if key.is_empty() {
         return Err(CoseError::MissingPrivateKey);
     }
@@ -92,11 +111,17 @@ pub(super) fn sign(
 }
 
 pub(super) fn verify(
-    algorithm: Algorithm,
+    backend: Backend,
     key: &[u8],
     message: &[u8],
     signature: &[u8],
 ) -> Result<(), CoseError> {
+    let algorithm = match backend {
+        Backend::Primitive(algorithm) => algorithm,
+        Backend::Rsa(registration) => {
+            return super::rsa::verify(registration, key, message, signature)
+        }
+    };
     crate::key::validate_public_key(algorithm, key)?;
     let signature = zeroize::Zeroizing::new(crate::sign1::backend_signature_from_cose(
         algorithm, signature,

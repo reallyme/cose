@@ -59,7 +59,10 @@ AAD, 16 KiB and 32 labels per header bucket, 32 full counters per header and
 the shared codec nesting/work bounds. Secret-bearing requests and results use
 generated wipe-owned bytes, redacted formatting and wipe on clear/drop or
 replacement. Fixed schema reasons cover format, policy, key, provider,
-authentication and resource failures. Crypto suite coverage is the same as the
+authentication and resource failures. RSA verification supports explicit
+PS256/384/512 and RS256/384/512 suites with SPKI keys; RSA counter creation
+returns `PROVIDER_UNAVAILABLE`. See [RSA verification](rsa-verification.md).
+Other crypto suite coverage is the same as the
 [general Sign contract](https://github.com/reallyme/cose/blob/main/docs/sign-message-contract.md).
 
 | Requirement | Focused native/WASM test |

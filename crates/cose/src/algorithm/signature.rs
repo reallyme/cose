@@ -20,10 +20,19 @@ impl CoseSignatureAlgorithm {
     /// Return the cryptographic primitive used to execute this registration.
     ///
     /// # Errors
-    /// Legacy registrations that require a curve return `UnsupportedAlgorithm`.
+    /// Parameterized legacy registrations and RSA verification registrations
+    /// outside primitive dispatch return `UnsupportedAlgorithm`.
     pub fn crypto_algorithm(self) -> Result<Algorithm, CoseError> {
         Ok(match self {
-            Self::Es384 | Self::Es512 | Self::EdDsa => return Err(CoseError::UnsupportedAlgorithm),
+            Self::Es384
+            | Self::Es512
+            | Self::EdDsa
+            | Self::Ps256
+            | Self::Ps384
+            | Self::Ps512
+            | Self::Rs256
+            | Self::Rs384
+            | Self::Rs512 => return Err(CoseError::UnsupportedAlgorithm),
             Self::Ed25519 => Algorithm::Ed25519,
             Self::Es256 | Self::Esp256 => Algorithm::P256,
             Self::Esp384 => Algorithm::P384,

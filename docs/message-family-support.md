@@ -16,6 +16,14 @@ trust policy, identity authorization or network key discovery.
 | RFC 9338 sections 2/3.1/3.3 | `counter_signature_create`, `counter_signature_verify` | All six RFC appendix A examples; all target kinds; standalone/tagged and embedded full collections; chaining; protected bytes, key, AAD and target tampering |
 | RFC 9338 sections 2/3.2/3.3 | `counter_signature0_create`, `counter_signature0_verify` | Independently computed OpenSSL fixtures for both abbreviated contexts; exact preimages; no `sign_protected` placeholder; detached content; changed content/tag/AAD |
 | RFC 9338 header 11/12 representation | `counter_signature_attach` | Exact primary-field preservation; primary AEAD still verifies; single/collection full counters; abbreviated replacement rejection; 32/33 boundary; deprecated 7/9 rejection |
+| RFC 8230 section 2; RFC 8812 section 2 | `rsa_sign1_verify`; RSA suites in `sign_verify` and full/abbreviated counter verification | Independent OpenSSL SHA-256/384/512 PSS and PKCS#1 v1.5 signatures; exact protected bytes; wrong MGF1/salt, weak keys, payload/AAD/header/signature/key tampering; explicit suite allowlists and DER bounds |
+
+The dedicated message-family entrypoints implement their own registered tags:
+98 for Sign, 97 for Mac and 16 for Encrypt0. `limits/validate.rs` admits the
+older primitive profiles; rejection of those tags by Sign1, detached Mac0 or
+the private ML-KEM Encrypt API does not describe the general message APIs.
+Their common framing lives in `messages/read_message.rs`. KeySet admission is
+untagged, and RFC 9338 uses its explicit counter operations and headers 11/12.
 
 All authenticated bytes are preserved. Sign, Signature1, MAC, MAC0, Encrypt,
 Encrypt0 and the four counter contexts remain distinct. Algorithm identities
@@ -38,10 +46,15 @@ Crypto coverage remains explicitly bounded: built-in signature suites are
 listed in the Sign contract, HMAC is the implemented MAC family, and Encrypt0
 supports AES-GCM. Other registered algorithms need crypto/provider coverage;
 they fail with fixed unsupported/provider reasons. Brainpool, Ed448 and X448
-provider implementation remains with reallyme-crypto. Generic KeySet parsing
+provider integration into these COSE message operations remains separate;
+cryptographic implementation stays with reallyme-crypto. Generic KeySet parsing
 is structural and does not replace mathematical key import or trust checks.
 Multi-recipient COSE_Encrypt remains outside the existing private ML-KEM
 profile. Existing Sign1/Mac0 profiles keep their own accepted header semantics.
+RSA verification requires explicit selected registrations, curve UNSPECIFIED,
+2048..8192-bit SPKI public keys and nonempty allowlists. RSA signing and OAEP
+remain unavailable; no alternative crypto implementation or algorithm fallback
+is installed. See [RSA verification](rsa-verification.md) for the exact contract.
 
 See the [Sign](https://github.com/reallyme/cose/blob/main/docs/sign-message-contract.md),
 [Encrypt0](https://github.com/reallyme/cose/blob/main/docs/encrypt0-contract.md),

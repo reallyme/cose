@@ -72,3 +72,10 @@ mod counter;
 
 #[path = "contract_sign1_key_binding_tests.rs"]
 mod sign1_key_binding;
+
+#[path = "contract_rsa_tests.rs"]
+mod rsa;
+#[path = "contract_rsa_message_tests.rs"]
+mod rsa_message;
+#[path = "contract_rsa_support_tests.rs"]
+mod rsa_support;

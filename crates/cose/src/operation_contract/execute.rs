@@ -42,6 +42,9 @@ fn dispatch_operation(
     };
 
     match &mut operation {
+        cose_operation_request::Operation::RsaSign1Verify(request) => {
+            super::rsa_sign1::verify(core::mem::take(&mut **request))
+        }
         cose_operation_request::Operation::CounterSignatureAttach(request) => {
             super::message_attach_counter_signature::attach(core::mem::take(&mut **request))
         }

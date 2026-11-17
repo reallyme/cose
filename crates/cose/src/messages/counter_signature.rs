@@ -199,7 +199,7 @@ pub(crate) fn valid_verified(result: &contract::CoseCounterSignatureVerifyResult
 pub(super) fn external_algorithm(
     suite: &contract::CoseSignatureSuite,
     allowed: &[contract::CoseSignatureSuite],
-) -> Result<reallyme_crypto::core::Algorithm, CoseError> {
+) -> Result<signature_crypto::Backend, CoseError> {
     signature_crypto::authorize(
         suite,
         allowed,

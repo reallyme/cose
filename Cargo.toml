@@ -25,7 +25,7 @@ half = { version = "2.7.1", default-features = false }
 p256 = { version = "0.14.0", default-features = false, features = ["ecdsa"] }
 p384 = { version = "0.14.0", default-features = false, features = ["ecdsa"] }
 p521 = { version = "0.14.0", default-features = false, features = ["ecdsa"] }
-reallyme-codec = { version = "0.4.3", default-features = false, features = ["base64url", "cbor", "multikey"] }
+reallyme-codec = { version = "0.4.3", default-features = false, features = ["base64url", "cbor", "der", "multikey"] }
 reallyme-cose-proto = { version = "0.3.0", path = "crates/proto", default-features = false }
 reallyme-crypto = { version = "0.4.2", default-features = false }
 secrecy = "0.10.3"

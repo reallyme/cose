@@ -104,6 +104,9 @@ fn validate_for_request(
 
 fn validate_result(result: &CoseOperationResult) -> CoseWireResult<()> {
     let valid = match result.result.as_ref() {
+        Some(CoseOperationResultBranch::RsaSign1Verify(value)) => {
+            crate::messages::rsa_sign1::valid_result(value)
+        }
         Some(CoseOperationResultBranch::CounterSignatureAttach(value)) => {
             crate::messages::attach_counter_signature::valid_created(value)
         }
@@ -292,6 +295,9 @@ fn result_matches_request(request: &CoseOperationRequest, result: &CoseOperation
         ) | (
             Some(cose_operation_request::Operation::SignCreate(_)),
             Some(CoseOperationResultBranch::SignCreate(_))
+        ) | (
+            Some(cose_operation_request::Operation::RsaSign1Verify(_)),
+            Some(CoseOperationResultBranch::RsaSign1Verify(_))
         ) | (
             Some(cose_operation_request::Operation::SignVerify(_)),
             Some(CoseOperationResultBranch::SignVerify(_))

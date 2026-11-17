@@ -70,7 +70,13 @@ pub(crate) fn ec2_profile_for_signature_algorithm(
         | CoseSignatureAlgorithm::MlDsa87
         | CoseSignatureAlgorithm::Es384
         | CoseSignatureAlgorithm::Es512
-        | CoseSignatureAlgorithm::EdDsa => Err(CoseError::UnsupportedAlgorithm),
+        | CoseSignatureAlgorithm::EdDsa
+        | CoseSignatureAlgorithm::Ps256
+        | CoseSignatureAlgorithm::Ps384
+        | CoseSignatureAlgorithm::Ps512
+        | CoseSignatureAlgorithm::Rs256
+        | CoseSignatureAlgorithm::Rs384
+        | CoseSignatureAlgorithm::Rs512 => Err(CoseError::UnsupportedAlgorithm),
     }
 }
 

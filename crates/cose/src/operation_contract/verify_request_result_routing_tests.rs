@@ -45,6 +45,7 @@ routing_fixtures! {
     1016 => Sign1VerifyProfile,
     1017 => Sign1VerifyX5chain,
     1018 => Sign1SignatureStructure,
+    1019 => RsaSign1Verify,
     2000 => KeyFromPublicBytes,
     2001 => KeyFromPrivateBytes,
     2002 => KeyParse,

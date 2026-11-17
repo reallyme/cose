@@ -130,6 +130,8 @@ pub mod __buffa {
         reg.register_json_any(super::__COSE_SIGN_SIGNER_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN_CREATE_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN_KEY_BINDING_JSON_ANY);
+        reg.register_json_any(super::__COSE_RSA_SIGN1VERIFY_REQUEST_JSON_ANY);
+        reg.register_json_any(super::__COSE_RSA_SIGN1VERIFY_RESULT_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN_VERIFY_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_VERIFIED_SIGNATURE_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN_VERIFY_RESULT_JSON_ANY);
@@ -467,6 +469,14 @@ pub use self::__buffa::view::CoseRecipientCreateGroupView;
 pub use self::__buffa::view::CoseRecipientCreateOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseRecipientCreateView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseRsaSign1VerifyRequestOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseRsaSign1VerifyRequestView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseRsaSign1VerifyResultOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseRsaSign1VerifyResultView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSign1CreateDetachedRequestOwnedView;
 #[doc(inline)]

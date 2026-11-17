@@ -23,6 +23,7 @@ pub(crate) mod profile_result;
 pub(crate) mod provider_transport;
 pub(crate) mod providers;
 pub(crate) mod response_v2;
+mod rsa_sign1;
 pub(crate) mod sign1;
 pub(crate) mod signature;
 pub(crate) mod signature_structure;

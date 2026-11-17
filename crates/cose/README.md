@@ -28,7 +28,11 @@ cargo add reallyme-cose
 
 The default `native` feature enables the Buffa-generated operation contract,
 signing, verification, key validation, HMAC, AES-GCM, and ML-KEM
-encryption through `reallyme-crypto`. For `wasm32-unknown-unknown`,
+encryption through `reallyme-crypto`. Explicit RSA verification is available
+through `rsa_sign1_verify`, general Sign and countersignature operations with
+nonempty suite allowlists. RSA signing remains unavailable; modern and ISO
+Sign1 defaults retain their existing algorithm sets. See the
+[RSA verification contract](https://github.com/reallyme/cose/blob/main/docs/rsa-verification.md). For `wasm32-unknown-unknown`,
 use `default-features = false, features = ["wasm"]`.
 Without a runtime lane, the key, Multikey, policy, algorithm-mapping, and CBOR
 helper APIs still compile, but operations requiring cryptographic key validation

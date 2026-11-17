@@ -53,6 +53,7 @@ cose-crypto = [
     "reallyme-crypto/ml-dsa-65",
     "reallyme-crypto/ml-dsa-87",
     "reallyme-crypto/sha2",
+    "reallyme-crypto/rsa",
     "reallyme-crypto/x25519",
 ]
 

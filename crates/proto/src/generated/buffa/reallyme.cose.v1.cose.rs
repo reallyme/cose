@@ -37,7 +37,7 @@ pub enum CoseSignatureAlgorithm {
     /// Rust non-exhaustive
     COSE_SIGNATURE_ALGORITHM_UNSPECIFIED = 0i32,
     /// EdDSA: 100-199; elliptic-curve signatures: 200-299;
-    /// post-quantum signatures: 1000-1099.
+    /// RSA signatures: 300-399; post-quantum signatures: 1000-1099.
     /// Rust variant: Ed25519; wire: -19
     COSE_SIGNATURE_ALGORITHM_ED25519 = 100i32,
     /// Historical primitive selectors remain accepted for wire compatibility
@@ -67,6 +67,20 @@ pub enum CoseSignatureAlgorithm {
     COSE_SIGNATURE_ALGORITHM_ESP512 = 221i32,
     /// Rust variant: Es256K; wire: -47; hash: Sha256
     COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256 = 230i32,
+    /// Verification only. RSA keys use rsaEncryption SPKI DER, never EC points.
+    /// Rust variant: Ps256; wire: -37
+    COSE_SIGNATURE_ALGORITHM_PS256 = 300i32,
+    /// Rust variant: Ps384; wire: -38
+    COSE_SIGNATURE_ALGORITHM_PS384 = 301i32,
+    /// Rust variant: Ps512; wire: -39
+    COSE_SIGNATURE_ALGORITHM_PS512 = 302i32,
+    /// Historical PKCS#1 v1.5 verification requires an explicit allowlist.
+    /// Rust variant: Rs256; wire: -257
+    COSE_SIGNATURE_ALGORITHM_RS256 = 310i32,
+    /// Rust variant: Rs384; wire: -258
+    COSE_SIGNATURE_ALGORITHM_RS384 = 311i32,
+    /// Rust variant: Rs512; wire: -259
+    COSE_SIGNATURE_ALGORITHM_RS512 = 312i32,
     /// Rust variant: MlDsa44; wire: -48
     COSE_SIGNATURE_ALGORITHM_ML_DSA_44 = 1000i32,
     /// Rust variant: MlDsa65; wire: -49
@@ -118,6 +132,24 @@ impl CoseSignatureAlgorithm {
     ///Idiomatic alias for [`Self::COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256`]; `Debug` prints the variant name.
     #[allow(non_upper_case_globals)]
     pub const EcdsaSecp256k1Sha256: Self = Self::COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256;
+    ///Idiomatic alias for [`Self::COSE_SIGNATURE_ALGORITHM_PS256`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Ps256: Self = Self::COSE_SIGNATURE_ALGORITHM_PS256;
+    ///Idiomatic alias for [`Self::COSE_SIGNATURE_ALGORITHM_PS384`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Ps384: Self = Self::COSE_SIGNATURE_ALGORITHM_PS384;
+    ///Idiomatic alias for [`Self::COSE_SIGNATURE_ALGORITHM_PS512`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Ps512: Self = Self::COSE_SIGNATURE_ALGORITHM_PS512;
+    ///Idiomatic alias for [`Self::COSE_SIGNATURE_ALGORITHM_RS256`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Rs256: Self = Self::COSE_SIGNATURE_ALGORITHM_RS256;
+    ///Idiomatic alias for [`Self::COSE_SIGNATURE_ALGORITHM_RS384`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Rs384: Self = Self::COSE_SIGNATURE_ALGORITHM_RS384;
+    ///Idiomatic alias for [`Self::COSE_SIGNATURE_ALGORITHM_RS512`]; `Debug` prints the variant name.
+    #[allow(non_upper_case_globals)]
+    pub const Rs512: Self = Self::COSE_SIGNATURE_ALGORITHM_RS512;
     ///Idiomatic alias for [`Self::COSE_SIGNATURE_ALGORITHM_ML_DSA_44`]; `Debug` prints the variant name.
     #[allow(non_upper_case_globals)]
     pub const MlDsa44: Self = Self::COSE_SIGNATURE_ALGORITHM_ML_DSA_44;
@@ -191,6 +223,12 @@ impl ::buffa::Enumeration for CoseSignatureAlgorithm {
             230i32 => {
                 ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256)
             }
+            300i32 => ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_PS256),
+            301i32 => ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_PS384),
+            302i32 => ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_PS512),
+            310i32 => ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_RS256),
+            311i32 => ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_RS384),
+            312i32 => ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_RS512),
             1000i32 => ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_ML_DSA_44),
             1010i32 => ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_ML_DSA_65),
             1020i32 => ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_ML_DSA_87),
@@ -223,6 +261,12 @@ impl ::buffa::Enumeration for CoseSignatureAlgorithm {
             Self::COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256 => {
                 "COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256"
             }
+            Self::COSE_SIGNATURE_ALGORITHM_PS256 => "COSE_SIGNATURE_ALGORITHM_PS256",
+            Self::COSE_SIGNATURE_ALGORITHM_PS384 => "COSE_SIGNATURE_ALGORITHM_PS384",
+            Self::COSE_SIGNATURE_ALGORITHM_PS512 => "COSE_SIGNATURE_ALGORITHM_PS512",
+            Self::COSE_SIGNATURE_ALGORITHM_RS256 => "COSE_SIGNATURE_ALGORITHM_RS256",
+            Self::COSE_SIGNATURE_ALGORITHM_RS384 => "COSE_SIGNATURE_ALGORITHM_RS384",
+            Self::COSE_SIGNATURE_ALGORITHM_RS512 => "COSE_SIGNATURE_ALGORITHM_RS512",
             Self::COSE_SIGNATURE_ALGORITHM_ML_DSA_44 => "COSE_SIGNATURE_ALGORITHM_ML_DSA_44",
             Self::COSE_SIGNATURE_ALGORITHM_ML_DSA_65 => "COSE_SIGNATURE_ALGORITHM_ML_DSA_65",
             Self::COSE_SIGNATURE_ALGORITHM_ML_DSA_87 => "COSE_SIGNATURE_ALGORITHM_ML_DSA_87",
@@ -269,6 +313,24 @@ impl ::buffa::Enumeration for CoseSignatureAlgorithm {
             "COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256" => {
                 ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256)
             }
+            "COSE_SIGNATURE_ALGORITHM_PS256" => {
+                ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_PS256)
+            }
+            "COSE_SIGNATURE_ALGORITHM_PS384" => {
+                ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_PS384)
+            }
+            "COSE_SIGNATURE_ALGORITHM_PS512" => {
+                ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_PS512)
+            }
+            "COSE_SIGNATURE_ALGORITHM_RS256" => {
+                ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_RS256)
+            }
+            "COSE_SIGNATURE_ALGORITHM_RS384" => {
+                ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_RS384)
+            }
+            "COSE_SIGNATURE_ALGORITHM_RS512" => {
+                ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_RS512)
+            }
             "COSE_SIGNATURE_ALGORITHM_ML_DSA_44" => {
                 ::core::option::Option::Some(Self::COSE_SIGNATURE_ALGORITHM_ML_DSA_44)
             }
@@ -296,6 +358,12 @@ impl ::buffa::Enumeration for CoseSignatureAlgorithm {
             Self::COSE_SIGNATURE_ALGORITHM_ECDSA_P521_SHA512,
             Self::COSE_SIGNATURE_ALGORITHM_ESP512,
             Self::COSE_SIGNATURE_ALGORITHM_ECDSA_SECP256K1_SHA256,
+            Self::COSE_SIGNATURE_ALGORITHM_PS256,
+            Self::COSE_SIGNATURE_ALGORITHM_PS384,
+            Self::COSE_SIGNATURE_ALGORITHM_PS512,
+            Self::COSE_SIGNATURE_ALGORITHM_RS256,
+            Self::COSE_SIGNATURE_ALGORITHM_RS384,
+            Self::COSE_SIGNATURE_ALGORITHM_RS512,
             Self::COSE_SIGNATURE_ALGORITHM_ML_DSA_44,
             Self::COSE_SIGNATURE_ALGORITHM_ML_DSA_65,
             Self::COSE_SIGNATURE_ALGORITHM_ML_DSA_87,
@@ -23921,6 +23989,7 @@ const _: fn() = || {
     __requires_wipe_owner::<CoseSign1VerifyProfileRequest>();
     __requires_wipe_owner::<CoseSign1VerifyProfileRequest>();
     __requires_wipe_owner::<CoseSign1SignatureStructureRequest>();
+    __requires_wipe_owner::<CoseRsaSign1VerifyRequest>();
     __requires_wipe_owner::<CoseSignCreateRequest>();
     __requires_wipe_owner::<CoseSignVerifyRequest>();
     __requires_wipe_owner::<CoseCounterSignatureCreateRequest>();
@@ -24096,6 +24165,13 @@ impl ::buffa::Message for CoseOperationRequest {
                         2u64 + ::buffa::encoding::varint_len(inner as u64) as u64 + inner as u64;
                 }
                 __buffa::oneof::cose_operation_request::Operation::Sign1SignatureStructure(x) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size +=
+                        2u64 + ::buffa::encoding::varint_len(inner as u64) as u64 + inner as u64;
+                }
+                __buffa::oneof::cose_operation_request::Operation::RsaSign1Verify(x) => {
                     let __slot = __cache.reserve();
                     let inner = x.compute_size(__cache);
                     __cache.set(__slot, inner);
@@ -24467,6 +24543,14 @@ impl ::buffa::Message for CoseOperationRequest {
                 __buffa::oneof::cose_operation_request::Operation::Sign1SignatureStructure(x) => {
                     ::buffa::types::put_len_delimited_header(
                         1018u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                __buffa::oneof::cose_operation_request::Operation::RsaSign1Verify(x) => {
+                    ::buffa::types::put_len_delimited_header(
+                        1019u32,
                         u64::from(__cache.consume_next()),
                         buf,
                     );
@@ -25097,6 +25181,28 @@ impl ::buffa::Message for CoseOperationRequest {
                     ::buffa::Message::merge_length_delimited(&mut val, buf, ctx)?;
                     self.operation = ::core::option::Option::Some(
                         __buffa::oneof::cose_operation_request::Operation::Sign1SignatureStructure(
+                            ::buffa::alloc::boxed::Box::new(val),
+                        ),
+                    );
+                }
+            }
+            1019u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                if let ::core::option::Option::Some(
+                    __buffa::oneof::cose_operation_request::Operation::RsaSign1Verify(
+                        ref mut existing,
+                    ),
+                ) = self.operation
+                {
+                    ::buffa::Message::merge_length_delimited(&mut **existing, buf, ctx)?;
+                } else {
+                    let mut val = ::core::default::Default::default();
+                    ::buffa::Message::merge_length_delimited(&mut val, buf, ctx)?;
+                    self.operation = ::core::option::Option::Some(
+                        __buffa::oneof::cose_operation_request::Operation::RsaSign1Verify(
                             ::buffa::alloc::boxed::Box::new(val),
                         ),
                     );
@@ -26154,6 +26260,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseOperationRequest {
                                 __r.operation = Some(__variant);
                             }
                         }
+                        "rsaSign1Verify" | "rsa_sign1_verify" => {
+                            let v: ::core::option::Option<CoseRsaSign1VerifyRequest> = map
+                                .next_value_seed(::buffa::json_helpers::NullableDeserializeSeed(
+                                    ::buffa::json_helpers::DefaultDeserializeSeed::<
+                                        CoseRsaSign1VerifyRequest,
+                                    >::new(),
+                                ))?;
+                            if let Some(v) = v {
+                                let __variant = __buffa::oneof::cose_operation_request::Operation::RsaSign1Verify(
+                                    ::buffa::alloc::boxed::Box::new(v),
+                                );
+                                if __r.operation.is_some() {
+                                    return Err(::serde::de::Error::custom(
+                                        "multiple oneof fields set for 'operation'",
+                                    ));
+                                }
+                                __r.operation = Some(__variant);
+                            }
+                        }
                         "signCreate" | "sign_create" => {
                             let v: ::core::option::Option<CoseSignCreateRequest> = map
                                 .next_value_seed(::buffa::json_helpers::NullableDeserializeSeed(
@@ -27169,6 +27294,7 @@ const _: fn() = || {
     __requires_wipe_owner::<CoseSign1VerifyResult>();
     __requires_wipe_owner::<CoseSign1X5ChainResult>();
     __requires_wipe_owner::<CoseSign1SignatureStructureResult>();
+    __requires_wipe_owner::<CoseRsaSign1VerifyResult>();
     __requires_wipe_owner::<CoseMessageCreateResult>();
     __requires_wipe_owner::<CoseSignVerifyResult>();
     __requires_wipe_owner::<CoseMessageCreateResult>();
@@ -27342,6 +27468,13 @@ impl ::buffa::Message for CoseOperationResult {
                         2u64 + ::buffa::encoding::varint_len(inner as u64) as u64 + inner as u64;
                 }
                 __buffa::oneof::cose_operation_result::Result::Sign1SignatureStructure(x) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size +=
+                        2u64 + ::buffa::encoding::varint_len(inner as u64) as u64 + inner as u64;
+                }
+                __buffa::oneof::cose_operation_result::Result::RsaSign1Verify(x) => {
                     let __slot = __cache.reserve();
                     let inner = x.compute_size(__cache);
                     __cache.set(__slot, inner);
@@ -27711,6 +27844,14 @@ impl ::buffa::Message for CoseOperationResult {
                 __buffa::oneof::cose_operation_result::Result::Sign1SignatureStructure(x) => {
                     ::buffa::types::put_len_delimited_header(
                         1018u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                __buffa::oneof::cose_operation_result::Result::RsaSign1Verify(x) => {
+                    ::buffa::types::put_len_delimited_header(
+                        1019u32,
                         u64::from(__cache.consume_next()),
                         buf,
                     );
@@ -28331,6 +28472,26 @@ impl ::buffa::Message for CoseOperationResult {
                     ::buffa::Message::merge_length_delimited(&mut val, buf, ctx)?;
                     self.result = ::core::option::Option::Some(
                         __buffa::oneof::cose_operation_result::Result::Sign1SignatureStructure(
+                            ::buffa::alloc::boxed::Box::new(val),
+                        ),
+                    );
+                }
+            }
+            1019u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                if let ::core::option::Option::Some(
+                    __buffa::oneof::cose_operation_result::Result::RsaSign1Verify(ref mut existing),
+                ) = self.result
+                {
+                    ::buffa::Message::merge_length_delimited(&mut **existing, buf, ctx)?;
+                } else {
+                    let mut val = ::core::default::Default::default();
+                    ::buffa::Message::merge_length_delimited(&mut val, buf, ctx)?;
+                    self.result = ::core::option::Option::Some(
+                        __buffa::oneof::cose_operation_result::Result::RsaSign1Verify(
                             ::buffa::alloc::boxed::Box::new(val),
                         ),
                     );
@@ -29375,6 +29536,26 @@ impl<'de> ::serde::Deserialize<'de> for CoseOperationResult {
                                 let __variant = __buffa::oneof::cose_operation_result::Result::Sign1SignatureStructure(
                                     ::buffa::alloc::boxed::Box::new(v),
                                 );
+                                if __r.result.is_some() {
+                                    return Err(::serde::de::Error::custom(
+                                        "multiple oneof fields set for 'result'",
+                                    ));
+                                }
+                                __r.result = Some(__variant);
+                            }
+                        }
+                        "rsaSign1Verify" | "rsa_sign1_verify" => {
+                            let v: ::core::option::Option<CoseRsaSign1VerifyResult> = map
+                                .next_value_seed(::buffa::json_helpers::NullableDeserializeSeed(
+                                    ::buffa::json_helpers::DefaultDeserializeSeed::<
+                                        CoseRsaSign1VerifyResult,
+                                    >::new(),
+                                ))?;
+                            if let Some(v) = v {
+                                let __variant =
+                                    __buffa::oneof::cose_operation_result::Result::RsaSign1Verify(
+                                        ::buffa::alloc::boxed::Box::new(v),
+                                    );
                                 if __r.result.is_some() {
                                     return Err(::serde::de::Error::custom(
                                         "multiple oneof fields set for 'result'",
@@ -48275,6 +48456,9 @@ pub struct CoseSignKeyBinding {
     )]
     #[serde(default)]
     pub suite: ::buffa::MessageField<CoseSignatureSuite, ::buffa::Inline<CoseSignatureSuite>>,
+    /// RSA: exact rsaEncryption SubjectPublicKeyInfo DER; curve is UNSPECIFIED.
+    /// RSA verification requires 2048..8192 modulus bits. Other suites use their
+    /// established native public-key encodings. No automatic encoding detection.
     /// SENSITIVE: protected ownership and redacted diagnostics.
     ///
     /// Field 3: `public_key`
@@ -48569,6 +48753,997 @@ pub const __COSE_SIGN_KEY_BINDING_JSON_ANY: ::buffa::type_registry::JsonAnyEntry
         type_url: "type.googleapis.com/reallyme.cose.v1.CoseSignKeyBinding",
         to_json: ::buffa::type_registry::any_to_json::<CoseSignKeyBinding>,
         from_json: ::buffa::type_registry::any_from_json::<CoseSignKeyBinding>,
+        is_wkt: false,
+    };
+/// Explicit RSA-only Sign1 profile; modern and ISO Sign1 defaults do not change.
+/// Exact registration, nonempty unique allowed_suites, key index zero and curve
+/// UNSPECIFIED are required. RSA keys use the SPKI encoding in CoseSignKeyBinding.
+/// PSS fixes MGF1 to the message hash and salt length to its digest length.
+/// Limits: 1 MiB encoded/content/authentication structure, 16 KiB/32 headers per
+/// bucket, 64 KiB AAD, at most 32 allowed suites. RSA signing is unavailable.
+/// A present detached_payload requires null; absence requires attached bytes.
+#[derive(Clone, PartialEq, Default, ::serde::Serialize)]
+pub struct CoseRsaSign1VerifyRequest {
+    /// SENSITIVE: exact received Sign1, optionally tagged 18.
+    ///
+    /// Field 1: `encoded`
+    #[serde(
+        rename = "encoded",
+        with = "::buffa::json_helpers::bytes_policy",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_bytes"
+    )]
+    #[serde(default)]
+    pub encoded: crate::SecretBytes,
+    /// Field 2: `envelope`
+    #[serde(
+        rename = "envelope",
+        with = "::buffa::json_helpers::guarded_enum::open",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_default_enum_value"
+    )]
+    #[serde(default)]
+    pub envelope: ::buffa::EnumValue<CoseEnvelopePolicy>,
+    /// Field 3: `key`
+    #[serde(
+        rename = "key",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_unset_message_field"
+    )]
+    #[serde(default)]
+    pub key: ::buffa::MessageField<CoseSignKeyBinding, ::buffa::Inline<CoseSignKeyBinding>>,
+    /// Field 4: `allowed_suites`
+    #[serde(
+        rename = "allowedSuites",
+        alias = "allowed_suites",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_vec",
+        deserialize_with = "::buffa::json_helpers::null_as_default"
+    )]
+    #[serde(default)]
+    pub allowed_suites: ::buffa::sensitive::List<CoseSignatureSuite>,
+    /// SENSITIVE: exact externally supplied content; explicit empty is meaningful.
+    ///
+    /// Field 5: `detached_payload`
+    #[serde(
+        rename = "detachedPayload",
+        alias = "detached_payload",
+        with = "::buffa::json_helpers::opt_bytes_policy",
+        skip_serializing_if = "::core::option::Option::is_none"
+    )]
+    #[serde(default)]
+    pub detached_payload: ::core::option::Option<crate::SecretBytes>,
+    /// SENSITIVE: explicit external AAD, including empty.
+    ///
+    /// Field 6: `external_aad`
+    #[serde(
+        rename = "externalAad",
+        alias = "external_aad",
+        with = "::buffa::json_helpers::bytes_policy",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_bytes"
+    )]
+    #[serde(default)]
+    pub external_aad: crate::SecretBytes,
+    /// SENSITIVE: optional trusted identity, checked against the protected kid.
+    ///
+    /// Field 7: `expected_kid`
+    #[serde(
+        rename = "expectedKid",
+        alias = "expected_kid",
+        with = "::buffa::json_helpers::opt_bytes_policy",
+        skip_serializing_if = "::core::option::Option::is_none"
+    )]
+    #[serde(default)]
+    pub expected_kid: ::core::option::Option<crate::SecretBytes>,
+}
+impl ::core::fmt::Debug for CoseRsaSign1VerifyRequest {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseRsaSign1VerifyRequest")
+            .field("encoded", &::core::format_args!("[REDACTED]"))
+            .field("envelope", &::core::format_args!("[REDACTED]"))
+            .field("key", &::core::format_args!("[REDACTED]"))
+            .field("allowed_suites", &::core::format_args!("[REDACTED]"))
+            .field("detached_payload", &::core::format_args!("[REDACTED]"))
+            .field("external_aad", &::core::format_args!("[REDACTED]"))
+            .field("expected_kid", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl CoseRsaSign1VerifyRequest {
+    /// Protobuf type URL for this message, for use with `Any::pack` and
+    /// `Any::unpack_if`.
+    ///
+    /// Format: `type.googleapis.com/<fully.qualified.TypeName>`
+    pub const TYPE_URL: &'static str =
+        "type.googleapis.com/reallyme.cose.v1.CoseRsaSign1VerifyRequest";
+}
+impl CoseRsaSign1VerifyRequest {
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::encoded`] to `value`, consuming and returning `self`.
+    pub fn with_encoded(mut self, value: impl ::core::convert::Into<crate::SecretBytes>) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.encoded);
+        self.encoded = value.into();
+        self
+    }
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::envelope`] to `value`, consuming and returning `self`.
+    pub fn with_envelope(
+        mut self,
+        value: impl ::core::convert::Into<::buffa::EnumValue<CoseEnvelopePolicy>>,
+    ) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.envelope);
+        self.envelope = value.into();
+        self
+    }
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::key`] to `value`, consuming and returning `self`.
+    pub fn with_key(
+        mut self,
+        value: impl ::core::convert::Into<
+            ::buffa::MessageField<CoseSignKeyBinding, ::buffa::Inline<CoseSignKeyBinding>>,
+        >,
+    ) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.key);
+        self.key = value.into();
+        self
+    }
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::allowed_suites`] to `value`, consuming and returning `self`.
+    pub fn with_allowed_suites(
+        mut self,
+        value: impl ::core::convert::Into<::buffa::sensitive::List<CoseSignatureSuite>>,
+    ) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.allowed_suites);
+        self.allowed_suites = value.into();
+        self
+    }
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::detached_payload`] to `Some(value)`, consuming and returning `self`.
+    pub fn with_detached_payload(
+        mut self,
+        value: impl ::core::convert::Into<crate::SecretBytes>,
+    ) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.detached_payload);
+        self.detached_payload = Some(value.into());
+        self
+    }
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::external_aad`] to `value`, consuming and returning `self`.
+    pub fn with_external_aad(
+        mut self,
+        value: impl ::core::convert::Into<crate::SecretBytes>,
+    ) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.external_aad);
+        self.external_aad = value.into();
+        self
+    }
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::expected_kid`] to `Some(value)`, consuming and returning `self`.
+    pub fn with_expected_kid(
+        mut self,
+        value: impl ::core::convert::Into<crate::SecretBytes>,
+    ) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.expected_kid);
+        self.expected_kid = Some(value.into());
+        self
+    }
+}
+const _: fn() = || {
+    fn __requires_wipe_owner<T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop>() {
+    }
+    __requires_wipe_owner::<crate::SecretBytes>();
+    __requires_wipe_owner::<CoseSignKeyBinding>();
+    __requires_wipe_owner::<CoseSignatureSuite>();
+    __requires_wipe_owner::<::buffa::sensitive::List<CoseSignatureSuite>>();
+    __requires_wipe_owner::<crate::SecretBytes>();
+    __requires_wipe_owner::<crate::SecretBytes>();
+    __requires_wipe_owner::<crate::SecretBytes>();
+};
+impl ::buffa::sensitive::Zeroize for CoseRsaSign1VerifyRequest {
+    fn zeroize(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.encoded);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.envelope);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.key);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.allowed_suites);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.detached_payload);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.external_aad);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.expected_kid);
+    }
+}
+impl ::buffa::sensitive::ZeroizeOnDrop for CoseRsaSign1VerifyRequest {}
+impl ::core::ops::Drop for CoseRsaSign1VerifyRequest {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+::buffa::impl_default_instance!(CoseRsaSign1VerifyRequest);
+impl ::buffa::MessageName for CoseRsaSign1VerifyRequest {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseRsaSign1VerifyRequest";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseRsaSign1VerifyRequest";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseRsaSign1VerifyRequest";
+}
+impl ::buffa::Message for CoseRsaSign1VerifyRequest {
+    /// Returns the total encoded size in bytes.
+    ///
+    /// Accumulates in `u64` (which cannot overflow for in-memory
+    /// data) and saturates to `u32` at return, so a message whose
+    /// encoded size exceeds the 2 GiB protobuf limit yields a value
+    /// above [`::buffa::MAX_MESSAGE_BYTES`] that the encode entry
+    /// points reject, never a silently wrapped size.
+    #[allow(clippy::let_and_return)]
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if !self.encoded.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.encoded) as u64;
+        }
+        {
+            let val = self.envelope.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        if let ::core::option::Option::Some(__v) = self.key.as_option() {
+            let __slot = __cache.reserve();
+            let inner_size = __v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        for v in self.allowed_suites.iter() {
+            let __slot = __cache.reserve();
+            let inner_size = v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        if let Some(ref v) = self.detached_payload {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
+        }
+        if !self.external_aad.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.external_aad) as u64;
+        }
+        if let Some(ref v) = self.expected_kid {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
+        }
+        ::buffa::saturate_size(size)
+    }
+    fn write_to(&self, __cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if !self.encoded.is_empty() {
+            ::buffa::types::put_shared_bytes_field(1u32, &self.encoded, buf);
+        }
+        {
+            let val = self.envelope.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(2u32, val, buf);
+            }
+        }
+        if let ::core::option::Option::Some(__v) = self.key.as_option() {
+            ::buffa::types::put_len_delimited_header(3u32, u64::from(__cache.consume_next()), buf);
+            __v.write_to(__cache, buf);
+        }
+        for v in self.allowed_suites.iter() {
+            ::buffa::types::put_len_delimited_header(4u32, u64::from(__cache.consume_next()), buf);
+            v.write_to(__cache, buf);
+        }
+        if let Some(ref v) = self.detached_payload {
+            ::buffa::types::put_shared_bytes_field(5u32, v, buf);
+        }
+        if !self.external_aad.is_empty() {
+            ::buffa::types::put_shared_bytes_field(6u32, &self.external_aad, buf);
+        }
+        if let Some(ref v) = self.expected_kid {
+            ::buffa::types::put_shared_bytes_field(7u32, v, buf);
+        }
+    }
+    fn merge_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        buf: &mut impl ::buffa::bytes::Buf,
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<(), ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::bytes::Buf as _;
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                self.envelope = ::buffa::EnumValue::from(::buffa::types::decode_int32(buf)?);
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                ::buffa::Message::merge_length_delimited(
+                    self.key.get_or_insert_default(),
+                    buf,
+                    ctx,
+                )?;
+            }
+            4u32 => {
+                #[allow(unused_imports)]
+                use ::buffa::ProtoList as _;
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let mut elem = ::core::default::Default::default();
+                ctx.register_element_memory(::buffa::__private::element_footprint(&elem))?;
+                ::buffa::Message::merge_length_delimited(&mut elem, buf, ctx)?;
+                self.allowed_suites.push(elem);
+            }
+            5u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                self.detached_payload =
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+            }
+            6u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+            }
+            7u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                self.expected_kid =
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(())
+    }
+    fn clear(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+        self.encoded = ::core::default::Default::default();
+        self.envelope = ::buffa::EnumValue::from(0);
+        self.key = ::buffa::MessageField::none();
+        ::buffa::ProtoList::clear(&mut self.allowed_suites);
+        self.detached_payload = ::core::option::Option::None;
+        self.external_aad = ::core::default::Default::default();
+        self.expected_kid = ::core::option::Option::None;
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CoseRsaSign1VerifyRequest {
+    fn deserialize<__D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        struct _V;
+        impl<'de> ::serde::de::Visitor<'de> for _V {
+            type Value = CoseRsaSign1VerifyRequest;
+            fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+                f.write_str("struct CoseRsaSign1VerifyRequest")
+            }
+            #[allow(clippy::field_reassign_with_default)]
+            fn visit_map<__A: ::serde::de::MapAccess<'de>>(
+                self,
+                mut map: __A,
+            ) -> ::core::result::Result<CoseRsaSign1VerifyRequest, __A::Error> {
+                let mut __r = <CoseRsaSign1VerifyRequest as ::core::default::Default>::default();
+                let mut __f_encoded = false;
+                let mut __f_envelope = false;
+                let mut __f_key = false;
+                let mut __f_allowed_suites = false;
+                let mut __f_detached_payload = false;
+                let mut __f_external_aad = false;
+                let mut __f_expected_kid = false;
+                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                    let key = ::buffa::sensitive::Zeroizing::new(key);
+                    match key.as_str() {
+                        "encoded" => {
+                            if __f_encoded {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "encoded",
+                                ));
+                            }
+                            __f_encoded = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = crate::SecretBytes;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<crate::SecretBytes, __D::Error>
+                                    {
+                                        ::buffa::json_helpers::bytes_policy::deserialize(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.encoded);
+                            __r.encoded = value;
+                        }
+                        "envelope" => {
+                            if __f_envelope {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "envelope",
+                                ));
+                            }
+                            __f_envelope = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = ::buffa::EnumValue<CoseEnvelopePolicy>;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<
+                                        ::buffa::EnumValue<CoseEnvelopePolicy>,
+                                        __D::Error,
+                                    > {
+                                        ::buffa::json_helpers::guarded_enum::open::deserialize(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.envelope);
+                            __r.envelope = value;
+                        }
+                        "key" => {
+                            if __f_key {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "key",
+                                ));
+                            }
+                            __f_key = true;
+                            let value = map.next_value::<::buffa::MessageField<
+                                CoseSignKeyBinding,
+                                ::buffa::Inline<CoseSignKeyBinding>,
+                            >>()?;
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.key);
+                            __r.key = value;
+                        }
+                        "allowedSuites" | "allowed_suites" => {
+                            if __f_allowed_suites {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "allowed_suites",
+                                ));
+                            }
+                            __f_allowed_suites = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = ::buffa::sensitive::List<CoseSignatureSuite>;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<
+                                        ::buffa::sensitive::List<CoseSignatureSuite>,
+                                        __D::Error,
+                                    > {
+                                        ::buffa::json_helpers::null_as_default(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.allowed_suites);
+                            __r.allowed_suites = value;
+                        }
+                        "detachedPayload" | "detached_payload" => {
+                            if __f_detached_payload {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "detached_payload",
+                                ));
+                            }
+                            __f_detached_payload = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = ::core::option::Option<crate::SecretBytes>;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<
+                                        ::core::option::Option<crate::SecretBytes>,
+                                        __D::Error,
+                                    > {
+                                        ::buffa::json_helpers::opt_bytes_policy::deserialize(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.detached_payload);
+                            __r.detached_payload = value;
+                        }
+                        "externalAad" | "external_aad" => {
+                            if __f_external_aad {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "external_aad",
+                                ));
+                            }
+                            __f_external_aad = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = crate::SecretBytes;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<crate::SecretBytes, __D::Error>
+                                    {
+                                        ::buffa::json_helpers::bytes_policy::deserialize(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.external_aad);
+                            __r.external_aad = value;
+                        }
+                        "expectedKid" | "expected_kid" => {
+                            if __f_expected_kid {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "expected_kid",
+                                ));
+                            }
+                            __f_expected_kid = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = ::core::option::Option<crate::SecretBytes>;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<
+                                        ::core::option::Option<crate::SecretBytes>,
+                                        __D::Error,
+                                    > {
+                                        ::buffa::json_helpers::opt_bytes_policy::deserialize(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.expected_kid);
+                            __r.expected_kid = value;
+                        }
+                        __unknown => {
+                            return ::core::result::Result::Err(
+                                <__A::Error as ::serde::de::Error>::custom(
+                                    ::buffa::sensitive::JsonErrorReason::UnknownField,
+                                ),
+                            );
+                        }
+                    }
+                }
+                Ok(__r)
+            }
+        }
+        d.deserialize_map(_V)
+    }
+}
+impl ::buffa::json_helpers::ProtoElemJson for CoseRsaSign1VerifyRequest {
+    fn serialize_proto_json<__S: ::serde::Serializer>(
+        v: &Self,
+        s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(v, s)
+    }
+    fn deserialize_proto_json<'de, __D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        <Self as ::serde::Deserialize>::deserialize(d)
+    }
+}
+#[doc(hidden)]
+pub const __COSE_RSA_SIGN1VERIFY_REQUEST_JSON_ANY: ::buffa::type_registry::JsonAnyEntry =
+    ::buffa::type_registry::JsonAnyEntry {
+        type_url: "type.googleapis.com/reallyme.cose.v1.CoseRsaSign1VerifyRequest",
+        to_json: ::buffa::type_registry::any_to_json::<CoseRsaSign1VerifyRequest>,
+        from_json: ::buffa::type_registry::any_from_json::<CoseRsaSign1VerifyRequest>,
+        is_wkt: false,
+    };
+#[derive(Clone, PartialEq, Default, ::serde::Serialize)]
+pub struct CoseRsaSign1VerifyResult {
+    /// Field 1: `suite`
+    #[serde(
+        rename = "suite",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_unset_message_field"
+    )]
+    #[serde(default)]
+    pub suite: ::buffa::MessageField<CoseSignatureSuite, ::buffa::Inline<CoseSignatureSuite>>,
+    /// SENSITIVE: exact authenticated protected bytes.
+    ///
+    /// Field 2: `protected`
+    #[serde(
+        rename = "protected",
+        with = "::buffa::json_helpers::bytes_policy",
+        skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_bytes"
+    )]
+    #[serde(default)]
+    pub protected: crate::SecretBytes,
+    /// SENSITIVE: authenticated identity only.
+    ///
+    /// Field 3: `protected_kid`
+    #[serde(
+        rename = "protectedKid",
+        alias = "protected_kid",
+        with = "::buffa::json_helpers::opt_bytes_policy",
+        skip_serializing_if = "::core::option::Option::is_none"
+    )]
+    #[serde(default)]
+    pub protected_kid: ::core::option::Option<crate::SecretBytes>,
+    /// SENSITIVE: present only for attached content, released after verification.
+    ///
+    /// Field 4: `attached_payload`
+    #[serde(
+        rename = "attachedPayload",
+        alias = "attached_payload",
+        with = "::buffa::json_helpers::opt_bytes_policy",
+        skip_serializing_if = "::core::option::Option::is_none"
+    )]
+    #[serde(default)]
+    pub attached_payload: ::core::option::Option<crate::SecretBytes>,
+}
+impl ::core::fmt::Debug for CoseRsaSign1VerifyResult {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseRsaSign1VerifyResult")
+            .field("suite", &::core::format_args!("[REDACTED]"))
+            .field("protected", &::core::format_args!("[REDACTED]"))
+            .field("protected_kid", &::core::format_args!("[REDACTED]"))
+            .field("attached_payload", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl CoseRsaSign1VerifyResult {
+    /// Protobuf type URL for this message, for use with `Any::pack` and
+    /// `Any::unpack_if`.
+    ///
+    /// Format: `type.googleapis.com/<fully.qualified.TypeName>`
+    pub const TYPE_URL: &'static str =
+        "type.googleapis.com/reallyme.cose.v1.CoseRsaSign1VerifyResult";
+}
+impl CoseRsaSign1VerifyResult {
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::suite`] to `value`, consuming and returning `self`.
+    pub fn with_suite(
+        mut self,
+        value: impl ::core::convert::Into<
+            ::buffa::MessageField<CoseSignatureSuite, ::buffa::Inline<CoseSignatureSuite>>,
+        >,
+    ) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.suite);
+        self.suite = value.into();
+        self
+    }
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::protected`] to `value`, consuming and returning `self`.
+    pub fn with_protected(mut self, value: impl ::core::convert::Into<crate::SecretBytes>) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.protected);
+        self.protected = value.into();
+        self
+    }
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::protected_kid`] to `Some(value)`, consuming and returning `self`.
+    pub fn with_protected_kid(
+        mut self,
+        value: impl ::core::convert::Into<crate::SecretBytes>,
+    ) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.protected_kid);
+        self.protected_kid = Some(value.into());
+        self
+    }
+    #[must_use = "with_* setters return `self` by value; assign or chain the result"]
+    #[inline]
+    ///Sets [`Self::attached_payload`] to `Some(value)`, consuming and returning `self`.
+    pub fn with_attached_payload(
+        mut self,
+        value: impl ::core::convert::Into<crate::SecretBytes>,
+    ) -> Self {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.attached_payload);
+        self.attached_payload = Some(value.into());
+        self
+    }
+}
+const _: fn() = || {
+    fn __requires_wipe_owner<T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop>() {
+    }
+    __requires_wipe_owner::<CoseSignatureSuite>();
+    __requires_wipe_owner::<crate::SecretBytes>();
+    __requires_wipe_owner::<crate::SecretBytes>();
+    __requires_wipe_owner::<crate::SecretBytes>();
+};
+impl ::buffa::sensitive::Zeroize for CoseRsaSign1VerifyResult {
+    fn zeroize(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.suite);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.protected);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.protected_kid);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.attached_payload);
+    }
+}
+impl ::buffa::sensitive::ZeroizeOnDrop for CoseRsaSign1VerifyResult {}
+impl ::core::ops::Drop for CoseRsaSign1VerifyResult {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+::buffa::impl_default_instance!(CoseRsaSign1VerifyResult);
+impl ::buffa::MessageName for CoseRsaSign1VerifyResult {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseRsaSign1VerifyResult";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseRsaSign1VerifyResult";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseRsaSign1VerifyResult";
+}
+impl ::buffa::Message for CoseRsaSign1VerifyResult {
+    /// Returns the total encoded size in bytes.
+    ///
+    /// Accumulates in `u64` (which cannot overflow for in-memory
+    /// data) and saturates to `u32` at return, so a message whose
+    /// encoded size exceeds the 2 GiB protobuf limit yields a value
+    /// above [`::buffa::MAX_MESSAGE_BYTES`] that the encode entry
+    /// points reject, never a silently wrapped size.
+    #[allow(clippy::let_and_return)]
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if let ::core::option::Option::Some(__v) = self.suite.as_option() {
+            let __slot = __cache.reserve();
+            let inner_size = __v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        if !self.protected.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected) as u64;
+        }
+        if let Some(ref v) = self.protected_kid {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
+        }
+        if let Some(ref v) = self.attached_payload {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
+        }
+        ::buffa::saturate_size(size)
+    }
+    fn write_to(&self, __cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if let ::core::option::Option::Some(__v) = self.suite.as_option() {
+            ::buffa::types::put_len_delimited_header(1u32, u64::from(__cache.consume_next()), buf);
+            __v.write_to(__cache, buf);
+        }
+        if !self.protected.is_empty() {
+            ::buffa::types::put_shared_bytes_field(2u32, &self.protected, buf);
+        }
+        if let Some(ref v) = self.protected_kid {
+            ::buffa::types::put_shared_bytes_field(3u32, v, buf);
+        }
+        if let Some(ref v) = self.attached_payload {
+            ::buffa::types::put_shared_bytes_field(4u32, v, buf);
+        }
+    }
+    fn merge_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        buf: &mut impl ::buffa::bytes::Buf,
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<(), ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::bytes::Buf as _;
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                ::buffa::Message::merge_length_delimited(
+                    self.suite.get_or_insert_default(),
+                    buf,
+                    ctx,
+                )?;
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                self.protected = ::buffa::types::decode_bytes_to(buf)?;
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                self.protected_kid =
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+            }
+            4u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                self.attached_payload =
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(())
+    }
+    fn clear(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+        self.suite = ::buffa::MessageField::none();
+        self.protected = ::core::default::Default::default();
+        self.protected_kid = ::core::option::Option::None;
+        self.attached_payload = ::core::option::Option::None;
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CoseRsaSign1VerifyResult {
+    fn deserialize<__D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        struct _V;
+        impl<'de> ::serde::de::Visitor<'de> for _V {
+            type Value = CoseRsaSign1VerifyResult;
+            fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+                f.write_str("struct CoseRsaSign1VerifyResult")
+            }
+            #[allow(clippy::field_reassign_with_default)]
+            fn visit_map<__A: ::serde::de::MapAccess<'de>>(
+                self,
+                mut map: __A,
+            ) -> ::core::result::Result<CoseRsaSign1VerifyResult, __A::Error> {
+                let mut __r = <CoseRsaSign1VerifyResult as ::core::default::Default>::default();
+                let mut __f_suite = false;
+                let mut __f_protected = false;
+                let mut __f_protected_kid = false;
+                let mut __f_attached_payload = false;
+                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                    let key = ::buffa::sensitive::Zeroizing::new(key);
+                    match key.as_str() {
+                        "suite" => {
+                            if __f_suite {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "suite",
+                                ));
+                            }
+                            __f_suite = true;
+                            let value = map.next_value::<::buffa::MessageField<
+                                CoseSignatureSuite,
+                                ::buffa::Inline<CoseSignatureSuite>,
+                            >>()?;
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.suite);
+                            __r.suite = value;
+                        }
+                        "protected" => {
+                            if __f_protected {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "protected",
+                                ));
+                            }
+                            __f_protected = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = crate::SecretBytes;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<crate::SecretBytes, __D::Error>
+                                    {
+                                        ::buffa::json_helpers::bytes_policy::deserialize(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.protected);
+                            __r.protected = value;
+                        }
+                        "protectedKid" | "protected_kid" => {
+                            if __f_protected_kid {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "protected_kid",
+                                ));
+                            }
+                            __f_protected_kid = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = ::core::option::Option<crate::SecretBytes>;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<
+                                        ::core::option::Option<crate::SecretBytes>,
+                                        __D::Error,
+                                    > {
+                                        ::buffa::json_helpers::opt_bytes_policy::deserialize(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.protected_kid);
+                            __r.protected_kid = value;
+                        }
+                        "attachedPayload" | "attached_payload" => {
+                            if __f_attached_payload {
+                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
+                                    "attached_payload",
+                                ));
+                            }
+                            __f_attached_payload = true;
+                            let value = {
+                                struct _S;
+                                impl<'de> ::serde::de::DeserializeSeed<'de> for _S {
+                                    type Value = ::core::option::Option<crate::SecretBytes>;
+                                    fn deserialize<__D: ::serde::Deserializer<'de>>(
+                                        self,
+                                        d: __D,
+                                    ) -> ::core::result::Result<
+                                        ::core::option::Option<crate::SecretBytes>,
+                                        __D::Error,
+                                    > {
+                                        ::buffa::json_helpers::opt_bytes_policy::deserialize(d)
+                                    }
+                                }
+                                map.next_value_seed(_S)?
+                            };
+                            ::buffa::sensitive::Zeroize::zeroize(&mut __r.attached_payload);
+                            __r.attached_payload = value;
+                        }
+                        __unknown => {
+                            return ::core::result::Result::Err(
+                                <__A::Error as ::serde::de::Error>::custom(
+                                    ::buffa::sensitive::JsonErrorReason::UnknownField,
+                                ),
+                            );
+                        }
+                    }
+                }
+                Ok(__r)
+            }
+        }
+        d.deserialize_map(_V)
+    }
+}
+impl ::buffa::json_helpers::ProtoElemJson for CoseRsaSign1VerifyResult {
+    fn serialize_proto_json<__S: ::serde::Serializer>(
+        v: &Self,
+        s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(v, s)
+    }
+    fn deserialize_proto_json<'de, __D: ::serde::Deserializer<'de>>(
+        d: __D,
+    ) -> ::core::result::Result<Self, __D::Error> {
+        <Self as ::serde::Deserialize>::deserialize(d)
+    }
+}
+#[doc(hidden)]
+pub const __COSE_RSA_SIGN1VERIFY_RESULT_JSON_ANY: ::buffa::type_registry::JsonAnyEntry =
+    ::buffa::type_registry::JsonAnyEntry {
+        type_url: "type.googleapis.com/reallyme.cose.v1.CoseRsaSign1VerifyResult",
+        to_json: ::buffa::type_registry::any_to_json::<CoseRsaSign1VerifyResult>,
+        from_json: ::buffa::type_registry::any_from_json::<CoseRsaSign1VerifyResult>,
         is_wkt: false,
     };
 /// Verify every signature with exactly one caller-authorized indexed key each.

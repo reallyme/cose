@@ -661,6 +661,7 @@ pub mod cose_operation_request {
         Sign1SignatureStructure(
             ::buffa::alloc::boxed::Box<super::super::super::CoseSign1SignatureStructureRequest>,
         ),
+        RsaSign1Verify(::buffa::alloc::boxed::Box<super::super::super::CoseRsaSign1VerifyRequest>),
         SignCreate(::buffa::alloc::boxed::Box<super::super::super::CoseSignCreateRequest>),
         SignVerify(::buffa::alloc::boxed::Box<super::super::super::CoseSignVerifyRequest>),
         CounterSignatureCreate(
@@ -765,6 +766,7 @@ pub mod cose_operation_request {
                 Self::Sign1SignatureStructure(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::RsaSign1Verify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::SignCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::SignVerify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::CounterSignatureCreate(value) => {
@@ -947,6 +949,18 @@ pub mod cose_operation_request {
         for ::core::option::Option<Operation>
     {
         fn from(v: super::super::super::CoseSign1SignatureStructureRequest) -> Self {
+            Self::Some(Operation::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseRsaSign1VerifyRequest> for Operation {
+        fn from(v: super::super::super::CoseRsaSign1VerifyRequest) -> Self {
+            Self::RsaSign1Verify(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseRsaSign1VerifyRequest>
+        for ::core::option::Option<Operation>
+    {
+        fn from(v: super::super::super::CoseRsaSign1VerifyRequest) -> Self {
             Self::Some(Operation::from(v))
         }
     }
@@ -1282,6 +1296,9 @@ pub mod cose_operation_request {
                 Self::Sign1SignatureStructure(v) => {
                     map.serialize_entry("sign1SignatureStructure", &**v)?;
                 }
+                Self::RsaSign1Verify(v) => {
+                    map.serialize_entry("rsaSign1Verify", &**v)?;
+                }
                 Self::SignCreate(v) => {
                     map.serialize_entry("signCreate", &**v)?;
                 }
@@ -1480,6 +1497,7 @@ pub mod cose_operation_result {
         Sign1SignatureStructure(
             ::buffa::alloc::boxed::Box<super::super::super::CoseSign1SignatureStructureResult>,
         ),
+        RsaSign1Verify(::buffa::alloc::boxed::Box<super::super::super::CoseRsaSign1VerifyResult>),
         SignCreate(::buffa::alloc::boxed::Box<super::super::super::CoseMessageCreateResult>),
         SignVerify(::buffa::alloc::boxed::Box<super::super::super::CoseSignVerifyResult>),
         CounterSignatureCreate(
@@ -1570,6 +1588,7 @@ pub mod cose_operation_result {
                 Self::Sign1SignatureStructure(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::RsaSign1Verify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::SignCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::SignVerify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::CounterSignatureCreate(value) => {
@@ -1704,6 +1723,18 @@ pub mod cose_operation_result {
         for ::core::option::Option<Result>
     {
         fn from(v: super::super::super::CoseSign1SignatureStructureResult) -> Self {
+            Self::Some(Result::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseRsaSign1VerifyResult> for Result {
+        fn from(v: super::super::super::CoseRsaSign1VerifyResult) -> Self {
+            Self::RsaSign1Verify(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseRsaSign1VerifyResult>
+        for ::core::option::Option<Result>
+    {
+        fn from(v: super::super::super::CoseRsaSign1VerifyResult) -> Self {
             Self::Some(Result::from(v))
         }
     }
@@ -1892,6 +1923,9 @@ pub mod cose_operation_result {
                 }
                 Self::Sign1SignatureStructure(v) => {
                     map.serialize_entry("sign1SignatureStructure", &**v)?;
+                }
+                Self::RsaSign1Verify(v) => {
+                    map.serialize_entry("rsaSign1Verify", &**v)?;
                 }
                 Self::SignCreate(v) => {
                     map.serialize_entry("signCreate", &**v)?;

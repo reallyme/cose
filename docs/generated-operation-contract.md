@@ -23,7 +23,7 @@ use `wire::execute_operation_proto` / `execute_operation_proto_json`, or the
 corresponding provider-aware methods in `api`. Both `native` and `wasm` include
 the generated operation contract. No service or platform SDK is introduced.
 
-All 48 operation/result identifiers are paired: 47 cryptographic/format
+All 49 operation/result identifiers are paired: 48 cryptographic/format
 operations and a generated constant-catalog operation. Independent COSE vector bytes and retained protobuf field numbers are preserved.
 The [0.3.0 presence migration](protobuf-presence-migration.md) deliberately retires
 manual flags and adds explicit byte presence. Native selectors,
