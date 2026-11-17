@@ -38,3 +38,27 @@ fn authentication_capacity_arithmetic_rejects_overflow() {
     assert_eq!(checked_bstr_size(0, 23), Some(24));
     assert_eq!(checked_bstr_size(0, 24), Some(26));
 }
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
+fn complete_authentication_capacity_rejects_each_overflow_and_budget_shortfall() {
+    use super::measure::authentication_structure_size;
+
+    for lengths in [
+        (usize::MAX, 0, 0, 0),
+        (10, usize::MAX, 0, 0),
+        (10, 0, usize::MAX, 0),
+        (10, 0, 0, usize::MAX),
+        (10, usize::MAX / 2, usize::MAX / 2, 0),
+    ] {
+        assert_eq!(
+            authentication_structure_size(lengths.0, lengths.1, lengths.2, lengths.3, usize::MAX),
+            Err(CoseError::ResourceLimitExceeded)
+        );
+    }
+    assert_eq!(
+        authentication_structure_size(10, 0, 0, 0, 14),
+        Err(CoseError::ResourceLimitExceeded)
+    );
+    assert_eq!(authentication_structure_size(10, 0, 0, 0, 15), Ok(15));
+}

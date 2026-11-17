@@ -20,8 +20,9 @@ use reallyme_cose_proto::generated::proto::reallyme::cose::v1::{
     CoseMlKemDecryptResult, CoseMlKemEncryptRequest, CoseMlKemEncryptResult, CoseMlKemMode,
     CoseMultikeyResult, CoseMultikeyToCoseKeyRequest, CoseOperationRequest,
     CoseOperationResponseV2, CoseOperationResult, CoseSign1CreateDetachedRequest,
-    CoseSign1CreateRequest, CoseSign1CreateResult, CoseSign1VerifyDetachedRequest,
-    CoseSign1VerifyRequest, CoseSign1VerifyResult, CoseSignatureAlgorithm,
+    CoseSign1CreateRequest, CoseSign1CreateResult, CoseSign1SignatureStructureRequest,
+    CoseSign1SignatureStructureResult, CoseSign1VerifyDetachedRequest, CoseSign1VerifyRequest,
+    CoseSign1VerifyResult, CoseSignatureAlgorithm,
 };
 
 type Operation = cose_operation_request::Operation;
@@ -53,6 +54,10 @@ fn operation_oneof_field_numbers_are_frozen() {
         (
             Operation::Sign1VerifyDetached(Box::<CoseSign1VerifyDetachedRequest>::default()),
             1003,
+        ),
+        (
+            Operation::Sign1SignatureStructure(Box::<CoseSign1SignatureStructureRequest>::default()),
+            1018,
         ),
         (
             Operation::KeyFromPublicBytes(Box::<CoseKeyFromPublicBytesRequest>::default()),
@@ -131,6 +136,12 @@ fn version_two_response_field_numbers_are_frozen() {
             1003,
         ),
         (
+            OperationResult::Sign1SignatureStructure(
+                Box::<CoseSign1SignatureStructureResult>::default(),
+            ),
+            1018,
+        ),
+        (
             OperationResult::KeyFromPublicBytes(Box::<CoseKeyBytesResult>::default()),
             2000,
         ),
@@ -190,6 +201,25 @@ fn version_two_response_field_numbers_are_frozen() {
     assert_eq!(
         CoseOperationResponseV2::TYPE_URL,
         "type.googleapis.com/reallyme.cose.v1.CoseOperationResponseV2"
+    );
+}
+
+#[test]
+fn signature_structure_request_and_result_fields_are_frozen() {
+    let request = CoseSign1SignatureStructureRequest::default()
+        .with_protected(vec![0xa0])
+        .with_external_aad(vec![1])
+        .with_payload(vec![2])
+        .with_max_output_bytes(64_u64);
+    assert_eq!(
+        request.encode_to_vec(),
+        [0x0a, 1, 0xa0, 0x12, 1, 1, 0x1a, 1, 2, 0x20, 64]
+    );
+    let result = CoseSign1SignatureStructureResult::default()
+        .with_signature_structure(b"\x84\x6aSignature1\x40\x40\x40".to_vec());
+    assert_eq!(
+        result.encode_to_vec(),
+        b"\x0a\x0f\x84\x6aSignature1\x40\x40\x40"
     );
 }
 

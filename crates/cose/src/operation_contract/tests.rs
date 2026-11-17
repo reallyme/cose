@@ -19,6 +19,8 @@ mod modern;
 mod peer_base_iv;
 #[path = "contract_signature_tests.rs"]
 mod signature;
+#[path = "contract_signature_structure_tests.rs"]
+mod signature_structure;
 #[path = "contract_support_tests.rs"]
 mod support;
 

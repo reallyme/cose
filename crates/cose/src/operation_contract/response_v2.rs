@@ -182,6 +182,10 @@ fn validate_result(result: &CoseOperationResult) -> CoseWireResult<()> {
             CoseOperationResultBranch::SignatureValidate(_)
             | CoseOperationResultBranch::PreferredCborValidate(_),
         ) => true,
+        Some(CoseOperationResultBranch::Sign1SignatureStructure(value)) => {
+            !value.signature_structure.is_empty()
+                && value.signature_structure.len() <= MAX_COSE_PROTO_MESSAGE_BYTES
+        }
         Some(CoseOperationResultBranch::Sign1VerifyX5chain(value)) => {
             value
                 .verified
@@ -280,6 +284,11 @@ fn result_matches_request(request: &CoseOperationRequest, result: &CoseOperation
         ) | (
             Some(cose_operation_request::Operation::Sign1VerifyDetached(_)),
             Some(CoseOperationResultBranch::Sign1VerifyDetached(_)),
+        ) | (
+            Some(cose_operation_request::Operation::Sign1SignatureStructure(
+                _
+            )),
+            Some(CoseOperationResultBranch::Sign1SignatureStructure(_)),
         ) | (
             Some(cose_operation_request::Operation::KeyFromPublicBytes(_)),
             Some(CoseOperationResultBranch::KeyFromPublicBytes(_)),

@@ -94,6 +94,8 @@ pub mod __buffa {
         reg.register_json_any(super::__COSE_SIGN1CREATE_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN1CREATE_DETACHED_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN1CREATE_RESULT_JSON_ANY);
+        reg.register_json_any(super::__COSE_SIGN1SIGNATURE_STRUCTURE_REQUEST_JSON_ANY);
+        reg.register_json_any(super::__COSE_SIGN1SIGNATURE_STRUCTURE_RESULT_JSON_ANY);
         reg.register_json_any(super::__COSE_TYPE_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN1VERIFY_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN1VERIFY_DETACHED_REQUEST_JSON_ANY);
@@ -344,6 +346,14 @@ pub use self::__buffa::view::CoseSign1CreateResultView;
 pub use self::__buffa::view::CoseSign1OptionsOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSign1OptionsView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseSign1SignatureStructureRequestOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseSign1SignatureStructureRequestView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseSign1SignatureStructureResultOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseSign1SignatureStructureResultView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSign1VerifyDetachedRequestOwnedView;
 #[doc(inline)]

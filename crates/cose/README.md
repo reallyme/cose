@@ -661,6 +661,15 @@ field. Payload and AAD ceilings are enforced independently for signing and
 verification. Larger reports can use detached content within its payload
 ceiling.
 
+`reallyme_cose::sign1::build_sign1_signature_structure` constructs standalone
+RFC 9052 Signature1 authentication input with an explicit complete-output
+budget. It preserves protected-header bytes exactly and supports larger
+headers and payloads independently of verification-profile limits. The helper
+checks the encoded length before reserving output, returns a wiping owner, and
+is available without a crypto backend. The protobuf `sign1_signature_structure`
+operation (1018) exposes the same construction within the transport envelope
+limits.
+
 The default verification policy accepts every supported signature algorithm.
 An explicitly configured empty primitive or exact-registration allow-list
 rejects every algorithm; `allow_any_algorithm()` opts back into unrestricted

@@ -4,6 +4,9 @@
 
 //! COSE_Sign1 signing and verification.
 
+mod build_sign1_signature_structure;
+pub use build_sign1_signature_structure::build_sign1_signature_structure;
+
 #[cfg(feature = "cose-crypto")]
 mod build_sig_structure;
 #[cfg(feature = "cose-crypto")]
@@ -14,6 +17,8 @@ pub(crate) mod cose_type;
 mod create_headers;
 #[cfg(feature = "cose-crypto")]
 mod decode;
+#[cfg(feature = "cose-crypto")]
+mod encode_options;
 #[cfg(feature = "cose-crypto")]
 mod exact;
 #[cfg(feature = "cose-crypto")]

@@ -109,6 +109,9 @@ fn dispatch_operation(
         cose_operation_request::Operation::Sign1VerifyDetached(request) => {
             super::sign1::verify::detached_result(core::mem::take(&mut **request))
         }
+        cose_operation_request::Operation::Sign1SignatureStructure(request) => {
+            super::signature_structure::build(core::mem::take(&mut **request))
+        }
         cose_operation_request::Operation::KeyFromPublicBytes(request) => {
             super::key::convert::from_public_bytes_result(core::mem::take(&mut **request))
         }

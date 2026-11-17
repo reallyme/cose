@@ -70,7 +70,7 @@ message CoseBackendError {
 // Rust value methods: mac0/key.rs#CoseMacKey => CoseMac0VerifyRequest: new, algorithm
 // Rust value methods: mac0/types.rs#VerifiedDetachedCoseMac0 => CoseMac0VerifyResult: algorithm, protected_header_bytes, protected_key_id
 // Rust value methods: policy/validate.rs#CosePolicy => CoseVerificationPolicy: new, contract, from_contract, require_kid, allowed_cose_algorithms, max_cose_sign1_bytes, max_detached_payload_bytes, require_tagged_sign1, allow_unprotected_x5chain, expected_type, with_require_kid, with_allowed_algorithms, allow_algorithm, with_allowed_cose_algorithms, allow_cose_algorithm, allow_any_algorithm, with_max_cose_sign1_bytes, with_max_detached_payload_bytes, with_require_tagged_sign1, with_allow_unprotected_x5chain, with_expected_type
-// Rust value methods: sign1/sign.rs#CoseSign1EncodeOptions => CoseSign1Options: new, tagged, contract, tag, max_cose_sign1_bytes, x5chain_der, x5chain_header_placement, protected_type, with_tag, with_max_cose_sign1_bytes, with_x5chain_der, with_x5chain_header_placement, with_protected_type
+// Rust value methods: sign1/encode_options.rs#CoseSign1EncodeOptions => CoseSign1Options: new, tagged, contract, tag, max_cose_sign1_bytes, x5chain_der, x5chain_header_placement, protected_type, with_tag, with_max_cose_sign1_bytes, with_x5chain_der, with_x5chain_header_placement, with_protected_type
 
 // Family-scoped protobuf selectors identify exact COSE registrations. Their
 // positive protobuf values are stable contract identifiers, not the signed
@@ -1045,6 +1045,8 @@ message CoseOperationRequest {
     // Rust adapter: sign1/verify.rs#cose_verify1_with_x5chain
     // Rust adapter: sign1/verify.rs#cose_verify1_with_x5chain_and_exact_algorithm
     CoseSign1VerifyProfileRequest sign1_verify_x5chain = 1017;
+    // Rust adapter: sign1/build_sign1_signature_structure.rs#build_sign1_signature_structure
+    CoseSign1SignatureStructureRequest sign1_signature_structure = 1018;
 
     // COSE_Key and Multikey conversion operations: 2000-2999.
     // Rust adapter: key/facade.rs#cose_key_from_public_bytes
@@ -1133,6 +1135,7 @@ message CoseOperationResult {
     CoseSign1CreateResult sign1_create_detached_profile = 1015;
     CoseSign1VerifyResult sign1_verify_profile = 1016;
     CoseSign1X5ChainResult sign1_verify_x5chain = 1017;
+    CoseSign1SignatureStructureResult sign1_signature_structure = 1018;
 
     // COSE_Key and Multikey conversion results: 2000-2999.
     CoseKeyBytesResult key_from_public_bytes = 2000;
@@ -1243,7 +1246,7 @@ enum CoseX5ChainHeaderPlacement {
   COSE_X5_CHAIN_HEADER_PLACEMENT_UNPROTECTED = 2;
 }
 
-// Rust view: sign1/sign.rs#CoseSign1EncodeOptions
+// Rust view: sign1/encode_options.rs#CoseSign1EncodeOptions
 // Rust equality: CoseSign1Options
 message CoseSign1Options {
   // Emit the registered COSE_Sign1 root tag (18). False emits the untagged
@@ -1317,6 +1320,29 @@ message CoseSign1CreateResult {
   // SENSITIVE: encoded COSE_Sign1 bytes, tagged or untagged according to
   // request options. Attached COSE_Sign1 messages contain payload bytes.
   bytes cose_sign1 = 1;
+}
+
+// Constructs RFC 9052 section 4.4 Sig_structure with the fixed Signature1
+// context. Inputs are opaque byte strings; protected headers are never decoded
+// or rewritten. The native byte adapter uses only the caller's output budget,
+// independently of Sign1 verification-profile limits. Generated transports
+// retain their separate request and response envelope limits.
+message CoseSign1SignatureStructureRequest {
+  // SENSITIVE: received protected-header bstr content, preserved exactly.
+  bytes protected = 1;
+  // SENSITIVE: externally supplied authenticated bytes; empty is permitted.
+  bytes external_aad = 2;
+  // SENSITIVE: exact attached or detached payload bytes.
+  bytes payload = 3;
+  // Complete encoded output ceiling, including the array, context and bstr
+  // headers. Zero is a real zero budget. Length and allocation failures return
+  // COMMON_RESOURCE_LIMIT_EXCEEDED before exposing any output.
+  uint64 max_output_bytes = 4;
+}
+
+message CoseSign1SignatureStructureResult {
+  // SENSITIVE: complete Signature1 authentication input, including the payload.
+  bytes signature_structure = 1;
 }
 
 // CoseType is the protected RFC 9596 typ header. Exactly one value must be
@@ -1669,7 +1695,7 @@ enum CoseErrorReason {
 // Rust borrowed projection: {"binding":"containers/provider.rs#VerificationSource","wire":"CoseKeySource","variants":[{"name":"Key","cases":["COSE_KEY_SOURCE_DIRECT","COSE_KEY_SOURCE_PROVIDER"],"port":"VerificationKey"},{"name":"Certificates","cases":["COSE_KEY_SOURCE_CERTIFICATES"],"port":"CertificateValidator"}]}
 // Rust borrowed projection: {"binding":"containers/signer.rs#SigningInput","wire":"CoseSigningInput","variants":[{"name":"Message","cases":["message"],"field":"CoseSigningInput.message.encoded"},{"name":"EcdsaPrehash","cases":["ecdsa_prehash"],"fields":[{"name":"hash","source":"CoseSigningInput.ecdsa_prehash.hash"},{"name":"digest","source":"CoseSigningInput.ecdsa_prehash.digest"}]}]}
 // Rust message owner: policy/validate.rs#CosePolicy => CoseVerificationPolicy
-// Rust message owner: sign1/sign.rs#CoseSign1EncodeOptions => CoseSign1Options
+// Rust message owner: sign1/encode_options.rs#CoseSign1EncodeOptions => CoseSign1Options
 // Rust capability owner: containers/agreement_key.rs#AgreementKey
 // Rust capability owner: containers/peer_key.rs#ValidatedPeerKey
 // Rust capability owner: containers/peer_key.rs#CryptoPeerKeyValidator

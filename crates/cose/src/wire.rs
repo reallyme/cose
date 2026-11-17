@@ -41,6 +41,7 @@ pub use reallyme_cose_proto::generated::proto::reallyme::cose::v1::{
     CoseOperationResult, CosePeerKeyPurpose, CosePeerKeyRequest, CosePeerKeyResult,
     CosePointEncoding, CosePrimitiveError, CoseProviderError, CoseSign1CreateDetachedRequest,
     CoseSign1CreateProfileRequest, CoseSign1CreateRequest, CoseSign1CreateResult, CoseSign1Options,
+    CoseSign1SignatureStructureRequest, CoseSign1SignatureStructureResult,
     CoseSign1VerifyDetachedRequest, CoseSign1VerifyProfileRequest, CoseSign1VerifyRequest,
     CoseSign1VerifyResult, CoseSign1X5ChainResult, CoseSignatureAlgorithm,
     CoseSignatureConvertRequest, CoseSignatureEncoding, CoseSignatureSuite, CoseSuiteInfoRequest,

@@ -373,6 +373,9 @@ pub mod cose_operation_request {
                 Self::Sign1VerifyX5chain(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::Sign1SignatureStructure(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
                 Self::KeyFromPublicBytes(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -500,6 +503,13 @@ pub mod cose_operation_request {
         Sign1VerifyX5chain(
             ::buffa::alloc::boxed::Box<
                 super::super::super::super::__buffa::view::CoseSign1VerifyProfileRequestView<'a>,
+            >,
+        ),
+        Sign1SignatureStructure(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseSign1SignatureStructureRequestView<
+                    'a,
+                >,
             >,
         ),
         KeyFromPublicBytes(
@@ -677,6 +687,9 @@ pub mod cose_operation_result {
                 Self::Sign1VerifyX5chain(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::Sign1SignatureStructure(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
                 Self::KeyFromPublicBytes(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -804,6 +817,13 @@ pub mod cose_operation_result {
         Sign1VerifyX5chain(
             ::buffa::alloc::boxed::Box<
                 super::super::super::super::__buffa::view::CoseSign1X5ChainResultView<'a>,
+            >,
+        ),
+        Sign1SignatureStructure(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseSign1SignatureStructureResultView<
+                    'a,
+                >,
             >,
         ),
         KeyFromPublicBytes(

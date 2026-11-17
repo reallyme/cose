@@ -24,6 +24,7 @@ pub(crate) mod providers;
 pub(crate) mod response_v2;
 pub(crate) mod sign1;
 pub(crate) mod signature;
+pub(crate) mod signature_structure;
 pub(crate) mod suite;
 
 #[cfg(test)]

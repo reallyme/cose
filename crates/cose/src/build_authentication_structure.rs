@@ -6,23 +6,43 @@ use zeroize::Zeroizing;
 
 use crate::CoseError;
 
-const CBOR_DIRECT_ARGUMENT_MAX: usize = 23;
-const CBOR_ONE_BYTE_ARGUMENT_MAX: usize = 0xff;
-const CBOR_TWO_BYTE_ARGUMENT_MAX: usize = 0xffff;
+#[path = "measure_authentication_structure.rs"]
+mod measure;
+
+#[cfg(feature = "cose-crypto")]
+use measure::checked_bstr_size;
 
 /// Domain separation contexts supported by the single-authenticator profiles.
 #[derive(Clone, Copy)]
 pub(crate) enum AuthenticationContext {
     Signature1,
+    #[cfg(feature = "cose-crypto")]
     Mac0,
 }
 
 /// Encode a four-field COSE authentication structure without normalizing protected bytes.
+#[cfg(feature = "cose-crypto")]
 pub(crate) fn build_authentication_structure(
     context: AuthenticationContext,
     protected_bytes: &[u8],
     external_aad: &[u8],
     payload: &[u8],
+) -> Result<Zeroizing<Vec<u8>>, CoseError> {
+    build_bounded_authentication_structure(
+        context,
+        protected_bytes,
+        external_aad,
+        payload,
+        usize::MAX,
+    )
+}
+
+pub(crate) fn build_bounded_authentication_structure(
+    context: AuthenticationContext,
+    protected_bytes: &[u8],
+    external_aad: &[u8],
+    payload: &[u8],
+    max_output_bytes: usize,
 ) -> Result<Zeroizing<Vec<u8>>, CoseError> {
     const ARRAY_OF_FOUR: u8 = 0x84;
     const TEXT_MAJOR: u8 = 0x60;
@@ -30,17 +50,18 @@ pub(crate) fn build_authentication_structure(
     // a direct-length text header and are always valid UTF-8.
     let context: &[u8] = match context {
         AuthenticationContext::Signature1 => b"Signature1",
+        #[cfg(feature = "cose-crypto")]
         AuthenticationContext::Mac0 => b"MAC0",
     };
     let context_len = u8::try_from(context.len()).map_err(|_| CoseError::InvalidFormat)?;
 
-    let capacity = 1usize
-        .checked_add(1)
-        .and_then(|size| size.checked_add(context.len()))
-        .and_then(|size| checked_bstr_size(size, protected_bytes.len()))
-        .and_then(|size| checked_bstr_size(size, external_aad.len()))
-        .and_then(|size| checked_bstr_size(size, payload.len()))
-        .ok_or(CoseError::ResourceLimitExceeded)?;
+    let capacity = measure::authentication_structure_size(
+        context.len(),
+        protected_bytes.len(),
+        external_aad.len(),
+        payload.len(),
+        max_output_bytes,
+    )?;
     let mut encoded = Zeroizing::new(Vec::new());
     encoded
         .try_reserve_exact(capacity)
@@ -55,35 +76,17 @@ pub(crate) fn build_authentication_structure(
 }
 
 #[cfg(test)]
+#[cfg(feature = "cose-crypto")]
 #[path = "build_authentication_structure_tests.rs"]
 mod tests;
 
-#[cfg(kani)]
+#[cfg(all(kani, feature = "cose-crypto"))]
 #[path = "verify_authentication_lengths_proof_tests.rs"]
 mod verification;
 
-fn checked_bstr_size(current: usize, payload_len: usize) -> Option<usize> {
-    current
-        .checked_add(cbor_length_header_size(payload_len))?
-        .checked_add(payload_len)
-}
-
+#[cfg(feature = "cose-crypto")]
 pub(crate) fn encoded_bstr_size(payload_len: usize) -> Result<usize, CoseError> {
     checked_bstr_size(0, payload_len).ok_or(CoseError::ResourceLimitExceeded)
-}
-
-fn cbor_length_header_size(length: usize) -> usize {
-    if length <= CBOR_DIRECT_ARGUMENT_MAX {
-        1
-    } else if length <= CBOR_ONE_BYTE_ARGUMENT_MAX {
-        2
-    } else if length <= CBOR_TWO_BYTE_ARGUMENT_MAX {
-        3
-    } else if u32::try_from(length).is_ok() {
-        5
-    } else {
-        9
-    }
 }
 
 fn append_bstr(output: &mut Vec<u8>, bytes: &[u8]) -> Result<(), CoseError> {

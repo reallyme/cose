@@ -84,6 +84,12 @@ fn every_schema_operation_has_an_executable_fixed_error_and_frozen_field_number(
             1017u64,
         ),
         (
+            Operation::Sign1SignatureStructure(
+                Box::<contract::CoseSign1SignatureStructureRequest>::default(),
+            ),
+            1018u64,
+        ),
+        (
             Operation::KeyFromPublicBytes(Box::<contract::CoseKeyFromPublicBytesRequest>::default()),
             2000u64,
         ),
@@ -160,7 +166,7 @@ fn every_schema_operation_has_an_executable_fixed_error_and_frozen_field_number(
             5000u64,
         ),
     ];
-    assert_eq!(operations.len(), 33);
+    assert_eq!(operations.len(), 34);
     for (operation, expected) in operations {
         let encoded = request(operation.clone()).encode_to_vec();
         let (mut tag, mut shift) = (0u64, 0u32);

@@ -63,7 +63,6 @@ pub use algorithm::CoseSignatureAlgorithm;
 pub mod error;
 pub use error::CoseError;
 
-#[cfg(feature = "cose-crypto")]
 mod build_authentication_structure;
 mod encode_cbor;
 mod failure;
