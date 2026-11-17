@@ -29,6 +29,8 @@ mod secp256k1_provider;
 mod signature;
 #[path = "contract_signature_structure_tests.rs"]
 mod signature_structure;
+#[path = "contract_supp_priv_info_tests.rs"]
+mod supp_priv_info;
 #[path = "contract_support_tests.rs"]
 mod support;
 #[path = "contract_x5chain_provider_tests.rs"]

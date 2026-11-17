@@ -1200,6 +1200,8 @@ message CoseMlKemEncryptRequest {
   // SENSITIVE: external AAD authenticated but not carried in COSE.
   bytes external_aad = 6;
   // SENSITIVE: optional private KDF context; present empty differs from absent.
+  // Maximum 65483 bytes: crypto's 65536-byte KMAC context budget minus the
+  // 53-byte worst-case profile overhead. Checked before any KEM operation.
   optional bytes supp_priv_info = 7;
   reserved 8;
   reserved "has_supp_priv_info";
@@ -1226,6 +1228,7 @@ message CoseMlKemDecryptRequest {
   // SENSITIVE: external AAD authenticated but not carried in COSE.
   bytes external_aad = 4;
   // SENSITIVE: optional private KDF context; present empty differs from absent.
+  // Same 65483-byte ceiling as encryption, enforced before decoding or KEM work.
   optional bytes supp_priv_info = 5;
   reserved 6;
   reserved "has_supp_priv_info";

@@ -16,6 +16,49 @@ const BSTR_WIDTHS: [(usize, &[u8]); 5] = [
     (256, b"\x59\x01\x00"),
 ];
 
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
+fn all_recipient_profiles_fit_the_shared_supp_priv_info_budget() -> Result<(), CoseError> {
+    use crate::encrypt::codec::protected_header;
+    use crate::encrypt::profile::{suite_for, ML_KEM_KID_LENGTH};
+    use crate::encrypt::{CoseMlKemAlgorithm, CoseMlKemMode};
+    use coset::RegisteredLabelWithPrivate;
+
+    const MAX_OVERHEAD: usize = 53;
+    let maximum = KMAC256_MAX_CONTEXT_LENGTH
+        .checked_sub(MAX_OVERHEAD)
+        .ok_or(CoseError::ResourceLimitExceeded)?;
+    assert_eq!(maximum, 65_483);
+    let private = Zeroizing::new(vec![0x55; maximum]);
+    for kem in [
+        CoseMlKemAlgorithm::MlKem512,
+        CoseMlKemAlgorithm::MlKem768,
+        CoseMlKemAlgorithm::MlKem1024,
+    ] {
+        for mode in [CoseMlKemMode::Direct, CoseMlKemMode::KeyWrap] {
+            let suite = suite_for(kem, mode)?;
+            let header = protected_header(
+                RegisteredLabelWithPrivate::PrivateUse(suite.cose_algorithm),
+                Some(&[0x42; ML_KEM_KID_LENGTH]),
+            );
+            let protected = crate::encode_cbor::encode_protected_header(&header)?;
+            assert_eq!(protected.len(), 42);
+            for output_length in [16, 24, 32] {
+                let algorithm_id = suite.key_wrap_algorithm_id.unwrap_or(3);
+                let actual =
+                    encode_kdf_context(algorithm_id, output_length, &protected, Some(&private))?;
+                let overhead = actual
+                    .len()
+                    .checked_sub(private.len())
+                    .ok_or(CoseError::ResourceLimitExceeded)?;
+                assert_eq!(overhead, if output_length == 32 { 53 } else { 52 });
+                assert!(actual.len() <= KMAC256_MAX_CONTEXT_LENGTH);
+            }
+        }
+    }
+    Ok(())
+}
+
 #[test]
 fn oversized_encoded_context_has_a_resource_limit_error() {
     let supp_priv_info = vec![0x55; KMAC256_MAX_CONTEXT_LENGTH];

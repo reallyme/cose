@@ -9,6 +9,22 @@ use zeroize::Zeroizing;
 use crate::encode_cbor::encode_cbor_value;
 use crate::CoseError;
 
+// Preferred encoding of the supported profiles uses 42 recipient protected
+// bytes (alg plus a 32-byte kid). The outer array, AlgorithmID, SuppPubInfo
+// array, 256-bit output length, and two bstr heads add 11 bytes. Reserve the
+// full 53-byte overhead for every profile, including 128/192-bit outputs.
+const MAX_KDF_CONTEXT_OVERHEAD_BYTES: usize = 53;
+
+pub(crate) fn validate_supp_priv_info(value: Option<&[u8]>) -> Result<(), CoseError> {
+    let maximum = KMAC256_MAX_CONTEXT_LENGTH
+        .checked_sub(MAX_KDF_CONTEXT_OVERHEAD_BYTES)
+        .ok_or(CoseError::ResourceLimitExceeded)?;
+    if value.is_some_and(|value| value.len() > maximum) {
+        return Err(CoseError::ResourceLimitExceeded);
+    }
+    Ok(())
+}
+
 pub(crate) fn derive_key(
     shared_secret: &[u8],
     algorithm_id: i64,
@@ -16,6 +32,7 @@ pub(crate) fn derive_key(
     recipient_protected: &[u8],
     supp_priv_info: Option<&[u8]>,
 ) -> Result<Zeroizing<Vec<u8>>, CoseError> {
+    validate_supp_priv_info(supp_priv_info)?;
     let context = encode_kdf_context(
         algorithm_id,
         output_length,

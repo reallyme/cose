@@ -23928,6 +23928,8 @@ pub struct CoseMlKemEncryptRequestView<'a> {
     /// Field 6: `external_aad`
     pub external_aad: &'a [u8],
     /// SENSITIVE: optional private KDF context; present empty differs from absent.
+    /// Maximum 65483 bytes: crypto's 65536-byte KMAC context budget minus the
+    /// 53-byte worst-case profile overhead. Checked before any KEM operation.
     ///
     /// Field 7: `supp_priv_info`
     pub supp_priv_info: ::core::option::Option<&'a [u8]>,
@@ -24288,6 +24290,8 @@ impl CoseMlKemEncryptRequestOwnedView {
         self.0.reborrow().external_aad
     }
     /// SENSITIVE: optional private KDF context; present empty differs from absent.
+    /// Maximum 65483 bytes: crypto's 65536-byte KMAC context budget minus the
+    /// 53-byte worst-case profile overhead. Checked before any KEM operation.
     ///
     /// Field 7: `supp_priv_info`
     #[must_use]
@@ -24602,6 +24606,7 @@ pub struct CoseMlKemDecryptRequestView<'a> {
     /// Field 4: `external_aad`
     pub external_aad: &'a [u8],
     /// SENSITIVE: optional private KDF context; present empty differs from absent.
+    /// Same 65483-byte ceiling as encryption, enforced before decoding or KEM work.
     ///
     /// Field 5: `supp_priv_info`
     pub supp_priv_info: ::core::option::Option<&'a [u8]>,
@@ -24908,6 +24913,7 @@ impl CoseMlKemDecryptRequestOwnedView {
         self.0.reborrow().external_aad
     }
     /// SENSITIVE: optional private KDF context; present empty differs from absent.
+    /// Same 65483-byte ceiling as encryption, enforced before decoding or KEM work.
     ///
     /// Field 5: `supp_priv_info`
     #[must_use]

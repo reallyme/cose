@@ -21,7 +21,6 @@ pub(crate) const COSE_ENCRYPT_TAG: u64 = 96;
 pub(crate) const MAX_PLAINTEXT_BYTES: usize = 1_048_576;
 pub(crate) const MAX_EXTERNAL_AAD_BYTES: usize = 1_048_576;
 pub(crate) const MAX_KID_BYTES: usize = 1_024;
-pub(crate) const MAX_SUPP_PRIV_INFO_BYTES: usize = 65_536;
 pub(crate) const AES_GCM_NONCE_LENGTH: usize = 12;
 pub(crate) const AES_GCM_TAG_LENGTH: usize = 16;
 

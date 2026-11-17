@@ -28103,6 +28103,8 @@ pub struct CoseMlKemEncryptRequest {
     #[serde(default)]
     pub external_aad: crate::SecretBytes,
     /// SENSITIVE: optional private KDF context; present empty differs from absent.
+    /// Maximum 65483 bytes: crypto's 65536-byte KMAC context budget minus the
+    /// 53-byte worst-case profile overhead. Checked before any KEM operation.
     ///
     /// Field 7: `supp_priv_info`
     #[serde(
@@ -28878,6 +28880,7 @@ pub struct CoseMlKemDecryptRequest {
     #[serde(default)]
     pub external_aad: crate::SecretBytes,
     /// SENSITIVE: optional private KDF context; present empty differs from absent.
+    /// Same 65483-byte ceiling as encryption, enforced before decoding or KEM work.
     ///
     /// Field 5: `supp_priv_info`
     #[serde(

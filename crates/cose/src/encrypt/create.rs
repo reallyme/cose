@@ -23,9 +23,8 @@ use crate::CoseError;
 use super::codec::{
     body_unprotected, encode, protected_header, recipient_unprotected, SensitiveCoseEncrypt,
     AES_GCM_NONCE_LENGTH, MAX_EXTERNAL_AAD_BYTES, MAX_KID_BYTES, MAX_PLAINTEXT_BYTES,
-    MAX_SUPP_PRIV_INFO_BYTES,
 };
-use super::kdf::{derive_key, enc_structure};
+use super::kdf::{derive_key, enc_structure, validate_supp_priv_info};
 use super::profile::{content_algorithm_profile, suite_for, MlKemSuite, ML_KEM_KID_LENGTH};
 use super::types::{
     CoseContentEncryptionAlgorithm, CoseMlKemAlgorithm, CoseMlKemEncryptInput,
@@ -223,14 +222,13 @@ fn validate_request(
     request: &CoseMlKemEncryptRequest<'_>,
     external_aad: &[u8],
 ) -> Result<(), CoseError> {
-    if request.plaintext.len() > MAX_PLAINTEXT_BYTES
-        || external_aad.len() > MAX_EXTERNAL_AAD_BYTES
-        || request
-            .supp_priv_info
-            .is_some_and(|value| value.len() > MAX_SUPP_PRIV_INFO_BYTES)
+    if request.plaintext.len() > MAX_PLAINTEXT_BYTES || external_aad.len() > MAX_EXTERNAL_AAD_BYTES
     {
         return Err(CoseError::ResourceLimitExceeded);
     }
+    // Establish the complete KMAC budget before encapsulation or key validation
+    // can consume provider resources. The KDF repeats this check defensively.
+    validate_supp_priv_info(request.supp_priv_info)?;
     if request.recipient_kid.is_empty() {
         return Err(CoseError::MissingKid);
     }

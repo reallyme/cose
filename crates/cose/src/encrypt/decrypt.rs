@@ -21,9 +21,9 @@ use crate::CoseError;
 
 use super::codec::{
     decode, encapsulated_key, validate_structure, AES_GCM_TAG_LENGTH, MAX_EXTERNAL_AAD_BYTES,
-    MAX_KID_BYTES, MAX_PLAINTEXT_BYTES, MAX_SUPP_PRIV_INFO_BYTES,
+    MAX_KID_BYTES, MAX_PLAINTEXT_BYTES,
 };
-use super::kdf::{derive_key, enc_structure};
+use super::kdf::{derive_key, enc_structure, validate_supp_priv_info};
 use super::profile::{
     content_algorithm_from_cose, content_algorithm_profile, suite_from_cose_algorithm, MlKemSuite,
     ML_KEM_KID_LENGTH, ML_KEM_PRIVATE_SEED_LENGTH,
@@ -249,12 +249,12 @@ fn validate_request(
     }
     if request.expected_recipient_kid.len() > MAX_KID_BYTES
         || external_aad.len() > MAX_EXTERNAL_AAD_BYTES
-        || request
-            .supp_priv_info
-            .is_some_and(|value| value.len() > MAX_SUPP_PRIV_INFO_BYTES)
     {
         return Err(CoseError::ResourceLimitExceeded);
     }
+    // Reject an impossible context before decoding, private/public derivation,
+    // or decapsulation. It must not turn into a late authentication failure.
+    validate_supp_priv_info(request.supp_priv_info)?;
     if request.expected_recipient_kid.len() != ML_KEM_KID_LENGTH {
         return Err(CoseError::KidMismatch);
     }
