@@ -11,6 +11,58 @@ use crate::mac0::{
 
 use super::support::{assert_reason, detached, encode, envelope, hex, request, tag, verify};
 
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
+fn extension_maps_reject_equal_compound_keys_independently_of_received_order(
+) -> Result<(), CoseMac0Error> {
+    for duplicate in [false, true] {
+        let first = Value::Map(vec![(0.into(), 1.into()), (2.into(), 3.into())]);
+        let second = Value::Map(vec![
+            (2.into(), if duplicate { 3.into() } else { 4.into() }),
+            (0.into(), 1.into()),
+        ]);
+        // Array wrapping also exercises recursive equality, rather than only
+        // comparing a map directly. Labels remain valid integer/text labels;
+        // the compound keys occur inside an otherwise ignorable extension.
+        for wrap in [false, true] {
+            let key = |value| {
+                if wrap {
+                    Value::Array(vec![value])
+                } else {
+                    value
+                }
+            };
+            let extension = Value::Map(vec![
+                (key(first.clone()), Value::Null),
+                (key(second.clone()), Value::Bool(false)),
+            ]);
+            for protected_extension in [false, true] {
+                let mut protected = vec![(1.into(), 5.into())];
+                let mut unprotected = Vec::new();
+                if protected_extension {
+                    protected.push((100.into(), extension.clone()));
+                } else {
+                    unprotected.push((100.into(), extension.clone()));
+                }
+                let protected = encode(Value::Map(protected));
+                let encoded = envelope(
+                    &protected,
+                    Value::Map(unprotected),
+                    Value::Null,
+                    &tag(&protected, b"payload", b"aad"),
+                );
+                let result = verify(&encoded);
+                if duplicate {
+                    assert_eq!(result.err(), Some(crate::CoseError::DuplicateMapLabel));
+                } else {
+                    assert_eq!(result?.protected_bytes.as_slice(), protected);
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
 #[test]
 fn content_type_values_are_validated_in_both_buckets() -> Result<(), CoseMac0Error> {
     for value in [

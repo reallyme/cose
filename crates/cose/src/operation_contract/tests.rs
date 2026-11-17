@@ -3,6 +3,8 @@
 
 #[path = "contract_boundary_tests.rs"]
 mod boundary;
+#[path = "contract_cbor_preflight_tests.rs"]
+mod cbor_preflight;
 #[path = "contract_container_tests.rs"]
 mod container;
 #[path = "contract_guarded_tests.rs"]

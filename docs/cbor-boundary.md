@@ -28,12 +28,32 @@ Container grammar retains codec's optional typed argument: floating-point
 payload bits cannot represent a detached-content null or an EC2 Boolean selector.
 Depth remains bounded at item depth 32, including an empty container at the
 boundary. Collection admission remains bounded at 1,024 entries. Codec's
-aggregate byte, node and work ceilings apply independently.
+aggregate ceilings apply independently: 1 MiB of encoded input, 65,536
+structural nodes and 16,777,216 validation work credits. Tags and containers
+count as nodes as well as their contents. These checks precede copying into
+the compatibility tree; the byte ceiling alone cannot bound its heap cost.
+
+Map uniqueness does not require received map order or compare only key bytes.
+Codec sorts a bounded index of key offsets for ordinary scalar keys, avoiding
+an all-pairs comparison limit for wide text-key maps. Compound keys retain
+recursive basic-model equality, including unordered map entries, as specified
+in [RFC 8949 §5.6.1](https://www.rfc-editor.org/rfc/rfc8949.html#section-5.6.1).
+Complex compound-key comparisons may exhaust the independent work ceiling
+before reaching an entry or node ceiling; this fails with the fixed resource
+limit reason rather than disabling semantic duplicate detection.
 
 Codec errors map into fixed protobuf-defined COSE reasons. Internal `coset`
 objects and `ciborium::Value` trees are compatibility data models; incoming
 bytes are decoded by codec. Every copied tree is held by a recursive wiping
 owner, including partial construction and failure paths.
+
+Native and WASM regressions cover reordered compound keys inside protected
+and unprotected Mac0 extensions and both ISO payload profiles; the exact
+65,536-node boundary; and unique text-key maps at 299, 300, 301 and 1,024
+entries, including binary protobuf and ProtoJSON parity. A dense 1 MiB
+encryption envelope exceeds the node ceiling and is rejected before an owned
+tree is constructed. Native allocation counters assert that this rejection
+allocates neither tree nor error storage.
 
 ## Remaining output migration prerequisite
 

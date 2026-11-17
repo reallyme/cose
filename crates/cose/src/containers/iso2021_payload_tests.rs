@@ -5,6 +5,22 @@ use super::{validate_issuer_mso_payload, validate_preferred_cbor};
 use crate::containers::{ContainerError, ContainerErrorReason as Reason, ContainerProfile};
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
+fn issuer_extension_maps_reject_equal_compound_keys_in_both_iso_profiles() {
+    for profile in [ContainerProfile::Iso2021, ContainerProfile::IsoEdition2Dis] {
+        // {100: {{0: 1, 2: 3}: null, {2: 3, 0: 1}: false}}
+        let duplicate = b"\xa1\x18\x64\xa2\xa2\x00\x01\x02\x03\xf6\xa2\x02\x03\x00\x01\xf4";
+        assert_eq!(
+            validate_issuer_mso_payload(duplicate, profile),
+            Err(Reason::Duplicate.into())
+        );
+        // The same two-entry shape is permitted when one map value differs.
+        let unique = b"\xa1\x18\x64\xa2\xa2\x00\x01\x02\x03\xf6\xa2\x02\x04\x00\x01\xf4";
+        assert_eq!(validate_issuer_mso_payload(unique, profile), Ok(()));
+    }
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 #[cfg_attr(not(target_arch = "wasm32"), test)]
 fn original_2021_tag_and_float_widths_do_not_relax_draft_or_preferred_input() {
     for bytes in [

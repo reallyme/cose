@@ -18,6 +18,11 @@ pub(crate) use decode_value::decode;
 #[path = "cbor_boundary_tests.rs"]
 mod tests;
 
+#[cfg(test)]
+#[cfg(feature = "cose-crypto")]
+#[path = "cbor_resource_tests.rs"]
+mod resource_tests;
+
 pub(crate) const MAX_ITEM_DEPTH: usize = 32;
 // Codec counts open containers, whereas COSE's established ceiling admits an
 // empty container at item depth 32. Admission walks retain that exact boundary.
