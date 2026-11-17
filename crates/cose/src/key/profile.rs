@@ -275,6 +275,19 @@ fn validate_key_operations(
     has_private_key: bool,
     is_signature_key: bool,
 ) -> Result<(), CoseError> {
+    // Raw private export cannot carry COSE usage restrictions into the crypto
+    // API. Refuse verification-only private signing keys before accepting an
+    // owner that could release unrestricted signing material. An empty set is
+    // an omitted key_ops; the parser separately rejects a present empty array.
+    if is_signature_key
+        && has_private_key
+        && !key.key_ops.is_empty()
+        && !key
+            .key_ops
+            .contains(&RegisteredLabel::Assigned(iana::KeyOperation::Sign))
+    {
+        return Err(CoseError::InvalidKeyMaterial);
+    }
     for operation in &key.key_ops {
         let allowed = if is_signature_key {
             matches!(

@@ -19,6 +19,8 @@ mod modern;
 mod peer_base_iv;
 #[path = "contract_peer_policy_tests.rs"]
 mod peer_policy;
+#[path = "contract_private_key_ops_tests.rs"]
+mod private_key_ops;
 #[path = "contract_signature_tests.rs"]
 mod signature;
 #[path = "contract_signature_structure_tests.rs"]

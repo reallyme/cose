@@ -160,7 +160,8 @@ pub fn cose_key_from_signature_private_bytes(
 /// # Errors
 ///
 /// Returns [`CoseError`] when the profile is invalid or private material is
-/// absent.
+/// absent. Explicit `key_ops` on private signature keys must include signing;
+/// raw extraction cannot carry a verification-only restriction into crypto.
 pub fn cose_key_to_private_bytes(key: &CoseKey) -> Result<Zeroizing<Vec<u8>>, CoseError> {
     extract_cose_key_private(CoseKeyRefInput::new(key))
         .map(CoseKeyBytesOutput::into_zeroizing)

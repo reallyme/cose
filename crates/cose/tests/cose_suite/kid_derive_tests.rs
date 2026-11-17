@@ -70,8 +70,9 @@ fn ed25519_kid_matches_independent_canonical_public_map() -> Result<(), CoseErro
     );
 
     // Parse a private key with kid and key_ops in addition to x and d. The
-    // optional alg changes the input metadata, while the hash uses -19 in
-    // both cases according to the Ed25519 profile.
+    // private owner explicitly permits sign/verify. The optional alg changes
+    // the input metadata, while the hash uses -19 in both cases according to
+    // the Ed25519 profile.
     const PRIVATE_FIXTURE_CAPACITY: usize = 83;
     for explicit_algorithm in [false, true] {
         let mut encoded = Zeroizing::new(Vec::with_capacity(PRIVATE_FIXTURE_CAPACITY));
@@ -84,7 +85,7 @@ fn ed25519_kid_matches_independent_canonical_public_map() -> Result<(), CoseErro
         if explicit_algorithm {
             encoded.extend_from_slice(b"\x03\x32");
         }
-        encoded.extend_from_slice(b"\x04\x81\x02\x20\x06\x21\x58\x20");
+        encoded.extend_from_slice(b"\x04\x82\x01\x02\x20\x06\x21\x58\x20");
         encoded.extend_from_slice(&public);
         encoded.extend_from_slice(b"\x23\x58\x20");
         encoded.extend_from_slice(seed.as_slice());

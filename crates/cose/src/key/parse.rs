@@ -53,6 +53,8 @@ pub(crate) fn parse_cose_key(
 }
 
 /// Decode a COSE_Key from canonical, untagged CBOR bytes.
+/// A private signature key with explicit `key_ops` must permit signing, since
+/// raw private extraction cannot preserve a verification-only restriction.
 ///
 /// # Errors
 ///

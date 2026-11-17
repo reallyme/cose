@@ -30294,6 +30294,9 @@ impl ::serde::Serialize for CoseKeyFromPrivateBytesRequestOwnedView {
 }
 /// CoseKeyBytesRequest carries encoded COSE_Key bytes for parse, extraction,
 /// deterministic kid derivation, and Multikey conversion operations.
+/// A private signature key with explicit key_ops must include sign (1), otherwise
+/// validation fails with KEY_INVALID_KEY_MATERIAL before private extraction.
+/// Public verify-only keys remain valid. Omitted key_ops adds no restriction.
 #[derive(Clone, Default)]
 pub struct CoseKeyBytesRequestView<'a> {
     /// SENSITIVE: encoded COSE_Key bytes. This may contain private key material

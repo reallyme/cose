@@ -35457,6 +35457,9 @@ pub const __COSE_KEY_FROM_PRIVATE_BYTES_REQUEST_JSON_ANY: ::buffa::type_registry
     };
 /// CoseKeyBytesRequest carries encoded COSE_Key bytes for parse, extraction,
 /// deterministic kid derivation, and Multikey conversion operations.
+/// A private signature key with explicit key_ops must include sign (1), otherwise
+/// validation fails with KEY_INVALID_KEY_MATERIAL before private extraction.
+/// Public verify-only keys remain valid. Omitted key_ops adds no restriction.
 #[derive(Clone, PartialEq, Default, ::serde::Serialize)]
 pub struct CoseKeyBytesRequest {
     /// SENSITIVE: encoded COSE_Key bytes. This may contain private key material
