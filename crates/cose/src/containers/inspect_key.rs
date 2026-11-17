@@ -22,9 +22,11 @@ const SEC1_UNCOMPRESSED: u8 = 4;
 ///
 /// Map order and original compressed-point representation are retained. This is
 /// not cryptographic point validation: call `InspectedPeerKey::validate` before
-/// passing a key to crypto. No private d is accepted or copied. Under `Cose`, a
-/// signature key's optional Base IV must be a byte string; it is retained only
-/// in the exact original encoding and never contributes to public material.
+/// passing a key to crypto. No private d is accepted or copied. Both optional
+/// policies enforce supplied algorithm and operation restrictions. Base IV must
+/// be a byte string; it is retained only in the exact original encoding and
+/// never contributes to public material. `IsoPeer` additionally permits Base IV
+/// on agreement keys and ignores unknown positive parameters.
 ///
 /// # Errors
 /// Returns fixed encoding, limit, duplicate, key, usage and algorithm failures.
@@ -64,21 +66,29 @@ pub(crate) fn inspect_peer_key_operation(
             2 => {
                 value.bytes()?;
             }
-            _ if optional == OptionalKeyPolicy::IsoPeer => {}
             3 => {
+                let algorithm = value.integer()?;
                 let PeerKeyUsage::Signature(suite) = usage else {
                     return Err(Reason::Key.into());
                 };
-                if value.integer()? != suite.registration().identifier() {
+                if algorithm != suite.registration().identifier() {
                     return Err(Reason::Key.into());
                 }
             }
             4 => check_operations(value, usage)?,
-            5 if matches!(usage, PeerKeyUsage::Signature(_)) => {
+            5 => {
                 // Base IV has no role in signatures. Validate its CBOR type
                 // without copying or interpreting it as cryptographic input.
                 value.bytes()?;
+                if optional != OptionalKeyPolicy::IsoPeer
+                    && !matches!(usage, PeerKeyUsage::Signature(_))
+                {
+                    return Err(Reason::Key.into());
+                }
             }
+            // Optional-field tolerance must not bypass recognized restrictions:
+            // a key's declared role cannot change when its caller selects ISO.
+            label if label > 0 && optional == OptionalKeyPolicy::IsoPeer => {}
             _ => return Err(Reason::Key.into()),
         }
     }

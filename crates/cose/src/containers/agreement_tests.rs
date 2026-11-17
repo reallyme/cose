@@ -171,11 +171,12 @@ fn supplied_agreement_operations_are_distinct_from_signature_operations(
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 #[test]
-fn optional_fields_require_explicit_iso_ignore_policy() -> Result<(), ContainerError> {
+fn iso_optional_tolerance_preserves_known_agreement_restrictions() -> Result<(), ContainerError> {
     let case = case(1)?;
     for (label, optional) in [
         (3, int(-7)),
         (4, Value::Array(vec![int(2)])),
+        (5, Value::Bytes(vec![0xa5; 12])),
         (42, Value::Null),
     ] {
         let mut params = parameters(&case)?;
@@ -187,8 +188,12 @@ fn optional_fields_require_explicit_iso_ignore_policy() -> Result<(), ContainerE
             Reason::Key,
         );
         selected.optional_parameters = OptionalKeyPolicy::IsoPeer;
-        let key = AgreementKey::from_slice(&encoded, selected, &CryptoAgreementKeyProvider)?;
-        assert_eq!(key.original_cose_key(), encoded);
+        let imported = AgreementKey::from_slice(&encoded, selected, &CryptoAgreementKeyProvider);
+        if label == 3 || label == 4 {
+            assert_error(imported, Reason::Key);
+        } else {
+            assert_eq!(imported?.original_cose_key(), encoded);
+        }
     }
     Ok(())
 }

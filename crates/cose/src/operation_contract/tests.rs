@@ -17,6 +17,8 @@ mod mac;
 mod modern;
 #[path = "contract_peer_base_iv_tests.rs"]
 mod peer_base_iv;
+#[path = "contract_peer_policy_tests.rs"]
+mod peer_policy;
 #[path = "contract_signature_tests.rs"]
 mod signature;
 #[path = "contract_signature_structure_tests.rs"]

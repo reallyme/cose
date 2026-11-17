@@ -159,12 +159,16 @@ fn optional_parameter_policy_private_material_and_usage_mismatches_are_explicit(
             inspect_peer_key(&encoded, PeerKeyUsage::Agreement, OptionalKeyPolicy::Cose),
             Reason::Key,
         );
-        inspect_peer_key(
+        let iso = inspect_peer_key(
             &encoded,
             PeerKeyUsage::Agreement,
             OptionalKeyPolicy::IsoPeer,
-        )?
-        .validate(&CryptoPeerKeyValidator)?;
+        );
+        if label == 99 {
+            iso?.validate(&CryptoPeerKeyValidator)?;
+        } else {
+            assert_error(iso, Reason::Key);
+        }
     }
     for private_label in [-4, -5] {
         let mut params = base.clone();

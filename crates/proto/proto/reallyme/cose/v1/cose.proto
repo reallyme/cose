@@ -134,7 +134,10 @@ enum CoseAgreementOptionalParameters {
   // no ECDH alg registrations.
   // Rust variant: Cose
   COSE_AGREEMENT_OPTIONAL_PARAMETERS_VALIDATE_COSE = 1;
-  // Explicit ISO peer policy: ignore optional positive parameters, never d.
+  // Explicit ISO peer policy: ignore unknown positive parameters, never d.
+  // Known alg/key_ops still enforce the selected purpose and exact signature
+  // registration. Base IV must be a byte string; retain it without using it.
+  // As with VALIDATE_COSE, agreement alg is omitted: no ECDH alg is implemented.
   // Rust variant: IsoPeer
   COSE_AGREEMENT_OPTIONAL_PARAMETERS_IGNORE_ISO_OPTIONAL = 2;
 }

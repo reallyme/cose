@@ -49,11 +49,15 @@ point is validated under its exact named curve and agreement purpose.
 (`DeriveKey` 7 and/or `DeriveBits` 8). It rejects supplied `alg` because this
 subset does not implement ECDH algorithm registrations, as well as signing
 operations, duplicate operations and unknown optional fields.
-`OptionalKeyPolicy::IsoPeer` explicitly ignores optional positive parameters,
-including `alg`/`key_ops`, while preserving their exact encoded bytes. It never
-relaxes required public parameters, duplicates, private-material exclusion,
-curve allowlisting, or the selected EC2 encoding constraint. The existing
-generic signing parser and constructors retain their separate behavior.
+`OptionalKeyPolicy::IsoPeer` ignores unknown positive parameters while preserving
+their exact encoded bytes. Known `alg` and `key_ops` retain the same purpose
+restrictions as `Cose`: a key declaring a signing algorithm or signing operation
+cannot be imported for agreement. Base IV (label 5) is additionally accepted as
+a byte string, retained only in the original encoding. Malformed known
+parameters are rejected under either policy. `IsoPeer` never relaxes required
+public parameters, duplicates, private-material exclusion, curve allowlisting,
+or the selected EC2 encoding constraint. The existing generic signing parser
+and constructors retain their separate behavior.
 
 `from_public_key` accepts full or compressed SEC1 EC2 input, or canonical
 Montgomery public bytes, and emits the selected representation. Its minimal,
