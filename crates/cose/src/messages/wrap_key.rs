@@ -6,7 +6,7 @@ use crate::{api::contract::CoseRecipientAlgorithm as Algorithm, CoseError};
 use reallyme_cose_proto::SecretBytes;
 use reallyme_crypto::aes_kw::{
     unwrap_key_aes128, unwrap_key_aes192, unwrap_key_aes256, wrap_key_aes128, wrap_key_aes192,
-    wrap_key_aes256, Aes128KwKek, Aes192KwKek, Aes256KwKek,
+    wrap_key_aes256, Aes128KwKek, Aes192KwKek, Aes256KwKek, AES_KW_INTEGRITY_CHECK_LENGTH,
 };
 
 pub(super) fn length(algorithm: Algorithm) -> Result<usize, CoseError> {
@@ -54,7 +54,7 @@ pub(super) fn unwrap(
     }
     if wrapped.len()
         != expected
-            .checked_add(8)
+            .checked_add(AES_KW_INTEGRITY_CHECK_LENGTH)
             .ok_or(CoseError::ResourceLimitExceeded)?
     {
         return Err(CoseError::InvalidRecipient);
@@ -74,7 +74,7 @@ pub(super) fn unwrap(
         ),
         _ => return Err(CoseError::UnsupportedAlgorithm),
     }
-    .map_err(|_| CoseError::KeyUnwrapFailed)?;
+    .map_err(crate::error::key_unwrap_error_from_crypto_error)?;
     if output.as_bytes().len() != expected {
         return Err(CoseError::InvalidRecipient);
     }

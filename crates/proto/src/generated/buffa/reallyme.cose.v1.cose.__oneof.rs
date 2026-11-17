@@ -663,6 +663,21 @@ pub mod cose_operation_request {
         ),
         SignCreate(::buffa::alloc::boxed::Box<super::super::super::CoseSignCreateRequest>),
         SignVerify(::buffa::alloc::boxed::Box<super::super::super::CoseSignVerifyRequest>),
+        CounterSignatureCreate(
+            ::buffa::alloc::boxed::Box<super::super::super::CoseCounterSignatureCreateRequest>,
+        ),
+        CounterSignatureVerify(
+            ::buffa::alloc::boxed::Box<super::super::super::CoseCounterSignatureVerifyRequest>,
+        ),
+        CounterSignature0Create(
+            ::buffa::alloc::boxed::Box<super::super::super::CoseCounterSignature0CreateRequest>,
+        ),
+        CounterSignature0Verify(
+            ::buffa::alloc::boxed::Box<super::super::super::CoseCounterSignature0VerifyRequest>,
+        ),
+        CounterSignatureAttach(
+            ::buffa::alloc::boxed::Box<super::super::super::CoseCounterSignatureAttachRequest>,
+        ),
         KeyFromPublicBytes(
             ::buffa::alloc::boxed::Box<super::super::super::CoseKeyFromPublicBytesRequest>,
         ),
@@ -752,6 +767,21 @@ pub mod cose_operation_request {
                 }
                 Self::SignCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::SignVerify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::CounterSignatureCreate(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
+                Self::CounterSignatureVerify(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
+                Self::CounterSignature0Create(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
+                Self::CounterSignature0Verify(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
+                Self::CounterSignatureAttach(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
                 Self::KeyFromPublicBytes(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -941,6 +971,66 @@ pub mod cose_operation_request {
         for ::core::option::Option<Operation>
     {
         fn from(v: super::super::super::CoseSignVerifyRequest) -> Self {
+            Self::Some(Operation::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseCounterSignatureCreateRequest> for Operation {
+        fn from(v: super::super::super::CoseCounterSignatureCreateRequest) -> Self {
+            Self::CounterSignatureCreate(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseCounterSignatureCreateRequest>
+        for ::core::option::Option<Operation>
+    {
+        fn from(v: super::super::super::CoseCounterSignatureCreateRequest) -> Self {
+            Self::Some(Operation::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseCounterSignatureVerifyRequest> for Operation {
+        fn from(v: super::super::super::CoseCounterSignatureVerifyRequest) -> Self {
+            Self::CounterSignatureVerify(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseCounterSignatureVerifyRequest>
+        for ::core::option::Option<Operation>
+    {
+        fn from(v: super::super::super::CoseCounterSignatureVerifyRequest) -> Self {
+            Self::Some(Operation::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseCounterSignature0CreateRequest> for Operation {
+        fn from(v: super::super::super::CoseCounterSignature0CreateRequest) -> Self {
+            Self::CounterSignature0Create(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseCounterSignature0CreateRequest>
+        for ::core::option::Option<Operation>
+    {
+        fn from(v: super::super::super::CoseCounterSignature0CreateRequest) -> Self {
+            Self::Some(Operation::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseCounterSignature0VerifyRequest> for Operation {
+        fn from(v: super::super::super::CoseCounterSignature0VerifyRequest) -> Self {
+            Self::CounterSignature0Verify(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseCounterSignature0VerifyRequest>
+        for ::core::option::Option<Operation>
+    {
+        fn from(v: super::super::super::CoseCounterSignature0VerifyRequest) -> Self {
+            Self::Some(Operation::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseCounterSignatureAttachRequest> for Operation {
+        fn from(v: super::super::super::CoseCounterSignatureAttachRequest) -> Self {
+            Self::CounterSignatureAttach(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseCounterSignatureAttachRequest>
+        for ::core::option::Option<Operation>
+    {
+        fn from(v: super::super::super::CoseCounterSignatureAttachRequest) -> Self {
             Self::Some(Operation::from(v))
         }
     }
@@ -1198,6 +1288,21 @@ pub mod cose_operation_request {
                 Self::SignVerify(v) => {
                     map.serialize_entry("signVerify", &**v)?;
                 }
+                Self::CounterSignatureCreate(v) => {
+                    map.serialize_entry("counterSignatureCreate", &**v)?;
+                }
+                Self::CounterSignatureVerify(v) => {
+                    map.serialize_entry("counterSignatureVerify", &**v)?;
+                }
+                Self::CounterSignature0Create(v) => {
+                    map.serialize_entry("counterSignature0Create", &**v)?;
+                }
+                Self::CounterSignature0Verify(v) => {
+                    map.serialize_entry("counterSignature0Verify", &**v)?;
+                }
+                Self::CounterSignatureAttach(v) => {
+                    map.serialize_entry("counterSignatureAttach", &**v)?;
+                }
                 Self::KeyFromPublicBytes(v) => {
                     map.serialize_entry("keyFromPublicBytes", &**v)?;
                 }
@@ -1377,6 +1482,21 @@ pub mod cose_operation_result {
         ),
         SignCreate(::buffa::alloc::boxed::Box<super::super::super::CoseMessageCreateResult>),
         SignVerify(::buffa::alloc::boxed::Box<super::super::super::CoseSignVerifyResult>),
+        CounterSignatureCreate(
+            ::buffa::alloc::boxed::Box<super::super::super::CoseMessageCreateResult>,
+        ),
+        CounterSignatureVerify(
+            ::buffa::alloc::boxed::Box<super::super::super::CoseCounterSignatureVerifyResult>,
+        ),
+        CounterSignature0Create(
+            ::buffa::alloc::boxed::Box<super::super::super::CoseMessageCreateResult>,
+        ),
+        CounterSignature0Verify(
+            ::buffa::alloc::boxed::Box<super::super::super::CoseCounterSignatureVerifyResult>,
+        ),
+        CounterSignatureAttach(
+            ::buffa::alloc::boxed::Box<super::super::super::CoseMessageCreateResult>,
+        ),
         KeyFromPublicBytes(::buffa::alloc::boxed::Box<super::super::super::CoseKeyBytesResult>),
         KeyFromPrivateBytes(::buffa::alloc::boxed::Box<super::super::super::CoseKeyBytesResult>),
         KeyParse(::buffa::alloc::boxed::Box<super::super::super::CoseKeyBytesResult>),
@@ -1452,6 +1572,21 @@ pub mod cose_operation_result {
                 }
                 Self::SignCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::SignVerify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::CounterSignatureCreate(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
+                Self::CounterSignatureVerify(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
+                Self::CounterSignature0Create(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
+                Self::CounterSignature0Verify(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
+                Self::CounterSignatureAttach(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
                 Self::KeyFromPublicBytes(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -1764,6 +1899,21 @@ pub mod cose_operation_result {
                 Self::SignVerify(v) => {
                     map.serialize_entry("signVerify", &**v)?;
                 }
+                Self::CounterSignatureCreate(v) => {
+                    map.serialize_entry("counterSignatureCreate", &**v)?;
+                }
+                Self::CounterSignatureVerify(v) => {
+                    map.serialize_entry("counterSignatureVerify", &**v)?;
+                }
+                Self::CounterSignature0Create(v) => {
+                    map.serialize_entry("counterSignature0Create", &**v)?;
+                }
+                Self::CounterSignature0Verify(v) => {
+                    map.serialize_entry("counterSignature0Verify", &**v)?;
+                }
+                Self::CounterSignatureAttach(v) => {
+                    map.serialize_entry("counterSignatureAttach", &**v)?;
+                }
                 Self::KeyFromPublicBytes(v) => {
                     map.serialize_entry("keyFromPublicBytes", &**v)?;
                 }
@@ -1952,6 +2102,188 @@ pub mod cose_key_set_entry {
                 }
                 Self::Rejected(v) => {
                     map.serialize_entry("rejected", v)?;
+                }
+            }
+            map.end()
+        }
+    }
+}
+pub mod cose_counter_signature_verify_request {
+    #[allow(unused_imports)]
+    use super::*;
+    #[derive(Clone, PartialEq)]
+    pub enum Signature {
+        Standalone(::buffa::alloc::boxed::Box<super::super::super::CoseCounterSignatureEncoded>),
+        HeaderIndex(u32),
+    }
+    impl ::core::fmt::Debug for Signature {
+        fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            f.write_str("Signature([REDACTED])")
+        }
+    }
+    impl ::buffa::sensitive::Zeroize for Signature {
+        fn zeroize(&mut self) {
+            match self {
+                Self::Standalone(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::HeaderIndex(value) => ::buffa::sensitive::Zeroize::zeroize(value),
+            }
+        }
+    }
+    impl ::buffa::sensitive::ZeroizeOnDrop for Signature {}
+    impl ::core::ops::Drop for Signature {
+        fn drop(&mut self) {
+            ::buffa::sensitive::Zeroize::zeroize(self);
+        }
+    }
+    impl ::buffa::Oneof for Signature {}
+    impl ::core::convert::From<super::super::super::CoseCounterSignatureEncoded> for Signature {
+        fn from(v: super::super::super::CoseCounterSignatureEncoded) -> Self {
+            Self::Standalone(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseCounterSignatureEncoded>
+        for ::core::option::Option<Signature>
+    {
+        fn from(v: super::super::super::CoseCounterSignatureEncoded) -> Self {
+            Self::Some(Signature::from(v))
+        }
+    }
+    impl ::serde::Serialize for Signature {
+        fn serialize<__S: ::serde::Serializer>(
+            &self,
+            s: __S,
+        ) -> ::core::result::Result<__S::Ok, __S::Error> {
+            use ::serde::ser::SerializeMap;
+            let mut map = s.serialize_map(Some(1))?;
+            match self {
+                Self::Standalone(v) => {
+                    map.serialize_entry("standalone", &**v)?;
+                }
+                Self::HeaderIndex(v) => {
+                    map.serialize_entry("headerIndex", &::buffa::json_helpers::ProtoJson(v))?;
+                }
+            }
+            map.end()
+        }
+    }
+}
+pub mod cose_counter_signature0verify_request {
+    #[allow(unused_imports)]
+    use super::*;
+    #[derive(Clone, PartialEq)]
+    pub enum Signature {
+        Standalone(crate::SecretBytes),
+        Header(
+            ::buffa::alloc::boxed::Box<super::super::super::CoseCounterSignatureHeaderSelection>,
+        ),
+    }
+    impl ::core::fmt::Debug for Signature {
+        fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            f.write_str("Signature([REDACTED])")
+        }
+    }
+    impl ::buffa::sensitive::Zeroize for Signature {
+        fn zeroize(&mut self) {
+            match self {
+                Self::Standalone(value) => ::buffa::sensitive::Zeroize::zeroize(value),
+                Self::Header(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+            }
+        }
+    }
+    impl ::buffa::sensitive::ZeroizeOnDrop for Signature {}
+    impl ::core::ops::Drop for Signature {
+        fn drop(&mut self) {
+            ::buffa::sensitive::Zeroize::zeroize(self);
+        }
+    }
+    impl ::buffa::Oneof for Signature {}
+    impl ::core::convert::From<super::super::super::CoseCounterSignatureHeaderSelection> for Signature {
+        fn from(v: super::super::super::CoseCounterSignatureHeaderSelection) -> Self {
+            Self::Header(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseCounterSignatureHeaderSelection>
+        for ::core::option::Option<Signature>
+    {
+        fn from(v: super::super::super::CoseCounterSignatureHeaderSelection) -> Self {
+            Self::Some(Signature::from(v))
+        }
+    }
+    impl ::serde::Serialize for Signature {
+        fn serialize<__S: ::serde::Serializer>(
+            &self,
+            s: __S,
+        ) -> ::core::result::Result<__S::Ok, __S::Error> {
+            use ::serde::ser::SerializeMap;
+            let mut map = s.serialize_map(Some(1))?;
+            match self {
+                Self::Standalone(v) => {
+                    map.serialize_entry(
+                        "standalone",
+                        &::buffa::json_helpers::BytesPolicyJson::<crate::SecretBytes>::new(
+                            ::core::convert::AsRef::<[u8]>::as_ref(v),
+                        ),
+                    )?;
+                }
+                Self::Header(v) => {
+                    map.serialize_entry("header", &**v)?;
+                }
+            }
+            map.end()
+        }
+    }
+}
+pub mod cose_counter_signature_attach_request {
+    #[allow(unused_imports)]
+    use super::*;
+    #[derive(Clone, PartialEq)]
+    pub enum Signature {
+        Full(crate::SecretBytes),
+        Abbreviated(crate::SecretBytes),
+    }
+    impl ::core::fmt::Debug for Signature {
+        fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            f.write_str("Signature([REDACTED])")
+        }
+    }
+    impl ::buffa::sensitive::Zeroize for Signature {
+        fn zeroize(&mut self) {
+            match self {
+                Self::Full(value) => ::buffa::sensitive::Zeroize::zeroize(value),
+                Self::Abbreviated(value) => ::buffa::sensitive::Zeroize::zeroize(value),
+            }
+        }
+    }
+    impl ::buffa::sensitive::ZeroizeOnDrop for Signature {}
+    impl ::core::ops::Drop for Signature {
+        fn drop(&mut self) {
+            ::buffa::sensitive::Zeroize::zeroize(self);
+        }
+    }
+    impl ::buffa::Oneof for Signature {}
+    impl ::serde::Serialize for Signature {
+        fn serialize<__S: ::serde::Serializer>(
+            &self,
+            s: __S,
+        ) -> ::core::result::Result<__S::Ok, __S::Error> {
+            use ::serde::ser::SerializeMap;
+            let mut map = s.serialize_map(Some(1))?;
+            match self {
+                Self::Full(v) => {
+                    map.serialize_entry(
+                        "full",
+                        &::buffa::json_helpers::BytesPolicyJson::<crate::SecretBytes>::new(
+                            ::core::convert::AsRef::<[u8]>::as_ref(v),
+                        ),
+                    )?;
+                }
+                Self::Abbreviated(v) => {
+                    map.serialize_entry(
+                        "abbreviated",
+                        &::buffa::json_helpers::BytesPolicyJson::<crate::SecretBytes>::new(
+                            ::core::convert::AsRef::<[u8]>::as_ref(v),
+                        ),
+                    )?;
                 }
             }
             map.end()

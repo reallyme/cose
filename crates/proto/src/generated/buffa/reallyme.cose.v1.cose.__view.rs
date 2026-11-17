@@ -18656,6 +18656,21 @@ impl<'a> ::buffa::sensitive::Zeroize for CoseOperationRequestView<'a> {
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseSignCreateRequestView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseSignVerifyRequestView<'a>>();
         __requires_view_wipe_owner::<
+            super::super::__buffa::view::CoseCounterSignatureCreateRequestView<'a>,
+        >();
+        __requires_view_wipe_owner::<
+            super::super::__buffa::view::CoseCounterSignatureVerifyRequestView<'a>,
+        >();
+        __requires_view_wipe_owner::<
+            super::super::__buffa::view::CoseCounterSignature0CreateRequestView<'a>,
+        >();
+        __requires_view_wipe_owner::<
+            super::super::__buffa::view::CoseCounterSignature0VerifyRequestView<'a>,
+        >();
+        __requires_view_wipe_owner::<
+            super::super::__buffa::view::CoseCounterSignatureAttachRequestView<'a>,
+        >();
+        __requires_view_wipe_owner::<
             super::super::__buffa::view::CoseKeyFromPublicBytesRequestView<'a>,
         >();
         __requires_view_wipe_owner::<
@@ -19288,6 +19303,161 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::SignVerify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSignVerifyRequestView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
+            1030u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureCreate(
+                        ref mut existing,
+                    ),
+                ) = view.operation
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.operation = Some(
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureCreate(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseCounterSignatureCreateRequestView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
+            1031u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureVerify(
+                        ref mut existing,
+                    ),
+                ) = view.operation
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.operation = Some(
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureVerify(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseCounterSignatureVerifyRequestView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
+            1032u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignature0Create(
+                        ref mut existing,
+                    ),
+                ) = view.operation
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.operation = Some(
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignature0Create(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseCounterSignature0CreateRequestView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
+            1033u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignature0Verify(
+                        ref mut existing,
+                    ),
+                ) = view.operation
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.operation = Some(
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignature0Verify(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseCounterSignature0VerifyRequestView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
+            1034u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureAttach(
+                        ref mut existing,
+                    ),
+                ) = view.operation
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.operation = Some(
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureAttach(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseCounterSignatureAttachRequestView as ::buffa::MessageView>::decode_view_ctx(
                                     sub,
                                     __sub_ctx,
                                 )?,
@@ -20289,6 +20459,51 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                                 ),
                             )
                         }
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureCreate(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_request::Operation::CounterSignatureCreate(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureVerify(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_request::Operation::CounterSignatureVerify(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignature0Create(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_request::Operation::CounterSignature0Create(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignature0Verify(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_request::Operation::CounterSignature0Verify(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureAttach(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_request::Operation::CounterSignatureAttach(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyFromPublicBytes(
                             v,
                         ) => {
@@ -20710,6 +20925,56 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseOperationRequestView<'a> {
                             + inner as u64;
                 }
                 super::super::__buffa::view::oneof::cose_operation_request::Operation::SignVerify(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 2u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureCreate(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 2u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureVerify(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 2u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignature0Create(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 2u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignature0Verify(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 2u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureAttach(
                     x,
                 ) => {
                     let __slot = __cache.reserve();
@@ -21164,6 +21429,56 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseOperationRequestView<'a> {
                 ) => {
                     ::buffa::types::put_len_delimited_header(
                         1021u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureCreate(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        1030u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureVerify(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        1031u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignature0Create(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        1032u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignature0Verify(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        1033u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureAttach(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        1034u32,
                         u64::from(__cache.consume_next()),
                         buf,
                     );
@@ -21988,6 +22303,18 @@ impl<'a> ::buffa::sensitive::Zeroize for CoseOperationResultView<'a> {
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseMessageCreateResultView<'a>>(
         );
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseSignVerifyResultView<'a>>();
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseMessageCreateResultView<'a>>(
+        );
+        __requires_view_wipe_owner::<
+            super::super::__buffa::view::CoseCounterSignatureVerifyResultView<'a>,
+        >();
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseMessageCreateResultView<'a>>(
+        );
+        __requires_view_wipe_owner::<
+            super::super::__buffa::view::CoseCounterSignatureVerifyResultView<'a>,
+        >();
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseMessageCreateResultView<'a>>(
+        );
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseKeyBytesResultView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseKeyBytesResultView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseKeyBytesResultView<'a>>();
@@ -22590,6 +22917,161 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         super::super::__buffa::view::oneof::cose_operation_result::Result::SignVerify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSignVerifyResultView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
+            1030u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureCreate(
+                        ref mut existing,
+                    ),
+                ) = view.result
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.result = Some(
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureCreate(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseMessageCreateResultView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
+            1031u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureVerify(
+                        ref mut existing,
+                    ),
+                ) = view.result
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.result = Some(
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureVerify(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseCounterSignatureVerifyResultView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
+            1032u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignature0Create(
+                        ref mut existing,
+                    ),
+                ) = view.result
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.result = Some(
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignature0Create(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseMessageCreateResultView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
+            1033u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignature0Verify(
+                        ref mut existing,
+                    ),
+                ) = view.result
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.result = Some(
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignature0Verify(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseCounterSignatureVerifyResultView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
+            1034u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureAttach(
+                        ref mut existing,
+                    ),
+                ) = view.result
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.result = Some(
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureAttach(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseMessageCreateResultView as ::buffa::MessageView>::decode_view_ctx(
                                     sub,
                                     __sub_ctx,
                                 )?,
@@ -23567,6 +24049,51 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                                 ),
                             )
                         }
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureCreate(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_result::Result::CounterSignatureCreate(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureVerify(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_result::Result::CounterSignatureVerify(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignature0Create(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_result::Result::CounterSignature0Create(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignature0Verify(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_result::Result::CounterSignature0Verify(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureAttach(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_result::Result::CounterSignatureAttach(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
                         super::super::__buffa::view::oneof::cose_operation_result::Result::KeyFromPublicBytes(
                             v,
                         ) => {
@@ -23988,6 +24515,56 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseOperationResultView<'a> {
                             + inner as u64;
                 }
                 super::super::__buffa::view::oneof::cose_operation_result::Result::SignVerify(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 2u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureCreate(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 2u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureVerify(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 2u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignature0Create(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 2u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignature0Verify(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 2u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureAttach(
                     x,
                 ) => {
                     let __slot = __cache.reserve();
@@ -24442,6 +25019,56 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseOperationResultView<'a> {
                 ) => {
                     ::buffa::types::put_len_delimited_header(
                         1021u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureCreate(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        1030u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureVerify(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        1031u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignature0Create(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        1032u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignature0Verify(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        1033u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureAttach(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        1034u32,
                         u64::from(__cache.consume_next()),
                         buf,
                     );
@@ -33286,6 +33913,3575 @@ impl ::buffa::HasMessageView for super::super::CoseMessageCreateResult {
     type ViewHandle = CoseMessageCreateResultOwnedView;
 }
 impl ::serde::Serialize for CoseMessageCreateResultOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+/// Cryptographic fields must already be finalized. Counter verification does
+/// not verify the target's primary cryptography or its trust/identity policy.
+/// For a nested signature/recipient, pass that exact encoded substructure.
+#[derive(Clone, Default)]
+pub struct CoseCounterSignatureTargetView<'a> {
+    /// SENSITIVE: bounded complete target, including exact protected bytes.
+    ///
+    /// Field 1: `encoded`
+    pub encoded: &'a [u8],
+    /// Field 2: `kind`
+    pub kind: ::buffa::EnumValue<super::super::CoseCounterSignatureTargetKind>,
+    /// Field 3: `envelope`
+    pub envelope: ::buffa::EnumValue<super::super::CoseEnvelopePolicy>,
+    /// SENSITIVE: presence requires a nil payload/ciphertext slot; absence bstr.
+    /// SIGNATURE/COUNTERSIGNATURE/RECIPIENT always require an attached bstr.
+    ///
+    /// Field 4: `detached_content`
+    pub detached_content: ::core::option::Option<&'a [u8]>,
+}
+impl<'a> ::core::fmt::Debug for CoseCounterSignatureTargetView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseCounterSignatureTargetView")
+            .field("encoded", &::core::format_args!("[REDACTED]"))
+            .field("kind", &::core::format_args!("[REDACTED]"))
+            .field("envelope", &::core::format_args!("[REDACTED]"))
+            .field("detached_content", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseCounterSignatureTargetView<'a> {
+    fn zeroize(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.kind);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.envelope);
+    }
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseCounterSignatureTargetView<'a> {}
+impl<'a> ::core::ops::Drop for CoseCounterSignatureTargetView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureTargetView<'a> {
+    type Owned = super::super::CoseCounterSignatureTarget;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.encoded = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                view.kind = ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?);
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                view.envelope = ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?);
+            }
+            4u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.detached_content = Some(::buffa::types::borrow_bytes(&mut cur)?);
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<super::super::CoseCounterSignatureTarget, ::buffa::DecodeError>
+    {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<super::super::CoseCounterSignatureTarget, ::buffa::DecodeError>
+    {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let mut __owned =
+            <super::super::CoseCounterSignatureTarget as ::core::default::Default>::default();
+        __owned.encoded = ::core::convert::Into::into((self.encoded).to_vec());
+        __owned.kind = self.kind;
+        __owned.envelope = self.envelope;
+        __owned.detached_content = self
+            .detached_content
+            .map(|b| ::core::convert::Into::into((b).to_vec()));
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseCounterSignatureTargetView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, _cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if !self.encoded.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.encoded) as u64;
+        }
+        {
+            let val = self.kind.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        {
+            let val = self.envelope.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        if let Some(ref v) = self.detached_content {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
+        }
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, _cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if !self.encoded.is_empty() {
+            ::buffa::types::put_shared_bytes_field(1u32, &self.encoded, buf);
+        }
+        {
+            let val = self.kind.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(2u32, val, buf);
+            }
+        }
+        {
+            let val = self.envelope.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(3u32, val, buf);
+            }
+        }
+        if let Some(ref v) = self.detached_content {
+            ::buffa::types::put_shared_bytes_field(4u32, v, buf);
+        }
+    }
+}
+impl<'__a> ::serde::Serialize for CoseCounterSignatureTargetView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseCounterSignatureTargetView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseCounterSignatureTarget";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseCounterSignatureTarget";
+    const TYPE_URL: &'static str =
+        "type.googleapis.com/reallyme.cose.v1.CoseCounterSignatureTarget";
+}
+::buffa::impl_default_view_instance!(CoseCounterSignatureTargetView);
+::buffa::impl_view_reborrow!(CoseCounterSignatureTargetView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignatureTargetView);
+/** Self-contained, `'static` owned view of a `CoseCounterSignatureTarget` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignatureTargetView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignatureTargetView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseCounterSignatureTargetOwnedView(
+    ::buffa::OwnedView<CoseCounterSignatureTargetView<'static>>,
+);
+impl CoseCounterSignatureTargetOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureTargetOwnedView(
+            ::buffa::OwnedView::decode(bytes)?,
+        ))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureTargetOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseCounterSignatureTarget,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureTargetOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseCounterSignatureTargetView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseCounterSignatureTargetView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseCounterSignatureTarget {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+    /// SENSITIVE: bounded complete target, including exact protected bytes.
+    ///
+    /// Field 1: `encoded`
+    #[must_use]
+    pub fn encoded(&self) -> &'_ [u8] {
+        self.0.reborrow().encoded
+    }
+    /// Field 2: `kind`
+    #[must_use]
+    pub fn kind(&self) -> ::buffa::EnumValue<super::super::CoseCounterSignatureTargetKind> {
+        self.0.reborrow().kind
+    }
+    /// Field 3: `envelope`
+    #[must_use]
+    pub fn envelope(&self) -> ::buffa::EnumValue<super::super::CoseEnvelopePolicy> {
+        self.0.reborrow().envelope
+    }
+    /// SENSITIVE: presence requires a nil payload/ciphertext slot; absence bstr.
+    /// SIGNATURE/COUNTERSIGNATURE/RECIPIENT always require an attached bstr.
+    ///
+    /// Field 4: `detached_content`
+    #[must_use]
+    pub fn detached_content(&self) -> ::core::option::Option<&'_ [u8]> {
+        self.0.reborrow().detached_content
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignatureTargetView<'static>>>
+    for CoseCounterSignatureTargetOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseCounterSignatureTargetView<'static>>) -> Self {
+        CoseCounterSignatureTargetOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseCounterSignatureTargetOwnedView>
+    for ::buffa::OwnedView<CoseCounterSignatureTargetView<'static>>
+{
+    fn from(wrapper: CoseCounterSignatureTargetOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignatureTargetView<'static>>>
+    for CoseCounterSignatureTargetOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignatureTargetView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseCounterSignatureTarget {
+    type View<'a> = CoseCounterSignatureTargetView<'a>;
+    type ViewHandle = CoseCounterSignatureTargetOwnedView;
+}
+impl ::serde::Serialize for CoseCounterSignatureTargetOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+/// RFC 9338 full V2 counter, optionally tagged 19. The implementation extracts
+/// other_fields from the target and selects CounterSignature or CounterSignatureV2.
+#[derive(Clone, Default)]
+pub struct CoseCounterSignatureCreateRequestView<'a> {
+    /// Field 1: `target`
+    pub target:
+        ::buffa::MessageFieldView<super::super::__buffa::view::CoseCounterSignatureTargetView<'a>>,
+    /// Field 2: `signer`
+    pub signer: ::buffa::MessageFieldView<super::super::__buffa::view::CoseSignSignerView<'a>>,
+    /// Field 3: `allowed_suites`
+    pub allowed_suites: ::buffa::sensitive::RepeatedView<
+        'a,
+        super::super::__buffa::view::CoseSignatureSuiteView<'a>,
+    >,
+    /// SENSITIVE: explicit counter AAD, distinct from primary AAD.
+    ///
+    /// Field 4: `external_aad`
+    pub external_aad: &'a [u8],
+    /// Field 5: `tagged`
+    pub tagged: bool,
+}
+impl<'a> ::core::fmt::Debug for CoseCounterSignatureCreateRequestView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseCounterSignatureCreateRequestView")
+            .field("target", &::core::format_args!("[REDACTED]"))
+            .field("signer", &::core::format_args!("[REDACTED]"))
+            .field("allowed_suites", &::core::format_args!("[REDACTED]"))
+            .field("external_aad", &::core::format_args!("[REDACTED]"))
+            .field("tagged", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseCounterSignatureCreateRequestView<'a> {
+    fn zeroize(&mut self) {
+        fn __requires_view_wipe_owner<
+            T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop,
+        >() {
+        }
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseCounterSignatureTargetView<'a>>(
+        );
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseSignSignerView<'a>>();
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseSignatureSuiteView<'a>>();
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.target);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.signer);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.allowed_suites);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.tagged);
+    }
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseCounterSignatureCreateRequestView<'a> {}
+impl<'a> ::core::ops::Drop for CoseCounterSignatureCreateRequestView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureCreateRequestView<'a> {
+    type Owned = super::super::CoseCounterSignatureCreateRequest;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                match view.target.as_mut() {
+                    Some(existing) => {
+                        ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
+                    }
+                    None => {
+                        view.target = ::buffa::MessageFieldView::set(
+                            <super::super::__buffa::view::CoseCounterSignatureTargetView as ::buffa::MessageView>::decode_view_ctx(
+                                sub,
+                                __sub_ctx,
+                            )?,
+                        );
+                    }
+                }
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                match view.signer.as_mut() {
+                    Some(existing) => {
+                        ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
+                    }
+                    None => {
+                        view.signer = ::buffa::MessageFieldView::set(
+                            <super::super::__buffa::view::CoseSignSignerView as ::buffa::MessageView>::decode_view_ctx(
+                                sub,
+                                __sub_ctx,
+                            )?,
+                        );
+                    }
+                }
+            }
+            4u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.external_aad = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            5u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                view.tagged = ::buffa::types::decode_bool(&mut cur)?;
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                ctx.register_element_memory(::core::mem::size_of::<
+                    super::super::__buffa::view::CoseSignatureSuiteView,
+                >())?;
+                view.allowed_suites
+                    .push(
+                        <super::super::__buffa::view::CoseSignatureSuiteView as ::buffa::MessageView>::decode_view_ctx(
+                            sub,
+                            __sub_ctx,
+                        )?,
+                    );
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<super::super::CoseCounterSignatureCreateRequest, ::buffa::DecodeError>
+    {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<super::super::CoseCounterSignatureCreateRequest, ::buffa::DecodeError>
+    {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let mut __owned =
+            <super::super::CoseCounterSignatureCreateRequest as ::core::default::Default>::default(
+            );
+        __owned.target = match self.target.as_option() {
+            Some(v) => ::buffa::MessageField::<
+                super::super::CoseCounterSignatureTarget,
+                ::buffa::Inline<super::super::CoseCounterSignatureTarget>,
+            >::some(v.to_owned_from_source(__buffa_src)?),
+            None => ::buffa::MessageField::none(),
+        };
+        __owned.signer = match self.signer.as_option() {
+            Some(v) => ::buffa::MessageField::<
+                super::super::CoseSignSigner,
+                ::buffa::Inline<super::super::CoseSignSigner>,
+            >::some(v.to_owned_from_source(__buffa_src)?),
+            None => ::buffa::MessageField::none(),
+        };
+        __owned.allowed_suites = self
+            .allowed_suites
+            .iter()
+            .map(|v| v.to_owned_from_source(__buffa_src))
+            .collect::<::core::result::Result<_, ::buffa::DecodeError>>()?;
+        __owned.external_aad = ::core::convert::Into::into((self.external_aad).to_vec());
+        __owned.tagged = self.tagged;
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseCounterSignatureCreateRequestView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if let ::core::option::Option::Some(__v) = self.target.as_option() {
+            let __slot = __cache.reserve();
+            let inner_size = __v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        if let ::core::option::Option::Some(__v) = self.signer.as_option() {
+            let __slot = __cache.reserve();
+            let inner_size = __v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        for v in &self.allowed_suites {
+            let __slot = __cache.reserve();
+            let inner_size = v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        if !self.external_aad.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.external_aad) as u64;
+        }
+        if self.tagged {
+            size += 1u64 + ::buffa::types::BOOL_ENCODED_LEN as u64;
+        }
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, __cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if let ::core::option::Option::Some(__v) = self.target.as_option() {
+            ::buffa::types::put_len_delimited_header(1u32, u64::from(__cache.consume_next()), buf);
+            __v.write_to(__cache, buf);
+        }
+        if let ::core::option::Option::Some(__v) = self.signer.as_option() {
+            ::buffa::types::put_len_delimited_header(2u32, u64::from(__cache.consume_next()), buf);
+            __v.write_to(__cache, buf);
+        }
+        for v in &self.allowed_suites {
+            ::buffa::types::put_len_delimited_header(3u32, u64::from(__cache.consume_next()), buf);
+            v.write_to(__cache, buf);
+        }
+        if !self.external_aad.is_empty() {
+            ::buffa::types::put_shared_bytes_field(4u32, &self.external_aad, buf);
+        }
+        if self.tagged {
+            ::buffa::types::put_bool_field(5u32, self.tagged, buf);
+        }
+    }
+}
+impl<'__a> ::serde::Serialize for CoseCounterSignatureCreateRequestView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseCounterSignatureCreateRequestView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseCounterSignatureCreateRequest";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseCounterSignatureCreateRequest";
+    const TYPE_URL: &'static str =
+        "type.googleapis.com/reallyme.cose.v1.CoseCounterSignatureCreateRequest";
+}
+::buffa::impl_default_view_instance!(CoseCounterSignatureCreateRequestView);
+::buffa::impl_view_reborrow!(CoseCounterSignatureCreateRequestView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignatureCreateRequestView);
+/** Self-contained, `'static` owned view of a `CoseCounterSignatureCreateRequest` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignatureCreateRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignatureCreateRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseCounterSignatureCreateRequestOwnedView(
+    ::buffa::OwnedView<CoseCounterSignatureCreateRequestView<'static>>,
+);
+impl CoseCounterSignatureCreateRequestOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureCreateRequestOwnedView(
+            ::buffa::OwnedView::decode(bytes)?,
+        ))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureCreateRequestOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseCounterSignatureCreateRequest,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureCreateRequestOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseCounterSignatureCreateRequestView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseCounterSignatureCreateRequestView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseCounterSignatureCreateRequest {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+    /// Field 1: `target`
+    #[must_use]
+    pub fn target(
+        &self,
+    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseCounterSignatureTargetView<'_>>
+    {
+        &self.0.reborrow().target
+    }
+    /// Field 2: `signer`
+    #[must_use]
+    pub fn signer(
+        &self,
+    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignSignerView<'_>> {
+        &self.0.reborrow().signer
+    }
+    /// Field 3: `allowed_suites`
+    #[must_use]
+    pub fn allowed_suites(
+        &self,
+    ) -> &::buffa::sensitive::RepeatedView<
+        '_,
+        super::super::__buffa::view::CoseSignatureSuiteView<'_>,
+    > {
+        &self.0.reborrow().allowed_suites
+    }
+    /// SENSITIVE: explicit counter AAD, distinct from primary AAD.
+    ///
+    /// Field 4: `external_aad`
+    #[must_use]
+    pub fn external_aad(&self) -> &'_ [u8] {
+        self.0.reborrow().external_aad
+    }
+    /// Field 5: `tagged`
+    #[must_use]
+    pub fn tagged(&self) -> bool {
+        self.0.reborrow().tagged
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignatureCreateRequestView<'static>>>
+    for CoseCounterSignatureCreateRequestOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseCounterSignatureCreateRequestView<'static>>) -> Self {
+        CoseCounterSignatureCreateRequestOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseCounterSignatureCreateRequestOwnedView>
+    for ::buffa::OwnedView<CoseCounterSignatureCreateRequestView<'static>>
+{
+    fn from(wrapper: CoseCounterSignatureCreateRequestOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignatureCreateRequestView<'static>>>
+    for CoseCounterSignatureCreateRequestOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignatureCreateRequestView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseCounterSignatureCreateRequest {
+    type View<'a> = CoseCounterSignatureCreateRequestView<'a>;
+    type ViewHandle = CoseCounterSignatureCreateRequestOwnedView;
+}
+impl ::serde::Serialize for CoseCounterSignatureCreateRequestOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+#[derive(Clone, Default)]
+pub struct CoseCounterSignatureEncodedView<'a> {
+    /// SENSITIVE: standalone full counter structure, optionally tagged 19.
+    ///
+    /// Field 1: `encoded`
+    pub encoded: &'a [u8],
+    /// Field 2: `envelope`
+    pub envelope: ::buffa::EnumValue<super::super::CoseEnvelopePolicy>,
+}
+impl<'a> ::core::fmt::Debug for CoseCounterSignatureEncodedView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseCounterSignatureEncodedView")
+            .field("encoded", &::core::format_args!("[REDACTED]"))
+            .field("envelope", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseCounterSignatureEncodedView<'a> {
+    fn zeroize(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.envelope);
+    }
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseCounterSignatureEncodedView<'a> {}
+impl<'a> ::core::ops::Drop for CoseCounterSignatureEncodedView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureEncodedView<'a> {
+    type Owned = super::super::CoseCounterSignatureEncoded;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.encoded = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                view.envelope = ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?);
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<super::super::CoseCounterSignatureEncoded, ::buffa::DecodeError>
+    {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<super::super::CoseCounterSignatureEncoded, ::buffa::DecodeError>
+    {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let mut __owned =
+            <super::super::CoseCounterSignatureEncoded as ::core::default::Default>::default();
+        __owned.encoded = ::core::convert::Into::into((self.encoded).to_vec());
+        __owned.envelope = self.envelope;
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseCounterSignatureEncodedView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, _cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if !self.encoded.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.encoded) as u64;
+        }
+        {
+            let val = self.envelope.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, _cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if !self.encoded.is_empty() {
+            ::buffa::types::put_shared_bytes_field(1u32, &self.encoded, buf);
+        }
+        {
+            let val = self.envelope.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(2u32, val, buf);
+            }
+        }
+    }
+}
+impl<'__a> ::serde::Serialize for CoseCounterSignatureEncodedView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseCounterSignatureEncodedView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseCounterSignatureEncoded";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseCounterSignatureEncoded";
+    const TYPE_URL: &'static str =
+        "type.googleapis.com/reallyme.cose.v1.CoseCounterSignatureEncoded";
+}
+::buffa::impl_default_view_instance!(CoseCounterSignatureEncodedView);
+::buffa::impl_view_reborrow!(CoseCounterSignatureEncodedView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignatureEncodedView);
+/** Self-contained, `'static` owned view of a `CoseCounterSignatureEncoded` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignatureEncodedView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignatureEncodedView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseCounterSignatureEncodedOwnedView(
+    ::buffa::OwnedView<CoseCounterSignatureEncodedView<'static>>,
+);
+impl CoseCounterSignatureEncodedOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureEncodedOwnedView(
+            ::buffa::OwnedView::decode(bytes)?,
+        ))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureEncodedOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseCounterSignatureEncoded,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureEncodedOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseCounterSignatureEncodedView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseCounterSignatureEncodedView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseCounterSignatureEncoded {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+    /// SENSITIVE: standalone full counter structure, optionally tagged 19.
+    ///
+    /// Field 1: `encoded`
+    #[must_use]
+    pub fn encoded(&self) -> &'_ [u8] {
+        self.0.reborrow().encoded
+    }
+    /// Field 2: `envelope`
+    #[must_use]
+    pub fn envelope(&self) -> ::buffa::EnumValue<super::super::CoseEnvelopePolicy> {
+        self.0.reborrow().envelope
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignatureEncodedView<'static>>>
+    for CoseCounterSignatureEncodedOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseCounterSignatureEncodedView<'static>>) -> Self {
+        CoseCounterSignatureEncodedOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseCounterSignatureEncodedOwnedView>
+    for ::buffa::OwnedView<CoseCounterSignatureEncodedView<'static>>
+{
+    fn from(wrapper: CoseCounterSignatureEncodedOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignatureEncodedView<'static>>>
+    for CoseCounterSignatureEncodedOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignatureEncodedView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseCounterSignatureEncoded {
+    type View<'a> = CoseCounterSignatureEncodedView<'a>;
+    type ViewHandle = CoseCounterSignatureEncodedOwnedView;
+}
+impl ::serde::Serialize for CoseCounterSignatureEncodedOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+#[derive(Clone, Default)]
+pub struct CoseCounterSignatureVerifyRequestView<'a> {
+    /// Field 1: `target`
+    pub target:
+        ::buffa::MessageFieldView<super::super::__buffa::view::CoseCounterSignatureTargetView<'a>>,
+    /// signature_index matches header_index, or is zero for standalone counters.
+    ///
+    /// Field 2: `key`
+    pub key: ::buffa::MessageFieldView<super::super::__buffa::view::CoseSignKeyBindingView<'a>>,
+    /// Field 3: `allowed_suites`
+    pub allowed_suites: ::buffa::sensitive::RepeatedView<
+        'a,
+        super::super::__buffa::view::CoseSignatureSuiteView<'a>,
+    >,
+    /// SENSITIVE: explicit counter AAD.
+    ///
+    /// Field 4: `external_aad`
+    pub external_aad: &'a [u8],
+    pub signature: ::core::option::Option<
+        super::super::__buffa::view::oneof::cose_counter_signature_verify_request::Signature<'a>,
+    >,
+}
+impl<'a> ::core::fmt::Debug for CoseCounterSignatureVerifyRequestView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseCounterSignatureVerifyRequestView")
+            .field("target", &::core::format_args!("[REDACTED]"))
+            .field("key", &::core::format_args!("[REDACTED]"))
+            .field("allowed_suites", &::core::format_args!("[REDACTED]"))
+            .field("external_aad", &::core::format_args!("[REDACTED]"))
+            .field("signature", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseCounterSignatureVerifyRequestView<'a> {
+    fn zeroize(&mut self) {
+        fn __requires_view_wipe_owner<
+            T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop,
+        >() {
+        }
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseCounterSignatureTargetView<'a>>(
+        );
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseSignKeyBindingView<'a>>();
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseSignatureSuiteView<'a>>();
+        __requires_view_wipe_owner::<
+            super::super::__buffa::view::CoseCounterSignatureEncodedView<'a>,
+        >();
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.target);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.key);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.allowed_suites);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.signature);
+    }
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseCounterSignatureVerifyRequestView<'a> {}
+impl<'a> ::core::ops::Drop for CoseCounterSignatureVerifyRequestView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureVerifyRequestView<'a> {
+    type Owned = super::super::CoseCounterSignatureVerifyRequest;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                match view.target.as_mut() {
+                    Some(existing) => {
+                        ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
+                    }
+                    None => {
+                        view.target = ::buffa::MessageFieldView::set(
+                            <super::super::__buffa::view::CoseCounterSignatureTargetView as ::buffa::MessageView>::decode_view_ctx(
+                                sub,
+                                __sub_ctx,
+                            )?,
+                        );
+                    }
+                }
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                match view.key.as_mut() {
+                    Some(existing) => {
+                        ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
+                    }
+                    None => {
+                        view.key = ::buffa::MessageFieldView::set(
+                            <super::super::__buffa::view::CoseSignKeyBindingView as ::buffa::MessageView>::decode_view_ctx(
+                                sub,
+                                __sub_ctx,
+                            )?,
+                        );
+                    }
+                }
+            }
+            4u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.external_aad = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                ctx.register_element_memory(::core::mem::size_of::<
+                    super::super::__buffa::view::CoseSignatureSuiteView,
+                >())?;
+                view.allowed_suites
+                    .push(
+                        <super::super::__buffa::view::CoseSignatureSuiteView as ::buffa::MessageView>::decode_view_ctx(
+                            sub,
+                            __sub_ctx,
+                        )?,
+                    );
+            }
+            5u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_counter_signature_verify_request::Signature::Standalone(
+                        ref mut existing,
+                    ),
+                ) = view.signature
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.signature = Some(
+                        super::super::__buffa::view::oneof::cose_counter_signature_verify_request::Signature::Standalone(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseCounterSignatureEncodedView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
+            6u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                view.signature = Some(
+                    super::super::__buffa::view::oneof::cose_counter_signature_verify_request::Signature::HeaderIndex(
+                        ::buffa::types::decode_uint32(&mut cur)?,
+                    ),
+                );
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<super::super::CoseCounterSignatureVerifyRequest, ::buffa::DecodeError>
+    {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<super::super::CoseCounterSignatureVerifyRequest, ::buffa::DecodeError>
+    {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let mut __owned =
+            <super::super::CoseCounterSignatureVerifyRequest as ::core::default::Default>::default(
+            );
+        __owned.target = match self.target.as_option() {
+            Some(v) => ::buffa::MessageField::<
+                super::super::CoseCounterSignatureTarget,
+                ::buffa::Inline<super::super::CoseCounterSignatureTarget>,
+            >::some(v.to_owned_from_source(__buffa_src)?),
+            None => ::buffa::MessageField::none(),
+        };
+        __owned.key = match self.key.as_option() {
+            Some(v) => ::buffa::MessageField::<
+                super::super::CoseSignKeyBinding,
+                ::buffa::Inline<super::super::CoseSignKeyBinding>,
+            >::some(v.to_owned_from_source(__buffa_src)?),
+            None => ::buffa::MessageField::none(),
+        };
+        __owned.allowed_suites = self
+            .allowed_suites
+            .iter()
+            .map(|v| v.to_owned_from_source(__buffa_src))
+            .collect::<::core::result::Result<_, ::buffa::DecodeError>>()?;
+        __owned.external_aad = ::core::convert::Into::into((self.external_aad).to_vec());
+        __owned.signature = match self.signature.as_ref() {
+            ::core::option::Option::Some(v) => {
+                ::core::option::Option::Some(
+                    match v {
+                        super::super::__buffa::view::oneof::cose_counter_signature_verify_request::Signature::Standalone(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_counter_signature_verify_request::Signature::Standalone(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
+                        super::super::__buffa::view::oneof::cose_counter_signature_verify_request::Signature::HeaderIndex(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_counter_signature_verify_request::Signature::HeaderIndex(
+                                *v,
+                            )
+                        }
+                    },
+                )
+            }
+            ::core::option::Option::None => ::core::option::Option::None,
+        };
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseCounterSignatureVerifyRequestView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if let ::core::option::Option::Some(__v) = self.target.as_option() {
+            let __slot = __cache.reserve();
+            let inner_size = __v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        if let ::core::option::Option::Some(__v) = self.key.as_option() {
+            let __slot = __cache.reserve();
+            let inner_size = __v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        for v in &self.allowed_suites {
+            let __slot = __cache.reserve();
+            let inner_size = v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        if !self.external_aad.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.external_aad) as u64;
+        }
+        if let ::core::option::Option::Some(ref v) = self.signature {
+            match v {
+                super::super::__buffa::view::oneof::cose_counter_signature_verify_request::Signature::Standalone(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 1u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_counter_signature_verify_request::Signature::HeaderIndex(
+                    v,
+                ) => {
+                    size += 1u64 + ::buffa::types::uint32_encoded_len(*v) as u64;
+                }
+            }
+        }
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, __cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if let ::core::option::Option::Some(__v) = self.target.as_option() {
+            ::buffa::types::put_len_delimited_header(1u32, u64::from(__cache.consume_next()), buf);
+            __v.write_to(__cache, buf);
+        }
+        if let ::core::option::Option::Some(__v) = self.key.as_option() {
+            ::buffa::types::put_len_delimited_header(2u32, u64::from(__cache.consume_next()), buf);
+            __v.write_to(__cache, buf);
+        }
+        for v in &self.allowed_suites {
+            ::buffa::types::put_len_delimited_header(3u32, u64::from(__cache.consume_next()), buf);
+            v.write_to(__cache, buf);
+        }
+        if !self.external_aad.is_empty() {
+            ::buffa::types::put_shared_bytes_field(4u32, &self.external_aad, buf);
+        }
+        if let ::core::option::Option::Some(ref v) = self.signature {
+            match v {
+                super::super::__buffa::view::oneof::cose_counter_signature_verify_request::Signature::Standalone(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        5u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_counter_signature_verify_request::Signature::HeaderIndex(
+                    x,
+                ) => {
+                    ::buffa::types::put_uint32_field(6u32, *x, buf);
+                }
+            }
+        }
+    }
+}
+impl<'__a> ::serde::Serialize for CoseCounterSignatureVerifyRequestView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseCounterSignatureVerifyRequestView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseCounterSignatureVerifyRequest";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseCounterSignatureVerifyRequest";
+    const TYPE_URL: &'static str =
+        "type.googleapis.com/reallyme.cose.v1.CoseCounterSignatureVerifyRequest";
+}
+::buffa::impl_default_view_instance!(CoseCounterSignatureVerifyRequestView);
+::buffa::impl_view_reborrow!(CoseCounterSignatureVerifyRequestView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignatureVerifyRequestView);
+/** Self-contained, `'static` owned view of a `CoseCounterSignatureVerifyRequest` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignatureVerifyRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignatureVerifyRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseCounterSignatureVerifyRequestOwnedView(
+    ::buffa::OwnedView<CoseCounterSignatureVerifyRequestView<'static>>,
+);
+impl CoseCounterSignatureVerifyRequestOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureVerifyRequestOwnedView(
+            ::buffa::OwnedView::decode(bytes)?,
+        ))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureVerifyRequestOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseCounterSignatureVerifyRequest,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureVerifyRequestOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseCounterSignatureVerifyRequestView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseCounterSignatureVerifyRequestView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseCounterSignatureVerifyRequest {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+    /// Field 1: `target`
+    #[must_use]
+    pub fn target(
+        &self,
+    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseCounterSignatureTargetView<'_>>
+    {
+        &self.0.reborrow().target
+    }
+    /// signature_index matches header_index, or is zero for standalone counters.
+    ///
+    /// Field 2: `key`
+    #[must_use]
+    pub fn key(
+        &self,
+    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignKeyBindingView<'_>> {
+        &self.0.reborrow().key
+    }
+    /// Field 3: `allowed_suites`
+    #[must_use]
+    pub fn allowed_suites(
+        &self,
+    ) -> &::buffa::sensitive::RepeatedView<
+        '_,
+        super::super::__buffa::view::CoseSignatureSuiteView<'_>,
+    > {
+        &self.0.reborrow().allowed_suites
+    }
+    /// SENSITIVE: explicit counter AAD.
+    ///
+    /// Field 4: `external_aad`
+    #[must_use]
+    pub fn external_aad(&self) -> &'_ [u8] {
+        self.0.reborrow().external_aad
+    }
+    /// Oneof `signature`.
+    #[must_use]
+    pub fn signature(
+        &self,
+    ) -> ::core::option::Option<
+        &super::super::__buffa::view::oneof::cose_counter_signature_verify_request::Signature<'_>,
+    > {
+        self.0.reborrow().signature.as_ref()
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignatureVerifyRequestView<'static>>>
+    for CoseCounterSignatureVerifyRequestOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseCounterSignatureVerifyRequestView<'static>>) -> Self {
+        CoseCounterSignatureVerifyRequestOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseCounterSignatureVerifyRequestOwnedView>
+    for ::buffa::OwnedView<CoseCounterSignatureVerifyRequestView<'static>>
+{
+    fn from(wrapper: CoseCounterSignatureVerifyRequestOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignatureVerifyRequestView<'static>>>
+    for CoseCounterSignatureVerifyRequestOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignatureVerifyRequestView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseCounterSignatureVerifyRequest {
+    type View<'a> = CoseCounterSignatureVerifyRequestView<'a>;
+    type ViewHandle = CoseCounterSignatureVerifyRequestOwnedView;
+}
+impl ::serde::Serialize for CoseCounterSignatureVerifyRequestOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+/// RFC 9338 abbreviated V2 counter. Algorithm, curve and key come only from
+/// caller context; no headers are silently borrowed from the primary operation.
+#[derive(Clone, Default)]
+pub struct CoseCounterSignature0CreateRequestView<'a> {
+    /// Field 1: `target`
+    pub target:
+        ::buffa::MessageFieldView<super::super::__buffa::view::CoseCounterSignatureTargetView<'a>>,
+    /// Field 2: `suite`
+    pub suite: ::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'a>>,
+    /// SENSITIVE: protected primitive input, never returned.
+    ///
+    /// Field 3: `private_key`
+    pub private_key: &'a [u8],
+    /// Field 4: `allowed_suites`
+    pub allowed_suites: ::buffa::sensitive::RepeatedView<
+        'a,
+        super::super::__buffa::view::CoseSignatureSuiteView<'a>,
+    >,
+    /// SENSITIVE: explicit counter AAD.
+    ///
+    /// Field 5: `external_aad`
+    pub external_aad: &'a [u8],
+}
+impl<'a> ::core::fmt::Debug for CoseCounterSignature0CreateRequestView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseCounterSignature0CreateRequestView")
+            .field("target", &::core::format_args!("[REDACTED]"))
+            .field("suite", &::core::format_args!("[REDACTED]"))
+            .field("private_key", &::core::format_args!("[REDACTED]"))
+            .field("allowed_suites", &::core::format_args!("[REDACTED]"))
+            .field("external_aad", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseCounterSignature0CreateRequestView<'a> {
+    fn zeroize(&mut self) {
+        fn __requires_view_wipe_owner<
+            T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop,
+        >() {
+        }
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseCounterSignatureTargetView<'a>>(
+        );
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseSignatureSuiteView<'a>>();
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseSignatureSuiteView<'a>>();
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.target);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.suite);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.allowed_suites);
+    }
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseCounterSignature0CreateRequestView<'a> {}
+impl<'a> ::core::ops::Drop for CoseCounterSignature0CreateRequestView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseCounterSignature0CreateRequestView<'a> {
+    type Owned = super::super::CoseCounterSignature0CreateRequest;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                match view.target.as_mut() {
+                    Some(existing) => {
+                        ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
+                    }
+                    None => {
+                        view.target = ::buffa::MessageFieldView::set(
+                            <super::super::__buffa::view::CoseCounterSignatureTargetView as ::buffa::MessageView>::decode_view_ctx(
+                                sub,
+                                __sub_ctx,
+                            )?,
+                        );
+                    }
+                }
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                match view.suite.as_mut() {
+                    Some(existing) => {
+                        ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
+                    }
+                    None => {
+                        view.suite = ::buffa::MessageFieldView::set(
+                            <super::super::__buffa::view::CoseSignatureSuiteView as ::buffa::MessageView>::decode_view_ctx(
+                                sub,
+                                __sub_ctx,
+                            )?,
+                        );
+                    }
+                }
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.private_key = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            5u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.external_aad = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            4u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                ctx.register_element_memory(::core::mem::size_of::<
+                    super::super::__buffa::view::CoseSignatureSuiteView,
+                >())?;
+                view.allowed_suites
+                    .push(
+                        <super::super::__buffa::view::CoseSignatureSuiteView as ::buffa::MessageView>::decode_view_ctx(
+                            sub,
+                            __sub_ctx,
+                        )?,
+                    );
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<
+        super::super::CoseCounterSignature0CreateRequest,
+        ::buffa::DecodeError,
+    > {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<
+        super::super::CoseCounterSignature0CreateRequest,
+        ::buffa::DecodeError,
+    > {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let mut __owned =
+            <super::super::CoseCounterSignature0CreateRequest as ::core::default::Default>::default(
+            );
+        __owned.target = match self.target.as_option() {
+            Some(v) => ::buffa::MessageField::<
+                super::super::CoseCounterSignatureTarget,
+                ::buffa::Inline<super::super::CoseCounterSignatureTarget>,
+            >::some(v.to_owned_from_source(__buffa_src)?),
+            None => ::buffa::MessageField::none(),
+        };
+        __owned.suite = match self.suite.as_option() {
+            Some(v) => ::buffa::MessageField::<
+                super::super::CoseSignatureSuite,
+                ::buffa::Inline<super::super::CoseSignatureSuite>,
+            >::some(v.to_owned_from_source(__buffa_src)?),
+            None => ::buffa::MessageField::none(),
+        };
+        __owned.private_key = ::core::convert::Into::into((self.private_key).to_vec());
+        __owned.allowed_suites = self
+            .allowed_suites
+            .iter()
+            .map(|v| v.to_owned_from_source(__buffa_src))
+            .collect::<::core::result::Result<_, ::buffa::DecodeError>>()?;
+        __owned.external_aad = ::core::convert::Into::into((self.external_aad).to_vec());
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseCounterSignature0CreateRequestView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if let ::core::option::Option::Some(__v) = self.target.as_option() {
+            let __slot = __cache.reserve();
+            let inner_size = __v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        if let ::core::option::Option::Some(__v) = self.suite.as_option() {
+            let __slot = __cache.reserve();
+            let inner_size = __v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        if !self.private_key.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.private_key) as u64;
+        }
+        for v in &self.allowed_suites {
+            let __slot = __cache.reserve();
+            let inner_size = v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        if !self.external_aad.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.external_aad) as u64;
+        }
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, __cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if let ::core::option::Option::Some(__v) = self.target.as_option() {
+            ::buffa::types::put_len_delimited_header(1u32, u64::from(__cache.consume_next()), buf);
+            __v.write_to(__cache, buf);
+        }
+        if let ::core::option::Option::Some(__v) = self.suite.as_option() {
+            ::buffa::types::put_len_delimited_header(2u32, u64::from(__cache.consume_next()), buf);
+            __v.write_to(__cache, buf);
+        }
+        if !self.private_key.is_empty() {
+            ::buffa::types::put_shared_bytes_field(3u32, &self.private_key, buf);
+        }
+        for v in &self.allowed_suites {
+            ::buffa::types::put_len_delimited_header(4u32, u64::from(__cache.consume_next()), buf);
+            v.write_to(__cache, buf);
+        }
+        if !self.external_aad.is_empty() {
+            ::buffa::types::put_shared_bytes_field(5u32, &self.external_aad, buf);
+        }
+    }
+}
+impl<'__a> ::serde::Serialize for CoseCounterSignature0CreateRequestView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseCounterSignature0CreateRequestView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseCounterSignature0CreateRequest";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseCounterSignature0CreateRequest";
+    const TYPE_URL: &'static str =
+        "type.googleapis.com/reallyme.cose.v1.CoseCounterSignature0CreateRequest";
+}
+::buffa::impl_default_view_instance!(CoseCounterSignature0CreateRequestView);
+::buffa::impl_view_reborrow!(CoseCounterSignature0CreateRequestView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignature0CreateRequestView);
+/** Self-contained, `'static` owned view of a `CoseCounterSignature0CreateRequest` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignature0CreateRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignature0CreateRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseCounterSignature0CreateRequestOwnedView(
+    ::buffa::OwnedView<CoseCounterSignature0CreateRequestView<'static>>,
+);
+impl CoseCounterSignature0CreateRequestOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignature0CreateRequestOwnedView(
+            ::buffa::OwnedView::decode(bytes)?,
+        ))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignature0CreateRequestOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseCounterSignature0CreateRequest,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignature0CreateRequestOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseCounterSignature0CreateRequestView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseCounterSignature0CreateRequestView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseCounterSignature0CreateRequest {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+    /// Field 1: `target`
+    #[must_use]
+    pub fn target(
+        &self,
+    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseCounterSignatureTargetView<'_>>
+    {
+        &self.0.reborrow().target
+    }
+    /// Field 2: `suite`
+    #[must_use]
+    pub fn suite(
+        &self,
+    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'_>> {
+        &self.0.reborrow().suite
+    }
+    /// SENSITIVE: protected primitive input, never returned.
+    ///
+    /// Field 3: `private_key`
+    #[must_use]
+    pub fn private_key(&self) -> &'_ [u8] {
+        self.0.reborrow().private_key
+    }
+    /// Field 4: `allowed_suites`
+    #[must_use]
+    pub fn allowed_suites(
+        &self,
+    ) -> &::buffa::sensitive::RepeatedView<
+        '_,
+        super::super::__buffa::view::CoseSignatureSuiteView<'_>,
+    > {
+        &self.0.reborrow().allowed_suites
+    }
+    /// SENSITIVE: explicit counter AAD.
+    ///
+    /// Field 5: `external_aad`
+    #[must_use]
+    pub fn external_aad(&self) -> &'_ [u8] {
+        self.0.reborrow().external_aad
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignature0CreateRequestView<'static>>>
+    for CoseCounterSignature0CreateRequestOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseCounterSignature0CreateRequestView<'static>>) -> Self {
+        CoseCounterSignature0CreateRequestOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseCounterSignature0CreateRequestOwnedView>
+    for ::buffa::OwnedView<CoseCounterSignature0CreateRequestView<'static>>
+{
+    fn from(wrapper: CoseCounterSignature0CreateRequestOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignature0CreateRequestView<'static>>>
+    for CoseCounterSignature0CreateRequestOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignature0CreateRequestView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseCounterSignature0CreateRequest {
+    type View<'a> = CoseCounterSignature0CreateRequestView<'a>;
+    type ViewHandle = CoseCounterSignature0CreateRequestOwnedView;
+}
+impl ::serde::Serialize for CoseCounterSignature0CreateRequestOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+/// Presence selects the single unprotected abbreviated-counter header 12.
+#[derive(Clone, Default)]
+pub struct CoseCounterSignatureHeaderSelectionView<'a> {
+    #[doc(hidden)]
+    pub __buffa_phantom: ::core::marker::PhantomData<&'a ()>,
+}
+impl<'a> ::core::fmt::Debug for CoseCounterSignatureHeaderSelectionView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseCounterSignatureHeaderSelectionView")
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseCounterSignatureHeaderSelectionView<'a> {
+    fn zeroize(&mut self) {}
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseCounterSignatureHeaderSelectionView<'a> {}
+impl<'a> ::core::ops::Drop for CoseCounterSignatureHeaderSelectionView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureHeaderSelectionView<'a> {
+    type Owned = super::super::CoseCounterSignatureHeaderSelection;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<
+        super::super::CoseCounterSignatureHeaderSelection,
+        ::buffa::DecodeError,
+    > {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<
+        super::super::CoseCounterSignatureHeaderSelection,
+        ::buffa::DecodeError,
+    > {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let __owned = <super::super::CoseCounterSignatureHeaderSelection as ::core::default::Default>::default();
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseCounterSignatureHeaderSelectionView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, _cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let size = 0u64;
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, _cache: &mut ::buffa::SizeCache, _buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+    }
+}
+impl<'__a> ::serde::Serialize for CoseCounterSignatureHeaderSelectionView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseCounterSignatureHeaderSelectionView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseCounterSignatureHeaderSelection";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseCounterSignatureHeaderSelection";
+    const TYPE_URL: &'static str =
+        "type.googleapis.com/reallyme.cose.v1.CoseCounterSignatureHeaderSelection";
+}
+::buffa::impl_default_view_instance!(CoseCounterSignatureHeaderSelectionView);
+::buffa::impl_view_reborrow!(CoseCounterSignatureHeaderSelectionView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignatureHeaderSelectionView);
+/** Self-contained, `'static` owned view of a `CoseCounterSignatureHeaderSelection` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignatureHeaderSelectionView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignatureHeaderSelectionView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseCounterSignatureHeaderSelectionOwnedView(
+    ::buffa::OwnedView<CoseCounterSignatureHeaderSelectionView<'static>>,
+);
+impl CoseCounterSignatureHeaderSelectionOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureHeaderSelectionOwnedView(
+            ::buffa::OwnedView::decode(bytes)?,
+        ))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureHeaderSelectionOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseCounterSignatureHeaderSelection,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureHeaderSelectionOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseCounterSignatureHeaderSelectionView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseCounterSignatureHeaderSelectionView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseCounterSignatureHeaderSelection {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignatureHeaderSelectionView<'static>>>
+    for CoseCounterSignatureHeaderSelectionOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseCounterSignatureHeaderSelectionView<'static>>) -> Self {
+        CoseCounterSignatureHeaderSelectionOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseCounterSignatureHeaderSelectionOwnedView>
+    for ::buffa::OwnedView<CoseCounterSignatureHeaderSelectionView<'static>>
+{
+    fn from(wrapper: CoseCounterSignatureHeaderSelectionOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignatureHeaderSelectionView<'static>>>
+    for CoseCounterSignatureHeaderSelectionOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignatureHeaderSelectionView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseCounterSignatureHeaderSelection {
+    type View<'a> = CoseCounterSignatureHeaderSelectionView<'a>;
+    type ViewHandle = CoseCounterSignatureHeaderSelectionOwnedView;
+}
+impl ::serde::Serialize for CoseCounterSignatureHeaderSelectionOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+#[derive(Clone, Default)]
+pub struct CoseCounterSignature0VerifyRequestView<'a> {
+    /// Field 1: `target`
+    pub target:
+        ::buffa::MessageFieldView<super::super::__buffa::view::CoseCounterSignatureTargetView<'a>>,
+    /// Abbreviated counters have a single slot: signature_index must be zero.
+    ///
+    /// Field 2: `key`
+    pub key: ::buffa::MessageFieldView<super::super::__buffa::view::CoseSignKeyBindingView<'a>>,
+    /// Field 3: `allowed_suites`
+    pub allowed_suites: ::buffa::sensitive::RepeatedView<
+        'a,
+        super::super::__buffa::view::CoseSignatureSuiteView<'a>,
+    >,
+    /// SENSITIVE: explicit counter AAD.
+    ///
+    /// Field 4: `external_aad`
+    pub external_aad: &'a [u8],
+    pub signature: ::core::option::Option<
+        super::super::__buffa::view::oneof::cose_counter_signature0verify_request::Signature<'a>,
+    >,
+}
+impl<'a> ::core::fmt::Debug for CoseCounterSignature0VerifyRequestView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseCounterSignature0VerifyRequestView")
+            .field("target", &::core::format_args!("[REDACTED]"))
+            .field("key", &::core::format_args!("[REDACTED]"))
+            .field("allowed_suites", &::core::format_args!("[REDACTED]"))
+            .field("external_aad", &::core::format_args!("[REDACTED]"))
+            .field("signature", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseCounterSignature0VerifyRequestView<'a> {
+    fn zeroize(&mut self) {
+        fn __requires_view_wipe_owner<
+            T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop,
+        >() {
+        }
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseCounterSignatureTargetView<'a>>(
+        );
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseSignKeyBindingView<'a>>();
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseSignatureSuiteView<'a>>();
+        __requires_view_wipe_owner::<
+            super::super::__buffa::view::CoseCounterSignatureHeaderSelectionView<'a>,
+        >();
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.target);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.key);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.allowed_suites);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.signature);
+    }
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseCounterSignature0VerifyRequestView<'a> {}
+impl<'a> ::core::ops::Drop for CoseCounterSignature0VerifyRequestView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseCounterSignature0VerifyRequestView<'a> {
+    type Owned = super::super::CoseCounterSignature0VerifyRequest;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                match view.target.as_mut() {
+                    Some(existing) => {
+                        ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
+                    }
+                    None => {
+                        view.target = ::buffa::MessageFieldView::set(
+                            <super::super::__buffa::view::CoseCounterSignatureTargetView as ::buffa::MessageView>::decode_view_ctx(
+                                sub,
+                                __sub_ctx,
+                            )?,
+                        );
+                    }
+                }
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                match view.key.as_mut() {
+                    Some(existing) => {
+                        ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
+                    }
+                    None => {
+                        view.key = ::buffa::MessageFieldView::set(
+                            <super::super::__buffa::view::CoseSignKeyBindingView as ::buffa::MessageView>::decode_view_ctx(
+                                sub,
+                                __sub_ctx,
+                            )?,
+                        );
+                    }
+                }
+            }
+            4u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.external_aad = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                ctx.register_element_memory(::core::mem::size_of::<
+                    super::super::__buffa::view::CoseSignatureSuiteView,
+                >())?;
+                view.allowed_suites
+                    .push(
+                        <super::super::__buffa::view::CoseSignatureSuiteView as ::buffa::MessageView>::decode_view_ctx(
+                            sub,
+                            __sub_ctx,
+                        )?,
+                    );
+            }
+            5u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.signature = Some(
+                    super::super::__buffa::view::oneof::cose_counter_signature0verify_request::Signature::Standalone(
+                        ::buffa::types::borrow_bytes(&mut cur)?,
+                    ),
+                );
+            }
+            6u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_counter_signature0verify_request::Signature::Header(
+                        ref mut existing,
+                    ),
+                ) = view.signature
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.signature = Some(
+                        super::super::__buffa::view::oneof::cose_counter_signature0verify_request::Signature::Header(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseCounterSignatureHeaderSelectionView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<
+        super::super::CoseCounterSignature0VerifyRequest,
+        ::buffa::DecodeError,
+    > {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<
+        super::super::CoseCounterSignature0VerifyRequest,
+        ::buffa::DecodeError,
+    > {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let mut __owned =
+            <super::super::CoseCounterSignature0VerifyRequest as ::core::default::Default>::default(
+            );
+        __owned.target = match self.target.as_option() {
+            Some(v) => ::buffa::MessageField::<
+                super::super::CoseCounterSignatureTarget,
+                ::buffa::Inline<super::super::CoseCounterSignatureTarget>,
+            >::some(v.to_owned_from_source(__buffa_src)?),
+            None => ::buffa::MessageField::none(),
+        };
+        __owned.key = match self.key.as_option() {
+            Some(v) => ::buffa::MessageField::<
+                super::super::CoseSignKeyBinding,
+                ::buffa::Inline<super::super::CoseSignKeyBinding>,
+            >::some(v.to_owned_from_source(__buffa_src)?),
+            None => ::buffa::MessageField::none(),
+        };
+        __owned.allowed_suites = self
+            .allowed_suites
+            .iter()
+            .map(|v| v.to_owned_from_source(__buffa_src))
+            .collect::<::core::result::Result<_, ::buffa::DecodeError>>()?;
+        __owned.external_aad = ::core::convert::Into::into((self.external_aad).to_vec());
+        __owned.signature = match self.signature.as_ref() {
+            ::core::option::Option::Some(v) => {
+                ::core::option::Option::Some(
+                    match v {
+                        super::super::__buffa::view::oneof::cose_counter_signature0verify_request::Signature::Standalone(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_counter_signature0verify_request::Signature::Standalone(
+                                ::core::convert::Into::into((v).to_vec()),
+                            )
+                        }
+                        super::super::__buffa::view::oneof::cose_counter_signature0verify_request::Signature::Header(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_counter_signature0verify_request::Signature::Header(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
+                    },
+                )
+            }
+            ::core::option::Option::None => ::core::option::Option::None,
+        };
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseCounterSignature0VerifyRequestView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if let ::core::option::Option::Some(__v) = self.target.as_option() {
+            let __slot = __cache.reserve();
+            let inner_size = __v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        if let ::core::option::Option::Some(__v) = self.key.as_option() {
+            let __slot = __cache.reserve();
+            let inner_size = __v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        for v in &self.allowed_suites {
+            let __slot = __cache.reserve();
+            let inner_size = v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        if !self.external_aad.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.external_aad) as u64;
+        }
+        if let ::core::option::Option::Some(ref v) = self.signature {
+            match v {
+                super::super::__buffa::view::oneof::cose_counter_signature0verify_request::Signature::Standalone(
+                    x,
+                ) => {
+                    size += 1u64 + ::buffa::types::bytes_encoded_len(x) as u64;
+                }
+                super::super::__buffa::view::oneof::cose_counter_signature0verify_request::Signature::Header(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 1u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+            }
+        }
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, __cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if let ::core::option::Option::Some(__v) = self.target.as_option() {
+            ::buffa::types::put_len_delimited_header(1u32, u64::from(__cache.consume_next()), buf);
+            __v.write_to(__cache, buf);
+        }
+        if let ::core::option::Option::Some(__v) = self.key.as_option() {
+            ::buffa::types::put_len_delimited_header(2u32, u64::from(__cache.consume_next()), buf);
+            __v.write_to(__cache, buf);
+        }
+        for v in &self.allowed_suites {
+            ::buffa::types::put_len_delimited_header(3u32, u64::from(__cache.consume_next()), buf);
+            v.write_to(__cache, buf);
+        }
+        if !self.external_aad.is_empty() {
+            ::buffa::types::put_shared_bytes_field(4u32, &self.external_aad, buf);
+        }
+        if let ::core::option::Option::Some(ref v) = self.signature {
+            match v {
+                super::super::__buffa::view::oneof::cose_counter_signature0verify_request::Signature::Standalone(
+                    x,
+                ) => {
+                    ::buffa::types::put_shared_bytes_field(5u32, x, buf);
+                }
+                super::super::__buffa::view::oneof::cose_counter_signature0verify_request::Signature::Header(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        6u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+            }
+        }
+    }
+}
+impl<'__a> ::serde::Serialize for CoseCounterSignature0VerifyRequestView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseCounterSignature0VerifyRequestView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseCounterSignature0VerifyRequest";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseCounterSignature0VerifyRequest";
+    const TYPE_URL: &'static str =
+        "type.googleapis.com/reallyme.cose.v1.CoseCounterSignature0VerifyRequest";
+}
+::buffa::impl_default_view_instance!(CoseCounterSignature0VerifyRequestView);
+::buffa::impl_view_reborrow!(CoseCounterSignature0VerifyRequestView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignature0VerifyRequestView);
+/** Self-contained, `'static` owned view of a `CoseCounterSignature0VerifyRequest` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignature0VerifyRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignature0VerifyRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseCounterSignature0VerifyRequestOwnedView(
+    ::buffa::OwnedView<CoseCounterSignature0VerifyRequestView<'static>>,
+);
+impl CoseCounterSignature0VerifyRequestOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignature0VerifyRequestOwnedView(
+            ::buffa::OwnedView::decode(bytes)?,
+        ))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignature0VerifyRequestOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseCounterSignature0VerifyRequest,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignature0VerifyRequestOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseCounterSignature0VerifyRequestView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseCounterSignature0VerifyRequestView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseCounterSignature0VerifyRequest {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+    /// Field 1: `target`
+    #[must_use]
+    pub fn target(
+        &self,
+    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseCounterSignatureTargetView<'_>>
+    {
+        &self.0.reborrow().target
+    }
+    /// Abbreviated counters have a single slot: signature_index must be zero.
+    ///
+    /// Field 2: `key`
+    #[must_use]
+    pub fn key(
+        &self,
+    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignKeyBindingView<'_>> {
+        &self.0.reborrow().key
+    }
+    /// Field 3: `allowed_suites`
+    #[must_use]
+    pub fn allowed_suites(
+        &self,
+    ) -> &::buffa::sensitive::RepeatedView<
+        '_,
+        super::super::__buffa::view::CoseSignatureSuiteView<'_>,
+    > {
+        &self.0.reborrow().allowed_suites
+    }
+    /// SENSITIVE: explicit counter AAD.
+    ///
+    /// Field 4: `external_aad`
+    #[must_use]
+    pub fn external_aad(&self) -> &'_ [u8] {
+        self.0.reborrow().external_aad
+    }
+    /// Oneof `signature`.
+    #[must_use]
+    pub fn signature(
+        &self,
+    ) -> ::core::option::Option<
+        &super::super::__buffa::view::oneof::cose_counter_signature0verify_request::Signature<'_>,
+    > {
+        self.0.reborrow().signature.as_ref()
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignature0VerifyRequestView<'static>>>
+    for CoseCounterSignature0VerifyRequestOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseCounterSignature0VerifyRequestView<'static>>) -> Self {
+        CoseCounterSignature0VerifyRequestOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseCounterSignature0VerifyRequestOwnedView>
+    for ::buffa::OwnedView<CoseCounterSignature0VerifyRequestView<'static>>
+{
+    fn from(wrapper: CoseCounterSignature0VerifyRequestOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignature0VerifyRequestView<'static>>>
+    for CoseCounterSignature0VerifyRequestOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignature0VerifyRequestView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseCounterSignature0VerifyRequest {
+    type View<'a> = CoseCounterSignature0VerifyRequestView<'a>;
+    type ViewHandle = CoseCounterSignature0VerifyRequestOwnedView;
+}
+impl ::serde::Serialize for CoseCounterSignature0VerifyRequestOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+#[derive(Clone, Default)]
+pub struct CoseCounterSignatureVerifyResultView<'a> {
+    /// Field 1: `suite`
+    pub suite: ::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'a>>,
+    /// SENSITIVE: exact counter protected bytes; empty for abbreviated counters.
+    ///
+    /// Field 2: `protected`
+    pub protected: &'a [u8],
+    /// SENSITIVE: protected counter identity only, never unprotected discovery data.
+    ///
+    /// Field 3: `protected_kid`
+    pub protected_kid: ::core::option::Option<&'a [u8]>,
+    /// SENSITIVE: exact authenticated target protected bytes.
+    ///
+    /// Field 4: `target_protected`
+    pub target_protected: &'a [u8],
+}
+impl<'a> ::core::fmt::Debug for CoseCounterSignatureVerifyResultView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseCounterSignatureVerifyResultView")
+            .field("suite", &::core::format_args!("[REDACTED]"))
+            .field("protected", &::core::format_args!("[REDACTED]"))
+            .field("protected_kid", &::core::format_args!("[REDACTED]"))
+            .field("target_protected", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseCounterSignatureVerifyResultView<'a> {
+    fn zeroize(&mut self) {
+        fn __requires_view_wipe_owner<
+            T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop,
+        >() {
+        }
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseSignatureSuiteView<'a>>();
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.suite);
+    }
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseCounterSignatureVerifyResultView<'a> {}
+impl<'a> ::core::ops::Drop for CoseCounterSignatureVerifyResultView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureVerifyResultView<'a> {
+    type Owned = super::super::CoseCounterSignatureVerifyResult;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                match view.suite.as_mut() {
+                    Some(existing) => {
+                        ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
+                    }
+                    None => {
+                        view.suite = ::buffa::MessageFieldView::set(
+                            <super::super::__buffa::view::CoseSignatureSuiteView as ::buffa::MessageView>::decode_view_ctx(
+                                sub,
+                                __sub_ctx,
+                            )?,
+                        );
+                    }
+                }
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.protected = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.protected_kid = Some(::buffa::types::borrow_bytes(&mut cur)?);
+            }
+            4u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.target_protected = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<super::super::CoseCounterSignatureVerifyResult, ::buffa::DecodeError>
+    {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<super::super::CoseCounterSignatureVerifyResult, ::buffa::DecodeError>
+    {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let mut __owned =
+            <super::super::CoseCounterSignatureVerifyResult as ::core::default::Default>::default();
+        __owned.suite = match self.suite.as_option() {
+            Some(v) => ::buffa::MessageField::<
+                super::super::CoseSignatureSuite,
+                ::buffa::Inline<super::super::CoseSignatureSuite>,
+            >::some(v.to_owned_from_source(__buffa_src)?),
+            None => ::buffa::MessageField::none(),
+        };
+        __owned.protected = ::core::convert::Into::into((self.protected).to_vec());
+        __owned.protected_kid = self
+            .protected_kid
+            .map(|b| ::core::convert::Into::into((b).to_vec()));
+        __owned.target_protected = ::core::convert::Into::into((self.target_protected).to_vec());
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseCounterSignatureVerifyResultView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if let ::core::option::Option::Some(__v) = self.suite.as_option() {
+            let __slot = __cache.reserve();
+            let inner_size = __v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        if !self.protected.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected) as u64;
+        }
+        if let Some(ref v) = self.protected_kid {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
+        }
+        if !self.target_protected.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.target_protected) as u64;
+        }
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, __cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if let ::core::option::Option::Some(__v) = self.suite.as_option() {
+            ::buffa::types::put_len_delimited_header(1u32, u64::from(__cache.consume_next()), buf);
+            __v.write_to(__cache, buf);
+        }
+        if !self.protected.is_empty() {
+            ::buffa::types::put_shared_bytes_field(2u32, &self.protected, buf);
+        }
+        if let Some(ref v) = self.protected_kid {
+            ::buffa::types::put_shared_bytes_field(3u32, v, buf);
+        }
+        if !self.target_protected.is_empty() {
+            ::buffa::types::put_shared_bytes_field(4u32, &self.target_protected, buf);
+        }
+    }
+}
+impl<'__a> ::serde::Serialize for CoseCounterSignatureVerifyResultView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseCounterSignatureVerifyResultView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseCounterSignatureVerifyResult";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseCounterSignatureVerifyResult";
+    const TYPE_URL: &'static str =
+        "type.googleapis.com/reallyme.cose.v1.CoseCounterSignatureVerifyResult";
+}
+::buffa::impl_default_view_instance!(CoseCounterSignatureVerifyResultView);
+::buffa::impl_view_reborrow!(CoseCounterSignatureVerifyResultView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignatureVerifyResultView);
+/** Self-contained, `'static` owned view of a `CoseCounterSignatureVerifyResult` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignatureVerifyResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignatureVerifyResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseCounterSignatureVerifyResultOwnedView(
+    ::buffa::OwnedView<CoseCounterSignatureVerifyResultView<'static>>,
+);
+impl CoseCounterSignatureVerifyResultOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureVerifyResultOwnedView(
+            ::buffa::OwnedView::decode(bytes)?,
+        ))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureVerifyResultOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseCounterSignatureVerifyResult,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureVerifyResultOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseCounterSignatureVerifyResultView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseCounterSignatureVerifyResultView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseCounterSignatureVerifyResult {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+    /// Field 1: `suite`
+    #[must_use]
+    pub fn suite(
+        &self,
+    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'_>> {
+        &self.0.reborrow().suite
+    }
+    /// SENSITIVE: exact counter protected bytes; empty for abbreviated counters.
+    ///
+    /// Field 2: `protected`
+    #[must_use]
+    pub fn protected(&self) -> &'_ [u8] {
+        self.0.reborrow().protected
+    }
+    /// SENSITIVE: protected counter identity only, never unprotected discovery data.
+    ///
+    /// Field 3: `protected_kid`
+    #[must_use]
+    pub fn protected_kid(&self) -> ::core::option::Option<&'_ [u8]> {
+        self.0.reborrow().protected_kid
+    }
+    /// SENSITIVE: exact authenticated target protected bytes.
+    ///
+    /// Field 4: `target_protected`
+    #[must_use]
+    pub fn target_protected(&self) -> &'_ [u8] {
+        self.0.reborrow().target_protected
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignatureVerifyResultView<'static>>>
+    for CoseCounterSignatureVerifyResultOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseCounterSignatureVerifyResultView<'static>>) -> Self {
+        CoseCounterSignatureVerifyResultOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseCounterSignatureVerifyResultOwnedView>
+    for ::buffa::OwnedView<CoseCounterSignatureVerifyResultView<'static>>
+{
+    fn from(wrapper: CoseCounterSignatureVerifyResultOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignatureVerifyResultView<'static>>>
+    for CoseCounterSignatureVerifyResultOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignatureVerifyResultView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseCounterSignatureVerifyResult {
+    type View<'a> = CoseCounterSignatureVerifyResultView<'a>;
+    type ViewHandle = CoseCounterSignatureVerifyResultOwnedView;
+}
+impl ::serde::Serialize for CoseCounterSignatureVerifyResultOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+/// Format-only attachment into unprotected header 11 or 12. Primary fields are
+/// retained byte for byte. This operation does not assert any authentication.
+/// Full counters append to a bounded collection; an existing abbreviated counter
+/// cannot be overwritten. Deprecated labels 7/9 are never enabled implicitly.
+#[derive(Clone, Default)]
+pub struct CoseCounterSignatureAttachRequestView<'a> {
+    /// Field 1: `target`
+    pub target:
+        ::buffa::MessageFieldView<super::super::__buffa::view::CoseCounterSignatureTargetView<'a>>,
+    pub signature: ::core::option::Option<
+        super::super::__buffa::view::oneof::cose_counter_signature_attach_request::Signature<'a>,
+    >,
+}
+impl<'a> ::core::fmt::Debug for CoseCounterSignatureAttachRequestView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseCounterSignatureAttachRequestView")
+            .field("target", &::core::format_args!("[REDACTED]"))
+            .field("signature", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseCounterSignatureAttachRequestView<'a> {
+    fn zeroize(&mut self) {
+        fn __requires_view_wipe_owner<
+            T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop,
+        >() {
+        }
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseCounterSignatureTargetView<'a>>(
+        );
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.target);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.signature);
+    }
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseCounterSignatureAttachRequestView<'a> {}
+impl<'a> ::core::ops::Drop for CoseCounterSignatureAttachRequestView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureAttachRequestView<'a> {
+    type Owned = super::super::CoseCounterSignatureAttachRequest;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                match view.target.as_mut() {
+                    Some(existing) => {
+                        ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
+                    }
+                    None => {
+                        view.target = ::buffa::MessageFieldView::set(
+                            <super::super::__buffa::view::CoseCounterSignatureTargetView as ::buffa::MessageView>::decode_view_ctx(
+                                sub,
+                                __sub_ctx,
+                            )?,
+                        );
+                    }
+                }
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.signature = Some(
+                    super::super::__buffa::view::oneof::cose_counter_signature_attach_request::Signature::Full(
+                        ::buffa::types::borrow_bytes(&mut cur)?,
+                    ),
+                );
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.signature = Some(
+                    super::super::__buffa::view::oneof::cose_counter_signature_attach_request::Signature::Abbreviated(
+                        ::buffa::types::borrow_bytes(&mut cur)?,
+                    ),
+                );
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<super::super::CoseCounterSignatureAttachRequest, ::buffa::DecodeError>
+    {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<super::super::CoseCounterSignatureAttachRequest, ::buffa::DecodeError>
+    {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let mut __owned =
+            <super::super::CoseCounterSignatureAttachRequest as ::core::default::Default>::default(
+            );
+        __owned.target = match self.target.as_option() {
+            Some(v) => ::buffa::MessageField::<
+                super::super::CoseCounterSignatureTarget,
+                ::buffa::Inline<super::super::CoseCounterSignatureTarget>,
+            >::some(v.to_owned_from_source(__buffa_src)?),
+            None => ::buffa::MessageField::none(),
+        };
+        __owned.signature = self
+            .signature
+            .as_ref()
+            .map(|v| match v {
+                super::super::__buffa::view::oneof::cose_counter_signature_attach_request::Signature::Full(
+                    v,
+                ) => {
+                    super::super::__buffa::oneof::cose_counter_signature_attach_request::Signature::Full(
+                        ::core::convert::Into::into((v).to_vec()),
+                    )
+                }
+                super::super::__buffa::view::oneof::cose_counter_signature_attach_request::Signature::Abbreviated(
+                    v,
+                ) => {
+                    super::super::__buffa::oneof::cose_counter_signature_attach_request::Signature::Abbreviated(
+                        ::core::convert::Into::into((v).to_vec()),
+                    )
+                }
+            });
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseCounterSignatureAttachRequestView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if let ::core::option::Option::Some(__v) = self.target.as_option() {
+            let __slot = __cache.reserve();
+            let inner_size = __v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        if let ::core::option::Option::Some(ref v) = self.signature {
+            match v {
+                super::super::__buffa::view::oneof::cose_counter_signature_attach_request::Signature::Full(
+                    x,
+                ) => {
+                    size += 1u64 + ::buffa::types::bytes_encoded_len(x) as u64;
+                }
+                super::super::__buffa::view::oneof::cose_counter_signature_attach_request::Signature::Abbreviated(
+                    x,
+                ) => {
+                    size += 1u64 + ::buffa::types::bytes_encoded_len(x) as u64;
+                }
+            }
+        }
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, __cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if let ::core::option::Option::Some(__v) = self.target.as_option() {
+            ::buffa::types::put_len_delimited_header(1u32, u64::from(__cache.consume_next()), buf);
+            __v.write_to(__cache, buf);
+        }
+        if let ::core::option::Option::Some(ref v) = self.signature {
+            match v {
+                super::super::__buffa::view::oneof::cose_counter_signature_attach_request::Signature::Full(
+                    x,
+                ) => {
+                    ::buffa::types::put_shared_bytes_field(2u32, x, buf);
+                }
+                super::super::__buffa::view::oneof::cose_counter_signature_attach_request::Signature::Abbreviated(
+                    x,
+                ) => {
+                    ::buffa::types::put_shared_bytes_field(3u32, x, buf);
+                }
+            }
+        }
+    }
+}
+impl<'__a> ::serde::Serialize for CoseCounterSignatureAttachRequestView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseCounterSignatureAttachRequestView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseCounterSignatureAttachRequest";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseCounterSignatureAttachRequest";
+    const TYPE_URL: &'static str =
+        "type.googleapis.com/reallyme.cose.v1.CoseCounterSignatureAttachRequest";
+}
+::buffa::impl_default_view_instance!(CoseCounterSignatureAttachRequestView);
+::buffa::impl_view_reborrow!(CoseCounterSignatureAttachRequestView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignatureAttachRequestView);
+/** Self-contained, `'static` owned view of a `CoseCounterSignatureAttachRequest` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignatureAttachRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignatureAttachRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseCounterSignatureAttachRequestOwnedView(
+    ::buffa::OwnedView<CoseCounterSignatureAttachRequestView<'static>>,
+);
+impl CoseCounterSignatureAttachRequestOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureAttachRequestOwnedView(
+            ::buffa::OwnedView::decode(bytes)?,
+        ))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureAttachRequestOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseCounterSignatureAttachRequest,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseCounterSignatureAttachRequestOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseCounterSignatureAttachRequestView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseCounterSignatureAttachRequestView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseCounterSignatureAttachRequest {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+    /// Field 1: `target`
+    #[must_use]
+    pub fn target(
+        &self,
+    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseCounterSignatureTargetView<'_>>
+    {
+        &self.0.reborrow().target
+    }
+    /// Oneof `signature`.
+    #[must_use]
+    pub fn signature(
+        &self,
+    ) -> ::core::option::Option<
+        &super::super::__buffa::view::oneof::cose_counter_signature_attach_request::Signature<'_>,
+    > {
+        self.0.reborrow().signature.as_ref()
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignatureAttachRequestView<'static>>>
+    for CoseCounterSignatureAttachRequestOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseCounterSignatureAttachRequestView<'static>>) -> Self {
+        CoseCounterSignatureAttachRequestOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseCounterSignatureAttachRequestOwnedView>
+    for ::buffa::OwnedView<CoseCounterSignatureAttachRequestView<'static>>
+{
+    fn from(wrapper: CoseCounterSignatureAttachRequestOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignatureAttachRequestView<'static>>>
+    for CoseCounterSignatureAttachRequestOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignatureAttachRequestView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseCounterSignatureAttachRequest {
+    type View<'a> = CoseCounterSignatureAttachRequestView<'a>;
+    type ViewHandle = CoseCounterSignatureAttachRequestOwnedView;
+}
+impl ::serde::Serialize for CoseCounterSignatureAttachRequestOwnedView {
     fn serialize<__S: ::serde::Serializer>(
         &self,
         __s: __S,

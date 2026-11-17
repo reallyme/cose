@@ -15,6 +15,8 @@ use reallyme_crypto::{
 };
 use zeroize::Zeroizing;
 
+const MAX_DISTRIBUTED_KEY_BYTES: usize = 64;
+
 fn headers(request: &CoseRecipientCreate) -> Result<read_headers::Headers<'_>, CoseError> {
     let headers = request
         .headers
@@ -84,7 +86,7 @@ pub(super) fn key(
     }
     // The longest supported MAC key is SHA-512's 64-byte key. Intermediate
     // AES KEKs are shorter. The unused stack tail is wiped with the key.
-    let mut owner = Zeroizing::new([0_u8; 64]);
+    let mut owner = Zeroizing::new([0_u8; MAX_DISTRIBUTED_KEY_BYTES]);
     let bytes = owner
         .get_mut(..length)
         .ok_or(CoseError::InvalidKeyMaterial)?;

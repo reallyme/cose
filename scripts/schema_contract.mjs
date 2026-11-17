@@ -1,11 +1,32 @@
 // SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+import {maskRustNonCode} from "./release-readiness/operation-contract-routing.mjs";
+
+// Retain original comments for field classifications while using balanced code
+// braces for scope. Empty messages and nested oneofs must not absorb a neighbour.
+export function schemaMessageBodies(schema) {
+  const code=maskRustNonCode(schema);
+  const messages=new Map();
+  for(const match of code.matchAll(/^message\s+(\w+)\s*\{/gmu)) {
+    const start=match.index+match[0].length;
+    let cursor=start;let depth=1;
+    while(depth!==0 && cursor<code.length) {
+      if(code[cursor]==="{") depth+=1;
+      else if(code[cursor]==="}") depth-=1;
+      cursor+=1;
+    }
+    if(depth!==0) throw new TypeError("unterminated protobuf message");
+    messages.set(match[1],schema.slice(start,cursor-1));
+  }
+  return messages;
+}
+
 // Ownership classification is declared once at the field, beside its meaning.
 // Unknown classifications fail the release check instead of defaulting public.
 export function schemaScalarClassifications(schema) {
   const result = [];
-  for (const [, message, body] of schema.matchAll(/message\s+(\w+)\s*\{([\s\S]*?)^\}/gmu)) {
+  for (const [message, body] of schemaMessageBodies(schema)) {
     let comments = [];
     for (const line of body.split("\n")) {
       const field = /^\s*(?:(?:repeated|optional)\s+)?(bytes|string)\s+(\w+)\s*=/u.exec(line);
@@ -26,7 +47,7 @@ export function schemaScalarClassifications(schema) {
 // complete schema subtree contains equality-safe scalar/message alternatives.
 export function equalityExtensions(schema) {
   let text = "";
-  const messages=new Map([...schema.matchAll(/message (\w+) \{([\s\S]*?)\n\}/gu)].map(([,name,body])=>[name,body]));
+  const messages=schemaMessageBodies(schema);
   const check=(name,seen=new Set())=>{
     if (seen.has(name)) return;
     seen.add(name);

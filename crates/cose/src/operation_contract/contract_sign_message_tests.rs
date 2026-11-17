@@ -371,3 +371,46 @@ fn sign_header_and_resource_failures_are_fixed() -> Result<(), CoseError> {
     );
     Ok(())
 }
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
+#[allow(deprecated)] // Published protobuf compatibility selectors share exact identity.
+fn sign_compatibility_aliases_do_not_create_a_second_algorithm_identity() -> Result<(), CoseError> {
+    let exact = suite(Alg::Esp256, Curve::P256);
+    let compatibility = suite(Alg::EcdsaP256Sha256, Curve::P256);
+    let input = contract::CoseSignCreateRequest {
+        headers: field(headers(&[])),
+        payload: b"payload".to_vec().into(),
+        external_aad: Vec::new().into(),
+        content_mode: contract::CoseContentMode::Attached.into(),
+        tagged: true,
+        signers: vec![contract::CoseSignSigner {
+            headers: field(headers(&hex("a10128"))),
+            suite: field(exact.clone()),
+            private_key: hex("57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3")
+                .into(),
+        }]
+        .into(),
+        allowed_suites: vec![compatibility.clone()].into(),
+    };
+    let output = success(codec_parity(Operation::SignCreate(Box::new(
+        input.clone(),
+    )))?);
+    let Branch::SignCreate(output) = &output else {
+        return Err(CoseError::InvalidFormat);
+    };
+    let mut verify_request = request(
+        output.encoded.to_vec(),
+        std::slice::from_ref(&exact),
+        &[rfc_public()],
+    );
+    verify_request.allowed_suites = vec![compatibility.clone()].into();
+    let _ = success(verify(verify_request)?);
+    let mut duplicate = input;
+    duplicate.allowed_suites = vec![exact, compatibility].into();
+    assert_eq!(
+        reason(&codec_parity(Operation::SignCreate(Box::new(duplicate)))?),
+        CoseError::InvalidFormat.reason()
+    );
+    Ok(())
+}

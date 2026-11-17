@@ -36,12 +36,18 @@ fuzz_target!(|data: &[u8]| {
         projection: reallyme_cose::api::contract::CoseKeySetProjection::SensitiveStorage.into(),
         allowed_key_types: vec![reallyme_cose::api::contract::CoseKeySetKeyType::Ec2.into()].into(),
     };
-    execute(Operation::KeySetParse(Box::new(reallyme_cose::api::contract::CoseKeySetParseRequest {
-        encoded: data.to_vec().into(), policy: buffa::MessageField::some(key_set_policy.clone()),
-    })));
-    execute(Operation::KeySetCreate(Box::new(reallyme_cose::api::contract::CoseKeySetCreateRequest {
-        keys: vec![data.to_vec().into()].into(), policy: buffa::MessageField::some(key_set_policy),
-    })));
+    execute(Operation::KeySetParse(Box::new(
+        reallyme_cose::api::contract::CoseKeySetParseRequest {
+            encoded: data.to_vec().into(),
+            policy: buffa::MessageField::some(key_set_policy.clone()),
+        },
+    )));
+    execute(Operation::KeySetCreate(Box::new(
+        reallyme_cose::api::contract::CoseKeySetCreateRequest {
+            keys: vec![data.to_vec().into()].into(),
+            policy: buffa::MessageField::some(key_set_policy),
+        },
+    )));
     execute(Operation::KeyParse(Box::new(key_request(data))));
     execute(Operation::KeyFromPublicBytes(Box::new(
         CoseKeyFromPublicBytesRequest {
@@ -73,30 +79,90 @@ fuzz_target!(|data: &[u8]| {
         )));
     }
 
-    let message_suite=reallyme_cose::api::contract::CoseSignatureSuite {
+    let message_suite = reallyme_cose::api::contract::CoseSignatureSuite {
         registration: reallyme_cose::api::contract::CoseSignatureAlgorithm::Es256.into(),
         curve: reallyme_cose::api::contract::CoseNamedCurve::P256.into(),
     };
-    execute(Operation::SignVerify(Box::new(reallyme_cose::api::contract::CoseSignVerifyRequest {
-        encoded:data.to_vec().into(),detached_payload:None,external_aad:Vec::new().into(),
-        envelope:reallyme_cose::api::contract::CoseEnvelopePolicy::Either.into(),
-        keys:vec![reallyme_cose::api::contract::CoseSignKeyBinding {
-            signature_index:0,suite:buffa::MessageField::some(message_suite.clone()), public_key:data.to_vec().into(),
-        }].into(), allowed_suites:vec![message_suite].into(),
+    execute(Operation::SignVerify(Box::new(
+        reallyme_cose::api::contract::CoseSignVerifyRequest {
+            encoded: data.to_vec().into(),
+            detached_payload: None,
+            external_aad: Vec::new().into(),
+            envelope: reallyme_cose::api::contract::CoseEnvelopePolicy::Either.into(),
+            keys: vec![reallyme_cose::api::contract::CoseSignKeyBinding {
+                signature_index: 0,
+                suite: buffa::MessageField::some(message_suite.clone()),
+                public_key: data.to_vec().into(),
+            }]
+            .into(),
+            allowed_suites: vec![message_suite].into(),
+        },
+    )));
+    execute(Operation::Encrypt0Decrypt(Box::new(
+        reallyme_cose::api::contract::CoseEncrypt0DecryptRequest {
+            encoded: data.to_vec().into(),
+            detached_ciphertext: None,
+            external_aad: Vec::new().into(),
+            key_algorithm: CoseContentEncryptionAlgorithm::Aes128Gcm.into(),
+            key: data.to_vec().into(),
+            allowed_algorithms: vec![CoseContentEncryptionAlgorithm::Aes128Gcm.into()].into(),
+            base_iv: None,
+            envelope: reallyme_cose::api::contract::CoseEnvelopePolicy::Either.into(),
+        },
+    )));
+    execute(Operation::MacVerify(Box::new(
+        reallyme_cose::api::contract::CoseMacVerifyRequest {
+            encoded: data.to_vec().into(),
+            detached_payload: None,
+            external_aad: Vec::new().into(),
+            algorithm: reallyme_cose::api::contract::CoseMacAlgorithm::Hmac256256.into(),
+            allowed_algorithms: vec![
+                reallyme_cose::api::contract::CoseMacAlgorithm::Hmac256256.into()
+            ]
+            .into(),
+            recipient_path: vec![0].into(),
+            recipient_key: data.to_vec().into(),
+            allowed_recipient_algorithms: vec![
+                reallyme_cose::api::contract::CoseRecipientAlgorithm::Direct.into(),
+            ]
+            .into(),
+            envelope: reallyme_cose::api::contract::CoseEnvelopePolicy::Either.into(),
+        },
+    )));
+    let counter_suite = reallyme_cose::api::contract::CoseSignatureSuite {
+        registration: reallyme_cose::api::contract::CoseSignatureAlgorithm::Eddsa.into(),
+        curve: reallyme_cose::api::contract::CoseNamedCurve::Ed25519.into(),
+    };
+    let counter_target = reallyme_cose::api::contract::CoseCounterSignatureTarget {
+        // Finalized-field framing is independent of primary authentication.
+        encoded: vec![
+            0x83, 0x43, 0xa1, 1, 1, 0xa0, 0x50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        ]
+        .into(),
+        kind: reallyme_cose::api::contract::CoseCounterSignatureTargetKind::Encrypt0.into(),
+        envelope: reallyme_cose::api::contract::CoseEnvelopePolicy::Untagged.into(),
+        detached_content: None,
+    };
+    let counter_key = reallyme_cose::api::contract::CoseSignKeyBinding {
+        signature_index: 0,
+        suite: buffa::MessageField::some(counter_suite.clone()),
+        public_key: data.to_vec().into(),
+    };
+    execute(Operation::CounterSignatureVerify(Box::new(reallyme_cose::api::contract::CoseCounterSignatureVerifyRequest {
+        target:buffa::MessageField::some(counter_target.clone()),key:buffa::MessageField::some(counter_key.clone()),
+        allowed_suites:vec![counter_suite.clone()].into(),external_aad:Vec::new().into(),
+        signature:Some(reallyme_cose::api::contract::__buffa::oneof::cose_counter_signature_verify_request::Signature::Standalone(Box::new(reallyme_cose::api::contract::CoseCounterSignatureEncoded {
+            encoded:data.to_vec().into(),envelope:reallyme_cose::api::contract::CoseEnvelopePolicy::Either.into(),
+        }))),
     })));
-    execute(Operation::Encrypt0Decrypt(Box::new(reallyme_cose::api::contract::CoseEncrypt0DecryptRequest {
-        encoded:data.to_vec().into(),detached_ciphertext:None,external_aad:Vec::new().into(),
-        key_algorithm:CoseContentEncryptionAlgorithm::Aes128Gcm.into(),key:data.to_vec().into(),
-        allowed_algorithms:vec![CoseContentEncryptionAlgorithm::Aes128Gcm.into()].into(),base_iv:None,
-        envelope:reallyme_cose::api::contract::CoseEnvelopePolicy::Either.into(),
+    execute(Operation::CounterSignature0Verify(Box::new(reallyme_cose::api::contract::CoseCounterSignature0VerifyRequest {
+        target:buffa::MessageField::some(counter_target.clone()),key:buffa::MessageField::some(counter_key),
+        allowed_suites:vec![counter_suite].into(),external_aad:Vec::new().into(),
+        signature:Some(reallyme_cose::api::contract::__buffa::oneof::cose_counter_signature0verify_request::Signature::Standalone(data.to_vec().into())),
     })));
-    execute(Operation::MacVerify(Box::new(reallyme_cose::api::contract::CoseMacVerifyRequest {
-        encoded:data.to_vec().into(),detached_payload:None,external_aad:Vec::new().into(),
-        algorithm:reallyme_cose::api::contract::CoseMacAlgorithm::Hmac256256.into(),
-        allowed_algorithms:vec![reallyme_cose::api::contract::CoseMacAlgorithm::Hmac256256.into()].into(),
-        recipient_path:vec![0].into(),recipient_key:data.to_vec().into(),
-        allowed_recipient_algorithms:vec![reallyme_cose::api::contract::CoseRecipientAlgorithm::Direct.into()].into(),
-        envelope:reallyme_cose::api::contract::CoseEnvelopePolicy::Either.into(),
+    execute(Operation::CounterSignatureAttach(Box::new(reallyme_cose::api::contract::CoseCounterSignatureAttachRequest {
+        target:buffa::MessageField::some(counter_target),
+        signature:Some(reallyme_cose::api::contract::__buffa::oneof::cose_counter_signature_attach_request::Signature::Full(data.to_vec().into())),
     })));
     // Sign1 operation tags are equally sparse. Exercise attached and detached
     // creation and verification through both transports on every iteration.

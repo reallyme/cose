@@ -378,6 +378,21 @@ pub mod cose_operation_request {
                 }
                 Self::SignCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::SignVerify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::CounterSignatureCreate(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
+                Self::CounterSignatureVerify(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
+                Self::CounterSignature0Create(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
+                Self::CounterSignature0Verify(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
+                Self::CounterSignatureAttach(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
                 Self::KeyFromPublicBytes(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -529,6 +544,41 @@ pub mod cose_operation_request {
         SignVerify(
             ::buffa::alloc::boxed::Box<
                 super::super::super::super::__buffa::view::CoseSignVerifyRequestView<'a>,
+            >,
+        ),
+        CounterSignatureCreate(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseCounterSignatureCreateRequestView<
+                    'a,
+                >,
+            >,
+        ),
+        CounterSignatureVerify(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseCounterSignatureVerifyRequestView<
+                    'a,
+                >,
+            >,
+        ),
+        CounterSignature0Create(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseCounterSignature0CreateRequestView<
+                    'a,
+                >,
+            >,
+        ),
+        CounterSignature0Verify(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseCounterSignature0VerifyRequestView<
+                    'a,
+                >,
+            >,
+        ),
+        CounterSignatureAttach(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseCounterSignatureAttachRequestView<
+                    'a,
+                >,
             >,
         ),
         KeyFromPublicBytes(
@@ -746,6 +796,21 @@ pub mod cose_operation_result {
                 }
                 Self::SignCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::SignVerify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::CounterSignatureCreate(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
+                Self::CounterSignatureVerify(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
+                Self::CounterSignature0Create(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
+                Self::CounterSignature0Verify(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
+                Self::CounterSignatureAttach(value) => {
+                    ::buffa::sensitive::Zeroize::zeroize(&mut **value)
+                }
                 Self::KeyFromPublicBytes(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -897,6 +962,31 @@ pub mod cose_operation_result {
         SignVerify(
             ::buffa::alloc::boxed::Box<
                 super::super::super::super::__buffa::view::CoseSignVerifyResultView<'a>,
+            >,
+        ),
+        CounterSignatureCreate(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseMessageCreateResultView<'a>,
+            >,
+        ),
+        CounterSignatureVerify(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseCounterSignatureVerifyResultView<'a>,
+            >,
+        ),
+        CounterSignature0Create(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseMessageCreateResultView<'a>,
+            >,
+        ),
+        CounterSignature0Verify(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseCounterSignatureVerifyResultView<'a>,
+            >,
+        ),
+        CounterSignatureAttach(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseMessageCreateResultView<'a>,
             >,
         ),
         KeyFromPublicBytes(
@@ -1093,6 +1183,100 @@ pub mod cose_key_set_entry {
     impl<'a> ::core::fmt::Debug for Outcome<'a> {
         fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             f.write_str("Outcome([REDACTED])")
+        }
+    }
+}
+pub mod cose_counter_signature_verify_request {
+    #[allow(unused_imports)]
+    use super::*;
+    impl<'a> ::buffa::sensitive::Zeroize for Signature<'a> {
+        fn zeroize(&mut self) {
+            match self {
+                Self::Standalone(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::HeaderIndex(value) => ::buffa::sensitive::Zeroize::zeroize(value),
+            }
+        }
+    }
+    impl<'a> ::buffa::sensitive::ZeroizeOnDrop for Signature<'a> {}
+    impl<'a> ::core::ops::Drop for Signature<'a> {
+        fn drop(&mut self) {
+            ::buffa::sensitive::Zeroize::zeroize(self);
+        }
+    }
+    #[derive(Clone)]
+    pub enum Signature<'a> {
+        Standalone(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseCounterSignatureEncodedView<'a>,
+            >,
+        ),
+        HeaderIndex(u32),
+    }
+    impl<'a> ::core::fmt::Debug for Signature<'a> {
+        fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            f.write_str("Signature([REDACTED])")
+        }
+    }
+}
+pub mod cose_counter_signature0verify_request {
+    #[allow(unused_imports)]
+    use super::*;
+    impl<'a> ::buffa::sensitive::Zeroize for Signature<'a> {
+        fn zeroize(&mut self) {
+            match self {
+                Self::Standalone(_) => {}
+                Self::Header(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+            }
+        }
+    }
+    impl<'a> ::buffa::sensitive::ZeroizeOnDrop for Signature<'a> {}
+    impl<'a> ::core::ops::Drop for Signature<'a> {
+        fn drop(&mut self) {
+            ::buffa::sensitive::Zeroize::zeroize(self);
+        }
+    }
+    #[derive(Clone)]
+    pub enum Signature<'a> {
+        Standalone(&'a [u8]),
+        Header(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseCounterSignatureHeaderSelectionView<
+                    'a,
+                >,
+            >,
+        ),
+    }
+    impl<'a> ::core::fmt::Debug for Signature<'a> {
+        fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            f.write_str("Signature([REDACTED])")
+        }
+    }
+}
+pub mod cose_counter_signature_attach_request {
+    #[allow(unused_imports)]
+    use super::*;
+    impl<'a> ::buffa::sensitive::Zeroize for Signature<'a> {
+        fn zeroize(&mut self) {
+            match self {
+                Self::Full(_) => {}
+                Self::Abbreviated(_) => {}
+            }
+        }
+    }
+    impl<'a> ::buffa::sensitive::ZeroizeOnDrop for Signature<'a> {}
+    impl<'a> ::core::ops::Drop for Signature<'a> {
+        fn drop(&mut self) {
+            ::buffa::sensitive::Zeroize::zeroize(self);
+        }
+    }
+    #[derive(Clone)]
+    pub enum Signature<'a> {
+        Full(&'a [u8]),
+        Abbreviated(&'a [u8]),
+    }
+    impl<'a> ::core::fmt::Debug for Signature<'a> {
+        fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            f.write_str("Signature([REDACTED])")
         }
     }
 }

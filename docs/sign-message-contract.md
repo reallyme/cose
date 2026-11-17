@@ -35,6 +35,7 @@ remain separate and retain their compatibility rules.
 | Attached/detached content and exact unsorted protected bytes | `sign_create_attached_detached_and_shared_body_algorithm` |
 | Payload, AAD, signature, binding, trailing-data failures | `sign_rejects_tampering_wrong_binding_critical_duplicates_and_trailing_data` |
 | Exact registration/curve binding for every built-in suite | `sign_all_builtin_suites_keep_exact_registration_and_curve` |
+| Published protobuf compatibility aliases retain one exact identity | `sign_compatibility_aliases_do_not_create_a_second_algorithm_identity` |
 | Header types, duplicates, critical parameters and AAD bound | `sign_header_and_resource_failures_are_fixed` |
 
 Independent vector source: [RFC 9052 appendix C](https://www.rfc-editor.org/rfc/rfc9052.html#appendix-C).

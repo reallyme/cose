@@ -3,7 +3,7 @@
 
 use super::{
     bounded,
-    read_message::{children, MAX_HEADER_BYTES},
+    read_message::{self, children, MAX_HEADER_BYTES},
     validate_key_map::{label, parameter},
 };
 use crate::{cbor_boundary, CoseError};
@@ -53,10 +53,20 @@ fn read_policy<'a>(
     let u = bounded::validated(unprotected)?;
     let p = p
         .as_ref()
-        .map(|p| children(p.frame(), MajorType::Map, 32))
+        .map(|p| {
+            children(
+                p.frame(),
+                MajorType::Map,
+                read_message::MAX_HEADER_PARAMETERS,
+            )
+        })
         .transpose()?
         .unwrap_or_default();
-    let fields = children(u.frame(), MajorType::Map, 32)?;
+    let fields = children(
+        u.frame(),
+        MajorType::Map,
+        read_message::MAX_HEADER_PARAMETERS,
+    )?;
     let mut algorithm = None;
     let mut protected_kid = None;
     for (bucket, is_protected) in [(&p, true), (&fields, false)] {
@@ -81,7 +91,8 @@ fn read_policy<'a>(
                     if !is_protected {
                         return Err(CoseError::UnsupportedCriticalHeader);
                     }
-                    let critical = children(value, MajorType::Array, 32)?;
+                    let critical =
+                        children(value, MajorType::Array, read_message::MAX_HEADER_PARAMETERS)?;
                     if critical.is_empty() {
                         return Err(CoseError::UnsupportedCriticalHeader);
                     }
@@ -158,10 +169,14 @@ pub(super) fn optional_bytes<'a>(
     };
     let p = protected
         .as_ref()
-        .map(|v| children(v, MajorType::Map, 32))
+        .map(|v| children(v, MajorType::Map, read_message::MAX_HEADER_PARAMETERS))
         .transpose()?
         .unwrap_or_default();
-    let u = children(&headers.unprotected, MajorType::Map, 32)?;
+    let u = children(
+        &headers.unprotected,
+        MajorType::Map,
+        read_message::MAX_HEADER_PARAMETERS,
+    )?;
     for bucket in [&p, &u] {
         if let Some(value) = parameter(bucket, wanted)? {
             return Ok(Some(value.as_bytes().map_err(cbor_boundary::error)?));

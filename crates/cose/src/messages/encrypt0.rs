@@ -133,7 +133,7 @@ pub(crate) fn create(
     ];
     let body = ValueRef::Array(&values);
     let value = if request.tagged {
-        ValueRef::Tag(16, &body)
+        ValueRef::Tag(read_message::COSE_ENCRYPT0_TAG, &body)
     } else {
         ValueRef::Array(&values)
     };
@@ -151,7 +151,12 @@ pub(crate) fn decrypt(
     request: &contract::CoseEncrypt0DecryptRequest,
 ) -> Result<contract::CoseEncrypt0DecryptResult, CoseError> {
     read_message::aad(&request.external_aad)?;
-    let fields = read_message::envelope(&request.encoded, 16, request.envelope, 3)?;
+    let fields = read_message::envelope(
+        &request.encoded,
+        read_message::COSE_ENCRYPT0_TAG,
+        request.envelope,
+        3,
+    )?;
     let [protected, unprotected, ciphertext] = fields.as_slice() else {
         return Err(CoseError::InvalidFormat);
     };

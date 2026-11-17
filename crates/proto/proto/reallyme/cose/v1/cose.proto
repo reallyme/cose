@@ -686,8 +686,8 @@ message CoseAlgorithmIdentifier {
   }
 }
 
-// CoseContentEncryptionAlgorithm identifies the protected COSE_Encrypt content
-// algorithm. These enum values are protobuf identifiers, not COSE algorithm
+// CoseContentEncryptionAlgorithm identifies the protected COSE_Encrypt or
+// COSE_Encrypt0 content algorithm. These enum values are protobuf identifiers, not COSE algorithm
 // registry values.
 // Rust closed enum: CoseContentEncryptionAlgorithm
 enum CoseContentEncryptionAlgorithm {
@@ -1011,7 +1011,7 @@ message CoseOperationRequest {
   reserved 1 to 15;
 
   oneof operation {
-    // COSE_Sign1 operations: 1000-1999.
+    // Signature, signed-container and countersignature operations: 1000-1999.
     // Rust adapter: sign1/sign.rs#cose_sign1
     CoseSign1CreateRequest sign1_create = 1000;
     // Rust adapter: sign1/sign.rs#cose_sign1_detached
@@ -1066,6 +1066,11 @@ message CoseOperationRequest {
     CoseSign1SignatureStructureRequest sign1_signature_structure = 1018;
     CoseSignCreateRequest sign_create = 1020;
     CoseSignVerifyRequest sign_verify = 1021;
+    CoseCounterSignatureCreateRequest counter_signature_create = 1030;
+    CoseCounterSignatureVerifyRequest counter_signature_verify = 1031;
+    CoseCounterSignature0CreateRequest counter_signature0_create = 1032;
+    CoseCounterSignature0VerifyRequest counter_signature0_verify = 1033;
+    CoseCounterSignatureAttachRequest counter_signature_attach = 1034;
 
     // COSE_Key and Multikey conversion operations: 2000-2999.
     // Rust adapter: key/facade.rs#cose_key_from_public_bytes
@@ -1148,7 +1153,7 @@ message CoseOperationResult {
   reserved 1 to 15;
 
   oneof result {
-    // COSE_Sign1 results: 1000-1999.
+    // Signature, signed-container and countersignature results: 1000-1999.
     CoseSign1CreateResult sign1_create = 1000;
     CoseSign1CreateResult sign1_create_detached = 1001;
     CoseSign1VerifyResult sign1_verify = 1002;
@@ -1167,6 +1172,11 @@ message CoseOperationResult {
     CoseSign1SignatureStructureResult sign1_signature_structure = 1018;
     CoseMessageCreateResult sign_create = 1020;
     CoseSignVerifyResult sign_verify = 1021;
+    CoseMessageCreateResult counter_signature_create = 1030;
+    CoseCounterSignatureVerifyResult counter_signature_verify = 1031;
+    CoseMessageCreateResult counter_signature0_create = 1032;
+    CoseCounterSignatureVerifyResult counter_signature0_verify = 1033;
+    CoseMessageCreateResult counter_signature_attach = 1034;
 
     // COSE_Key and Multikey conversion results: 2000-2999.
     CoseKeyBytesResult key_from_public_bytes = 2000;
@@ -1585,6 +1595,119 @@ message CoseMessageHeaders {
 message CoseMessageCreateResult {
   // SENSITIVE: protected ownership and redacted diagnostics.
   bytes encoded = 1;
+}
+
+// RFC 9338 countersignature targets. Select the exact structure being signed,
+// not the signature algorithm. SIGNATURE and RECIPIENT have no CBOR tag.
+enum CoseCounterSignatureTargetKind {
+  COSE_COUNTER_SIGNATURE_TARGET_KIND_UNSPECIFIED = 0;
+  COSE_COUNTER_SIGNATURE_TARGET_KIND_SIGN = 1;
+  COSE_COUNTER_SIGNATURE_TARGET_KIND_SIGN1 = 2;
+  COSE_COUNTER_SIGNATURE_TARGET_KIND_SIGNATURE = 3;
+  COSE_COUNTER_SIGNATURE_TARGET_KIND_ENCRYPT = 4;
+  COSE_COUNTER_SIGNATURE_TARGET_KIND_ENCRYPT0 = 5;
+  COSE_COUNTER_SIGNATURE_TARGET_KIND_MAC = 6;
+  COSE_COUNTER_SIGNATURE_TARGET_KIND_MAC0 = 7;
+  COSE_COUNTER_SIGNATURE_TARGET_KIND_RECIPIENT = 8;
+  COSE_COUNTER_SIGNATURE_TARGET_KIND_COUNTERSIGNATURE = 9;
+}
+
+// Cryptographic fields must already be finalized. Counter verification does
+// not verify the target's primary cryptography or its trust/identity policy.
+// For a nested signature/recipient, pass that exact encoded substructure.
+message CoseCounterSignatureTarget {
+  // SENSITIVE: bounded complete target, including exact protected bytes.
+  bytes encoded = 1;
+  CoseCounterSignatureTargetKind kind = 2;
+  CoseEnvelopePolicy envelope = 3;
+  // SENSITIVE: presence requires a nil payload/ciphertext slot; absence bstr.
+  // SIGNATURE/COUNTERSIGNATURE/RECIPIENT always require an attached bstr.
+  optional bytes detached_content = 4;
+}
+
+// RFC 9338 full V2 counter, optionally tagged 19. The implementation extracts
+// other_fields from the target and selects CounterSignature or CounterSignatureV2.
+message CoseCounterSignatureCreateRequest {
+  CoseCounterSignatureTarget target = 1;
+  CoseSignSigner signer = 2;
+  repeated CoseSignatureSuite allowed_suites = 3;
+  // SENSITIVE: explicit counter AAD, distinct from primary AAD.
+  bytes external_aad = 4;
+  bool tagged = 5;
+}
+
+message CoseCounterSignatureEncoded {
+  // SENSITIVE: standalone full counter structure, optionally tagged 19.
+  bytes encoded = 1;
+  CoseEnvelopePolicy envelope = 2;
+}
+
+message CoseCounterSignatureVerifyRequest {
+  CoseCounterSignatureTarget target = 1;
+  // signature_index matches header_index, or is zero for standalone counters.
+  CoseSignKeyBinding key = 2;
+  repeated CoseSignatureSuite allowed_suites = 3;
+  // SENSITIVE: explicit counter AAD.
+  bytes external_aad = 4;
+  oneof signature {
+    CoseCounterSignatureEncoded standalone = 5;
+    // Select a full counter from target's unprotected header 11. Zero selects
+    // the single counter form, or the first member of the collection form.
+    uint32 header_index = 6;
+  }
+}
+
+// RFC 9338 abbreviated V2 counter. Algorithm, curve and key come only from
+// caller context; no headers are silently borrowed from the primary operation.
+message CoseCounterSignature0CreateRequest {
+  CoseCounterSignatureTarget target = 1;
+  CoseSignatureSuite suite = 2;
+  // SENSITIVE: protected primitive input, never returned.
+  bytes private_key = 3;
+  repeated CoseSignatureSuite allowed_suites = 4;
+  // SENSITIVE: explicit counter AAD.
+  bytes external_aad = 5;
+}
+
+// Presence selects the single unprotected abbreviated-counter header 12.
+message CoseCounterSignatureHeaderSelection {}
+
+message CoseCounterSignature0VerifyRequest {
+  CoseCounterSignatureTarget target = 1;
+  // Abbreviated counters have a single slot: signature_index must be zero.
+  CoseSignKeyBinding key = 2;
+  repeated CoseSignatureSuite allowed_suites = 3;
+  // SENSITIVE: explicit counter AAD.
+  bytes external_aad = 4;
+  oneof signature {
+    // SENSITIVE: complete standalone CBOR bstr, never raw signature bytes.
+    bytes standalone = 5;
+    CoseCounterSignatureHeaderSelection header = 6;
+  }
+}
+
+message CoseCounterSignatureVerifyResult {
+  CoseSignatureSuite suite = 1;
+  // SENSITIVE: exact counter protected bytes; empty for abbreviated counters.
+  bytes protected = 2;
+  // SENSITIVE: protected counter identity only, never unprotected discovery data.
+  optional bytes protected_kid = 3;
+  // SENSITIVE: exact authenticated target protected bytes.
+  bytes target_protected = 4;
+}
+
+// Format-only attachment into unprotected header 11 or 12. Primary fields are
+// retained byte for byte. This operation does not assert any authentication.
+// Full counters append to a bounded collection; an existing abbreviated counter
+// cannot be overwritten. Deprecated labels 7/9 are never enabled implicitly.
+message CoseCounterSignatureAttachRequest {
+  CoseCounterSignatureTarget target = 1;
+  oneof signature {
+    // SENSITIVE: full counter, optionally tagged 19.
+    bytes full = 2;
+    // SENSITIVE: abbreviated counter encoded as a complete CBOR bstr.
+    bytes abbreviated = 3;
+  }
 }
 
 // Explicit RFC 9052 section 8.5 direct and AE key-wrap distributions.

@@ -8,7 +8,7 @@ import test from "node:test";
 import {assertCompleteTypeContract} from "./check_type_contract.mjs";
 import {generateClosedSelectors,generateErrorAliases} from "./generate_native_contract.mjs";
 import {nativeBorrowedProjections,nativeProjections} from "./generate_native_projections.mjs";
-import {equalityExtensions,schemaScalarClassifications} from "./schema_contract.mjs";
+import {equalityExtensions,schemaMessageBodies,schemaScalarClassifications} from "./schema_contract.mjs";
 import {assertGuardedBuffaContract} from "./check_buffa_contract.mjs";
 
 const files=execFileSync("git",["ls-files","-z"],{encoding:"utf8"}).split("\0").filter(Boolean);
@@ -60,6 +60,38 @@ test("native cleanup requires every schema field and destruction owner",()=>{
     assert.notEqual(changed,generated);
     assert.throws(()=>validate(changed),/wipe owner|native Drop|cleanup family/u);
   }
+});
+test("schema ownership scopes empty messages and ignores comment braces",()=>{
+  const source=`message Empty {}
+message Actual {
+ // This brace } is not a scope boundary.
+ oneof value {
+  // SENSITIVE: exact bytes.
+  bytes standalone = 1;
+ }
+}
+`;
+  assert.equal(schemaMessageBodies(source).get("Empty"),"");
+  assert.equal(schemaScalarClassifications(source).length,1);
+  assert.deepEqual(schemaScalarClassifications(source)[0],{message:"Actual",field:"standalone",kind:"bytes",sensitivity:"sensitive"});
+  assert.throws(()=>schemaMessageBodies("message Broken {"),/unterminated/u);
+});
+test("oneof scalar ownership follows the generated type path for digit-bearing names",()=>{
+  const generatedPath="crates/proto/src/generated/buffa/reallyme.cose.v1.cose.rs";
+  const oneofPath="crates/proto/src/generated/buffa/reallyme.cose.v1.cose.__oneof.rs";
+  const generated=readFileSync(generatedPath,"utf8");
+  const oneofs=readFileSync(oneofPath,"utf8");
+  const validate=(changes)=>assertGuardedBuffaContract({root:process.cwd(),readText:(name)=>changes.get(name)??readFileSync(name,"utf8"),fail:(message)=>assert.fail(message),assertWorkflowRunStep:()=>{}},false);
+  validate(new Map());
+  const marker="pub mod cose_counter_signature0verify_request {";
+  const start=oneofs.indexOf(marker);
+  assert.notEqual(start,-1);
+  const unguarded=oneofs.slice(0,start)+oneofs.slice(start).replace("Standalone(crate::SecretBytes)","Standalone(::std::vec::Vec<u8>)");
+  assert.notEqual(unguarded,oneofs);
+  assert.throws(()=>validate(new Map([[oneofPath,unguarded]])),/native wipe owner/u);
+  const missing=generated.replace("Option<__buffa::oneof::cose_counter_signature0verify_request::Signature>","Option<__buffa::oneof::missing_counter_owner::Signature>");
+  assert.notEqual(missing,generated);
+  assert.throws(()=>validate(new Map([[generatedPath,missing]])),/native wipe owner/u);
 });
 test("handwritten presence flags cannot return to the schema",()=>{
   assert.throws(()=>check(new Map([[path,schema.replace("message CoseMac0VerifyResult {", "message CoseMac0VerifyResult {\n bool has_another_value = 19;")]])),/scalar presence/u);

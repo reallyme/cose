@@ -30,6 +30,9 @@ pub(crate) mod suite;
 
 #[cfg(test)]
 mod map_failure_tests;
+mod message_attach_counter_signature;
+mod message_counter_signature;
+mod message_counter_signature0;
 mod message_encrypt0;
 mod message_mac;
 mod message_sign;

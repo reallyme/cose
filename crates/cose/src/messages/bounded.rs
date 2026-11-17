@@ -42,7 +42,17 @@ pub(super) fn copy(bytes: &[u8]) -> Result<SecretBytes, CoseError> {
 }
 
 pub(super) fn encode(value: &ValueRef<'_>) -> Result<SecretBytes, CoseError> {
+    encode_with_limit(value, MAX_MESSAGE_BYTES)
+}
+
+pub(super) fn encode_with_limit(
+    value: &ValueRef<'_>,
+    maximum: usize,
+) -> Result<SecretBytes, CoseError> {
+    let limits = limits()?
+        .with_output_bytes(maximum.min(MAX_MESSAGE_BYTES))
+        .map_err(cbor_boundary::error)?;
     let encoded =
-        general::encode(value, Profile::preferred(), limits()?).map_err(cbor_boundary::error)?;
+        general::encode(value, Profile::preferred(), limits).map_err(cbor_boundary::error)?;
     copy(encoded.as_bytes())
 }

@@ -100,7 +100,7 @@ pub(crate) fn create(
     ];
     let body = ValueRef::Array(&fields);
     let value = if request.tagged {
-        ValueRef::Tag(98, &body)
+        ValueRef::Tag(read_message::COSE_SIGN_TAG, &body)
     } else {
         ValueRef::Array(&fields)
     };
@@ -113,7 +113,12 @@ pub(crate) fn verify(
     request: &contract::CoseSignVerifyRequest,
 ) -> Result<contract::CoseSignVerifyResult, CoseError> {
     read_message::aad(&request.external_aad)?;
-    let fields = read_message::envelope(&request.encoded, 98, request.envelope, 4)?;
+    let fields = read_message::envelope(
+        &request.encoded,
+        read_message::COSE_SIGN_TAG,
+        request.envelope,
+        4,
+    )?;
     let [protected, unprotected, content, signatures] = fields.as_slice() else {
         return Err(CoseError::InvalidFormat);
     };

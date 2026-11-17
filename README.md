@@ -12,8 +12,9 @@
 </div>
 
 `reallyme-cose` is a focused COSE layer for identity systems that need
-COSE_Sign1, detached COSE_Mac0, COSE_Key, deterministic `kid` derivation, and Multikey interop
-without broad COSE structure or algorithm negotiation. It builds on
+COSE_Sign/Sign1, COSE_Mac/Mac0, COSE_Encrypt/Encrypt0, COSE_Key/KeySet,
+RFC 9338 countersignatures, deterministic `kid` derivation, and Multikey interop
+with explicit algorithm and profile selection. It builds on
 `reallyme-crypto` and `reallyme-codec` to provide strict protected-header
 validation, explicit algorithm/key binding, typed non-PII errors, deterministic
 CBOR checks, resource limits, and portable conformance vectors for SDK and
@@ -26,7 +27,7 @@ cargo add reallyme-cose
 ```
 
 The default `native` feature enables the Buffa-generated operation contract,
-signing, verification, key validation, detached MAC verification, and ML-KEM
+signing, verification, key validation, HMAC, AES-GCM, and ML-KEM
 encryption through `reallyme-crypto`. For `wasm32-unknown-unknown`,
 use `default-features = false, features = ["wasm"]`.
 Without a runtime lane, the key, Multikey, policy, algorithm-mapping, and CBOR
@@ -621,16 +622,39 @@ cargo run --manifest-path tools/vector-goldens/Cargo.toml
 cargo run --manifest-path tools/vector-audit/Cargo.toml --bin reallyme-cose-vector-audit -- .
 ```
 
+## General message contracts
+
+The protobuf contract provides bounded creation and authentication operations
+for COSE_Sign, COSE_Mac and COSE_Encrypt0; parse/create operations for
+COSE_KeySet; and full/abbreviated RFC 9338 countersignatures. Use
+`api::contract` for generated requests and `api::execute` for the native typed
+entrypoint. Binary protobuf and ProtoJSON use the same semantic implementation.
+Every authentication request requires explicit algorithm/suite allowlists and
+caller-authorized keys. No trust or identity policy is inferred from headers.
+
+Protected header bytes are authenticated exactly as received. Each family has
+its own RFC context and content contract. Detached content is explicit, and
+counter attachment preserves all primary fields outside the unprotected map.
+These general operations use definite preferred CBOR with received map order;
+the existing ISO 2021 Sign1 compatibility profile remains explicitly selected.
+
+See the [clause-to-operation/test matrix](https://github.com/reallyme/cose/blob/main/docs/message-family-support.md),
+[Sign](https://github.com/reallyme/cose/blob/main/docs/sign-message-contract.md),
+[MAC](https://github.com/reallyme/cose/blob/main/docs/mac-message-contract.md),
+[Encrypt0](https://github.com/reallyme/cose/blob/main/docs/encrypt0-contract.md),
+[KeySet](https://github.com/reallyme/cose/blob/main/docs/key-set-contract.md), and
+[countersignature contracts](https://github.com/reallyme/cose/blob/main/docs/countersignature-contract.md)
+for exact limits, supported crypto suites, ownership and failure behavior.
+
 ## Unsupported COSE Surface
 
 The following structures and features are not implemented:
 
-- COSE_Mac, attached COSE_Mac0 verification, MAC creation, and AES-CBC-MAC.
-- COSE_Encrypt0.
+- COSE_Mac0 creation or attached-content verification, and AES-CBC-MAC.
 - Multi-recipient COSE_Encrypt.
-- COSE_Sign multi-signer structures.
-- Countersignatures.
-- Critical protected headers outside the detached Mac0 profile described above.
+- Critical parameters outside the selected operation's implemented semantics.
+- Deprecated RFC 8152 countersignature headers 7 and 9. RFC 9338 operations
+  use the distinct headers 11/12 and the required V2 authentication structures.
 - Modern COSE_Sign1 content-type and extension headers other than RFC 9596 `typ`,
   because the verified-result API does not expose processing results for those
   semantics.
@@ -638,11 +662,14 @@ The following structures and features are not implemented:
   protected `alg` and `kid`; ISO Sign1 and Mac0 permit an unprotected `kid` hint
   without trusting it.
 - Indefinite-length CBOR at public byte boundaries.
-- Floating-point COSE_Key extension values. They are rejected rather than
-  accepted without full RFC 8949 preferred-width and canonical-NaN validation.
-- Undefined and unsupported CBOR simple values; detached payloads use null.
-- CBOR tags other than the matching root COSE_Mac0 (17), COSE_Sign1 (18),
-  or COSE_Encrypt (96) tag. COSE_Key inputs must be untagged.
+- Floating-point extension values in the legacy cryptographic COSE_Key import
+  path. KeySet sensitive storage can retain codec-validated opaque extensions;
+  its public-parameter projection removes them.
+- Undefined or unsupported simple values in structural content/key fields;
+  detached payload and ciphertext slots require null.
+- Root tags other than the matching COSE_Encrypt0 (16), COSE_Mac0 (17),
+  COSE_Sign1 (18), full countersignature (19), COSE_Encrypt (96), COSE_Mac (97),
+  or COSE_Sign (98) tag. Keys, KeySets and abbreviated counters are untagged.
 - X-Wing recipient processing. X-Wing-768 remains represented in the protobuf
   algorithm enum so the wire contract can add an explicit profile without
   renumbering; attempts to use it in an unsupported operation fail closed

@@ -104,6 +104,21 @@ fn validate_for_request(
 
 fn validate_result(result: &CoseOperationResult) -> CoseWireResult<()> {
     let valid = match result.result.as_ref() {
+        Some(CoseOperationResultBranch::CounterSignatureAttach(value)) => {
+            crate::messages::attach_counter_signature::valid_created(value)
+        }
+        Some(CoseOperationResultBranch::CounterSignature0Create(value)) => {
+            crate::messages::counter_signature0::valid_created(value)
+        }
+        Some(CoseOperationResultBranch::CounterSignature0Verify(value)) => {
+            crate::messages::counter_signature0::valid_verified(value)
+        }
+        Some(CoseOperationResultBranch::CounterSignatureCreate(value)) => {
+            crate::messages::counter_signature::valid_created(value)
+        }
+        Some(CoseOperationResultBranch::CounterSignatureVerify(value)) => {
+            crate::messages::counter_signature::valid_verified(value)
+        }
         Some(CoseOperationResultBranch::MacCreate(value)) => {
             crate::messages::mac::valid_created(value)
         }
@@ -244,6 +259,25 @@ fn result_matches_request(request: &CoseOperationRequest, result: &CoseOperation
     matches!(
         (request.operation.as_ref(), result.result.as_ref()),
         (
+            Some(cose_operation_request::Operation::CounterSignatureAttach(_)),
+            Some(CoseOperationResultBranch::CounterSignatureAttach(_))
+        ) | (
+            Some(cose_operation_request::Operation::CounterSignature0Create(
+                _
+            )),
+            Some(CoseOperationResultBranch::CounterSignature0Create(_))
+        ) | (
+            Some(cose_operation_request::Operation::CounterSignature0Verify(
+                _
+            )),
+            Some(CoseOperationResultBranch::CounterSignature0Verify(_))
+        ) | (
+            Some(cose_operation_request::Operation::CounterSignatureCreate(_)),
+            Some(CoseOperationResultBranch::CounterSignatureCreate(_))
+        ) | (
+            Some(cose_operation_request::Operation::CounterSignatureVerify(_)),
+            Some(CoseOperationResultBranch::CounterSignatureVerify(_))
+        ) | (
             Some(cose_operation_request::Operation::MacCreate(_)),
             Some(CoseOperationResultBranch::MacCreate(_))
         ) | (

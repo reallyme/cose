@@ -92,7 +92,7 @@ pub(crate) fn create(
     ];
     let body = ValueRef::Array(&values);
     let value = if request.tagged {
-        ValueRef::Tag(97, &body)
+        ValueRef::Tag(read_message::COSE_MAC_TAG, &body)
     } else {
         ValueRef::Array(&values)
     };
@@ -105,7 +105,12 @@ pub(crate) fn verify(
     request: &contract::CoseMacVerifyRequest,
 ) -> Result<contract::CoseMacVerifyResult, CoseError> {
     read_message::aad(&request.external_aad)?;
-    let fields = read_message::envelope(&request.encoded, 97, request.envelope, 5)?;
+    let fields = read_message::envelope(
+        &request.encoded,
+        read_message::COSE_MAC_TAG,
+        request.envelope,
+        5,
+    )?;
     let [protected, unprotected, content, tag, recipients] = fields.as_slice() else {
         return Err(CoseError::InvalidFormat);
     };

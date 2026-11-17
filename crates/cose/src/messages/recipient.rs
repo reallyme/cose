@@ -90,7 +90,11 @@ pub(super) fn validate_tree(
         {
             return Err(CoseError::ResourceLimitExceeded);
         }
-        let parameters = read_message::children(unprotected, MajorType::Map, 32)?;
+        let parameters = read_message::children(
+            unprotected,
+            MajorType::Map,
+            read_message::MAX_HEADER_PARAMETERS,
+        )?;
         if recipients.len() != 1
             && super::validate_key_map::parameter(&parameters, 1)?
                 .is_some_and(|value| read_headers::integer(value).ok() == Some(-6))

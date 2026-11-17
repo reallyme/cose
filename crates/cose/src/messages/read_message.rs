@@ -6,6 +6,13 @@ use crate::api::contract::{CoseContentMode, CoseEnvelopePolicy};
 use crate::{cbor_boundary, CoseError};
 use reallyme_codec::cbor::general::{Frame, MajorType, ValueRef};
 
+pub(super) const COSE_SIGN_TAG: u64 = 98;
+pub(super) const COSE_SIGN1_TAG: u64 = 18;
+pub(super) const COSE_ENCRYPT_TAG: u64 = 96;
+pub(super) const COSE_ENCRYPT0_TAG: u64 = 16;
+pub(super) const COSE_MAC_TAG: u64 = 97;
+pub(super) const COSE_MAC0_TAG: u64 = 17;
+pub(super) const MAX_HEADER_PARAMETERS: usize = 32;
 pub(super) const MAX_SIGNATURES: usize = 32;
 pub(super) const MAX_HEADER_BYTES: usize = 16_384;
 pub(super) const MAX_AAD_BYTES: usize = 65_536;

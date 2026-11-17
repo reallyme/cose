@@ -3,7 +3,12 @@
 
 //! Semantics for the generated general COSE message operations.
 
+pub(crate) mod attach_counter_signature;
 mod bounded;
+pub(crate) mod counter_signature;
+pub(crate) mod counter_signature0;
+mod counter_structure;
+mod counter_target;
 mod create_recipients;
 pub(crate) mod encrypt0;
 pub(crate) mod key_set;

@@ -64,7 +64,15 @@ pub(super) fn authorize(
 }
 
 pub(super) fn same_suite(a: &CoseSignatureSuite, b: &CoseSignatureSuite) -> bool {
-    a.registration == b.registration && a.curve == b.curve
+    match (
+        Registration::try_from(a.registration),
+        Registration::try_from(b.registration),
+    ) {
+        (Ok(a_registration), Ok(b_registration)) => {
+            a_registration == b_registration && a.curve == b.curve
+        }
+        _ => false,
+    }
 }
 
 pub(super) fn sign(

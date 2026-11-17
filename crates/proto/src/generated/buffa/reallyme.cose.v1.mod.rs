@@ -109,6 +109,15 @@ pub mod __buffa {
         reg.register_json_any(super::__COSE_KEY_SET_CREATE_RESULT_JSON_ANY);
         reg.register_json_any(super::__COSE_MESSAGE_HEADERS_JSON_ANY);
         reg.register_json_any(super::__COSE_MESSAGE_CREATE_RESULT_JSON_ANY);
+        reg.register_json_any(super::__COSE_COUNTER_SIGNATURE_TARGET_JSON_ANY);
+        reg.register_json_any(super::__COSE_COUNTER_SIGNATURE_CREATE_REQUEST_JSON_ANY);
+        reg.register_json_any(super::__COSE_COUNTER_SIGNATURE_ENCODED_JSON_ANY);
+        reg.register_json_any(super::__COSE_COUNTER_SIGNATURE_VERIFY_REQUEST_JSON_ANY);
+        reg.register_json_any(super::__COSE_COUNTER_SIGNATURE0CREATE_REQUEST_JSON_ANY);
+        reg.register_json_any(super::__COSE_COUNTER_SIGNATURE_HEADER_SELECTION_JSON_ANY);
+        reg.register_json_any(super::__COSE_COUNTER_SIGNATURE0VERIFY_REQUEST_JSON_ANY);
+        reg.register_json_any(super::__COSE_COUNTER_SIGNATURE_VERIFY_RESULT_JSON_ANY);
+        reg.register_json_any(super::__COSE_COUNTER_SIGNATURE_ATTACH_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_RECIPIENT_CREATE_GROUP_JSON_ANY);
         reg.register_json_any(super::__COSE_RECIPIENT_CREATE_JSON_ANY);
         reg.register_json_any(super::__COSE_MAC_CREATE_REQUEST_JSON_ANY);
@@ -198,6 +207,42 @@ pub use self::__buffa::view::CoseContainerVerifyResultView;
 pub use self::__buffa::view::CoseContractInfoResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseContractInfoResultView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignature0CreateRequestOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignature0CreateRequestView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignature0VerifyRequestOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignature0VerifyRequestView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignatureAttachRequestOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignatureAttachRequestView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignatureCreateRequestOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignatureCreateRequestView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignatureEncodedOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignatureEncodedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignatureHeaderSelectionOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignatureHeaderSelectionView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignatureTargetOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignatureTargetView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignatureVerifyRequestOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignatureVerifyRequestView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignatureVerifyResultOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseCounterSignatureVerifyResultView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseEcdsaPrehashOwnedView;
 #[doc(inline)]

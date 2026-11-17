@@ -42,6 +42,21 @@ fn dispatch_operation(
     };
 
     match &mut operation {
+        cose_operation_request::Operation::CounterSignatureAttach(request) => {
+            super::message_attach_counter_signature::attach(core::mem::take(&mut **request))
+        }
+        cose_operation_request::Operation::CounterSignature0Create(request) => {
+            super::message_counter_signature0::create(core::mem::take(&mut **request))
+        }
+        cose_operation_request::Operation::CounterSignature0Verify(request) => {
+            super::message_counter_signature0::verify(core::mem::take(&mut **request))
+        }
+        cose_operation_request::Operation::CounterSignatureCreate(request) => {
+            super::message_counter_signature::create(core::mem::take(&mut **request))
+        }
+        cose_operation_request::Operation::CounterSignatureVerify(request) => {
+            super::message_counter_signature::verify(core::mem::take(&mut **request))
+        }
         cose_operation_request::Operation::MacCreate(request) => {
             super::message_mac::create(core::mem::take(&mut **request))
         }

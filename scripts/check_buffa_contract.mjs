@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-import {schemaScalarClassifications} from "./schema_contract.mjs";
+import {schemaMessageBodies,schemaScalarClassifications} from "./schema_contract.mjs";
 import {checkFreshness,checkGeneratorVersions} from "./generate_cose_contract.mjs";
 import {maskRustNonCode} from "./release-readiness/operation-contract-routing.mjs";
 
@@ -52,11 +52,13 @@ export function assertGuardedBuffaContract({root,readText,fail,assertWorkflowRun
     const expected=kind==="bytes"?"SecretBytes":"SecretString";
     const fieldType=`(?:(?:::core::option::Option|::buffa::sensitive::List)<)?crate::${expected}>?`;
     if(!new RegExp(`pub ${field}:\\s*${fieldType}\\s*,`,"u").test(body)) {
-      const schemaBody=new RegExp(`message ${message} \\{([\\s\\S]*?)\\n\\}`,"u").exec(schema)?.[1]??"";
+      const schemaBody=schemaMessageBodies(schema).get(message)??"";
       const oneof=/oneof (\w+) \{([\s\S]*?)\n\s*\}/u.exec(schemaBody);
       const variant=field.split("_").map(part=>part[0].toUpperCase()+part.slice(1)).join("");
-      const module=message.replace(/([a-z0-9])([A-Z])/gu,"$1_$2").toLowerCase();
-      const scope=new RegExp(`pub mod ${module} \\{([\\s\\S]*?)(?=\\npub mod |$)`,"u").exec(oneofs)?.[1]??"";
+      // Follow the generated field type rather than guessing module casing.
+      // Digit-bearing message names do not follow a generic snake-case rule.
+      const module=oneof===null?undefined:new RegExp(`pub (?:r#)?${oneof[1]}:\\s*::core::option::Option<__buffa::oneof::(\\w+)::\\w+>`,"u").exec(body)?.[1];
+      const scope=module===undefined?"":new RegExp(`pub mod ${module} \\{([\\s\\S]*?)(?=\\npub mod |$)`,"u").exec(oneofs)?.[1]??"";
       if(oneof===null || !new RegExp(`\\b${field} = \\d+;`,"u").test(oneof[2])
         || !new RegExp(`${variant}\\(crate::${expected}\\)`,"u").test(scope)) fail("protobuf scalar lacks its native wipe owner");
     }

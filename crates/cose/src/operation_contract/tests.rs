@@ -64,3 +64,6 @@ mod encrypt0;
 
 #[path = "contract_mac_message_tests.rs"]
 mod mac_message;
+
+#[path = "contract_counter_tests.rs"]
+mod counter;
