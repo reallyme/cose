@@ -58,22 +58,14 @@ impl CoseFailure {
         self.reason
     }
 
-    /// Converts a semantic failure to the existing public native error.
+    /// Converts a semantic failure without changing its protobuf reason.
     ///
     /// Every current semantic reason is safe for native exposure because the
-    /// public error variants contain no dynamic context. Boundary-only reasons
+    /// public error contains no dynamic context. Boundary-only reasons
     /// such as malformed protobuf are introduced separately by adapters and
     /// are not represented as semantic reasons.
     pub(crate) const fn into_native_error(self) -> CoseError {
-        let reason = match self.reason {
-            CoseFailureReason::EncryptMissingKid => CoseFailureReason::Sign1MissingKid,
-            CoseFailureReason::EncryptUnprotectedHeaderNotAllowed => {
-                CoseFailureReason::Sign1UnprotectedHeaderNotAllowed
-            }
-            CoseFailureReason::Sign1KidKeyMismatch => CoseFailureReason::Sign1KeyNotResolved,
-            other => other,
-        };
-        CoseError::from_reason(reason)
+        CoseError::from_reason(self.reason)
     }
 
     const fn caller(reason: CoseFailureReason) -> Self {

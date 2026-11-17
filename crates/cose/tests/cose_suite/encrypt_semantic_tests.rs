@@ -109,7 +109,7 @@ fn ml_kem_failures_preserve_native_and_exact_wire_semantics() {
     );
     assert_native_error(
         cose_encrypt_ml_kem_direct_with_external_aad(&missing_kid_request, EXTERNAL_AAD),
-        CoseError::MissingKid,
+        CoseError::from(CoseErrorReason::EncryptMissingKid),
     );
     assert_error(
         Operation::MlKemEncryptDirect(Box::new(proto_encrypt_request(&public_key, &[]))),

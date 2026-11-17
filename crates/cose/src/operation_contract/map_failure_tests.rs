@@ -10,6 +10,25 @@ use crate::wire::{CoseErrorReason, CoseWireErrorBranch};
 use super::map_failure::boundary_error_from_failure;
 
 #[test]
+fn native_and_wire_boundaries_preserve_every_generated_failure_reason() {
+    use buffa::Enumeration;
+
+    for &reason in CoseErrorReason::values() {
+        // UNSPECIFIED is a sentinel, not an admissible failure reason.
+        if reason == CoseErrorReason::Unspecified {
+            continue;
+        }
+
+        let failure = CoseFailure::from(CoseError::from(reason));
+        let native = failure.into_native_error();
+        let wire = boundary_error_from_failure(failure);
+        assert_eq!(native.reason(), reason);
+        assert_eq!(wire.reason(), reason);
+        assert_eq!(CoseFailure::from(native), failure);
+    }
+}
+
+#[test]
 fn canonical_failures_preserve_exact_wire_branch_and_reason() {
     use CoseError as Native;
     use CoseErrorReason as Reason;

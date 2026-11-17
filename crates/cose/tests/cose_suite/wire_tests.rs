@@ -616,6 +616,18 @@ fn ml_kem_wire_preserves_encrypt_specific_missing_kid_reason() {
         external_aad: Vec::new().into(),
         supp_priv_info: None,
     };
+    let native_request = reallyme_cose::CoseMlKemEncryptRequest::new(
+        reallyme_cose::CoseMlKemAlgorithm::MlKem512,
+        reallyme_cose::CoseContentEncryptionAlgorithm::Aes128Gcm,
+        &request.recipient_public_key,
+        &request.recipient_kid,
+        &request.plaintext,
+        None,
+    );
+    let native_error = reallyme_cose::cose_encrypt_ml_kem_direct(&native_request)
+        .err()
+        .expect("native encryption must reject the missing kid");
+    assert_eq!(native_error.reason(), CoseErrorReason::EncryptMissingKid);
     let output = execute_operation_bytes(
         &operation_request(CoseOperationRequestBranch::MlKemEncryptDirect(Box::new(
             request,
@@ -626,7 +638,7 @@ fn ml_kem_wire_preserves_encrypt_specific_missing_kid_reason() {
     assert_error_branch_and_reason(
         &output,
         ExpectedErrorBranch::Primitive,
-        CoseErrorReason::EncryptMissingKid,
+        native_error.reason(),
     );
 }
 
@@ -674,6 +686,19 @@ fn ml_kem_wire_preserves_encrypt_specific_unprotected_header_reason() {
         external_aad: Vec::new().into(),
         supp_priv_info: None,
     };
+    let native_request = reallyme_cose::CoseMlKemDecryptRequest::new(
+        &decrypt.cose_encrypt,
+        &decrypt.recipient_private_key,
+        &decrypt.expected_recipient_kid,
+        None,
+    );
+    let native_error = reallyme_cose::cose_decrypt_ml_kem(&native_request)
+        .err()
+        .expect("native decryption must reject the unprotected algorithm");
+    assert_eq!(
+        native_error.reason(),
+        CoseErrorReason::EncryptUnprotectedHeaderNotAllowed,
+    );
     let output = execute_operation_bytes(
         &operation_request(CoseOperationRequestBranch::MlKemDecrypt(Box::new(decrypt)))
             .encode_to_vec(),
@@ -682,7 +707,7 @@ fn ml_kem_wire_preserves_encrypt_specific_unprotected_header_reason() {
     assert_error_branch_and_reason(
         &output,
         ExpectedErrorBranch::Primitive,
-        CoseErrorReason::EncryptUnprotectedHeaderNotAllowed,
+        native_error.reason(),
     );
 }
 
