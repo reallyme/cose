@@ -26,6 +26,77 @@ impl AgreementKeyProvider for RejectingProvider {
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 #[test]
+fn float_y_is_rejected_by_peer_and_agreement_import_before_provider() -> Result<(), ContainerError>
+{
+    use crate::containers::{inspect_peer_key, PeerKeyUsage, SignatureSuite};
+    use crate::iso18013::Iso18013SignatureCurve;
+
+    let case = case(1)?;
+    let selected = policy(EncodingPolicy::FullOrCompressed);
+    let provider = RejectingProvider(Cell::new(0));
+    let signature_suite = SignatureSuite::iso(
+        crate::CoseSignatureAlgorithm::Es256,
+        Iso18013SignatureCurve::P256,
+    )?;
+    for (parity, bits) in [(false, 20_u16), (true, 21_u16)] {
+        let mut params = parameters(&case)?;
+        let y = params
+            .iter_mut()
+            .find(|(label, _)| *label == int(-3))
+            .ok_or(Reason::Key)?;
+        y.1 = Value::Bool(parity);
+        let encoded = map(params.clone());
+        let valid = AgreementKey::from_slice(&encoded, selected, &CryptoAgreementKeyProvider)?;
+        assert_eq!(valid.point_encoding(), PeerPointEncoding::Ec2YSign);
+        assert_eq!(valid.original_cose_key(), encoded);
+        for usage in [
+            PeerKeyUsage::Agreement,
+            PeerKeyUsage::Signature(signature_suite),
+        ] {
+            let inspected = inspect_peer_key(&encoded, usage, OptionalKeyPolicy::Cose)?;
+            assert_eq!(inspected.original_cose_key(), encoded);
+        }
+
+        for (width, floating) in [
+            (16, half::f16::from_bits(bits).to_f64()),
+            (32, f64::from(f32::from_bits(u32::from(bits)))),
+            (64, f64::from_bits(u64::from(bits))),
+        ] {
+            let mut changed = params.clone();
+            let y = changed
+                .iter_mut()
+                .find(|(label, _)| *label == int(-3))
+                .ok_or(Reason::Key)?;
+            y.1 = Value::Float(floating);
+            let encoded = map(changed);
+            if !parity && width == 16 {
+                // Pin the reported wire case: label -3 followed by f9 0014.
+                assert!(encoded.windows(4).any(|bytes| bytes == b"\x22\xf9\x00\x14"));
+            }
+            crate::containers::validate_preferred_cbor(&encoded)?;
+            for usage in [
+                PeerKeyUsage::Agreement,
+                PeerKeyUsage::Signature(signature_suite),
+            ] {
+                assert_error(
+                    inspect_peer_key(&encoded, usage, OptionalKeyPolicy::Cose),
+                    Reason::Key,
+                );
+            }
+            // The most permissive valid compression policy cannot repair the
+            // wrong CBOR type. Rejection must precede point normalization.
+            assert_error(
+                AgreementKey::from_slice(&encoded, selected, &provider),
+                Reason::Key,
+            );
+        }
+    }
+    assert_eq!(provider.0.get(), 0);
+    Ok(())
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
 fn duplicate_and_private_parameters_fail_before_provider_and_are_not_ignored(
 ) -> Result<(), ContainerError> {
     let case = case(1)?;
