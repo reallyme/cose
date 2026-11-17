@@ -58,3 +58,6 @@ mod allowlists;
 
 #[path = "contract_sign_message_tests.rs"]
 mod sign_message;
+
+#[path = "contract_encrypt0_tests.rs"]
+mod encrypt0;

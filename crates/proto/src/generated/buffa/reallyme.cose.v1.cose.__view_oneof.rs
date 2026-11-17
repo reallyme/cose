@@ -417,6 +417,8 @@ pub mod cose_operation_request {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
                 Self::MlKemDecrypt(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::Encrypt0Create(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::Encrypt0Decrypt(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::Mac0VerifyDetached(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -622,6 +624,16 @@ pub mod cose_operation_request {
                 super::super::super::super::__buffa::view::CoseMlKemDecryptRequestView<'a>,
             >,
         ),
+        Encrypt0Create(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseEncrypt0CreateRequestView<'a>,
+            >,
+        ),
+        Encrypt0Decrypt(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseEncrypt0DecryptRequestView<'a>,
+            >,
+        ),
         Mac0VerifyDetached(
             ::buffa::alloc::boxed::Box<
                 super::super::super::super::__buffa::view::CoseMac0VerifyRequestView<'a>,
@@ -761,6 +773,8 @@ pub mod cose_operation_result {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
                 Self::MlKemDecrypt(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::Encrypt0Create(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::Encrypt0Decrypt(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::Mac0VerifyDetached(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -964,6 +978,16 @@ pub mod cose_operation_result {
         MlKemDecrypt(
             ::buffa::alloc::boxed::Box<
                 super::super::super::super::__buffa::view::CoseMlKemDecryptResultView<'a>,
+            >,
+        ),
+        Encrypt0Create(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseEncrypt0CreateResultView<'a>,
+            >,
+        ),
+        Encrypt0Decrypt(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseEncrypt0DecryptResultView<'a>,
             >,
         ),
         Mac0VerifyDetached(

@@ -109,6 +109,10 @@ pub mod __buffa {
         reg.register_json_any(super::__COSE_KEY_SET_CREATE_RESULT_JSON_ANY);
         reg.register_json_any(super::__COSE_MESSAGE_HEADERS_JSON_ANY);
         reg.register_json_any(super::__COSE_MESSAGE_CREATE_RESULT_JSON_ANY);
+        reg.register_json_any(super::__COSE_ENCRYPT0CREATE_REQUEST_JSON_ANY);
+        reg.register_json_any(super::__COSE_ENCRYPT0CREATE_RESULT_JSON_ANY);
+        reg.register_json_any(super::__COSE_ENCRYPT0DECRYPT_REQUEST_JSON_ANY);
+        reg.register_json_any(super::__COSE_ENCRYPT0DECRYPT_RESULT_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN_SIGNER_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN_CREATE_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_SIGN_KEY_BINDING_JSON_ANY);
@@ -193,6 +197,22 @@ pub use self::__buffa::view::CoseContractInfoResultView;
 pub use self::__buffa::view::CoseEcdsaPrehashOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseEcdsaPrehashView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseEncrypt0CreateRequestOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseEncrypt0CreateRequestView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseEncrypt0CreateResultOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseEncrypt0CreateResultView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseEncrypt0DecryptRequestOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseEncrypt0DecryptRequestView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseEncrypt0DecryptResultOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseEncrypt0DecryptResultView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseErrorOwnedView;
 #[doc(inline)]

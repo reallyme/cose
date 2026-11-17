@@ -61,6 +61,8 @@ routing_fixtures! {
     2013 => KeyToPublicVec,
     1020 => SignCreate,
     1021 => SignVerify,
+    3010 => Encrypt0Create,
+    3011 => Encrypt0Decrypt,
     2014 => KeySetParse,
     2015 => KeySetCreate,
     3000 => MlKemEncryptDirect,

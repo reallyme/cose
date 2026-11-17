@@ -18690,6 +18690,10 @@ impl<'a> ::buffa::sensitive::Zeroize for CoseOperationRequestView<'a> {
         );
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseMlKemDecryptRequestView<'a>>(
         );
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseEncrypt0CreateRequestView<'a>>(
+        );
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseEncrypt0DecryptRequestView<'a>>(
+        );
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseMac0VerifyRequestView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseOpaqueBytesView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseValidationResultView<'a>>();
@@ -19875,6 +19879,68 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                     );
                 }
             }
+            3010u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_request::Operation::Encrypt0Create(
+                        ref mut existing,
+                    ),
+                ) = view.operation
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.operation = Some(
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::Encrypt0Create(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseEncrypt0CreateRequestView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
+            3011u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_request::Operation::Encrypt0Decrypt(
+                        ref mut existing,
+                    ),
+                ) = view.operation
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.operation = Some(
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::Encrypt0Decrypt(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseEncrypt0DecryptRequestView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
             4000u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
@@ -20330,6 +20396,24 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                                 ),
                             )
                         }
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::Encrypt0Create(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_request::Operation::Encrypt0Create(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::Encrypt0Decrypt(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_request::Operation::Encrypt0Decrypt(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::Mac0VerifyDetached(
                             v,
                         ) => {
@@ -20734,6 +20818,26 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseOperationRequestView<'a> {
                             + inner as u64;
                 }
                 super::super::__buffa::view::oneof::cose_operation_request::Operation::MlKemDecrypt(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 3u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::Encrypt0Create(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 3u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::Encrypt0Decrypt(
                     x,
                 ) => {
                     let __slot = __cache.reserve();
@@ -21148,6 +21252,26 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseOperationRequestView<'a> {
                 ) => {
                     ::buffa::types::put_len_delimited_header(
                         3002u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::Encrypt0Create(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        3010u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::Encrypt0Decrypt(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        3011u32,
                         u64::from(__cache.consume_next()),
                         buf,
                     );
@@ -21761,6 +21885,10 @@ impl<'a> ::buffa::sensitive::Zeroize for CoseOperationResultView<'a> {
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseMlKemEncryptResultView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseMlKemEncryptResultView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseMlKemDecryptResultView<'a>>();
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseEncrypt0CreateResultView<'a>>(
+        );
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseEncrypt0DecryptResultView<'a>>(
+        );
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseMac0VerifyResultView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseValidationResultView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseContractInfoResultView<'a>>();
@@ -22918,6 +23046,68 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                     );
                 }
             }
+            3010u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_result::Result::Encrypt0Create(
+                        ref mut existing,
+                    ),
+                ) = view.result
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.result = Some(
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::Encrypt0Create(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseEncrypt0CreateResultView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
+            3011u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_result::Result::Encrypt0Decrypt(
+                        ref mut existing,
+                    ),
+                ) = view.result
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.result = Some(
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::Encrypt0Decrypt(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseEncrypt0DecryptResultView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
             4000u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
@@ -23369,6 +23559,24 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                                 ),
                             )
                         }
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::Encrypt0Create(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_result::Result::Encrypt0Create(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::Encrypt0Decrypt(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_result::Result::Encrypt0Decrypt(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
                         super::super::__buffa::view::oneof::cose_operation_result::Result::Mac0VerifyDetached(
                             v,
                         ) => {
@@ -23773,6 +23981,26 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseOperationResultView<'a> {
                             + inner as u64;
                 }
                 super::super::__buffa::view::oneof::cose_operation_result::Result::MlKemDecrypt(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 3u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::Encrypt0Create(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 3u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::Encrypt0Decrypt(
                     x,
                 ) => {
                     let __slot = __cache.reserve();
@@ -24187,6 +24415,26 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseOperationResultView<'a> {
                 ) => {
                     ::buffa::types::put_len_delimited_header(
                         3002u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::Encrypt0Create(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        3010u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::Encrypt0Decrypt(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        3011u32,
                         u64::from(__cache.consume_next()),
                         buf,
                     );
@@ -32801,6 +33049,1619 @@ impl ::buffa::HasMessageView for super::super::CoseMessageCreateResult {
     type ViewHandle = CoseMessageCreateResultOwnedView;
 }
 impl ::serde::Serialize for CoseMessageCreateResultOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+/// RFC 9052 sections 5.2/5.3. Keys are exact-width AES-GCM keys, not a KDF
+/// seed. Supply IV or Partial IV in headers; callers ensure nonce uniqueness.
+/// Partial IV requires an explicit 12-byte Base IV; both IV forms together fail.
+#[derive(Clone, Default)]
+pub struct CoseEncrypt0CreateRequestView<'a> {
+    /// Field 1: `headers`
+    pub headers: ::buffa::MessageFieldView<super::super::__buffa::view::CoseMessageHeadersView<'a>>,
+    /// SENSITIVE: plaintext.
+    ///
+    /// Field 2: `plaintext`
+    pub plaintext: &'a [u8],
+    /// SENSITIVE: explicit AAD, including empty bytes, at most 64 KiB.
+    ///
+    /// Field 3: `external_aad`
+    pub external_aad: &'a [u8],
+    /// Field 4: `key_algorithm`
+    pub key_algorithm: ::buffa::EnumValue<super::super::CoseContentEncryptionAlgorithm>,
+    /// SENSITIVE: consumed by a protected primitive owner, never returned.
+    ///
+    /// Field 5: `key`
+    pub key: &'a [u8],
+    /// Field 6: `allowed_algorithms`
+    pub allowed_algorithms: ::buffa::sensitive::RepeatedView<
+        'a,
+        ::buffa::EnumValue<super::super::CoseContentEncryptionAlgorithm>,
+    >,
+    /// SENSITIVE: Base IV used only with Partial IV, RFC 9052 section 3.1.
+    ///
+    /// Field 7: `base_iv`
+    pub base_iv: ::core::option::Option<&'a [u8]>,
+    /// Field 8: `content_mode`
+    pub content_mode: ::buffa::EnumValue<super::super::CoseContentMode>,
+    /// Field 9: `tagged`
+    pub tagged: bool,
+}
+impl<'a> ::core::fmt::Debug for CoseEncrypt0CreateRequestView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseEncrypt0CreateRequestView")
+            .field("headers", &::core::format_args!("[REDACTED]"))
+            .field("plaintext", &::core::format_args!("[REDACTED]"))
+            .field("external_aad", &::core::format_args!("[REDACTED]"))
+            .field("key_algorithm", &::core::format_args!("[REDACTED]"))
+            .field("key", &::core::format_args!("[REDACTED]"))
+            .field("allowed_algorithms", &::core::format_args!("[REDACTED]"))
+            .field("base_iv", &::core::format_args!("[REDACTED]"))
+            .field("content_mode", &::core::format_args!("[REDACTED]"))
+            .field("tagged", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseEncrypt0CreateRequestView<'a> {
+    fn zeroize(&mut self) {
+        fn __requires_view_wipe_owner<
+            T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop,
+        >() {
+        }
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseMessageHeadersView<'a>>();
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.headers);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.key_algorithm);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.allowed_algorithms);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.content_mode);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.tagged);
+    }
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseEncrypt0CreateRequestView<'a> {}
+impl<'a> ::core::ops::Drop for CoseEncrypt0CreateRequestView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseEncrypt0CreateRequestView<'a> {
+    type Owned = super::super::CoseEncrypt0CreateRequest;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                match view.headers.as_mut() {
+                    Some(existing) => {
+                        ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
+                    }
+                    None => {
+                        view.headers = ::buffa::MessageFieldView::set(
+                            <super::super::__buffa::view::CoseMessageHeadersView as ::buffa::MessageView>::decode_view_ctx(
+                                sub,
+                                __sub_ctx,
+                            )?,
+                        );
+                    }
+                }
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.plaintext = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.external_aad = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            4u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                view.key_algorithm =
+                    ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?);
+            }
+            5u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.key = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            7u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.base_iv = Some(::buffa::types::borrow_bytes(&mut cur)?);
+            }
+            8u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                view.content_mode =
+                    ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?);
+            }
+            9u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                view.tagged = ::buffa::types::decode_bool(&mut cur)?;
+            }
+            6u32 => {
+                if tag.wire_type() == ::buffa::encoding::WireType::LengthDelimited {
+                    let payload = ::buffa::types::borrow_bytes(&mut cur)?;
+                    view.allowed_algorithms
+                        .reserve(::buffa::encoding::count_varints(payload));
+                    let mut pcur: &[u8] = payload;
+                    while !pcur.is_empty() {
+                        view.allowed_algorithms.push(::buffa::EnumValue::from(
+                            ::buffa::types::decode_int32_packed(&mut pcur)?,
+                        ));
+                    }
+                } else if tag.wire_type() == ::buffa::encoding::WireType::Varint {
+                    view.allowed_algorithms.push(::buffa::EnumValue::from(
+                        ::buffa::types::decode_int32(&mut cur)?,
+                    ));
+                } else {
+                    return Err(::buffa::encoding::wire_type_mismatch(
+                        tag,
+                        ::buffa::encoding::WireType::LengthDelimited,
+                    ));
+                }
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<super::super::CoseEncrypt0CreateRequest, ::buffa::DecodeError> {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<super::super::CoseEncrypt0CreateRequest, ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let mut __owned =
+            <super::super::CoseEncrypt0CreateRequest as ::core::default::Default>::default();
+        __owned.headers = match self.headers.as_option() {
+            Some(v) => ::buffa::MessageField::<
+                super::super::CoseMessageHeaders,
+                ::buffa::Inline<super::super::CoseMessageHeaders>,
+            >::some(v.to_owned_from_source(__buffa_src)?),
+            None => ::buffa::MessageField::none(),
+        };
+        __owned.plaintext = ::core::convert::Into::into((self.plaintext).to_vec());
+        __owned.external_aad = ::core::convert::Into::into((self.external_aad).to_vec());
+        __owned.key_algorithm = self.key_algorithm;
+        __owned.key = ::core::convert::Into::into((self.key).to_vec());
+        __owned.allowed_algorithms = self.allowed_algorithms.iter().copied().collect();
+        __owned.base_iv = self
+            .base_iv
+            .map(|b| ::core::convert::Into::into((b).to_vec()));
+        __owned.content_mode = self.content_mode;
+        __owned.tagged = self.tagged;
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseEncrypt0CreateRequestView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if let ::core::option::Option::Some(__v) = self.headers.as_option() {
+            let __slot = __cache.reserve();
+            let inner_size = __v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        if !self.plaintext.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.plaintext) as u64;
+        }
+        if !self.external_aad.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.external_aad) as u64;
+        }
+        {
+            let val = self.key_algorithm.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        if !self.key.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.key) as u64;
+        }
+        if !self.allowed_algorithms.is_empty() {
+            let payload: u64 = self
+                .allowed_algorithms
+                .iter()
+                .map(|v| ::buffa::types::int32_encoded_len(v.to_i32()) as u64)
+                .sum::<u64>();
+            size += 1u64 + ::buffa::encoding::varint_len(payload) as u64 + payload;
+        }
+        if let Some(ref v) = self.base_iv {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
+        }
+        {
+            let val = self.content_mode.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        if self.tagged {
+            size += 1u64 + ::buffa::types::BOOL_ENCODED_LEN as u64;
+        }
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, __cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if let ::core::option::Option::Some(__v) = self.headers.as_option() {
+            ::buffa::types::put_len_delimited_header(1u32, u64::from(__cache.consume_next()), buf);
+            __v.write_to(__cache, buf);
+        }
+        if !self.plaintext.is_empty() {
+            ::buffa::types::put_shared_bytes_field(2u32, &self.plaintext, buf);
+        }
+        if !self.external_aad.is_empty() {
+            ::buffa::types::put_shared_bytes_field(3u32, &self.external_aad, buf);
+        }
+        {
+            let val = self.key_algorithm.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(4u32, val, buf);
+            }
+        }
+        if !self.key.is_empty() {
+            ::buffa::types::put_shared_bytes_field(5u32, &self.key, buf);
+        }
+        if !self.allowed_algorithms.is_empty() {
+            let payload: u64 = self
+                .allowed_algorithms
+                .iter()
+                .map(|v| ::buffa::types::int32_encoded_len(v.to_i32()) as u64)
+                .sum::<u64>();
+            ::buffa::types::put_len_delimited_header(6u32, payload, buf);
+            for v in &self.allowed_algorithms {
+                ::buffa::types::encode_int32(v.to_i32(), buf);
+            }
+        }
+        if let Some(ref v) = self.base_iv {
+            ::buffa::types::put_shared_bytes_field(7u32, v, buf);
+        }
+        {
+            let val = self.content_mode.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(8u32, val, buf);
+            }
+        }
+        if self.tagged {
+            ::buffa::types::put_bool_field(9u32, self.tagged, buf);
+        }
+    }
+}
+impl<'__a> ::serde::Serialize for CoseEncrypt0CreateRequestView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseEncrypt0CreateRequestView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseEncrypt0CreateRequest";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseEncrypt0CreateRequest";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseEncrypt0CreateRequest";
+}
+::buffa::impl_default_view_instance!(CoseEncrypt0CreateRequestView);
+::buffa::impl_view_reborrow!(CoseEncrypt0CreateRequestView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseEncrypt0CreateRequestView);
+/** Self-contained, `'static` owned view of a `CoseEncrypt0CreateRequest` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseEncrypt0CreateRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseEncrypt0CreateRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseEncrypt0CreateRequestOwnedView(
+    ::buffa::OwnedView<CoseEncrypt0CreateRequestView<'static>>,
+);
+impl CoseEncrypt0CreateRequestOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseEncrypt0CreateRequestOwnedView(
+            ::buffa::OwnedView::decode(bytes)?,
+        ))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseEncrypt0CreateRequestOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseEncrypt0CreateRequest,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseEncrypt0CreateRequestOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseEncrypt0CreateRequestView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseEncrypt0CreateRequestView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseEncrypt0CreateRequest {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+    /// Field 1: `headers`
+    #[must_use]
+    pub fn headers(
+        &self,
+    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseMessageHeadersView<'_>> {
+        &self.0.reborrow().headers
+    }
+    /// SENSITIVE: plaintext.
+    ///
+    /// Field 2: `plaintext`
+    #[must_use]
+    pub fn plaintext(&self) -> &'_ [u8] {
+        self.0.reborrow().plaintext
+    }
+    /// SENSITIVE: explicit AAD, including empty bytes, at most 64 KiB.
+    ///
+    /// Field 3: `external_aad`
+    #[must_use]
+    pub fn external_aad(&self) -> &'_ [u8] {
+        self.0.reborrow().external_aad
+    }
+    /// Field 4: `key_algorithm`
+    #[must_use]
+    pub fn key_algorithm(
+        &self,
+    ) -> ::buffa::EnumValue<super::super::CoseContentEncryptionAlgorithm> {
+        self.0.reborrow().key_algorithm
+    }
+    /// SENSITIVE: consumed by a protected primitive owner, never returned.
+    ///
+    /// Field 5: `key`
+    #[must_use]
+    pub fn key(&self) -> &'_ [u8] {
+        self.0.reborrow().key
+    }
+    /// Field 6: `allowed_algorithms`
+    #[must_use]
+    pub fn allowed_algorithms(
+        &self,
+    ) -> &::buffa::sensitive::RepeatedView<
+        '_,
+        ::buffa::EnumValue<super::super::CoseContentEncryptionAlgorithm>,
+    > {
+        &self.0.reborrow().allowed_algorithms
+    }
+    /// SENSITIVE: Base IV used only with Partial IV, RFC 9052 section 3.1.
+    ///
+    /// Field 7: `base_iv`
+    #[must_use]
+    pub fn base_iv(&self) -> ::core::option::Option<&'_ [u8]> {
+        self.0.reborrow().base_iv
+    }
+    /// Field 8: `content_mode`
+    #[must_use]
+    pub fn content_mode(&self) -> ::buffa::EnumValue<super::super::CoseContentMode> {
+        self.0.reborrow().content_mode
+    }
+    /// Field 9: `tagged`
+    #[must_use]
+    pub fn tagged(&self) -> bool {
+        self.0.reborrow().tagged
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseEncrypt0CreateRequestView<'static>>>
+    for CoseEncrypt0CreateRequestOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseEncrypt0CreateRequestView<'static>>) -> Self {
+        CoseEncrypt0CreateRequestOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseEncrypt0CreateRequestOwnedView>
+    for ::buffa::OwnedView<CoseEncrypt0CreateRequestView<'static>>
+{
+    fn from(wrapper: CoseEncrypt0CreateRequestOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseEncrypt0CreateRequestView<'static>>>
+    for CoseEncrypt0CreateRequestOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseEncrypt0CreateRequestView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseEncrypt0CreateRequest {
+    type View<'a> = CoseEncrypt0CreateRequestView<'a>;
+    type ViewHandle = CoseEncrypt0CreateRequestOwnedView;
+}
+impl ::serde::Serialize for CoseEncrypt0CreateRequestOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+#[derive(Clone, Default)]
+pub struct CoseEncrypt0CreateResultView<'a> {
+    /// SENSITIVE: exact envelope, nil ciphertext only in detached mode.
+    ///
+    /// Field 1: `encoded`
+    pub encoded: &'a [u8],
+    /// SENSITIVE: present exactly for detached mode, includes the AEAD tag.
+    ///
+    /// Field 2: `detached_ciphertext`
+    pub detached_ciphertext: ::core::option::Option<&'a [u8]>,
+}
+impl<'a> ::core::fmt::Debug for CoseEncrypt0CreateResultView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseEncrypt0CreateResultView")
+            .field("encoded", &::core::format_args!("[REDACTED]"))
+            .field("detached_ciphertext", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseEncrypt0CreateResultView<'a> {
+    fn zeroize(&mut self) {}
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseEncrypt0CreateResultView<'a> {}
+impl<'a> ::core::ops::Drop for CoseEncrypt0CreateResultView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseEncrypt0CreateResultView<'a> {
+    type Owned = super::super::CoseEncrypt0CreateResult;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.encoded = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.detached_ciphertext = Some(::buffa::types::borrow_bytes(&mut cur)?);
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<super::super::CoseEncrypt0CreateResult, ::buffa::DecodeError> {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<super::super::CoseEncrypt0CreateResult, ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let mut __owned =
+            <super::super::CoseEncrypt0CreateResult as ::core::default::Default>::default();
+        __owned.encoded = ::core::convert::Into::into((self.encoded).to_vec());
+        __owned.detached_ciphertext = self
+            .detached_ciphertext
+            .map(|b| ::core::convert::Into::into((b).to_vec()));
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseEncrypt0CreateResultView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, _cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if !self.encoded.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.encoded) as u64;
+        }
+        if let Some(ref v) = self.detached_ciphertext {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
+        }
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, _cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if !self.encoded.is_empty() {
+            ::buffa::types::put_shared_bytes_field(1u32, &self.encoded, buf);
+        }
+        if let Some(ref v) = self.detached_ciphertext {
+            ::buffa::types::put_shared_bytes_field(2u32, v, buf);
+        }
+    }
+}
+impl<'__a> ::serde::Serialize for CoseEncrypt0CreateResultView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseEncrypt0CreateResultView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseEncrypt0CreateResult";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseEncrypt0CreateResult";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseEncrypt0CreateResult";
+}
+::buffa::impl_default_view_instance!(CoseEncrypt0CreateResultView);
+::buffa::impl_view_reborrow!(CoseEncrypt0CreateResultView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseEncrypt0CreateResultView);
+/** Self-contained, `'static` owned view of a `CoseEncrypt0CreateResult` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseEncrypt0CreateResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseEncrypt0CreateResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseEncrypt0CreateResultOwnedView(
+    ::buffa::OwnedView<CoseEncrypt0CreateResultView<'static>>,
+);
+impl CoseEncrypt0CreateResultOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseEncrypt0CreateResultOwnedView(
+            ::buffa::OwnedView::decode(bytes)?,
+        ))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseEncrypt0CreateResultOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseEncrypt0CreateResult,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseEncrypt0CreateResultOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseEncrypt0CreateResultView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseEncrypt0CreateResultView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseEncrypt0CreateResult {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+    /// SENSITIVE: exact envelope, nil ciphertext only in detached mode.
+    ///
+    /// Field 1: `encoded`
+    #[must_use]
+    pub fn encoded(&self) -> &'_ [u8] {
+        self.0.reborrow().encoded
+    }
+    /// SENSITIVE: present exactly for detached mode, includes the AEAD tag.
+    ///
+    /// Field 2: `detached_ciphertext`
+    #[must_use]
+    pub fn detached_ciphertext(&self) -> ::core::option::Option<&'_ [u8]> {
+        self.0.reborrow().detached_ciphertext
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseEncrypt0CreateResultView<'static>>>
+    for CoseEncrypt0CreateResultOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseEncrypt0CreateResultView<'static>>) -> Self {
+        CoseEncrypt0CreateResultOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseEncrypt0CreateResultOwnedView>
+    for ::buffa::OwnedView<CoseEncrypt0CreateResultView<'static>>
+{
+    fn from(wrapper: CoseEncrypt0CreateResultOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseEncrypt0CreateResultView<'static>>>
+    for CoseEncrypt0CreateResultOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseEncrypt0CreateResultView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseEncrypt0CreateResult {
+    type View<'a> = CoseEncrypt0CreateResultView<'a>;
+    type ViewHandle = CoseEncrypt0CreateResultOwnedView;
+}
+impl ::serde::Serialize for CoseEncrypt0CreateResultOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+#[derive(Clone, Default)]
+pub struct CoseEncrypt0DecryptRequestView<'a> {
+    /// SENSITIVE: exact envelope, at most 1 MiB.
+    ///
+    /// Field 1: `encoded`
+    pub encoded: &'a [u8],
+    /// SENSITIVE: presence requires a nil ciphertext slot.
+    ///
+    /// Field 2: `detached_ciphertext`
+    pub detached_ciphertext: ::core::option::Option<&'a [u8]>,
+    /// SENSITIVE: explicit AAD.
+    ///
+    /// Field 3: `external_aad`
+    pub external_aad: &'a [u8],
+    /// Field 4: `key_algorithm`
+    pub key_algorithm: ::buffa::EnumValue<super::super::CoseContentEncryptionAlgorithm>,
+    /// SENSITIVE: protected primitive input, never returned.
+    ///
+    /// Field 5: `key`
+    pub key: &'a [u8],
+    /// Field 6: `allowed_algorithms`
+    pub allowed_algorithms: ::buffa::sensitive::RepeatedView<
+        'a,
+        ::buffa::EnumValue<super::super::CoseContentEncryptionAlgorithm>,
+    >,
+    /// SENSITIVE: explicit base for Partial IV.
+    ///
+    /// Field 7: `base_iv`
+    pub base_iv: ::core::option::Option<&'a [u8]>,
+    /// Field 8: `envelope`
+    pub envelope: ::buffa::EnumValue<super::super::CoseEnvelopePolicy>,
+}
+impl<'a> ::core::fmt::Debug for CoseEncrypt0DecryptRequestView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseEncrypt0DecryptRequestView")
+            .field("encoded", &::core::format_args!("[REDACTED]"))
+            .field("detached_ciphertext", &::core::format_args!("[REDACTED]"))
+            .field("external_aad", &::core::format_args!("[REDACTED]"))
+            .field("key_algorithm", &::core::format_args!("[REDACTED]"))
+            .field("key", &::core::format_args!("[REDACTED]"))
+            .field("allowed_algorithms", &::core::format_args!("[REDACTED]"))
+            .field("base_iv", &::core::format_args!("[REDACTED]"))
+            .field("envelope", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseEncrypt0DecryptRequestView<'a> {
+    fn zeroize(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.key_algorithm);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.allowed_algorithms);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.envelope);
+    }
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseEncrypt0DecryptRequestView<'a> {}
+impl<'a> ::core::ops::Drop for CoseEncrypt0DecryptRequestView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseEncrypt0DecryptRequestView<'a> {
+    type Owned = super::super::CoseEncrypt0DecryptRequest;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.encoded = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.detached_ciphertext = Some(::buffa::types::borrow_bytes(&mut cur)?);
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.external_aad = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            4u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                view.key_algorithm =
+                    ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?);
+            }
+            5u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.key = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            7u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.base_iv = Some(::buffa::types::borrow_bytes(&mut cur)?);
+            }
+            8u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                view.envelope = ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?);
+            }
+            6u32 => {
+                if tag.wire_type() == ::buffa::encoding::WireType::LengthDelimited {
+                    let payload = ::buffa::types::borrow_bytes(&mut cur)?;
+                    view.allowed_algorithms
+                        .reserve(::buffa::encoding::count_varints(payload));
+                    let mut pcur: &[u8] = payload;
+                    while !pcur.is_empty() {
+                        view.allowed_algorithms.push(::buffa::EnumValue::from(
+                            ::buffa::types::decode_int32_packed(&mut pcur)?,
+                        ));
+                    }
+                } else if tag.wire_type() == ::buffa::encoding::WireType::Varint {
+                    view.allowed_algorithms.push(::buffa::EnumValue::from(
+                        ::buffa::types::decode_int32(&mut cur)?,
+                    ));
+                } else {
+                    return Err(::buffa::encoding::wire_type_mismatch(
+                        tag,
+                        ::buffa::encoding::WireType::LengthDelimited,
+                    ));
+                }
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<super::super::CoseEncrypt0DecryptRequest, ::buffa::DecodeError>
+    {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<super::super::CoseEncrypt0DecryptRequest, ::buffa::DecodeError>
+    {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let mut __owned =
+            <super::super::CoseEncrypt0DecryptRequest as ::core::default::Default>::default();
+        __owned.encoded = ::core::convert::Into::into((self.encoded).to_vec());
+        __owned.detached_ciphertext = self
+            .detached_ciphertext
+            .map(|b| ::core::convert::Into::into((b).to_vec()));
+        __owned.external_aad = ::core::convert::Into::into((self.external_aad).to_vec());
+        __owned.key_algorithm = self.key_algorithm;
+        __owned.key = ::core::convert::Into::into((self.key).to_vec());
+        __owned.allowed_algorithms = self.allowed_algorithms.iter().copied().collect();
+        __owned.base_iv = self
+            .base_iv
+            .map(|b| ::core::convert::Into::into((b).to_vec()));
+        __owned.envelope = self.envelope;
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseEncrypt0DecryptRequestView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, _cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if !self.encoded.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.encoded) as u64;
+        }
+        if let Some(ref v) = self.detached_ciphertext {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
+        }
+        if !self.external_aad.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.external_aad) as u64;
+        }
+        {
+            let val = self.key_algorithm.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        if !self.key.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.key) as u64;
+        }
+        if !self.allowed_algorithms.is_empty() {
+            let payload: u64 = self
+                .allowed_algorithms
+                .iter()
+                .map(|v| ::buffa::types::int32_encoded_len(v.to_i32()) as u64)
+                .sum::<u64>();
+            size += 1u64 + ::buffa::encoding::varint_len(payload) as u64 + payload;
+        }
+        if let Some(ref v) = self.base_iv {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
+        }
+        {
+            let val = self.envelope.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, _cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if !self.encoded.is_empty() {
+            ::buffa::types::put_shared_bytes_field(1u32, &self.encoded, buf);
+        }
+        if let Some(ref v) = self.detached_ciphertext {
+            ::buffa::types::put_shared_bytes_field(2u32, v, buf);
+        }
+        if !self.external_aad.is_empty() {
+            ::buffa::types::put_shared_bytes_field(3u32, &self.external_aad, buf);
+        }
+        {
+            let val = self.key_algorithm.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(4u32, val, buf);
+            }
+        }
+        if !self.key.is_empty() {
+            ::buffa::types::put_shared_bytes_field(5u32, &self.key, buf);
+        }
+        if !self.allowed_algorithms.is_empty() {
+            let payload: u64 = self
+                .allowed_algorithms
+                .iter()
+                .map(|v| ::buffa::types::int32_encoded_len(v.to_i32()) as u64)
+                .sum::<u64>();
+            ::buffa::types::put_len_delimited_header(6u32, payload, buf);
+            for v in &self.allowed_algorithms {
+                ::buffa::types::encode_int32(v.to_i32(), buf);
+            }
+        }
+        if let Some(ref v) = self.base_iv {
+            ::buffa::types::put_shared_bytes_field(7u32, v, buf);
+        }
+        {
+            let val = self.envelope.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(8u32, val, buf);
+            }
+        }
+    }
+}
+impl<'__a> ::serde::Serialize for CoseEncrypt0DecryptRequestView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseEncrypt0DecryptRequestView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseEncrypt0DecryptRequest";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseEncrypt0DecryptRequest";
+    const TYPE_URL: &'static str =
+        "type.googleapis.com/reallyme.cose.v1.CoseEncrypt0DecryptRequest";
+}
+::buffa::impl_default_view_instance!(CoseEncrypt0DecryptRequestView);
+::buffa::impl_view_reborrow!(CoseEncrypt0DecryptRequestView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseEncrypt0DecryptRequestView);
+/** Self-contained, `'static` owned view of a `CoseEncrypt0DecryptRequest` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseEncrypt0DecryptRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseEncrypt0DecryptRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseEncrypt0DecryptRequestOwnedView(
+    ::buffa::OwnedView<CoseEncrypt0DecryptRequestView<'static>>,
+);
+impl CoseEncrypt0DecryptRequestOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseEncrypt0DecryptRequestOwnedView(
+            ::buffa::OwnedView::decode(bytes)?,
+        ))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseEncrypt0DecryptRequestOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseEncrypt0DecryptRequest,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseEncrypt0DecryptRequestOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseEncrypt0DecryptRequestView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseEncrypt0DecryptRequestView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseEncrypt0DecryptRequest {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+    /// SENSITIVE: exact envelope, at most 1 MiB.
+    ///
+    /// Field 1: `encoded`
+    #[must_use]
+    pub fn encoded(&self) -> &'_ [u8] {
+        self.0.reborrow().encoded
+    }
+    /// SENSITIVE: presence requires a nil ciphertext slot.
+    ///
+    /// Field 2: `detached_ciphertext`
+    #[must_use]
+    pub fn detached_ciphertext(&self) -> ::core::option::Option<&'_ [u8]> {
+        self.0.reborrow().detached_ciphertext
+    }
+    /// SENSITIVE: explicit AAD.
+    ///
+    /// Field 3: `external_aad`
+    #[must_use]
+    pub fn external_aad(&self) -> &'_ [u8] {
+        self.0.reborrow().external_aad
+    }
+    /// Field 4: `key_algorithm`
+    #[must_use]
+    pub fn key_algorithm(
+        &self,
+    ) -> ::buffa::EnumValue<super::super::CoseContentEncryptionAlgorithm> {
+        self.0.reborrow().key_algorithm
+    }
+    /// SENSITIVE: protected primitive input, never returned.
+    ///
+    /// Field 5: `key`
+    #[must_use]
+    pub fn key(&self) -> &'_ [u8] {
+        self.0.reborrow().key
+    }
+    /// Field 6: `allowed_algorithms`
+    #[must_use]
+    pub fn allowed_algorithms(
+        &self,
+    ) -> &::buffa::sensitive::RepeatedView<
+        '_,
+        ::buffa::EnumValue<super::super::CoseContentEncryptionAlgorithm>,
+    > {
+        &self.0.reborrow().allowed_algorithms
+    }
+    /// SENSITIVE: explicit base for Partial IV.
+    ///
+    /// Field 7: `base_iv`
+    #[must_use]
+    pub fn base_iv(&self) -> ::core::option::Option<&'_ [u8]> {
+        self.0.reborrow().base_iv
+    }
+    /// Field 8: `envelope`
+    #[must_use]
+    pub fn envelope(&self) -> ::buffa::EnumValue<super::super::CoseEnvelopePolicy> {
+        self.0.reborrow().envelope
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseEncrypt0DecryptRequestView<'static>>>
+    for CoseEncrypt0DecryptRequestOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseEncrypt0DecryptRequestView<'static>>) -> Self {
+        CoseEncrypt0DecryptRequestOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseEncrypt0DecryptRequestOwnedView>
+    for ::buffa::OwnedView<CoseEncrypt0DecryptRequestView<'static>>
+{
+    fn from(wrapper: CoseEncrypt0DecryptRequestOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseEncrypt0DecryptRequestView<'static>>>
+    for CoseEncrypt0DecryptRequestOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseEncrypt0DecryptRequestView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseEncrypt0DecryptRequest {
+    type View<'a> = CoseEncrypt0DecryptRequestView<'a>;
+    type ViewHandle = CoseEncrypt0DecryptRequestOwnedView;
+}
+impl ::serde::Serialize for CoseEncrypt0DecryptRequestOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+#[derive(Clone, Default)]
+pub struct CoseEncrypt0DecryptResultView<'a> {
+    /// SENSITIVE: released only after AEAD verification succeeds.
+    ///
+    /// Field 1: `plaintext`
+    pub plaintext: &'a [u8],
+    /// Field 2: `algorithm`
+    pub algorithm: ::buffa::EnumValue<super::super::CoseContentEncryptionAlgorithm>,
+    /// SENSITIVE: exact authenticated protected-header bytes.
+    ///
+    /// Field 3: `protected`
+    pub protected: &'a [u8],
+    /// SENSITIVE: protected identity only; never unprotected discovery data.
+    ///
+    /// Field 4: `protected_kid`
+    pub protected_kid: ::core::option::Option<&'a [u8]>,
+}
+impl<'a> ::core::fmt::Debug for CoseEncrypt0DecryptResultView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseEncrypt0DecryptResultView")
+            .field("plaintext", &::core::format_args!("[REDACTED]"))
+            .field("algorithm", &::core::format_args!("[REDACTED]"))
+            .field("protected", &::core::format_args!("[REDACTED]"))
+            .field("protected_kid", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseEncrypt0DecryptResultView<'a> {
+    fn zeroize(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.algorithm);
+    }
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseEncrypt0DecryptResultView<'a> {}
+impl<'a> ::core::ops::Drop for CoseEncrypt0DecryptResultView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseEncrypt0DecryptResultView<'a> {
+    type Owned = super::super::CoseEncrypt0DecryptResult;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.plaintext = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                view.algorithm = ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?);
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.protected = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            4u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.protected_kid = Some(::buffa::types::borrow_bytes(&mut cur)?);
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<super::super::CoseEncrypt0DecryptResult, ::buffa::DecodeError> {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<super::super::CoseEncrypt0DecryptResult, ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let mut __owned =
+            <super::super::CoseEncrypt0DecryptResult as ::core::default::Default>::default();
+        __owned.plaintext = ::core::convert::Into::into((self.plaintext).to_vec());
+        __owned.algorithm = self.algorithm;
+        __owned.protected = ::core::convert::Into::into((self.protected).to_vec());
+        __owned.protected_kid = self
+            .protected_kid
+            .map(|b| ::core::convert::Into::into((b).to_vec()));
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseEncrypt0DecryptResultView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, _cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if !self.plaintext.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.plaintext) as u64;
+        }
+        {
+            let val = self.algorithm.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        if !self.protected.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected) as u64;
+        }
+        if let Some(ref v) = self.protected_kid {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
+        }
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, _cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if !self.plaintext.is_empty() {
+            ::buffa::types::put_shared_bytes_field(1u32, &self.plaintext, buf);
+        }
+        {
+            let val = self.algorithm.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(2u32, val, buf);
+            }
+        }
+        if !self.protected.is_empty() {
+            ::buffa::types::put_shared_bytes_field(3u32, &self.protected, buf);
+        }
+        if let Some(ref v) = self.protected_kid {
+            ::buffa::types::put_shared_bytes_field(4u32, v, buf);
+        }
+    }
+}
+impl<'__a> ::serde::Serialize for CoseEncrypt0DecryptResultView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseEncrypt0DecryptResultView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseEncrypt0DecryptResult";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseEncrypt0DecryptResult";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseEncrypt0DecryptResult";
+}
+::buffa::impl_default_view_instance!(CoseEncrypt0DecryptResultView);
+::buffa::impl_view_reborrow!(CoseEncrypt0DecryptResultView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseEncrypt0DecryptResultView);
+/** Self-contained, `'static` owned view of a `CoseEncrypt0DecryptResult` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseEncrypt0DecryptResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseEncrypt0DecryptResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseEncrypt0DecryptResultOwnedView(
+    ::buffa::OwnedView<CoseEncrypt0DecryptResultView<'static>>,
+);
+impl CoseEncrypt0DecryptResultOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseEncrypt0DecryptResultOwnedView(
+            ::buffa::OwnedView::decode(bytes)?,
+        ))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseEncrypt0DecryptResultOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseEncrypt0DecryptResult,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseEncrypt0DecryptResultOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseEncrypt0DecryptResultView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseEncrypt0DecryptResultView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseEncrypt0DecryptResult {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+    /// SENSITIVE: released only after AEAD verification succeeds.
+    ///
+    /// Field 1: `plaintext`
+    #[must_use]
+    pub fn plaintext(&self) -> &'_ [u8] {
+        self.0.reborrow().plaintext
+    }
+    /// Field 2: `algorithm`
+    #[must_use]
+    pub fn algorithm(&self) -> ::buffa::EnumValue<super::super::CoseContentEncryptionAlgorithm> {
+        self.0.reborrow().algorithm
+    }
+    /// SENSITIVE: exact authenticated protected-header bytes.
+    ///
+    /// Field 3: `protected`
+    #[must_use]
+    pub fn protected(&self) -> &'_ [u8] {
+        self.0.reborrow().protected
+    }
+    /// SENSITIVE: protected identity only; never unprotected discovery data.
+    ///
+    /// Field 4: `protected_kid`
+    #[must_use]
+    pub fn protected_kid(&self) -> ::core::option::Option<&'_ [u8]> {
+        self.0.reborrow().protected_kid
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseEncrypt0DecryptResultView<'static>>>
+    for CoseEncrypt0DecryptResultOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseEncrypt0DecryptResultView<'static>>) -> Self {
+        CoseEncrypt0DecryptResultOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseEncrypt0DecryptResultOwnedView>
+    for ::buffa::OwnedView<CoseEncrypt0DecryptResultView<'static>>
+{
+    fn from(wrapper: CoseEncrypt0DecryptResultOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseEncrypt0DecryptResultView<'static>>>
+    for CoseEncrypt0DecryptResultOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseEncrypt0DecryptResultView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseEncrypt0DecryptResult {
+    type View<'a> = CoseEncrypt0DecryptResultView<'a>;
+    type ViewHandle = CoseEncrypt0DecryptResultOwnedView;
+}
+impl ::serde::Serialize for CoseEncrypt0DecryptResultOwnedView {
     fn serialize<__S: ::serde::Serializer>(
         &self,
         __s: __S,

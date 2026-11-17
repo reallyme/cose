@@ -285,7 +285,7 @@ fn wrap_content_key(
     Ok(wrapped.into_vec())
 }
 
-fn encrypt_content(
+pub(crate) fn encrypt_content(
     algorithm: CoseContentEncryptionAlgorithm,
     key: &[u8],
     nonce: &[u8],

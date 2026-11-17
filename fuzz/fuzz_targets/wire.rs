@@ -84,6 +84,12 @@ fuzz_target!(|data: &[u8]| {
             signature_index:0,suite:buffa::MessageField::some(message_suite.clone()), public_key:data.to_vec().into(),
         }].into(), allowed_suites:vec![message_suite].into(),
     })));
+    execute(Operation::Encrypt0Decrypt(Box::new(reallyme_cose::api::contract::CoseEncrypt0DecryptRequest {
+        encoded:data.to_vec().into(),detached_ciphertext:None,external_aad:Vec::new().into(),
+        key_algorithm:CoseContentEncryptionAlgorithm::Aes128Gcm.into(),key:data.to_vec().into(),
+        allowed_algorithms:vec![CoseContentEncryptionAlgorithm::Aes128Gcm.into()].into(),base_iv:None,
+        envelope:reallyme_cose::api::contract::CoseEnvelopePolicy::Either.into(),
+    })));
     // Sign1 operation tags are equally sparse. Exercise attached and detached
     // creation and verification through both transports on every iteration.
     execute(Operation::Sign1Create(Box::new(sign1_create_request(

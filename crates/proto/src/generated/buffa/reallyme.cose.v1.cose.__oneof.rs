@@ -698,6 +698,10 @@ pub mod cose_operation_request {
             ::buffa::alloc::boxed::Box<super::super::super::CoseMlKemEncryptRequest>,
         ),
         MlKemDecrypt(::buffa::alloc::boxed::Box<super::super::super::CoseMlKemDecryptRequest>),
+        Encrypt0Create(::buffa::alloc::boxed::Box<super::super::super::CoseEncrypt0CreateRequest>),
+        Encrypt0Decrypt(
+            ::buffa::alloc::boxed::Box<super::super::super::CoseEncrypt0DecryptRequest>,
+        ),
         Mac0VerifyDetached(::buffa::alloc::boxed::Box<super::super::super::CoseMac0VerifyRequest>),
         PreferredCborValidate(::buffa::alloc::boxed::Box<super::super::super::CoseOpaqueBytes>),
         ContractInfo(::buffa::alloc::boxed::Box<super::super::super::CoseValidationResult>),
@@ -785,6 +789,8 @@ pub mod cose_operation_request {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
                 Self::MlKemDecrypt(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::Encrypt0Create(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::Encrypt0Decrypt(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::Mac0VerifyDetached(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -1042,6 +1048,30 @@ pub mod cose_operation_request {
             Self::Some(Operation::from(v))
         }
     }
+    impl ::core::convert::From<super::super::super::CoseEncrypt0CreateRequest> for Operation {
+        fn from(v: super::super::super::CoseEncrypt0CreateRequest) -> Self {
+            Self::Encrypt0Create(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseEncrypt0CreateRequest>
+        for ::core::option::Option<Operation>
+    {
+        fn from(v: super::super::super::CoseEncrypt0CreateRequest) -> Self {
+            Self::Some(Operation::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseEncrypt0DecryptRequest> for Operation {
+        fn from(v: super::super::super::CoseEncrypt0DecryptRequest) -> Self {
+            Self::Encrypt0Decrypt(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseEncrypt0DecryptRequest>
+        for ::core::option::Option<Operation>
+    {
+        fn from(v: super::super::super::CoseEncrypt0DecryptRequest) -> Self {
+            Self::Some(Operation::from(v))
+        }
+    }
     impl ::core::convert::From<super::super::super::CoseMac0VerifyRequest> for Operation {
         fn from(v: super::super::super::CoseMac0VerifyRequest) -> Self {
             Self::Mac0VerifyDetached(::buffa::alloc::boxed::Box::new(v))
@@ -1197,6 +1227,12 @@ pub mod cose_operation_request {
                 Self::MlKemDecrypt(v) => {
                     map.serialize_entry("mlKemDecrypt", &**v)?;
                 }
+                Self::Encrypt0Create(v) => {
+                    map.serialize_entry("encrypt0Create", &**v)?;
+                }
+                Self::Encrypt0Decrypt(v) => {
+                    map.serialize_entry("encrypt0Decrypt", &**v)?;
+                }
                 Self::Mac0VerifyDetached(v) => {
                     map.serialize_entry("mac0VerifyDetached", &**v)?;
                 }
@@ -1328,6 +1364,8 @@ pub mod cose_operation_result {
             ::buffa::alloc::boxed::Box<super::super::super::CoseMlKemEncryptResult>,
         ),
         MlKemDecrypt(::buffa::alloc::boxed::Box<super::super::super::CoseMlKemDecryptResult>),
+        Encrypt0Create(::buffa::alloc::boxed::Box<super::super::super::CoseEncrypt0CreateResult>),
+        Encrypt0Decrypt(::buffa::alloc::boxed::Box<super::super::super::CoseEncrypt0DecryptResult>),
         Mac0VerifyDetached(::buffa::alloc::boxed::Box<super::super::super::CoseMac0VerifyResult>),
         PreferredCborValidate(
             ::buffa::alloc::boxed::Box<super::super::super::CoseValidationResult>,
@@ -1417,6 +1455,8 @@ pub mod cose_operation_result {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
                 Self::MlKemDecrypt(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::Encrypt0Create(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::Encrypt0Decrypt(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::Mac0VerifyDetached(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -1576,6 +1616,30 @@ pub mod cose_operation_result {
             Self::Some(Result::from(v))
         }
     }
+    impl ::core::convert::From<super::super::super::CoseEncrypt0CreateResult> for Result {
+        fn from(v: super::super::super::CoseEncrypt0CreateResult) -> Self {
+            Self::Encrypt0Create(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseEncrypt0CreateResult>
+        for ::core::option::Option<Result>
+    {
+        fn from(v: super::super::super::CoseEncrypt0CreateResult) -> Self {
+            Self::Some(Result::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseEncrypt0DecryptResult> for Result {
+        fn from(v: super::super::super::CoseEncrypt0DecryptResult) -> Self {
+            Self::Encrypt0Decrypt(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseEncrypt0DecryptResult>
+        for ::core::option::Option<Result>
+    {
+        fn from(v: super::super::super::CoseEncrypt0DecryptResult) -> Self {
+            Self::Some(Result::from(v))
+        }
+    }
     impl ::core::convert::From<super::super::super::CoseMac0VerifyResult> for Result {
         fn from(v: super::super::super::CoseMac0VerifyResult) -> Self {
             Self::Mac0VerifyDetached(::buffa::alloc::boxed::Box::new(v))
@@ -1718,6 +1782,12 @@ pub mod cose_operation_result {
                 }
                 Self::MlKemDecrypt(v) => {
                     map.serialize_entry("mlKemDecrypt", &**v)?;
+                }
+                Self::Encrypt0Create(v) => {
+                    map.serialize_entry("encrypt0Create", &**v)?;
+                }
+                Self::Encrypt0Decrypt(v) => {
+                    map.serialize_entry("encrypt0Decrypt", &**v)?;
                 }
                 Self::Mac0VerifyDetached(v) => {
                     map.serialize_entry("mac0VerifyDetached", &**v)?;

@@ -4,16 +4,19 @@
 
 //! Generated operation-response construction and validation.
 
-use buffa::EnumValue;
 use zeroize::Zeroizing;
 
 use crate::wire::{
     cose_error, cose_operation_request, decode_protobuf_with_limit, encode_protobuf,
-    validate_cose_error_proto_wire, CoseContentEncryptionAlgorithm, CoseErrorReason,
-    CoseKemAlgorithm, CoseMlKemDecryptResult, CoseMlKemMode, CoseOperationOutcomeV2,
-    CoseOperationRequest, CoseOperationResponseV2, CoseOperationResult, CoseOperationResultBranch,
-    CoseSignatureAlgorithm, CoseWireError, CoseWireResult, MAX_COSE_PROTO_MESSAGE_BYTES,
+    validate_cose_error_proto_wire, CoseErrorReason, CoseOperationOutcomeV2, CoseOperationRequest,
+    CoseOperationResponseV2, CoseOperationResult, CoseOperationResultBranch, CoseWireError,
+    CoseWireResult, MAX_COSE_PROTO_MESSAGE_BYTES,
 };
+
+use super::response_metadata::{
+    decrypt_metadata_is_valid, exact_signature_algorithm_is_valid, sign1_metadata_is_valid,
+};
+use crate::wire::CoseSignatureAlgorithm;
 
 const MAX_RESPONSE_OVERHEAD_BYTES: usize = 32;
 
@@ -101,6 +104,12 @@ fn validate_for_request(
 
 fn validate_result(result: &CoseOperationResult) -> CoseWireResult<()> {
     let valid = match result.result.as_ref() {
+        Some(CoseOperationResultBranch::Encrypt0Create(value)) => {
+            crate::messages::encrypt0::valid_created(value)
+        }
+        Some(CoseOperationResultBranch::Encrypt0Decrypt(value)) => {
+            crate::messages::encrypt0::valid_decrypted(value)
+        }
         Some(CoseOperationResultBranch::SignCreate(value)) => {
             !value.encoded.is_empty() && value.encoded.len() <= 1_048_576
         }
@@ -229,6 +238,12 @@ fn result_matches_request(request: &CoseOperationRequest, result: &CoseOperation
     matches!(
         (request.operation.as_ref(), result.result.as_ref()),
         (
+            Some(cose_operation_request::Operation::Encrypt0Create(_)),
+            Some(CoseOperationResultBranch::Encrypt0Create(_))
+        ) | (
+            Some(cose_operation_request::Operation::Encrypt0Decrypt(_)),
+            Some(CoseOperationResultBranch::Encrypt0Decrypt(_))
+        ) | (
             Some(cose_operation_request::Operation::SignCreate(_)),
             Some(CoseOperationResultBranch::SignCreate(_))
         ) | (
@@ -351,124 +366,6 @@ fn result_matches_request(request: &CoseOperationRequest, result: &CoseOperation
             Some(cose_operation_request::Operation::MlKemDecrypt(_)),
             Some(CoseOperationResultBranch::MlKemDecrypt(_)),
         )
-    )
-}
-
-// Published legacy selectors remain valid metadata for older callers.
-#[allow(deprecated)]
-fn signature_algorithm_is_valid(value: EnumValue<CoseSignatureAlgorithm>) -> bool {
-    matches!(
-        value.as_known(),
-        Some(
-            CoseSignatureAlgorithm::Ed25519
-                | CoseSignatureAlgorithm::EcdsaP256Sha256
-                | CoseSignatureAlgorithm::Es256
-                | CoseSignatureAlgorithm::Esp256
-                | CoseSignatureAlgorithm::EcdsaP384Sha384
-                | CoseSignatureAlgorithm::Esp384
-                | CoseSignatureAlgorithm::EcdsaP521Sha512
-                | CoseSignatureAlgorithm::Esp512
-                | CoseSignatureAlgorithm::EcdsaSecp256k1Sha256
-                | CoseSignatureAlgorithm::MlDsa44
-                | CoseSignatureAlgorithm::MlDsa65
-                | CoseSignatureAlgorithm::MlDsa87
-        )
-    )
-}
-
-fn sign1_metadata_is_valid(result: &crate::wire::CoseSign1VerifyResult) -> bool {
-    if let Some(cose_type) = result.protected_type.as_option() {
-        match cose_type.value.as_ref() {
-            Some(crate::wire::cose_type::Value::MediaType(text))
-                if !text.is_empty() && text.len() <= crate::MAX_COSE_TYPE_TEXT_BYTES => {}
-            Some(crate::wire::cose_type::Value::ContentFormat(_)) => {}
-            _ => return false,
-        }
-    }
-    if !signature_algorithm_is_valid(result.algorithm) {
-        return false;
-    }
-    let Some(compatibility) = result.algorithm.as_known() else {
-        return false;
-    };
-    if result.exact_signature_algorithm == CoseSignatureAlgorithm::Unspecified {
-        return result.exact_signature_algorithm.to_i32() == 0;
-    }
-    let Some(exact) = result.exact_signature_algorithm.as_known() else {
-        return false;
-    };
-    signature_algorithm_is_valid(result.algorithm)
-        && exact_signature_algorithm_is_valid(exact)
-        && signature_algorithms_share_primitive(compatibility, exact)
-}
-
-const fn exact_signature_algorithm_is_valid(algorithm: CoseSignatureAlgorithm) -> bool {
-    matches!(
-        algorithm,
-        CoseSignatureAlgorithm::Ed25519
-            | CoseSignatureAlgorithm::Es256
-            | CoseSignatureAlgorithm::Esp256
-            | CoseSignatureAlgorithm::Esp384
-            | CoseSignatureAlgorithm::Esp512
-            | CoseSignatureAlgorithm::EcdsaSecp256k1Sha256
-            | CoseSignatureAlgorithm::MlDsa44
-            | CoseSignatureAlgorithm::MlDsa65
-            | CoseSignatureAlgorithm::MlDsa87
-    )
-}
-
-// Published legacy selectors remain valid metadata for older callers.
-#[allow(deprecated)]
-const fn signature_algorithms_share_primitive(
-    compatibility: CoseSignatureAlgorithm,
-    exact: CoseSignatureAlgorithm,
-) -> bool {
-    matches!(
-        (compatibility, exact),
-        (
-            CoseSignatureAlgorithm::Ed25519,
-            CoseSignatureAlgorithm::Ed25519,
-        ) | (
-            CoseSignatureAlgorithm::EcdsaP256Sha256
-                | CoseSignatureAlgorithm::Es256
-                | CoseSignatureAlgorithm::Esp256,
-            CoseSignatureAlgorithm::Es256 | CoseSignatureAlgorithm::Esp256,
-        ) | (
-            CoseSignatureAlgorithm::EcdsaP384Sha384 | CoseSignatureAlgorithm::Esp384,
-            CoseSignatureAlgorithm::Esp384,
-        ) | (
-            CoseSignatureAlgorithm::EcdsaP521Sha512 | CoseSignatureAlgorithm::Esp512,
-            CoseSignatureAlgorithm::Esp512,
-        ) | (
-            CoseSignatureAlgorithm::EcdsaSecp256k1Sha256,
-            CoseSignatureAlgorithm::EcdsaSecp256k1Sha256,
-        ) | (
-            CoseSignatureAlgorithm::MlDsa44,
-            CoseSignatureAlgorithm::MlDsa44,
-        ) | (
-            CoseSignatureAlgorithm::MlDsa65,
-            CoseSignatureAlgorithm::MlDsa65,
-        ) | (
-            CoseSignatureAlgorithm::MlDsa87,
-            CoseSignatureAlgorithm::MlDsa87,
-        )
-    )
-}
-
-fn decrypt_metadata_is_valid(result: &CoseMlKemDecryptResult) -> bool {
-    matches!(
-        result.content_algorithm.as_known(),
-        Some(
-            CoseContentEncryptionAlgorithm::Aes128Gcm
-                | CoseContentEncryptionAlgorithm::Aes192Gcm
-                | CoseContentEncryptionAlgorithm::Aes256Gcm
-        )
-    ) && matches!(
-        result.kem_algorithm.as_known(),
-        Some(CoseKemAlgorithm::MlKem512 | CoseKemAlgorithm::MlKem768 | CoseKemAlgorithm::MlKem1024)
-    ) && matches!(
-        result.mode.as_known(),
-        Some(CoseMlKemMode::Direct | CoseMlKemMode::KeyWrap)
     )
 }
 

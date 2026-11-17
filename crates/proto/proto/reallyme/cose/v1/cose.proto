@@ -1119,6 +1119,8 @@ message CoseOperationRequest {
     // Rust adapter: encrypt/decrypt.rs#cose_decrypt_ml_kem
     // Rust adapter: encrypt/decrypt.rs#cose_decrypt_ml_kem_with_external_aad
     CoseMlKemDecryptRequest ml_kem_decrypt = 3002;
+    CoseEncrypt0CreateRequest encrypt0_create = 3010;
+    CoseEncrypt0DecryptRequest encrypt0_decrypt = 3011;
     // Rust adapter: mac0/verify.rs#cose_verify_mac0_detached
     CoseMac0VerifyRequest mac0_verify_detached = 4000;
     // Rust adapter: containers/preflight.rs#validate_preferred_cbor
@@ -1186,6 +1188,8 @@ message CoseOperationResult {
     CoseMlKemEncryptResult ml_kem_encrypt_direct = 3000;
     CoseMlKemEncryptResult ml_kem_encrypt_key_wrap = 3001;
     CoseMlKemDecryptResult ml_kem_decrypt = 3002;
+    CoseEncrypt0CreateResult encrypt0_create = 3010;
+    CoseEncrypt0DecryptResult encrypt0_decrypt = 3011;
     CoseMac0VerifyResult mac0_verify_detached = 4000;
     CoseValidationResult preferred_cbor_validate = 5000;
     CoseContractInfoResult contract_info = 5001;
@@ -1577,6 +1581,58 @@ message CoseMessageHeaders {
 message CoseMessageCreateResult {
   // SENSITIVE: protected ownership and redacted diagnostics.
   bytes encoded = 1;
+}
+
+// RFC 9052 sections 5.2/5.3. Keys are exact-width AES-GCM keys, not a KDF
+// seed. Supply IV or Partial IV in headers; callers ensure nonce uniqueness.
+// Partial IV requires an explicit 12-byte Base IV; both IV forms together fail.
+message CoseEncrypt0CreateRequest {
+  CoseMessageHeaders headers = 1;
+  // SENSITIVE: plaintext.
+  bytes plaintext = 2;
+  // SENSITIVE: explicit AAD, including empty bytes, at most 64 KiB.
+  bytes external_aad = 3;
+  CoseContentEncryptionAlgorithm key_algorithm = 4;
+  // SENSITIVE: consumed by a protected primitive owner, never returned.
+  bytes key = 5;
+  repeated CoseContentEncryptionAlgorithm allowed_algorithms = 6;
+  // SENSITIVE: Base IV used only with Partial IV, RFC 9052 section 3.1.
+  optional bytes base_iv = 7;
+  CoseContentMode content_mode = 8;
+  bool tagged = 9;
+}
+
+message CoseEncrypt0CreateResult {
+  // SENSITIVE: exact envelope, nil ciphertext only in detached mode.
+  bytes encoded = 1;
+  // SENSITIVE: present exactly for detached mode, includes the AEAD tag.
+  optional bytes detached_ciphertext = 2;
+}
+
+message CoseEncrypt0DecryptRequest {
+  // SENSITIVE: exact envelope, at most 1 MiB.
+  bytes encoded = 1;
+  // SENSITIVE: presence requires a nil ciphertext slot.
+  optional bytes detached_ciphertext = 2;
+  // SENSITIVE: explicit AAD.
+  bytes external_aad = 3;
+  CoseContentEncryptionAlgorithm key_algorithm = 4;
+  // SENSITIVE: protected primitive input, never returned.
+  bytes key = 5;
+  repeated CoseContentEncryptionAlgorithm allowed_algorithms = 6;
+  // SENSITIVE: explicit base for Partial IV.
+  optional bytes base_iv = 7;
+  CoseEnvelopePolicy envelope = 8;
+}
+
+message CoseEncrypt0DecryptResult {
+  // SENSITIVE: released only after AEAD verification succeeds.
+  bytes plaintext = 1;
+  CoseContentEncryptionAlgorithm algorithm = 2;
+  // SENSITIVE: exact authenticated protected-header bytes.
+  bytes protected = 3;
+  // SENSITIVE: protected identity only; never unprotected discovery data.
+  optional bytes protected_kid = 4;
 }
 
 message CoseSignSigner {

@@ -4,7 +4,7 @@
 use super::{
     bounded,
     read_message::{children, MAX_HEADER_BYTES},
-    validate_key_map::label,
+    validate_key_map::{label, parameter},
 };
 use crate::{cbor_boundary, CoseError};
 use reallyme_codec::cbor::general::{Frame, MajorType};
@@ -19,6 +19,14 @@ pub(super) struct Headers<'a> {
 pub(super) fn read<'a>(
     protected: &'a [u8],
     unprotected: &'a [u8],
+) -> Result<Headers<'a>, CoseError> {
+    read_with_critical(protected, unprotected, &[1, 3, 4])
+}
+
+pub(super) fn read_with_critical<'a>(
+    protected: &'a [u8],
+    unprotected: &'a [u8],
+    understood: &[i64],
 ) -> Result<Headers<'a>, CoseError> {
     if protected.len() > MAX_HEADER_BYTES || unprotected.len() > MAX_HEADER_BYTES {
         return Err(CoseError::ResourceLimitExceeded);
@@ -65,7 +73,7 @@ pub(super) fn read<'a>(
                     }
                     for (index, key) in critical.iter().enumerate() {
                         // Only parameters actually interpreted here may be critical.
-                        if !matches!(label(key)?, Some(1 | 3 | 4))
+                        if !label(key)?.is_some_and(|label| understood.contains(&label))
                             || !p
                                 .as_chunks::<2>()
                                 .0
@@ -123,4 +131,27 @@ pub(super) fn from_slots<'a>(
 pub(super) fn integer(frame: &Frame<'_>) -> Result<i64, CoseError> {
     i64::try_from(frame.integer().map_err(cbor_boundary::error)?.to_i128())
         .map_err(|_| CoseError::UnsupportedAlgorithm)
+}
+
+pub(super) fn optional_bytes<'a>(
+    headers: &Headers<'a>,
+    wanted: i64,
+) -> Result<Option<&'a [u8]>, CoseError> {
+    let protected = if headers.protected.is_empty() {
+        None
+    } else {
+        Some(bounded::frame(headers.protected)?)
+    };
+    let p = protected
+        .as_ref()
+        .map(|v| children(v, MajorType::Map, 32))
+        .transpose()?
+        .unwrap_or_default();
+    let u = children(&headers.unprotected, MajorType::Map, 32)?;
+    for bucket in [&p, &u] {
+        if let Some(value) = parameter(bucket, wanted)? {
+            return Ok(Some(value.as_bytes().map_err(cbor_boundary::error)?));
+        }
+    }
+    Ok(None)
 }

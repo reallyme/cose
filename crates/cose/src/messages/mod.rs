@@ -4,6 +4,7 @@
 //! Semantics for the generated general COSE message operations.
 
 mod bounded;
+pub(crate) mod encrypt0;
 pub(crate) mod key_set;
 mod read_headers;
 mod read_message;

@@ -42,6 +42,12 @@ fn dispatch_operation(
     };
 
     match &mut operation {
+        cose_operation_request::Operation::Encrypt0Create(request) => {
+            super::message_encrypt0::create(core::mem::take(&mut **request))
+        }
+        cose_operation_request::Operation::Encrypt0Decrypt(request) => {
+            super::message_encrypt0::decrypt(core::mem::take(&mut **request))
+        }
         cose_operation_request::Operation::SignCreate(request) => {
             super::message_sign::create(core::mem::take(&mut **request))
         }

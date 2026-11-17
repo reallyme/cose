@@ -321,7 +321,7 @@ fn unwrap_content_key(
     Ok(unwrapped.into_zeroizing())
 }
 
-fn decrypt_content(
+pub(crate) fn decrypt_content(
     algorithm: CoseContentEncryptionAlgorithm,
     key: &[u8],
     nonce: &[u8],
@@ -331,8 +331,13 @@ fn decrypt_content(
     if ciphertext.len() < AES_GCM_TAG_LENGTH {
         return Err(CoseError::InvalidFormat);
     }
-    let ciphertext =
-        CiphertextWithTag::from_vec(ciphertext.to_vec()).map_err(|_| CoseError::InvalidFormat)?;
+    let mut owned = Zeroizing::new(Vec::new());
+    owned
+        .try_reserve_exact(ciphertext.len())
+        .map_err(|_| CoseError::ResourceLimitExceeded)?;
+    owned.extend_from_slice(ciphertext);
+    let ciphertext = CiphertextWithTag::from_vec(core::mem::take(&mut *owned))
+        .map_err(|_| CoseError::InvalidFormat)?;
     let result = match algorithm {
         CoseContentEncryptionAlgorithm::Aes128Gcm => {
             let key = Aes128GcmKey::from_slice(key).map_err(|_| CoseError::Crypto)?;
