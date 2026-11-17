@@ -2912,6 +2912,7 @@ impl ::serde::Serialize for CoseSignatureSuiteOwnedView {
 }
 /// If this message is absent, operation-specific hard defaults apply. If
 /// present, zero is a real zero ceiling; callers cannot raise hard maxima.
+/// Imported values above a field's hard maximum are clamped to that maximum.
 /// Rust byte limits: ContainerLimits
 #[derive(Clone, Default)]
 pub struct CoseByteLimitsView<'a> {

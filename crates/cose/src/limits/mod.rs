@@ -4,6 +4,7 @@
 
 //! Resource limits shared by COSE byte-boundary APIs.
 
+mod normalize_limits;
 mod profile;
 mod validate;
 #[cfg(feature = "cose-crypto")]
@@ -20,6 +21,7 @@ pub use profile::{
     MAX_COSE_X5CHAIN_TOTAL_BYTES, MAX_DETACHED_PAYLOAD_BYTES, MAX_MAC0_EXTERNAL_AAD_BYTES,
 };
 
+pub(crate) use normalize_limits::normalize_byte_limits;
 pub(crate) use profile::validate_cose_key_bytes;
 pub(crate) use profile::{native_limit, portable_limit};
 

@@ -660,6 +660,9 @@ A present `CoseByteLimits` message treats zero as a real zero ceiling for each
 field. Payload and AAD ceilings are enforced independently for signing and
 verification. Larger reports can use detached content within its payload
 ceiling.
+Importing a verification policy or signing options normalizes the stored
+generated limits to these maxima while retaining absent limits and explicit
+zero ceilings.
 
 `reallyme_cose::sign1::build_sign1_signature_structure` constructs standalone
 RFC 9052 Signature1 authentication input with an explicit complete-output

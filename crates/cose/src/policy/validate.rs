@@ -12,7 +12,8 @@ use reallyme_crypto::core::Algorithm;
 
 use crate::algorithm::CoseSignatureAlgorithm;
 use crate::limits::{
-    native_limit, portable_limit, MAX_COSE_SIGN1_BYTES, MAX_DETACHED_PAYLOAD_BYTES,
+    native_limit, normalize_byte_limits, portable_limit, MAX_COSE_SIGN1_BYTES,
+    MAX_DETACHED_PAYLOAD_BYTES,
 };
 #[cfg(feature = "cose-crypto")]
 use crate::sign1::CoseType;
@@ -50,10 +51,13 @@ impl CosePolicy {
         &self.contract
     }
     /// Validate an owned generated policy before entering native semantics.
+    /// Byte limits are normalized to their schema-defined hard maxima while
+    /// preserving absent limits and explicit zero ceilings.
     ///
     /// # Errors
-    /// Rejects unknown selectors, contradictory allowlist modes and invalid typ.
-    pub fn from_contract(contract: ContractPolicy) -> Result<Self, crate::CoseError> {
+    /// Rejects unknown selectors, contradictory allowlist modes, invalid typ,
+    /// or unrepresentable schema limits.
+    pub fn from_contract(mut contract: ContractPolicy) -> Result<Self, crate::CoseError> {
         if contract.allowed_algorithms.len() > 32
             || (contract.allow_any_algorithm && !contract.allowed_algorithms.is_empty())
         {
@@ -68,6 +72,9 @@ impl CosePolicy {
                 .as_ref()
                 .ok_or(crate::CoseError::InvalidFormat)?
                 .validate()?;
+        }
+        if let Some(limits) = contract.limits.as_option_mut() {
+            normalize_byte_limits(limits)?;
         }
         Ok(Self { contract })
     }

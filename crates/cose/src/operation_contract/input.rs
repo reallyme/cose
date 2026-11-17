@@ -78,7 +78,9 @@ pub(crate) fn encode_options_from_proto(
     result = if let Some(limits) = options.limits.take() {
         // Preserve every canonical ceiling, including explicit zero, rather
         // than rebuilding only the encoded limit and losing payload/AAD policy.
-        result.with_limits(limits)
+        result
+            .with_limits(limits)
+            .map_err(|error| CoseWireError::from_reason(error.reason()))?
     } else {
         result.with_max_cose_sign1_bytes(optional_limit_to_usize(
             options.max_cose_sign1_bytes,

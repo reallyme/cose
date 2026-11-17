@@ -110,9 +110,13 @@ impl CoseSign1EncodeOptions {
         self
     }
     #[cfg(feature = "wire")]
-    pub(crate) fn with_limits(mut self, limits: crate::api::contract::CoseByteLimits) -> Self {
+    pub(crate) fn with_limits(
+        mut self,
+        mut limits: crate::api::contract::CoseByteLimits,
+    ) -> Result<Self, crate::CoseError> {
+        crate::limits::normalize_byte_limits(&mut limits)?;
         self.contract.limits = buffa::MessageField::some(limits);
-        self
+        Ok(self)
     }
     /// Move exact discovery certificate owners into the generated options.
     pub fn with_x5chain_der(self, value: Vec<Vec<u8>>) -> Self {
