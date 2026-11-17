@@ -540,6 +540,14 @@ Multicodec names `mlkem-512-pub`, `mlkem-768-pub`, and `mlkem-1024-pub`.
 Decoding those Multikeys binds them to the corresponding ReallyMe private-use
 COSE algorithm identifier; it never guesses a future IANA value.
 
+The envelope and `Enc_structure` follow [RFC 9052 section 5](https://www.rfc-editor.org/rfc/rfc9052.html#section-5).
+The private profile's KMAC256 context follows the field layout in
+[draft-ietf-jose-pqc-kem-06 section 5.1](https://datatracker.ietf.org/doc/html/draft-ietf-jose-pqc-kem-06#section-5.1),
+with PartyUInfo and PartyVInfo omitted. The general
+[RFC 9053 section 5.2](https://www.rfc-editor.org/rfc/rfc9053.html#section-5.2)
+context includes those fields. The private identifiers above select the
+documented KMAC256 construction explicitly.
+
 The ReallyMe profile uses the following construction:
 
 - ML-KEM uses AKP COSE keys. Private import/export uses the 64-octet FIPS 203
@@ -556,8 +564,9 @@ The ReallyMe profile uses the following construction:
   context `[AlgorithmID, SuppPubInfo, ?SuppPrivInfo]`, its customization string
   is empty, and `SuppPubInfo` binds the output length and exact encoded
   recipient protected header.
-- Direct mode derives the AES-GCM content-encryption key and encodes a null
-  recipient ciphertext.
+- Direct mode derives the AES-GCM content-encryption key and requires CBOR
+  `nil` (`f6`) as recipient ciphertext. An empty byte string (`h''`) or any
+  other present ciphertext is rejected before private-key use and on encoding.
 - Key-wrap mode derives only the fixed AES-KW key-encryption key for the KEM
   strength, wraps a fresh random content-encryption key, and carries that
   wrapped key as recipient ciphertext.

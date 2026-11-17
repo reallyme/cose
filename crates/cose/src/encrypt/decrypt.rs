@@ -20,8 +20,8 @@ use crate::key::derive_kid_from_ml_kem_public_key;
 use crate::CoseError;
 
 use super::codec::{
-    decode, encapsulated_key, validate_structure, AES_GCM_TAG_LENGTH, MAX_EXTERNAL_AAD_BYTES,
-    MAX_KID_BYTES, MAX_PLAINTEXT_BYTES,
+    decode, encapsulated_key, validate_recipient_ciphertext, validate_structure,
+    AES_GCM_TAG_LENGTH, MAX_EXTERNAL_AAD_BYTES, MAX_KID_BYTES, MAX_PLAINTEXT_BYTES,
 };
 use super::kdf::{derive_key, enc_structure, validate_supp_priv_info};
 use super::profile::{
@@ -170,15 +170,7 @@ fn decapsulate_for_recipient(
     if !reallyme_crypto::operations::constant_time::equal(derived_kid.as_ref(), protected_kid) {
         return Err(CoseError::KidMismatch);
     }
-    match suite.mode {
-        CoseMlKemMode::Direct if recipient.ciphertext.is_some() => {
-            return Err(CoseError::InvalidRecipient);
-        }
-        CoseMlKemMode::KeyWrap if recipient.ciphertext.is_none() => {
-            return Err(CoseError::MissingCiphertext);
-        }
-        CoseMlKemMode::Direct | CoseMlKemMode::KeyWrap => {}
-    }
+    validate_recipient_ciphertext(suite.mode, recipient.ciphertext.as_deref())?;
 
     let encapsulated_key = encapsulated_key(recipient)?;
     if encapsulated_key.len() != suite.encapsulated_key_length {

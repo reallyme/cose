@@ -62,3 +62,34 @@ fn sensitive_encrypt_encoder_matches_coset_for_every_suite() {
         }
     }
 }
+
+#[test]
+fn direct_encoder_refuses_empty_or_nonempty_recipient_ciphertext() {
+    for kem in [
+        CoseMlKemAlgorithm::MlKem512,
+        CoseMlKemAlgorithm::MlKem768,
+        CoseMlKemAlgorithm::MlKem1024,
+    ] {
+        let suite = suite_for(kem, CoseMlKemMode::Direct).expect("supported suite");
+        for ciphertext in [Vec::new(), vec![0x33]] {
+            let cose = CoseEncrypt {
+                protected: protected_header(
+                    RegisteredLabelWithPrivate::Assigned(iana::Algorithm::A128GCM),
+                    None,
+                ),
+                unprotected: body_unprotected(&[0x44; 12]),
+                ciphertext: Some(vec![0x55; 32]),
+                recipients: vec![CoseRecipient {
+                    protected: protected_header(
+                        RegisteredLabelWithPrivate::PrivateUse(suite.cose_algorithm),
+                        Some(&[0x11; 32]),
+                    ),
+                    unprotected: recipient_unprotected(vec![0x22; suite.encapsulated_key_length]),
+                    ciphertext: Some(ciphertext),
+                    recipients: Vec::new(),
+                }],
+            };
+            assert_eq!(encode(cose).err(), Some(crate::CoseError::InvalidRecipient));
+        }
+    }
+}

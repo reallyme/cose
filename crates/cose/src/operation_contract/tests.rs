@@ -23,6 +23,8 @@ mod peer_policy;
 mod private_key_ops;
 #[path = "contract_public_key_vec_tests.rs"]
 mod public_key_vec;
+#[path = "contract_recipient_ciphertext_tests.rs"]
+mod recipient_ciphertext;
 #[path = "contract_secp256k1_provider_tests.rs"]
 mod secp256k1_provider;
 #[path = "contract_signature_tests.rs"]

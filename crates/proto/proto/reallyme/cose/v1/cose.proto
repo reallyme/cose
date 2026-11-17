@@ -274,6 +274,9 @@ enum CoseHashAlgorithm {
 enum CoseMlKemProfile {
   // Rust non-exhaustive
   COSE_ML_KEM_PROFILE_UNSPECIFIED = 0;
+  // Private ML-KEM identifiers and draft-ietf-jose-pqc-kem-06 KMAC256 context:
+  // [AlgorithmID, [keyDataLength, protected], ?SuppPrivInfo]. PartyUInfo and
+  // PartyVInfo are omitted. Enc_structure follows RFC 9052 section 5.3.
   // Rust variant: ReallyMeV1
   COSE_ML_KEM_PROFILE_REALLY_ME_V1 = 1;
 }
@@ -704,8 +707,10 @@ enum CoseContentEncryptionAlgorithm {
 enum CoseMlKemMode {
   // Rust non-exhaustive
   COSE_ML_KEM_MODE_UNSPECIFIED = 0;
+  // Recipient ciphertext must be CBOR nil (f6); an empty byte string is invalid.
   // Rust variant: Direct
   COSE_ML_KEM_MODE_DIRECT = 1;
+  // Recipient ciphertext carries the wrapped key as a byte string.
   // Rust variant: KeyWrap
   COSE_ML_KEM_MODE_KEY_WRAP = 2;
 }

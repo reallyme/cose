@@ -15,7 +15,8 @@ use crate::limits::MAX_COSE_ENCRYPT_BYTES;
 use crate::zeroize_coset::{zeroize_cose_encrypt, SensitiveCborValue};
 use crate::CoseError;
 
-use super::profile::ML_KEM_KID_LENGTH;
+use super::profile::{suite_from_cose_algorithm, ML_KEM_KID_LENGTH};
+use super::types::CoseMlKemMode;
 
 pub(crate) const COSE_ENCRYPT_TAG: u64 = 96;
 pub(crate) const MAX_PLAINTEXT_BYTES: usize = 1_048_576;
@@ -370,7 +371,28 @@ fn validate_recipient(recipient: &CoseRecipient) -> Result<(), CoseError> {
     if encapsulated_key_count != 1 {
         return Err(CoseError::MissingEncapsulatedKey);
     }
-    Ok(())
+    let algorithm = recipient
+        .protected
+        .header
+        .alg
+        .as_ref()
+        .ok_or(CoseError::UnsupportedAlgorithm)?;
+    let suite = suite_from_cose_algorithm(algorithm)?;
+    validate_recipient_ciphertext(suite.mode, recipient.ciphertext.as_deref())
+}
+
+pub(crate) fn validate_recipient_ciphertext(
+    mode: CoseMlKemMode,
+    ciphertext: Option<&[u8]>,
+) -> Result<(), CoseError> {
+    // A direct KEM derives the content key without an encrypted key to carry.
+    // An empty bstr is still a present ciphertext and cannot stand in for nil.
+    // Enforce shape before private-key work and before serializing an envelope.
+    match (mode, ciphertext) {
+        (CoseMlKemMode::Direct, Some(_)) => Err(CoseError::InvalidRecipient),
+        (CoseMlKemMode::KeyWrap, None) => Err(CoseError::MissingCiphertext),
+        (CoseMlKemMode::Direct, None) | (CoseMlKemMode::KeyWrap, Some(_)) => Ok(()),
+    }
 }
 
 fn has_unsupported_profile_headers(header: &Header) -> bool {

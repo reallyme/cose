@@ -1072,6 +1072,9 @@ impl ::buffa::Enumeration for CoseHashAlgorithm {
 pub enum CoseMlKemProfile {
     /// Rust non-exhaustive
     COSE_ML_KEM_PROFILE_UNSPECIFIED = 0i32,
+    /// Private ML-KEM identifiers and draft-ietf-jose-pqc-kem-06 KMAC256 context:
+    /// \[AlgorithmID, \[keyDataLength, protected\], ?SuppPrivInfo\]. PartyUInfo and
+    /// PartyVInfo are omitted. Enc_structure follows RFC 9052 section 5.3.
     /// Rust variant: ReallyMeV1
     COSE_ML_KEM_PROFILE_REALLY_ME_V1 = 1i32,
 }
@@ -2750,8 +2753,10 @@ impl ::buffa::Enumeration for CoseContentEncryptionAlgorithm {
 pub enum CoseMlKemMode {
     /// Rust non-exhaustive
     COSE_ML_KEM_MODE_UNSPECIFIED = 0i32,
+    /// Recipient ciphertext must be CBOR nil (f6); an empty byte string is invalid.
     /// Rust variant: Direct
     COSE_ML_KEM_MODE_DIRECT = 1i32,
+    /// Recipient ciphertext carries the wrapped key as a byte string.
     /// Rust variant: KeyWrap
     COSE_ML_KEM_MODE_KEY_WRAP = 2i32,
 }
