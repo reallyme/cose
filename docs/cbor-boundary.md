@@ -24,6 +24,8 @@ sorting maps. ISO 18013-5:2021 issuer content retains received tag and float
 widths while requiring minimum argument widths for major types 0 through 5.
 Both profiles use codec's basic-model map-key equality, including unordered
 compound map keys, equivalent float zero signs, and NaN significands.
+Container grammar retains codec's optional typed argument: floating-point
+payload bits cannot represent a detached-content null or an EC2 Boolean selector.
 Depth remains bounded at item depth 32, including an empty container at the
 boundary. Collection admission remains bounded at 1,024 entries. Codec's
 aggregate byte, node and work ceilings apply independently.

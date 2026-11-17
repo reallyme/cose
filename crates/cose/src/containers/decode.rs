@@ -6,6 +6,7 @@ use super::read_headers::{read_headers, Headers};
 use super::{ContainerError, ContainerErrorReason as Reason};
 
 pub(super) const COSE_SIGN1_TAG: u64 = 18;
+const CBOR_NULL_SIMPLE_VALUE: u64 = 22;
 
 pub(super) struct Envelope<'a> {
     pub tagged: bool,
@@ -21,7 +22,7 @@ pub(super) fn decode(encoded: &[u8]) -> Result<Envelope<'_>, ContainerError> {
     let mut item = Item::from_validated(encoded)?;
     let tagged = item.major == 6;
     if tagged {
-        if item.argument != COSE_SIGN1_TAG {
+        if item.argument != Some(COSE_SIGN1_TAG) {
             return Err(Reason::Profile.into());
         }
         item = item.cursor()?.next()?;
@@ -36,7 +37,7 @@ pub(super) fn decode(encoded: &[u8]) -> Result<Envelope<'_>, ContainerError> {
     let content = cursor.next()?;
     let payload = match (content.major, content.argument) {
         (2, _) => Some(content.bytes()?),
-        (7, 22) => None,
+        (7, Some(CBOR_NULL_SIMPLE_VALUE)) => None,
         _ => return Err(Reason::Malformed.into()),
     };
     let signature = cursor.next()?.bytes()?;

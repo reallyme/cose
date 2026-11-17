@@ -97,8 +97,8 @@ pub(crate) fn inspect_peer_key_operation(
             .ok_or(Reason::Limit)?;
         super::own_bytes::reserve(&mut material, size)?;
         match (y.major, y.argument) {
-            (7, 20 | 21) => {
-                material.push(if y.argument == 20 {
+            (7, Some(20 | 21)) => {
+                material.push(if y.argument == Some(20) {
                     SEC1_COMPRESSED_EVEN
                 } else {
                     SEC1_COMPRESSED_ODD

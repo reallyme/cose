@@ -12,12 +12,15 @@ pub(super) struct Item<'a> {
     pub encoded: &'a [u8],
     pub data: &'a [u8],
     pub major: u8,
-    pub argument: u64,
+    // Codec deliberately omits arguments for floats: their IEEE payload bits
+    // must never be interpreted as a null, Boolean, integer, or item count.
+    pub argument: Option<u64>,
 }
 
 impl<'a> Item<'a> {
     pub(super) fn integer(self) -> Result<i64, ContainerError> {
-        let n = i64::try_from(self.argument).map_err(|_| Reason::Malformed)?;
+        let n = i64::try_from(self.argument.ok_or(Reason::Malformed)?)
+            .map_err(|_| Reason::Malformed)?;
         match self.major {
             0 => Ok(n),
             1 => n
@@ -39,7 +42,7 @@ impl<'a> Item<'a> {
         if self.major != major {
             return Err(Reason::Malformed.into());
         }
-        usize::try_from(self.argument).map_err(|_| Reason::Limit.into())
+        usize::try_from(self.argument.ok_or(Reason::Malformed)?).map_err(|_| Reason::Limit.into())
     }
 
     pub(super) fn cursor(self) -> Result<Cursor<'a>, ContainerError> {
@@ -66,22 +69,13 @@ impl<'a> Item<'a> {
     fn from_frame(frame: general::Frame<'a>) -> Result<Self, ContainerError> {
         let header = frame.header();
         let encoded = frame.received_bytes();
-        let argument = if let Some(argument) = header.argument() {
-            argument
-        } else {
-            header
-                .float()
-                .map_err(cbor_boundary::error)?
-                .ok_or(Reason::Malformed)?
-                .bits()
-        };
         Ok(Self {
             data: encoded
                 .get(header.received_bytes().len()..)
                 .ok_or(Reason::Malformed)?,
             encoded,
             major: cbor_boundary::major_code(header.major_type())?,
-            argument,
+            argument: header.argument(),
         })
     }
 }

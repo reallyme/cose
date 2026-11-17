@@ -230,3 +230,126 @@ fn all_independent_container_receipts_match_borrowed_rust_and_all_codecs() -> Re
     }
     Ok(())
 }
+
+// Splice only the original nil slot. Protected bytes, unprotected map order,
+// signature, and detached content remain exactly as in the independent vector.
+fn replace_payload_slot(
+    encoded: &[u8],
+    replacement: &[u8],
+) -> Result<Zeroizing<Vec<u8>>, CoseError> {
+    use reallyme_codec::cbor::general::{frame_exact, LengthPolicy, Limits};
+
+    let frame = frame_exact(encoded, Limits::default(), LengthPolicy::DefiniteOnly)
+        .map_err(|_| CoseError::Cbor)?;
+    let mut cursor = frame.children().map_err(|_| CoseError::Cbor)?;
+    for _ in 0..2 {
+        cursor
+            .next()
+            .ok_or(CoseError::Cbor)?
+            .map_err(|_| CoseError::Cbor)?;
+    }
+    let start = frame
+        .header()
+        .received_bytes()
+        .len()
+        .checked_add(cursor.consumed_bytes().len())
+        .ok_or(CoseError::ResourceLimitExceeded)?;
+    let slot = cursor
+        .next()
+        .ok_or(CoseError::Cbor)?
+        .map_err(|_| CoseError::Cbor)?;
+    if slot.simple_value().map_err(|_| CoseError::Cbor)? != 22 {
+        return Err(CoseError::InvalidFormat);
+    }
+    let end = start
+        .checked_add(slot.received_bytes().len())
+        .ok_or(CoseError::ResourceLimitExceeded)?;
+    let size = encoded
+        .len()
+        .checked_sub(slot.received_bytes().len())
+        .and_then(|size| size.checked_add(replacement.len()))
+        .ok_or(CoseError::ResourceLimitExceeded)?;
+    let mut output = Zeroizing::new(Vec::new());
+    output
+        .try_reserve_exact(size)
+        .map_err(|_| CoseError::ResourceLimitExceeded)?;
+    output.extend_from_slice(encoded.get(..start).ok_or(CoseError::Cbor)?);
+    output.extend_from_slice(replacement);
+    output.extend_from_slice(encoded.get(end..).ok_or(CoseError::Cbor)?);
+    Ok(output)
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
+fn detached_payload_slot_requires_nil_and_rejects_all_float_widths() -> Result<(), CoseError> {
+    let vectors: Vectors =
+        serde_json::from_str(include_str!("../../tests/fixtures/containers.json"))
+            .map_err(|_| CoseError::Cbor)?;
+    for case in vectors
+        .cases
+        .iter()
+        .filter(|case| matches!(case.id.as_str(), "device" | "reader" | "reader-all"))
+    {
+        let baseline = input(case)?;
+        let selected = super::super::profile_input::suite(&suite(case.algorithm, case.curve)?)?;
+        let key = CryptoVerificationKey::new(
+            selected,
+            Zeroizing::new(hex(&case.public_key)),
+            [0x42; 32],
+        )?;
+        let payload = hex(&case.payload);
+        for slot in [
+            b"\xf6".as_slice(),
+            b"\xf9\x00\x16".as_slice(),
+            b"\xfa\x00\x00\x00\x16".as_slice(),
+            b"\xfb\x00\x00\x00\x00\x00\x00\x00\x16".as_slice(),
+        ] {
+            let mut encoded = replace_payload_slot(&baseline.encoded, slot)?;
+            crate::containers::validate_preferred_cbor(&encoded)?;
+            let native = crate::containers::verify_container(
+                crate::containers::ContainerVerifyRequest {
+                    encoded: &encoded,
+                    content: crate::containers::ContainerContent::Detached(&payload),
+                    external_aad: &[],
+                    policy: super::super::profile_input::policy(baseline.policy.as_option())?,
+                    allowed_suites: &[selected],
+                    limits: crate::containers::ContainerLimits::default(),
+                },
+                VerificationSource::Key(&key),
+            );
+            let valid_nil = slot == b"\xf6";
+            if valid_nil {
+                let receipt = native?;
+                assert_eq!(receipt.encoded(), encoded.as_slice());
+                assert_eq!(receipt.protected_headers(), hex(&case.protected));
+                assert_eq!(receipt.payload(), payload);
+            } else {
+                assert_eq!(
+                    native.err().map(|error| error.reason()),
+                    Some(Reason::Malformed)
+                );
+                assert_eq!(
+                    crate::cose_verify1_detached(&encoded, &payload, |_, _| Some(hex(
+                        &case.public_key
+                    )))
+                    .err(),
+                    Some(CoseError::NonCanonicalCbor)
+                );
+            }
+            let mut changed = baseline.clone();
+            changed.encoded = core::mem::take(&mut *encoded).into();
+            let response =
+                super::support::codec_parity(Operation::ContainerVerify(Box::new(changed)))?;
+            if valid_nil {
+                let Branch::ContainerVerify(verified) = &success(response) else {
+                    return Err(CoseError::InvalidFormat);
+                };
+                assert_eq!(verified.payload, payload);
+                assert_eq!(verified.encoded, baseline.encoded);
+            } else {
+                assert_eq!(reason(&response), CoseErrorReason::Malformed);
+            }
+        }
+    }
+    Ok(())
+}

@@ -298,3 +298,49 @@ fn malformed_private_duplicate_wrong_type_width_trailing_and_key_limits_fail(
     );
     Ok(())
 }
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
+fn floating_point_values_cannot_substitute_for_ec2_y_booleans() -> Result<(), ContainerError> {
+    let fixtures: Vectors =
+        serde_json::from_str(include_str!("../../tests/fixtures/peer-keys.json"))
+            .map_err(|_| Reason::Malformed)?;
+    let case = fixtures
+        .cases
+        .iter()
+        .find(|case| case.curve == 1)
+        .ok_or(Reason::Key)?;
+    let Value::Map(base) = value(&hex(&case.key)) else {
+        return Err(Reason::Malformed.into());
+    };
+    for parity in [false, true] {
+        let mut parameters = base.clone();
+        let y = parameters
+            .iter_mut()
+            .find(|(label, _)| *label == int(-3))
+            .ok_or(Reason::Key)?;
+        y.1 = Value::Bool(parity);
+        let encoded = map(parameters.clone());
+        let key = inspect_peer_key(&encoded, PeerKeyUsage::Agreement, OptionalKeyPolicy::Cose)?;
+        assert_eq!(key.point_encoding(), PeerPointEncoding::Ec2YSign);
+        for value in [
+            half::f16::from_bits(if parity { 21 } else { 20 }).to_f64(),
+            f64::from(f32::from_bits(if parity { 21 } else { 20 })),
+            f64::from_bits(if parity { 21 } else { 20 }),
+        ] {
+            let mut parameters = parameters.clone();
+            let y = parameters
+                .iter_mut()
+                .find(|(label, _)| *label == int(-3))
+                .ok_or(Reason::Key)?;
+            y.1 = Value::Float(value);
+            let encoded = map(parameters);
+            crate::containers::validate_preferred_cbor(&encoded)?;
+            assert_error(
+                inspect_peer_key(&encoded, PeerKeyUsage::Agreement, OptionalKeyPolicy::Cose),
+                Reason::Key,
+            );
+        }
+    }
+    Ok(())
+}
