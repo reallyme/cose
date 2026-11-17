@@ -92,6 +92,16 @@ export const OPERATION_CONTRACT_ROUTES = Object.freeze([
     "key/convert.rs",
   ),
   route(
+    "KeyToPublicVec",
+    "key/convert.rs",
+    "to_public_vec_result",
+    "encode_cose_key_public",
+    "public_key_vec",
+    "key/facade.rs",
+    "cose_key_to_public_vec",
+    "key/encode_public.rs",
+  ),
+  route(
     "KeyDerivePublicKid",
     "key/convert.rs",
     "derive_public_kid_result",

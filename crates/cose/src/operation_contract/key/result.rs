@@ -55,6 +55,13 @@ pub(crate) fn private_key_bytes(output: CoseKeyBytesOutput) -> CoseWireResult<Co
     )))
 }
 
+pub(crate) fn public_key_vec(output: CoseKeyBytesOutput) -> CoseWireResult<CoseOperationResult> {
+    let (bytes, algorithm) = output.into_parts();
+    Ok(operation_result(OperationResultBranch::KeyToPublicVec(
+        Box::new(key_bytes_message_with_algorithm(bytes, algorithm)?),
+    )))
+}
+
 pub(crate) fn key_identifier(output: CoseKeyKidOutput) -> CoseWireResult<CoseOperationResult> {
     let (kid, algorithm) = output.into_parts();
     Ok(operation_result(OperationResultBranch::KeyDerivePublicKid(

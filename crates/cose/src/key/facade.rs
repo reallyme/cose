@@ -24,7 +24,8 @@ use super::encoding::CoseEc2PointEncoding;
 /// Encode a COSE_Key to canonical CBOR bytes.
 ///
 /// The returned buffer zeroizes on drop because a validated [`CoseKey`] may
-/// contain private parameters.
+/// contain private parameters and opaque extension values. For publication,
+/// use [`cose_key_to_public_vec`] to exclude both from the encoding.
 ///
 /// # Errors
 ///
@@ -32,6 +33,22 @@ use super::encoding::CoseEc2PointEncoding;
 /// canonical CBOR serialization or post-serialization validation fails.
 pub fn cose_key_to_vec(key: &CoseKey) -> Result<Zeroizing<Vec<u8>>, CoseError> {
     encode_cose_key(CoseKeyRefInput::new(key))
+        .map(CoseKeyBytesOutput::into_zeroizing)
+        .map_err(CoseFailure::into_native_error)
+}
+
+/// Encode the validated canonical public identity projection of a COSE_Key.
+///
+/// Contains only kty, exact alg if present, and the normalized public parameters
+/// defined by that key family. Omits private parameters, all extensions, kid,
+/// key_ops and Base IV. This is a new public identity encoding, not a copy of
+/// received key bytes or a carrier of the original key's usage or trust policy.
+///
+/// # Errors
+/// Returns [`CoseError`] for an invalid or unsupported key, missing public
+/// material, unavailable crypto validation, or bounded encoding failure.
+pub fn cose_key_to_public_vec(key: &CoseKey) -> Result<Zeroizing<Vec<u8>>, CoseError> {
+    super::encode_public::encode_cose_key_public(CoseKeyRefInput::new(key))
         .map(CoseKeyBytesOutput::into_zeroizing)
         .map_err(CoseFailure::into_native_error)
 }

@@ -21,6 +21,8 @@ mod peer_base_iv;
 mod peer_policy;
 #[path = "contract_private_key_ops_tests.rs"]
 mod private_key_ops;
+#[path = "contract_public_key_vec_tests.rs"]
+mod public_key_vec;
 #[path = "contract_signature_tests.rs"]
 mod signature;
 #[path = "contract_signature_structure_tests.rs"]

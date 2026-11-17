@@ -235,6 +235,7 @@ fn encode_result_branch(mut result: reallyme_cose::wire::CoseOperationResult) ->
         | Some(cose_operation_result::Result::KeyFromPrivateBytes(message))
         | Some(cose_operation_result::Result::KeyParse(message))
         | Some(cose_operation_result::Result::KeyToPublicBytes(message))
+        | Some(cose_operation_result::Result::KeyToPublicVec(message))
         | Some(cose_operation_result::Result::KeyToPrivateBytes(message))
         | Some(cose_operation_result::Result::KeyDerivePublicKid(message))
         | Some(cose_operation_result::Result::MultikeyToCoseKey(message)) => {

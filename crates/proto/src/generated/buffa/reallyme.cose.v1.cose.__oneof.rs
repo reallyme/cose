@@ -686,6 +686,7 @@ pub mod cose_operation_request {
         VerificationKeyImport(
             ::buffa::alloc::boxed::Box<super::super::super::CoseVerificationKeyImportRequest>,
         ),
+        KeyToPublicVec(::buffa::alloc::boxed::Box<super::super::super::CoseKeyBytesRequest>),
         MlKemEncryptDirect(
             ::buffa::alloc::boxed::Box<super::super::super::CoseMlKemEncryptRequest>,
         ),
@@ -768,6 +769,7 @@ pub mod cose_operation_request {
                 Self::VerificationKeyImport(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::KeyToPublicVec(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::MlKemEncryptDirect(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -1115,6 +1117,9 @@ pub mod cose_operation_request {
                 Self::VerificationKeyImport(v) => {
                     map.serialize_entry("verificationKeyImport", &**v)?;
                 }
+                Self::KeyToPublicVec(v) => {
+                    map.serialize_entry("keyToPublicVec", &**v)?;
+                }
                 Self::MlKemEncryptDirect(v) => {
                     map.serialize_entry("mlKemEncryptDirect", &**v)?;
                 }
@@ -1245,6 +1250,7 @@ pub mod cose_operation_result {
         PeerKeyInspect(::buffa::alloc::boxed::Box<super::super::super::CosePeerKeyResult>),
         PeerKeyValidate(::buffa::alloc::boxed::Box<super::super::super::CosePeerKeyResult>),
         VerificationKeyImport(::buffa::alloc::boxed::Box<super::super::super::CoseWorkingKey>),
+        KeyToPublicVec(::buffa::alloc::boxed::Box<super::super::super::CoseKeyBytesResult>),
         MlKemEncryptDirect(::buffa::alloc::boxed::Box<super::super::super::CoseMlKemEncryptResult>),
         MlKemEncryptKeyWrap(
             ::buffa::alloc::boxed::Box<super::super::super::CoseMlKemEncryptResult>,
@@ -1327,6 +1333,7 @@ pub mod cose_operation_result {
                 Self::VerificationKeyImport(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::KeyToPublicVec(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::MlKemEncryptDirect(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -1563,6 +1570,9 @@ pub mod cose_operation_result {
                 }
                 Self::VerificationKeyImport(v) => {
                     map.serialize_entry("verificationKeyImport", &**v)?;
+                }
+                Self::KeyToPublicVec(v) => {
+                    map.serialize_entry("keyToPublicVec", &**v)?;
                 }
                 Self::MlKemEncryptDirect(v) => {
                     map.serialize_entry("mlKemEncryptDirect", &**v)?;

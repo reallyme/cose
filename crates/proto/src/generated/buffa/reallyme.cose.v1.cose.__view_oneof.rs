@@ -405,6 +405,7 @@ pub mod cose_operation_request {
                 Self::VerificationKeyImport(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::KeyToPublicVec(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::MlKemEncryptDirect(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -577,6 +578,11 @@ pub mod cose_operation_request {
                 super::super::super::super::__buffa::view::CoseVerificationKeyImportRequestView<'a>,
             >,
         ),
+        KeyToPublicVec(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseKeyBytesRequestView<'a>,
+            >,
+        ),
         MlKemEncryptDirect(
             ::buffa::alloc::boxed::Box<
                 super::super::super::super::__buffa::view::CoseMlKemEncryptRequestView<'a>,
@@ -719,6 +725,7 @@ pub mod cose_operation_result {
                 Self::VerificationKeyImport(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::KeyToPublicVec(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::MlKemEncryptDirect(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -889,6 +896,11 @@ pub mod cose_operation_result {
         VerificationKeyImport(
             ::buffa::alloc::boxed::Box<
                 super::super::super::super::__buffa::view::CoseWorkingKeyView<'a>,
+            >,
+        ),
+        KeyToPublicVec(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseKeyBytesResultView<'a>,
             >,
         ),
         MlKemEncryptDirect(

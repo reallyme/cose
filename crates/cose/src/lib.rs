@@ -132,8 +132,8 @@ pub use key::{
     cose_key_from_public_bytes_with_encoding, cose_key_from_signature_private_bytes,
     cose_key_from_signature_public_bytes, cose_key_from_signature_public_bytes_with_encoding,
     cose_key_from_slice, cose_key_signature_algorithm, cose_key_to_private_bytes,
-    cose_key_to_public_bytes, cose_key_to_vec, derive_kid_from_cose_key_public,
-    CoseEc2PointEncoding, CoseKey,
+    cose_key_to_public_bytes, cose_key_to_public_vec, cose_key_to_vec,
+    derive_kid_from_cose_key_public, CoseEc2PointEncoding, CoseKey,
 };
 
 /// COSE_Key and Multikey conversion helpers.

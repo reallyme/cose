@@ -23361,6 +23361,7 @@ const _: fn() = || {
     __requires_wipe_owner::<CosePeerKeyRequest>();
     __requires_wipe_owner::<CosePeerKeyRequest>();
     __requires_wipe_owner::<CoseVerificationKeyImportRequest>();
+    __requires_wipe_owner::<CoseKeyBytesRequest>();
     __requires_wipe_owner::<CoseMlKemEncryptRequest>();
     __requires_wipe_owner::<CoseMlKemEncryptRequest>();
     __requires_wipe_owner::<CoseMlKemDecryptRequest>();
@@ -23600,6 +23601,13 @@ impl ::buffa::Message for CoseOperationRequest {
                         2u64 + ::buffa::encoding::varint_len(inner as u64) as u64 + inner as u64;
                 }
                 __buffa::oneof::cose_operation_request::Operation::VerificationKeyImport(x) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size +=
+                        2u64 + ::buffa::encoding::varint_len(inner as u64) as u64 + inner as u64;
+                }
+                __buffa::oneof::cose_operation_request::Operation::KeyToPublicVec(x) => {
                     let __slot = __cache.reserve();
                     let inner = x.compute_size(__cache);
                     __cache.set(__slot, inner);
@@ -23886,6 +23894,14 @@ impl ::buffa::Message for CoseOperationRequest {
                 __buffa::oneof::cose_operation_request::Operation::VerificationKeyImport(x) => {
                     ::buffa::types::put_len_delimited_header(
                         2012u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                __buffa::oneof::cose_operation_request::Operation::KeyToPublicVec(x) => {
+                    ::buffa::types::put_len_delimited_header(
+                        2013u32,
                         u64::from(__cache.consume_next()),
                         buf,
                     );
@@ -24584,6 +24600,28 @@ impl ::buffa::Message for CoseOperationRequest {
                     ::buffa::Message::merge_length_delimited(&mut val, buf, ctx)?;
                     self.operation = ::core::option::Option::Some(
                         __buffa::oneof::cose_operation_request::Operation::VerificationKeyImport(
+                            ::buffa::alloc::boxed::Box::new(val),
+                        ),
+                    );
+                }
+            }
+            2013u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                if let ::core::option::Option::Some(
+                    __buffa::oneof::cose_operation_request::Operation::KeyToPublicVec(
+                        ref mut existing,
+                    ),
+                ) = self.operation
+                {
+                    ::buffa::Message::merge_length_delimited(&mut **existing, buf, ctx)?;
+                } else {
+                    let mut val = ::core::default::Default::default();
+                    ::buffa::Message::merge_length_delimited(&mut val, buf, ctx)?;
+                    self.operation = ::core::option::Option::Some(
+                        __buffa::oneof::cose_operation_request::Operation::KeyToPublicVec(
                             ::buffa::alloc::boxed::Box::new(val),
                         ),
                     );
@@ -25307,6 +25345,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseOperationRequest {
                                 __r.operation = Some(__variant);
                             }
                         }
+                        "keyToPublicVec" | "key_to_public_vec" => {
+                            let v: ::core::option::Option<CoseKeyBytesRequest> = map
+                                .next_value_seed(::buffa::json_helpers::NullableDeserializeSeed(
+                                    ::buffa::json_helpers::DefaultDeserializeSeed::<
+                                        CoseKeyBytesRequest,
+                                    >::new(),
+                                ))?;
+                            if let Some(v) = v {
+                                let __variant = __buffa::oneof::cose_operation_request::Operation::KeyToPublicVec(
+                                    ::buffa::alloc::boxed::Box::new(v),
+                                );
+                                if __r.operation.is_some() {
+                                    return Err(::serde::de::Error::custom(
+                                        "multiple oneof fields set for 'operation'",
+                                    ));
+                                }
+                                __r.operation = Some(__variant);
+                            }
+                        }
                         "mlKemEncryptDirect" | "ml_kem_encrypt_direct" => {
                             let v: ::core::option::Option<CoseMlKemEncryptRequest> = map
                                 .next_value_seed(::buffa::json_helpers::NullableDeserializeSeed(
@@ -25813,6 +25870,7 @@ const _: fn() = || {
     __requires_wipe_owner::<CosePeerKeyResult>();
     __requires_wipe_owner::<CosePeerKeyResult>();
     __requires_wipe_owner::<CoseWorkingKey>();
+    __requires_wipe_owner::<CoseKeyBytesResult>();
     __requires_wipe_owner::<CoseMlKemEncryptResult>();
     __requires_wipe_owner::<CoseMlKemEncryptResult>();
     __requires_wipe_owner::<CoseMlKemDecryptResult>();
@@ -26050,6 +26108,13 @@ impl ::buffa::Message for CoseOperationResult {
                         2u64 + ::buffa::encoding::varint_len(inner as u64) as u64 + inner as u64;
                 }
                 __buffa::oneof::cose_operation_result::Result::VerificationKeyImport(x) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size +=
+                        2u64 + ::buffa::encoding::varint_len(inner as u64) as u64 + inner as u64;
+                }
+                __buffa::oneof::cose_operation_result::Result::KeyToPublicVec(x) => {
                     let __slot = __cache.reserve();
                     let inner = x.compute_size(__cache);
                     __cache.set(__slot, inner);
@@ -26334,6 +26399,14 @@ impl ::buffa::Message for CoseOperationResult {
                 __buffa::oneof::cose_operation_result::Result::VerificationKeyImport(x) => {
                     ::buffa::types::put_len_delimited_header(
                         2012u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                __buffa::oneof::cose_operation_result::Result::KeyToPublicVec(x) => {
+                    ::buffa::types::put_len_delimited_header(
+                        2013u32,
                         u64::from(__cache.consume_next()),
                         buf,
                     );
@@ -27018,6 +27091,26 @@ impl ::buffa::Message for CoseOperationResult {
                     ::buffa::Message::merge_length_delimited(&mut val, buf, ctx)?;
                     self.result = ::core::option::Option::Some(
                         __buffa::oneof::cose_operation_result::Result::VerificationKeyImport(
+                            ::buffa::alloc::boxed::Box::new(val),
+                        ),
+                    );
+                }
+            }
+            2013u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                if let ::core::option::Option::Some(
+                    __buffa::oneof::cose_operation_result::Result::KeyToPublicVec(ref mut existing),
+                ) = self.result
+                {
+                    ::buffa::Message::merge_length_delimited(&mut **existing, buf, ctx)?;
+                } else {
+                    let mut val = ::core::default::Default::default();
+                    ::buffa::Message::merge_length_delimited(&mut val, buf, ctx)?;
+                    self.result = ::core::option::Option::Some(
+                        __buffa::oneof::cose_operation_result::Result::KeyToPublicVec(
                             ::buffa::alloc::boxed::Box::new(val),
                         ),
                     );
@@ -27744,6 +27837,26 @@ impl<'de> ::serde::Deserialize<'de> for CoseOperationResult {
                                 let __variant = __buffa::oneof::cose_operation_result::Result::VerificationKeyImport(
                                     ::buffa::alloc::boxed::Box::new(v),
                                 );
+                                if __r.result.is_some() {
+                                    return Err(::serde::de::Error::custom(
+                                        "multiple oneof fields set for 'result'",
+                                    ));
+                                }
+                                __r.result = Some(__variant);
+                            }
+                        }
+                        "keyToPublicVec" | "key_to_public_vec" => {
+                            let v: ::core::option::Option<CoseKeyBytesResult> = map
+                                .next_value_seed(::buffa::json_helpers::NullableDeserializeSeed(
+                                    ::buffa::json_helpers::DefaultDeserializeSeed::<
+                                        CoseKeyBytesResult,
+                                    >::new(),
+                                ))?;
+                            if let Some(v) = v {
+                                let __variant =
+                                    __buffa::oneof::cose_operation_result::Result::KeyToPublicVec(
+                                        ::buffa::alloc::boxed::Box::new(v),
+                                    );
                                 if __r.result.is_some() {
                                     return Err(::serde::de::Error::custom(
                                         "multiple oneof fields set for 'result'",

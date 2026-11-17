@@ -1093,6 +1093,10 @@ message CoseOperationRequest {
     // Rust adapter: iso18013/provider.rs#from_cose_key
     // Rust adapter: iso18013/provider.rs#new
     CoseVerificationKeyImportRequest verification_key_import = 2012;
+    // Encode the canonical public identity projection, excluding all private,
+    // extension, kid, key_ops and Base IV fields. Preserve exact alg or absence.
+    // Rust adapter: key/facade.rs#cose_key_to_public_vec
+    CoseKeyBytesRequest key_to_public_vec = 2013;
 
     // COSE_Encrypt and COSE_Recipient operations: 3000-3999.
     // Rust adapter: encrypt/create.rs#cose_encrypt_ml_kem_direct
@@ -1161,6 +1165,7 @@ message CoseOperationResult {
     CosePeerKeyResult peer_key_inspect = 2010;
     CosePeerKeyResult peer_key_validate = 2011;
     CoseWorkingKey verification_key_import = 2012;
+    CoseKeyBytesResult key_to_public_vec = 2013;
 
     // COSE_Encrypt and COSE_Recipient results: 3000-3999.
     CoseMlKemEncryptResult ml_kem_encrypt_direct = 3000;

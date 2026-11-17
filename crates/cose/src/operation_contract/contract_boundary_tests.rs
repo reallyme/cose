@@ -104,6 +104,10 @@ fn every_schema_operation_has_an_executable_fixed_error_and_frozen_field_number(
             2002u64,
         ),
         (
+            Operation::KeyToPublicVec(Box::<contract::CoseKeyBytesRequest>::default()),
+            2013u64,
+        ),
+        (
             Operation::KeyToPublicBytes(Box::<contract::CoseKeyBytesRequest>::default()),
             2003u64,
         ),
@@ -166,7 +170,7 @@ fn every_schema_operation_has_an_executable_fixed_error_and_frozen_field_number(
             5000u64,
         ),
     ];
-    assert_eq!(operations.len(), 34);
+    assert_eq!(operations.len(), 35);
     for (operation, expected) in operations {
         let encoded = request(operation.clone()).encode_to_vec();
         let (mut tag, mut shift) = (0u64, 0u32);

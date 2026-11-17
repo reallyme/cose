@@ -50,6 +50,7 @@ fuzz_target!(|data: &[u8]| {
         },
     )));
     execute(Operation::KeyToPublicBytes(Box::new(key_request(data))));
+    execute(Operation::KeyToPublicVec(Box::new(key_request(data))));
     execute(Operation::KeyToPrivateBytes(Box::new(key_request(data))));
     execute(Operation::KeyDerivePublicKid(Box::new(key_request(data))));
     execute(Operation::KeyToMultikey(Box::new(key_request(data))));

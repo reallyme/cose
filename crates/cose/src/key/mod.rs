@@ -15,6 +15,7 @@ mod akp;
 pub(crate) mod convert;
 pub(crate) mod derive_kid;
 pub(crate) mod ec;
+pub(crate) mod encode_public;
 mod encoding;
 mod facade;
 #[cfg(feature = "cose-crypto")]
@@ -36,7 +37,7 @@ pub use facade::{
     cose_key_from_private_bytes, cose_key_from_public_bytes,
     cose_key_from_public_bytes_with_encoding, cose_key_from_signature_private_bytes,
     cose_key_from_signature_public_bytes, cose_key_from_signature_public_bytes_with_encoding,
-    cose_key_to_private_bytes, cose_key_to_public_bytes, cose_key_to_vec,
+    cose_key_to_private_bytes, cose_key_to_public_bytes, cose_key_to_public_vec, cose_key_to_vec,
 };
 pub use owned::CoseKey;
 pub use parse::cose_key_from_slice;

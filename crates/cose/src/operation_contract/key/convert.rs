@@ -105,6 +105,15 @@ pub(crate) fn to_private_bytes_result(
     result::private_key_bytes(output)
 }
 
+pub(crate) fn to_public_vec_result(
+    request: CoseKeyBytesRequest,
+) -> CoseWireResult<CoseOperationResult> {
+    let key = parse_request_key(request)?;
+    let output = crate::key::encode_public::encode_cose_key_public(CoseKeyRefInput::new(&key))
+        .map_err(boundary_error_from_failure)?;
+    result::public_key_vec(output)
+}
+
 pub(crate) fn derive_public_kid_result(
     request: CoseKeyBytesRequest,
 ) -> CoseWireResult<CoseOperationResult> {

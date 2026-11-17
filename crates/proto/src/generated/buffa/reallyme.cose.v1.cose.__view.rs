@@ -18672,6 +18672,7 @@ impl<'a> ::buffa::sensitive::Zeroize for CoseOperationRequestView<'a> {
         __requires_view_wipe_owner::<
             super::super::__buffa::view::CoseVerificationKeyImportRequestView<'a>,
         >();
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseKeyBytesRequestView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseMlKemEncryptRequestView<'a>>(
         );
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseMlKemEncryptRequestView<'a>>(
@@ -19615,6 +19616,37 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                     );
                 }
             }
+            2013u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyToPublicVec(
+                        ref mut existing,
+                    ),
+                ) = view.operation
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.operation = Some(
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyToPublicVec(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseKeyBytesRequestView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
             3000u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
@@ -20091,6 +20123,15 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                                 ),
                             )
                         }
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyToPublicVec(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_request::Operation::KeyToPublicVec(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::MlKemEncryptDirect(
                             v,
                         ) => {
@@ -20442,6 +20483,16 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseOperationRequestView<'a> {
                             + inner as u64;
                 }
                 super::super::__buffa::view::oneof::cose_operation_request::Operation::VerificationKeyImport(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 2u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyToPublicVec(
                     x,
                 ) => {
                     let __slot = __cache.reserve();
@@ -20806,6 +20857,16 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseOperationRequestView<'a> {
                 ) => {
                     ::buffa::types::put_len_delimited_header(
                         2012u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyToPublicVec(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        2013u32,
                         u64::from(__cache.consume_next()),
                         buf,
                     );
@@ -21440,6 +21501,7 @@ impl<'a> ::buffa::sensitive::Zeroize for CoseOperationResultView<'a> {
         __requires_view_wipe_owner::<super::super::__buffa::view::CosePeerKeyResultView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CosePeerKeyResultView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseWorkingKeyView<'a>>();
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseKeyBytesResultView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseMlKemEncryptResultView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseMlKemEncryptResultView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseMlKemDecryptResultView<'a>>();
@@ -22372,6 +22434,37 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                     );
                 }
             }
+            2013u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_result::Result::KeyToPublicVec(
+                        ref mut existing,
+                    ),
+                ) = view.result
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.result = Some(
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::KeyToPublicVec(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseKeyBytesResultView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
             3000u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
@@ -22840,6 +22933,15 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                                 ),
                             )
                         }
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::KeyToPublicVec(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_result::Result::KeyToPublicVec(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
                         super::super::__buffa::view::oneof::cose_operation_result::Result::MlKemEncryptDirect(
                             v,
                         ) => {
@@ -23191,6 +23293,16 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseOperationResultView<'a> {
                             + inner as u64;
                 }
                 super::super::__buffa::view::oneof::cose_operation_result::Result::VerificationKeyImport(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 2u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::KeyToPublicVec(
                     x,
                 ) => {
                     let __slot = __cache.reserve();
@@ -23555,6 +23667,16 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseOperationResultView<'a> {
                 ) => {
                     ::buffa::types::put_len_delimited_header(
                         2012u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::KeyToPublicVec(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        2013u32,
                         u64::from(__cache.consume_next()),
                         buf,
                     );

@@ -115,6 +115,7 @@ fn validate_result(result: &CoseOperationResult) -> CoseWireResult<()> {
             | CoseOperationResultBranch::KeyFromPrivateBytes(message)
             | CoseOperationResultBranch::KeyParse(message)
             | CoseOperationResultBranch::KeyToPublicBytes(message)
+            | CoseOperationResultBranch::KeyToPublicVec(message)
             | CoseOperationResultBranch::KeyToPrivateBytes(message)
             | CoseOperationResultBranch::KeyDerivePublicKid(message)
             | CoseOperationResultBranch::MultikeyToCoseKey(message),
@@ -301,6 +302,9 @@ fn result_matches_request(request: &CoseOperationRequest, result: &CoseOperation
         ) | (
             Some(cose_operation_request::Operation::KeyToPublicBytes(_)),
             Some(CoseOperationResultBranch::KeyToPublicBytes(_)),
+        ) | (
+            Some(cose_operation_request::Operation::KeyToPublicVec(_)),
+            Some(CoseOperationResultBranch::KeyToPublicVec(_)),
         ) | (
             Some(cose_operation_request::Operation::KeyToPrivateBytes(_)),
             Some(CoseOperationResultBranch::KeyToPrivateBytes(_)),
