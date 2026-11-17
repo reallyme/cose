@@ -16,7 +16,8 @@ use super::cose_type::CoseType;
 use super::create_headers::{build_protected_header, build_unprotected_header, sign_payload};
 use super::decode::SensitiveCoseSign1;
 use crate::limits::{
-    validate_cose_sign1_bytes_with_limit, validate_detached_payload, MAX_COSE_SIGN1_BYTES,
+    native_limit, portable_limit, validate_cose_sign1_bytes_with_limit,
+    validate_detached_payload_with_limit, MAX_COSE_SIGN1_BYTES, MAX_DETACHED_PAYLOAD_BYTES,
 };
 use zeroize::Zeroizing;
 
@@ -85,19 +86,29 @@ impl CoseSign1EncodeOptions {
     /// Maximum encoded size; absent legacy zero retains the historical default.
     pub fn max_cose_sign1_bytes(&self) -> usize {
         if let Some(limits) = self.contract.limits.as_option() {
-            return match usize::try_from(limits.encoded_bytes) {
-                Ok(value) => value,
-                Err(_) => usize::MAX,
-            };
+            return native_limit(limits.encoded_bytes, MAX_COSE_SIGN1_BYTES);
         }
         if self.contract.max_cose_sign1_bytes == 0 {
             MAX_COSE_SIGN1_BYTES
         } else {
-            match usize::try_from(self.contract.max_cose_sign1_bytes) {
-                Ok(value) => value,
-                Err(_) => usize::MAX,
-            }
+            native_limit(self.contract.max_cose_sign1_bytes, MAX_COSE_SIGN1_BYTES)
         }
+    }
+    fn max_payload_bytes(&self) -> usize {
+        self.contract
+            .limits
+            .as_option()
+            .map_or(MAX_DETACHED_PAYLOAD_BYTES, |limits| {
+                native_limit(limits.payload_bytes, MAX_DETACHED_PAYLOAD_BYTES)
+            })
+    }
+    fn max_external_aad_bytes(&self) -> usize {
+        self.contract
+            .limits
+            .as_option()
+            .map_or(MAX_COSE_SIGN1_BYTES, |limits| {
+                native_limit(limits.external_aad_bytes, MAX_COSE_SIGN1_BYTES)
+            })
     }
     /// Exact end-entity-first discovery chain.
     pub fn x5chain_der(&self) -> &[reallyme_cose_proto::SecretBytes] {
@@ -127,11 +138,24 @@ impl CoseSign1EncodeOptions {
     }
     /// Tighten the output ceiling.
     pub fn with_max_cose_sign1_bytes(mut self, value: usize) -> Self {
-        self.contract.limits = buffa::MessageField::some(crate::api::contract::CoseByteLimits {
-            encoded_bytes: u64::try_from(value).unwrap_or(u64::MAX),
-            payload_bytes: 0,
-            external_aad_bytes: 0,
-        });
+        if self.contract.limits.as_option().is_none() {
+            self.contract.limits =
+                buffa::MessageField::some(crate::api::contract::CoseByteLimits {
+                    encoded_bytes: portable_limit(MAX_COSE_SIGN1_BYTES, MAX_COSE_SIGN1_BYTES),
+                    payload_bytes: portable_limit(
+                        MAX_DETACHED_PAYLOAD_BYTES,
+                        MAX_DETACHED_PAYLOAD_BYTES,
+                    ),
+                    external_aad_bytes: portable_limit(MAX_COSE_SIGN1_BYTES, MAX_COSE_SIGN1_BYTES),
+                });
+        }
+        self.contract.limits.get_or_insert_default().encoded_bytes =
+            portable_limit(value, MAX_COSE_SIGN1_BYTES);
+        self
+    }
+    #[cfg(feature = "wire")]
+    pub(crate) fn with_limits(mut self, limits: crate::api::contract::CoseByteLimits) -> Self {
+        self.contract.limits = buffa::MessageField::some(limits);
         self
     }
     /// Move exact discovery certificate owners into the generated options.
@@ -404,8 +428,11 @@ fn create_cose_sign1_impl(
     input: CoseSign1CreateInput<'_>,
     payload_mode: Sign1PayloadMode,
 ) -> Result<Zeroizing<Vec<u8>>, CoseError> {
-    validate_detached_payload(input.payload)?;
-    validate_detached_payload(input.external_aad)?;
+    validate_detached_payload_with_limit(input.payload, input.options.max_payload_bytes())?;
+    validate_detached_payload_with_limit(
+        input.external_aad,
+        input.options.max_external_aad_bytes(),
+    )?;
     validate_x5chain(input.options.x5chain_der())?;
     if let Some(cose_type) = input.options.protected_type() {
         cose_type.validate()?;

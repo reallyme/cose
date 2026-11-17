@@ -73,21 +73,18 @@ pub(crate) fn encode_options_from_proto(
     };
     let mut result = CoseSign1EncodeOptions::new()
         .with_tag(options.tag)
-        .with_max_cose_sign1_bytes(optional_limit_to_usize(
+        .with_guarded_x5chain(x5chain_der)
+        .with_x5chain_header_placement(x5chain_header_placement);
+    result = if let Some(limits) = options.limits.take() {
+        // Preserve every canonical ceiling, including explicit zero, rather
+        // than rebuilding only the encoded limit and losing payload/AAD policy.
+        result.with_limits(limits)
+    } else {
+        result.with_max_cose_sign1_bytes(optional_limit_to_usize(
             options.max_cose_sign1_bytes,
             MAX_COSE_SIGN1_BYTES,
         )?)
-        .with_guarded_x5chain(x5chain_der)
-        .with_x5chain_header_placement(x5chain_header_placement);
-    if let Some(limits) = options.limits.as_option() {
-        result = result.with_max_cose_sign1_bytes(
-            super::profile_input::bounded_length(
-                limits.encoded_bytes,
-                MAX_COSE_PROTO_MESSAGE_BYTES,
-            )
-            .map_err(|error| CoseWireError::from_reason(error.reason()))?,
-        );
-    }
+    };
     if let Some(value) = options
         .protected_type
         .as_option_mut()

@@ -175,13 +175,13 @@ let cose = cose_sign1_with_options(
     Some(kid),
     CoseSign1EncodeOptions::tagged()
         .with_protected_type(CoseType::MediaType("application/statuslist+cwt".to_owned()))
-        .with_max_cose_sign1_bytes(512 * 1024),
+        .with_max_cose_sign1_bytes(32 * 1024),
 )?;
 ```
 
 Policy-aware verification keeps common platform requirements at the byte API
 boundary. `cose_verify1_with_policy` and `cose_verify1_detached_with_policy`
-can require `kid`, restrict accepted algorithms, raise or lower byte limits,
+can require `kid`, restrict accepted algorithms, tighten byte limits,
 and return verified metadata:
 
 ```rust
@@ -191,7 +191,7 @@ let policy = CosePolicy::new()
     .with_require_kid(true)
     .with_require_tagged_sign1(true)
     .allow_algorithm(Algorithm::Ed25519)
-    .with_max_cose_sign1_bytes(512 * 1024);
+    .with_max_cose_sign1_bytes(32 * 1024);
 
 let verified = cose_verify1_with_policy(&cose, &policy, |algorithm, requested_kid| {
     (algorithm == Algorithm::Ed25519 && requested_kid == kid).then(|| public_key.clone())
@@ -652,13 +652,14 @@ decoding:
 - COSE_Encrypt input: 1,114,112 bytes.
 - Detached payload input: 1,048,576 bytes.
 
-The default attached COSE_Sign1 limit is 65,536 bytes. Consumers that need
-larger attached reports can opt into a higher limit with
-`CoseSign1EncodeOptions::with_max_cose_sign1_bytes` when signing and
-`CosePolicy::with_max_cose_sign1_bytes` when verifying. Large application payloads
-must still fit the independent 1,048,576-byte signing input limit; external
-AAD has the same independent limit. Larger payloads should use an application
-protocol that does not pass those bytes through this signing boundary.
+The encoded COSE_Sign1 hard maximum is 65,536 bytes. Signing options and
+verification policy can tighten this ceiling; larger requested limits are
+clamped to the hard maximum. Detached payloads can contain up to 1,048,576
+bytes, and Sign1 external AAD has an independent 65,536-byte hard maximum.
+A present `CoseByteLimits` message treats zero as a real zero ceiling for each
+field. Payload and AAD ceilings are enforced independently for signing and
+verification. Larger reports can use detached content within its payload
+ceiling.
 
 The default verification policy accepts every supported signature algorithm.
 An explicitly configured empty primitive or exact-registration allow-list
@@ -681,11 +682,11 @@ registration with `public_key_algorithm`; its algorithm allow-list and
 `ECDSA_P256_SHA256` allow-list entry denotes ESP256 only; use the `ES256`
 entry to permit ES256.
 
-The protobuf operation lane is capped independently at 2 MiB for request
-messages and caller-supplied per-operation COSE/payload limits. Native Rust APIs
-may opt into larger local limits directly; protobuf callers cannot raise their
-parse policy beyond the message envelope cap. Generated ProtoJSON requests have
-a separate 3 MiB input cap to accommodate base64 and field-name overhead.
+The protobuf operation lane has an independent 2 MiB request-message cap.
+Operation-specific hard maxima apply equally to native Rust and protobuf
+callers; an envelope limit does not widen the COSE, payload or AAD ceiling.
+Generated ProtoJSON requests have a separate 3 MiB input cap to accommodate
+base64 and field-name overhead.
 ProtoJSON requests must use literal characters rather than JSON escape sequences, including in
 base64-encoded secret fields, so decoding does not retain an unwiped escape
 scratch buffer. Binary protobuf follows protobuf's last-oneof-member and

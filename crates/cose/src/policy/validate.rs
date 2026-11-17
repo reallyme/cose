@@ -11,7 +11,9 @@ use coset::CoseSign1;
 use reallyme_crypto::core::Algorithm;
 
 use crate::algorithm::CoseSignatureAlgorithm;
-use crate::limits::{MAX_COSE_SIGN1_BYTES, MAX_DETACHED_PAYLOAD_BYTES};
+use crate::limits::{
+    native_limit, portable_limit, MAX_COSE_SIGN1_BYTES, MAX_DETACHED_PAYLOAD_BYTES,
+};
 #[cfg(feature = "cose-crypto")]
 use crate::sign1::CoseType;
 #[cfg(feature = "cose-crypto")]
@@ -83,16 +85,25 @@ impl CosePolicy {
             .limits
             .as_option()
             .map_or(MAX_COSE_SIGN1_BYTES, |limits| {
-                native_limit(limits.encoded_bytes, usize::MAX)
+                native_limit(limits.encoded_bytes, MAX_COSE_SIGN1_BYTES)
             })
     }
-    /// Effective detached payload ceiling.
+    /// Effective payload ceiling, including detached content.
     pub fn max_detached_payload_bytes(&self) -> usize {
         self.contract
             .limits
             .as_option()
             .map_or(MAX_DETACHED_PAYLOAD_BYTES, |limits| {
-                native_limit(limits.payload_bytes, usize::MAX)
+                native_limit(limits.payload_bytes, MAX_DETACHED_PAYLOAD_BYTES)
+            })
+    }
+    #[cfg(feature = "cose-crypto")]
+    pub(crate) fn max_external_aad_bytes(&self) -> usize {
+        self.contract
+            .limits
+            .as_option()
+            .map_or(MAX_COSE_SIGN1_BYTES, |limits| {
+                native_limit(limits.external_aad_bytes, MAX_COSE_SIGN1_BYTES)
             })
     }
     /// Whether the registered Sign1 root tag is required.
@@ -176,12 +187,12 @@ impl CosePolicy {
     }
     /// Tighten the encoded Sign1 ceiling.
     pub fn with_max_cose_sign1_bytes(mut self, value: usize) -> Self {
-        self.limits().encoded_bytes = portable_limit(value, usize::MAX);
+        self.limits().encoded_bytes = portable_limit(value, MAX_COSE_SIGN1_BYTES);
         self
     }
     /// Tighten the detached payload ceiling.
     pub fn with_max_detached_payload_bytes(mut self, value: usize) -> Self {
-        self.limits().payload_bytes = portable_limit(value, usize::MAX);
+        self.limits().payload_bytes = portable_limit(value, MAX_DETACHED_PAYLOAD_BYTES);
         self
     }
     /// Set root-tag enforcement.
@@ -201,16 +212,6 @@ impl CosePolicy {
         self
     }
 }
-fn native_limit(value: u64, maximum: usize) -> usize {
-    match usize::try_from(value) {
-        Ok(value) => value.min(maximum),
-        Err(_) => maximum,
-    }
-}
-fn portable_limit(value: usize, maximum: usize) -> u64 {
-    u64::try_from(value.min(maximum)).unwrap_or(u64::MAX)
-}
-
 /// Validate COSE_Sign1 header policy without performing cryptographic verification.
 ///
 /// # Errors

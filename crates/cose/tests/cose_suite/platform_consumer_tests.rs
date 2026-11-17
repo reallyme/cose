@@ -107,30 +107,38 @@ fn cose_verify1_with_policy_rejects_disallowed_algorithm_before_key_resolution()
 }
 
 #[test]
-fn attached_sign1_limit_can_be_raised_for_platform_reports() {
+fn attached_sign1_limits_cannot_exceed_the_schema_maximum() {
     let key = gen_ed25519();
     let payload = deterministic_payload(PAYLOAD_LARGER_THAN_DEFAULT_SIGN1_LIMIT);
-    let cose = cose_sign1_with_options(
+    let rejected = cose_sign1_with_options(
         key.alg,
         &payload,
         &key.private,
         Some(test_kid()),
         CoseSign1EncodeOptions::tagged().with_max_cose_sign1_bytes(PLATFORM_COSE_SIGN1_LIMIT),
-    )
-    .unwrap();
+    );
+    assert_eq!(rejected.err(), Some(CoseError::ResourceLimitExceeded));
     let policy = CosePolicy::new()
         .with_require_kid(true)
         .allow_algorithm(Algorithm::Ed25519)
         .with_max_cose_sign1_bytes(PLATFORM_COSE_SIGN1_LIMIT);
 
-    let result = cose_verify1(&cose, |_, _| Some(key.public.clone()));
+    // Encode an oversized input independently so verification must reject it
+    // before key resolution, even when the caller requests a larger ceiling.
+    let fixture = cose_sign1_tagged(key.alg, b"small", &key.private, Some(test_kid())).unwrap();
+    let mut oversized = CoseSign1::from_tagged_slice(&fixture).unwrap();
+    oversized.payload = Some(payload);
+    let oversized = oversized.to_tagged_vec().unwrap();
+    let result = cose_verify1(&oversized, |_, _| Some(key.public.clone()));
     assert!(matches!(result, Err(CoseError::ResourceLimitExceeded)));
 
-    let verified = cose_verify1_with_policy(&cose, &policy, |_, kid| {
-        (kid == test_kid()).then(|| key.public.clone())
-    })
-    .unwrap();
-    assert_eq!(verified.payload.as_slice(), payload.as_slice());
+    let resolver_called = Cell::new(false);
+    let rejected = cose_verify1_with_policy(&oversized, &policy, |_, _| {
+        resolver_called.set(true);
+        Some(key.public.clone())
+    });
+    assert_eq!(rejected.err(), Some(CoseError::ResourceLimitExceeded));
+    assert!(!resolver_called.get());
 }
 
 fn deterministic_payload(len: usize) -> Vec<u8> {

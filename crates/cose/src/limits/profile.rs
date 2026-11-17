@@ -42,6 +42,19 @@ pub use crate::generated_contract::values::MAX_COSE_X5CHAIN_TOTAL_BYTES;
 
 const MAX_CBOR_DEPTH: usize = 32;
 
+pub(crate) fn native_limit(value: u64, maximum: usize) -> usize {
+    // A portable request can exceed a 32-bit address space. Conversion failure
+    // must retain the hard ceiling rather than widen it or vary by platform.
+    match usize::try_from(value) {
+        Ok(value) => value.min(maximum),
+        Err(_) => maximum,
+    }
+}
+
+pub(crate) fn portable_limit(value: usize, maximum: usize) -> u64 {
+    u64::try_from(value.min(maximum)).unwrap_or(u64::MAX)
+}
+
 pub(super) fn next_depth(depth: usize) -> Result<usize, CoseError> {
     depth.checked_add(1).ok_or(CoseError::ResourceLimitExceeded)
 }
@@ -73,11 +86,6 @@ pub(crate) fn validate_cose_key_bytes(bytes: &[u8]) -> Result<(), CoseError> {
 #[cfg(feature = "cose-crypto")]
 pub(crate) fn validate_iso_cose_key_bytes(bytes: &[u8]) -> Result<(), CoseError> {
     validate_cbor_bytes(bytes, MAX_COSE_KEY_BYTES, CborItemRole::CoseIsoKeyTop)
-}
-
-#[cfg(feature = "cose-crypto")]
-pub(crate) fn validate_detached_payload(payload: &[u8]) -> Result<(), CoseError> {
-    validate_detached_payload_with_limit(payload, MAX_DETACHED_PAYLOAD_BYTES)
 }
 
 #[cfg(feature = "cose-crypto")]

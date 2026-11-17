@@ -625,8 +625,8 @@ fn ml_kem_wire_preserves_encrypt_specific_missing_kid_reason() {
         None,
     );
     let native_error = reallyme_cose::cose_encrypt_ml_kem_direct(&native_request)
-        .err()
-        .expect("native encryption must reject the missing kid");
+        .map(|_| ())
+        .expect_err("native encryption must reject the missing kid");
     assert_eq!(native_error.reason(), CoseErrorReason::EncryptMissingKid);
     let output = execute_operation_bytes(
         &operation_request(CoseOperationRequestBranch::MlKemEncryptDirect(Box::new(
@@ -693,8 +693,8 @@ fn ml_kem_wire_preserves_encrypt_specific_unprotected_header_reason() {
         None,
     );
     let native_error = reallyme_cose::cose_decrypt_ml_kem(&native_request)
-        .err()
-        .expect("native decryption must reject the unprotected algorithm");
+        .map(|_| ())
+        .expect_err("native decryption must reject the unprotected algorithm");
     assert_eq!(
         native_error.reason(),
         CoseErrorReason::EncryptUnprotectedHeaderNotAllowed,

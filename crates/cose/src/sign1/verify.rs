@@ -348,7 +348,7 @@ pub(crate) fn verify_cose_sign1(
 ) -> Result<VerifiedCoseSign1, CoseFailure> {
     validate_detached_payload_with_limit(
         input.external_aad,
-        input.policy.max_detached_payload_bytes(),
+        input.policy.max_external_aad_bytes(),
     )?;
     let decoded = decode_cose_sign1(input.cose_sign1, input.policy.max_cose_sign1_bytes())?;
     let mut cose = decoded.cose;
@@ -387,7 +387,7 @@ pub(crate) fn verify_detached_cose_sign1(
     validate_detached_payload_with_limit(input.payload, input.policy.max_detached_payload_bytes())?;
     validate_detached_payload_with_limit(
         input.external_aad,
-        input.policy.max_detached_payload_bytes(),
+        input.policy.max_external_aad_bytes(),
     )?;
     let decoded = decode_cose_sign1(input.cose_sign1, input.policy.max_cose_sign1_bytes())?;
     let cose = decoded.cose;
@@ -413,6 +413,8 @@ fn verify_cose_signature(
     policy: &CosePolicy,
     public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[u8]) -> CoseSign1KeyResolution,
 ) -> Result<VerifiedDetachedCoseSign1, CoseFailure> {
+    validate_detached_payload_with_limit(payload, policy.max_detached_payload_bytes())?;
+    validate_detached_payload_with_limit(external_aad, policy.max_external_aad_bytes())?;
     validate_cose_sign1_structure(cose)?;
     validate_cose_sign1_policy(cose, tagged, policy)?;
 

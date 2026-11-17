@@ -21,10 +21,11 @@ pub use profile::{
 };
 
 pub(crate) use profile::validate_cose_key_bytes;
+pub(crate) use profile::{native_limit, portable_limit};
 
 #[cfg(feature = "cose-crypto")]
 pub(crate) use profile::{
     validate_cose_encrypt_bytes, validate_cose_mac0_bytes, validate_cose_sign1_bytes_with_limit,
-    validate_detached_payload, validate_detached_payload_with_limit, validate_iso_cose_key_bytes,
+    validate_detached_payload_with_limit, validate_iso_cose_key_bytes,
     validate_protected_header_bytes,
 };
