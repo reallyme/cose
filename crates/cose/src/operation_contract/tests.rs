@@ -23,6 +23,8 @@ mod signature;
 mod signature_structure;
 #[path = "contract_support_tests.rs"]
 mod support;
+#[path = "contract_x5chain_provider_tests.rs"]
+mod x5chain_provider;
 
 #[path = "contract_provider_tests.rs"]
 mod provider;

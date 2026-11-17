@@ -148,4 +148,6 @@ pub(crate) enum CoseSign1KeyResolution {
     KidMismatch,
     #[cfg(feature = "wire")]
     AlgorithmMismatch,
+    #[cfg(feature = "wire")]
+    Rejected(CoseError),
 }

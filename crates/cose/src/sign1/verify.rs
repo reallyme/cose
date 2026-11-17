@@ -26,6 +26,9 @@ use zeroize::Zeroizing;
 
 use crate::algorithm::CoseSignatureAlgorithm;
 
+#[cfg(feature = "wire")]
+pub(crate) use super::verify_x5chain::verify_with_certificate as verify_x5chain_with_certificate;
+
 #[cfg(kani)]
 #[path = "verify_authentication_gate_proof_tests.rs"]
 mod verification;
@@ -140,7 +143,9 @@ pub fn cose_verify1_with_exact_algorithm(
 /// This profile-specific entry point requires a non-empty, bounded path in
 /// label 33 and supplies it to the caller's trust resolver before signature
 /// verification. The resolver must validate certificate semantics, trust, and
-/// the end-entity public key.
+/// the end-entity public key from `certificates[0]`. This key-only compatibility
+/// callback must enforce that certificate binding itself; generated provider
+/// callbacks additionally return the selected DER and suite for COSE to check.
 ///
 /// The path must be in the protected header unless the policy explicitly
 /// enables [`CosePolicy::with_allow_unprotected_x5chain`]. An unprotected path
@@ -187,24 +192,10 @@ pub(crate) fn verify_cose_sign1_x5chain(
     policy: &CosePolicy,
     public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[Vec<u8>]) -> Option<Vec<u8>>,
 ) -> Result<VerifiedCoseSign1WithX5Chain, CoseError> {
-    let mut decoded = decode_cose_sign1_with_x5chain(cose_bytes, policy.max_cose_sign1_bytes())?;
+    let decoded = decode_cose_sign1_with_x5chain(cose_bytes, policy.max_cose_sign1_bytes())?;
     let (metadata, x5chain_header_placement) =
         verify_x5chain_signature(&decoded, policy, public_key_resolver)?;
-    let payload = decoded
-        .cose
-        .inner_mut()
-        .payload
-        .take()
-        .ok_or(CoseError::MissingPayload)?;
-    Ok(VerifiedCoseSign1WithX5Chain {
-        payload: Zeroizing::new(payload),
-        alg: metadata.alg,
-        cose_algorithm: metadata.cose_algorithm,
-        kid: metadata.kid,
-        cose_type: metadata.cose_type,
-        x5chain_der: decoded.x5chain_der,
-        x5chain_header_placement,
-    })
+    super::verify_x5chain::finish(decoded, metadata, x5chain_header_placement)
 }
 
 // Keep the decoded chain under its original owner until verification
@@ -214,29 +205,12 @@ fn verify_x5chain_signature(
     policy: &CosePolicy,
     public_key_resolver: impl FnOnce(CoseSignatureAlgorithm, &[Vec<u8>]) -> Option<Vec<u8>>,
 ) -> Result<(VerifiedDetachedCoseSign1, X5ChainHeaderPlacement), CoseError> {
-    let placement = match decoded.x5chain_placement {
-        None => return Err(CoseError::InvalidFormat),
-        Some(_) if decoded.x5chain_der.is_empty() => return Err(CoseError::InvalidFormat),
-        Some(X5ChainHeaderPlacement::Unprotected) if !policy.allow_unprotected_x5chain() => {
-            return Err(CoseError::UnprotectedHeaderNotAllowed);
-        }
-        Some(placement) => placement,
-    };
-    let cose = decoded.cose.inner();
-    let payload = cose.payload.as_ref().ok_or(CoseError::MissingPayload)?;
-    let metadata = verify_cose_signature(
-        cose,
-        decoded.tagged,
-        &[],
-        payload,
-        policy,
-        |algorithm, _| match public_key_resolver(algorithm, &decoded.x5chain_der) {
+    super::verify_x5chain::verify_signature(decoded, policy, |algorithm, _, chain| {
+        match public_key_resolver(algorithm, chain) {
             Some(public_key) => CoseSign1KeyResolution::Resolved(Zeroizing::new(public_key)),
             None => CoseSign1KeyResolution::NotResolved,
-        },
-    )
-    .map_err(CoseFailure::into_native_error)?;
-    Ok((metadata, placement))
+        }
+    })
 }
 
 /// Verify COSE_Sign1 with a detached payload.
@@ -405,7 +379,7 @@ pub(crate) fn verify_detached_cose_sign1(
     )
 }
 
-fn verify_cose_signature(
+pub(super) fn verify_cose_signature(
     cose: &CoseSign1,
     tagged: bool,
     external_aad: &[u8],
@@ -445,6 +419,8 @@ fn verify_cose_signature(
         CoseSign1KeyResolution::AlgorithmMismatch => {
             return Err(CoseFailure::from(CoseError::UnsupportedAlgorithm));
         }
+        #[cfg(feature = "wire")]
+        CoseSign1KeyResolution::Rejected(error) => return Err(CoseFailure::from(error)),
     };
 
     // RFC 9052 §4.4: the Sig_structure must carry the protected header bstr

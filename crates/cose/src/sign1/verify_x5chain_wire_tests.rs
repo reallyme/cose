@@ -267,10 +267,16 @@ fn x5chain_wire_array_bounds_are_enforced_before_trust() -> Result<(), CoseError
     for (chain, expected) in cases {
         for protected in [true, false] {
             let wire = encode_tagged_chain_fixture(chain.clone(), protected)?;
-            // Allow the full wire object so CBOR framing bytes cannot make
-            // the general Sign1 ceiling mask the certificate-byte limit.
+            // The profile ceiling cannot be raised. Some aggregate certificate
+            // boundaries plus envelope framing exceed it and must stop first.
             let wire_policy = policy.clone().with_max_cose_sign1_bytes(wire.len());
-            assert_eq!(wire_policy.max_cose_sign1_bytes(), wire.len());
+            let maximum = wire.len().min(crate::limits::MAX_COSE_SIGN1_BYTES);
+            assert_eq!(wire_policy.max_cose_sign1_bytes(), maximum);
+            let expected = if wire.len() > maximum {
+                CoseError::ResourceLimitExceeded
+            } else {
+                expected
+            };
             assert_eq!(
                 verify_refusing_trust(&wire, &wire_policy),
                 (Some(expected), expected == CoseError::KeyNotResolved)

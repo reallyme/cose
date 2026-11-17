@@ -14250,10 +14250,15 @@ impl ::serde::Serialize for CoseProviderResolveKeyRequestOwnedView {
 /// Rust borrowed view: containers/read_headers.rs#CertificateHeaders
 #[derive(Clone, Default)]
 pub struct CoseProviderCertificateRequestView<'a> {
+    /// Exact protected registration. The returned working-key suite must use
+    /// this registration and the curve required by the selected operation.
+    ///
     /// Field 1: `algorithm`
     pub algorithm: ::buffa::EnumValue<super::super::CoseSignatureAlgorithm>,
     /// Field 2: `chain`
     pub chain: ::buffa::MessageFieldView<super::super::__buffa::view::CoseX5ChainView<'a>>,
+    /// Actual received header bucket; never UNSPECIFIED when a chain is present.
+    ///
     /// Field 3: `placement`
     pub placement: ::buffa::EnumValue<super::super::CoseX5ChainHeaderPlacement>,
     /// SENSITIVE: protected SHA-256 thumbprint, absent if empty.
@@ -14552,6 +14557,9 @@ impl CoseProviderCertificateRequestOwnedView {
     pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
         self.0.into_bytes()
     }
+    /// Exact protected registration. The returned working-key suite must use
+    /// this registration and the curve required by the selected operation.
+    ///
     /// Field 1: `algorithm`
     #[must_use]
     pub fn algorithm(&self) -> ::buffa::EnumValue<super::super::CoseSignatureAlgorithm> {
@@ -14564,6 +14572,8 @@ impl CoseProviderCertificateRequestOwnedView {
     ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseX5ChainView<'_>> {
         &self.0.reborrow().chain
     }
+    /// Actual received header bucket; never UNSPECIFIED when a chain is present.
+    ///
     /// Field 3: `placement`
     #[must_use]
     pub fn placement(&self) -> ::buffa::EnumValue<super::super::CoseX5ChainHeaderPlacement> {
@@ -14615,6 +14625,9 @@ pub struct CoseProviderCertificateResultView<'a> {
     /// Field 1: `key`
     pub key: ::buffa::MessageFieldView<super::super::__buffa::view::CoseWorkingKeyView<'a>>,
     /// SENSITIVE: exact selected certificate DER, independent of key equivalence.
+    /// When the request contains a chain, this must equal chain\[0\] byte for byte.
+    /// A different selection fails with CONTAINER_CERTIFICATE_MISMATCH before
+    /// signature verification or authenticated metadata release.
     ///
     /// Field 2: `end_entity_der`
     pub end_entity_der: &'a [u8],
@@ -14880,6 +14893,9 @@ impl CoseProviderCertificateResultOwnedView {
         &self.0.reborrow().key
     }
     /// SENSITIVE: exact selected certificate DER, independent of key equivalence.
+    /// When the request contains a chain, this must equal chain\[0\] byte for byte.
+    /// A different selection fails with CONTAINER_CERTIFICATE_MISMATCH before
+    /// signature verification or authenticated metadata release.
     ///
     /// Field 2: `end_entity_der`
     #[must_use]

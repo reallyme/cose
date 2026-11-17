@@ -19253,6 +19253,9 @@ pub const __COSE_PROVIDER_RESOLVE_KEY_REQUEST_JSON_ANY: ::buffa::type_registry::
 /// Rust borrowed view: containers/read_headers.rs#CertificateHeaders
 #[derive(Clone, PartialEq, Default, ::serde::Serialize)]
 pub struct CoseProviderCertificateRequest {
+    /// Exact protected registration. The returned working-key suite must use
+    /// this registration and the curve required by the selected operation.
+    ///
     /// Field 1: `algorithm`
     #[serde(
         rename = "algorithm",
@@ -19268,6 +19271,8 @@ pub struct CoseProviderCertificateRequest {
     )]
     #[serde(default)]
     pub chain: ::buffa::MessageField<CoseX5Chain, ::buffa::Inline<CoseX5Chain>>,
+    /// Actual received header bucket; never UNSPECIFIED when a chain is present.
+    ///
     /// Field 3: `placement`
     #[serde(
         rename = "placement",
@@ -19654,6 +19659,9 @@ pub struct CoseProviderCertificateResult {
     #[serde(default)]
     pub key: ::buffa::MessageField<CoseWorkingKey, ::buffa::Inline<CoseWorkingKey>>,
     /// SENSITIVE: exact selected certificate DER, independent of key equivalence.
+    /// When the request contains a chain, this must equal chain\[0\] byte for byte.
+    /// A different selection fails with CONTAINER_CERTIFICATE_MISMATCH before
+    /// signature verification or authenticated metadata release.
     ///
     /// Field 2: `end_entity_der`
     #[serde(

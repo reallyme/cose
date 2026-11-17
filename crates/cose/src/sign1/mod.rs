@@ -32,6 +32,8 @@ pub(crate) mod types;
 #[cfg(feature = "cose-crypto")]
 pub(crate) mod verify;
 #[cfg(feature = "cose-crypto")]
+mod verify_x5chain;
+#[cfg(feature = "cose-crypto")]
 mod x5chain;
 #[cfg(feature = "cose-crypto")]
 pub(crate) use convert_signature::{

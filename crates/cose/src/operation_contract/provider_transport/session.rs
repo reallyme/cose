@@ -104,43 +104,34 @@ impl OperationProviders for Session<'_> {
         &self,
         handle: u64,
         algorithm: contract::CoseSignatureAlgorithm,
+        placement: contract::CoseX5ChainHeaderPlacement,
         certificates: &[Vec<u8>],
-    ) -> Option<Zeroizing<Vec<u8>>> {
+    ) -> Result<contract::CoseProviderCertificateResult, CoseError> {
         let mut chain = Zeroizing::new(Vec::new());
-        self.retain(
-            chain
-                .try_reserve_exact(certificates.len())
-                .map_err(|_| CoseError::ResourceLimitExceeded),
-        )?;
+        chain
+            .try_reserve_exact(certificates.len())
+            .map_err(|_| CoseError::ResourceLimitExceeded)?;
         for certificate in certificates {
-            chain.push(self.retain(transport::bytes(certificate))?);
+            chain.push(transport::bytes(certificate)?);
         }
         let request = contract::CoseProviderCertificateRequest {
             algorithm: algorithm.into(),
-            placement: contract::CoseX5ChainHeaderPlacement::Unspecified.into(),
+            placement: placement.into(),
             sha256_thumbprint: Default::default(),
             chain: buffa::MessageField::some(contract::CoseX5Chain {
                 certificates_der: core::mem::take(&mut *chain).into(),
             }),
         };
-        match &mut self.retain(transport::invoke(
+        match &mut transport::invoke(
             self.transport,
             handle,
             contract::CoseProviderKind::KeyResolver,
             Call::ResolveCertificate(Box::new(request)),
-        ))? {
-            Branch::ResolveCertificate(value) => {
-                let mut key = value.key.take()?;
-                if !super::super::profile_response::working_key(&key) {
-                    self.failure.set(Some(CoseError::InvalidKeyMaterial));
-                    return None;
-                }
-                Some(core::mem::take(&mut key.public_key).into_zeroizing())
-            }
-            _ => {
-                self.failure.set(Some(CoseError::InvalidKeyMaterial));
-                None
-            }
+        )? {
+            // Keep the complete generated owner. The shared Sign1 semantic
+            // boundary checks leaf DER and suite before exposing key bytes.
+            Branch::ResolveCertificate(value) => Ok(core::mem::take(&mut **value)),
+            _ => Err(CoseError::InvalidKeyMaterial),
         }
     }
     fn iso_verifier(&self, handle: u64) -> Result<&dyn Iso18013Verifier, CoseError> {

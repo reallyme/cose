@@ -275,13 +275,21 @@ impl OperationProviders for ChainResolver {
         &self,
         handle: u64,
         registration: CoseSignatureRegistration,
+        _placement: crate::api::contract::CoseX5ChainHeaderPlacement,
         chain: &[Vec<u8>],
-    ) -> Option<Zeroizing<Vec<u8>>> {
+    ) -> Result<crate::api::contract::CoseProviderCertificateResult, CoseError> {
         self.calls.set(self.calls.get() + 1);
         if handle != 1 || registration != CoseSignatureRegistration::Es256 || chain.is_empty() {
-            return None;
+            return Err(CoseError::KeyNotResolved);
         }
-        Some(Zeroizing::new(self.public.to_vec()))
+        Ok(crate::api::contract::CoseProviderCertificateResult {
+            key: field(crate::api::contract::CoseWorkingKey {
+                suite: field(suite(-7, 1)?),
+                public_key: self.public.to_vec().into(),
+                context_id: vec![0x42; 32].into(),
+            }),
+            end_entity_der: chain[0].clone().into(),
+        })
     }
 }
 

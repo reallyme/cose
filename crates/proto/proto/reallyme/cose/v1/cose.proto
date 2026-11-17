@@ -792,8 +792,11 @@ message CoseProviderResolveKeyRequest {
 // Rust view: containers/read_headers.rs#CertificateHeaders
 // Rust borrowed view: containers/read_headers.rs#CertificateHeaders
 message CoseProviderCertificateRequest {
+  // Exact protected registration. The returned working-key suite must use
+  // this registration and the curve required by the selected operation.
   CoseSignatureAlgorithm algorithm = 1;
   CoseX5Chain chain = 2;
+  // Actual received header bucket; never UNSPECIFIED when a chain is present.
   CoseX5ChainHeaderPlacement placement = 3;
   // SENSITIVE: protected SHA-256 thumbprint, absent if empty.
   bytes sha256_thumbprint = 4;
@@ -802,6 +805,9 @@ message CoseProviderCertificateRequest {
 message CoseProviderCertificateResult {
   CoseWorkingKey key = 1;
   // SENSITIVE: exact selected certificate DER, independent of key equivalence.
+  // When the request contains a chain, this must equal chain[0] byte for byte.
+  // A different selection fails with CONTAINER_CERTIFICATE_MISMATCH before
+  // signature verification or authenticated metadata release.
   bytes end_entity_der = 2;
 }
 

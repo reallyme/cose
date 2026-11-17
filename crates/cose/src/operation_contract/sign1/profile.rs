@@ -15,9 +15,8 @@ use crate::sign1::types::{
     CoseSign1CreateInput, CoseSign1DetachedVerifyInput, CoseSign1KeyResolution,
     CoseSign1VerifyInput,
 };
-use crate::sign1::verify::{
-    verify_cose_sign1, verify_cose_sign1_x5chain, verify_detached_cose_sign1,
-};
+use crate::sign1::verify::verify_x5chain_with_certificate;
+use crate::sign1::verify::{verify_cose_sign1, verify_detached_cose_sign1};
 use crate::wire::{
     cose_operation_result::Result as Branch, CoseErrorReason, CoseOperationResult,
     CoseSign1CreateProfileRequest, CoseSign1CreateResult, CoseSign1VerifyProfileRequest,
@@ -253,14 +252,21 @@ pub(crate) fn x5chain(
     if !input.expected_kid.is_empty() {
         return Err(invalid());
     }
-    let mut output = verify_cose_sign1_x5chain(&input.cose_sign1, &policy, |algorithm, chain| {
-        if key_algorithm.is_some_and(|configured| configured != algorithm) {
-            return None;
-        }
-        let registration = crate::wire::CoseSignatureAlgorithm::from(algorithm);
-        let mut public = providers.resolve_x5chain_key(resolver_handle, registration, chain)?;
-        Some(core::mem::take(&mut *public))
-    })
+    let mut output = verify_x5chain_with_certificate(
+        &input.cose_sign1,
+        &policy,
+        |algorithm, placement, chain| {
+            if key_algorithm.is_some_and(|configured| configured != algorithm) {
+                return Err(crate::CoseError::KeyNotResolved);
+            }
+            providers.resolve_x5chain_key(
+                resolver_handle,
+                crate::wire::CoseSignatureAlgorithm::from(algorithm),
+                CoseX5ChainHeaderPlacement::from(placement),
+                chain,
+            )
+        },
+    )
     .map_err(|e| boundary_error_from_failure(CoseFailure::from(e)))?;
     let placement = match output.x5chain_header_placement {
         crate::X5ChainHeaderPlacement::Protected => CoseX5ChainHeaderPlacement::Protected,

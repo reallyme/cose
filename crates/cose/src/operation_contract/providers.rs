@@ -31,13 +31,19 @@ pub trait OperationProviders {
     }
     /// Resolve an exact-registration verification key through an external
     /// certificate callback. Discovery certificates are untrusted input.
+    /// The result retains the selected DER and exact working-key suite until
+    /// COSE binds them to the received leaf and protected registration.
+    ///
+    /// # Errors
+    /// Returns a fixed resolution failure; an absent selection is KeyNotResolved.
     fn resolve_x5chain_key(
         &self,
         _handle: u64,
         _algorithm: CoseSignatureRegistration,
+        _placement: crate::api::contract::CoseX5ChainHeaderPlacement,
         _certificates: &[Vec<u8>],
-    ) -> Option<Zeroizing<Vec<u8>>> {
-        None
+    ) -> Result<crate::api::contract::CoseProviderCertificateResult, crate::CoseError> {
+        Err(crate::CoseError::KeyNotResolved)
     }
     /// Resolve a protected MAC key.
     /// # Errors
