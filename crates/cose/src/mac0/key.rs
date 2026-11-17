@@ -48,6 +48,25 @@ impl CoseMacKey {
         self.algorithm
     }
 
+    pub(crate) fn authenticate(&self, message: &[u8]) -> Result<Zeroizing<Vec<u8>>, CoseMac0Error> {
+        let tag = hmac::authenticate(
+            self.algorithm.primitive(),
+            self.secret.expose_secret(),
+            message,
+        )
+        .map_err(from_crypto_error)?;
+        let bytes = tag
+            .as_bytes()
+            .get(..self.algorithm.tag_length())
+            .ok_or(CoseMac0ErrorReason::BackendFailure)?;
+        let mut output = Zeroizing::new(Vec::new());
+        output
+            .try_reserve_exact(bytes.len())
+            .map_err(|_| crate::CoseError::ResourceLimitExceeded)?;
+        output.extend_from_slice(bytes);
+        Ok(output)
+    }
+
     pub(super) fn verify(&self, message: &[u8], tag: &[u8]) -> Result<(), CoseMac0Error> {
         if self.algorithm == CoseMacAlgorithm::Hmac256_64 {
             // The primitive's verifier accepts full tags only. RFC 9053's

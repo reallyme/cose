@@ -422,6 +422,8 @@ pub mod cose_operation_request {
                 Self::Mac0VerifyDetached(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::MacCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::MacVerify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::PreferredCborValidate(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -639,6 +641,16 @@ pub mod cose_operation_request {
                 super::super::super::super::__buffa::view::CoseMac0VerifyRequestView<'a>,
             >,
         ),
+        MacCreate(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseMacCreateRequestView<'a>,
+            >,
+        ),
+        MacVerify(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseMacVerifyRequestView<'a>,
+            >,
+        ),
         PreferredCborValidate(
             ::buffa::alloc::boxed::Box<
                 super::super::super::super::__buffa::view::CoseOpaqueBytesView<'a>,
@@ -778,6 +790,8 @@ pub mod cose_operation_result {
                 Self::Mac0VerifyDetached(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::MacCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::MacVerify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::PreferredCborValidate(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -995,6 +1009,16 @@ pub mod cose_operation_result {
                 super::super::super::super::__buffa::view::CoseMac0VerifyResultView<'a>,
             >,
         ),
+        MacCreate(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseMessageCreateResultView<'a>,
+            >,
+        ),
+        MacVerify(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseMacVerifyResultView<'a>,
+            >,
+        ),
         PreferredCborValidate(
             ::buffa::alloc::boxed::Box<
                 super::super::super::super::__buffa::view::CoseValidationResultView<'a>,
@@ -1069,6 +1093,38 @@ pub mod cose_key_set_entry {
     impl<'a> ::core::fmt::Debug for Outcome<'a> {
         fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             f.write_str("Outcome([REDACTED])")
+        }
+    }
+}
+pub mod cose_recipient_create {
+    #[allow(unused_imports)]
+    use super::*;
+    impl<'a> ::buffa::sensitive::Zeroize for KeySource<'a> {
+        fn zeroize(&mut self) {
+            match self {
+                Self::Key(_) => {}
+                Self::Recipients(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+            }
+        }
+    }
+    impl<'a> ::buffa::sensitive::ZeroizeOnDrop for KeySource<'a> {}
+    impl<'a> ::core::ops::Drop for KeySource<'a> {
+        fn drop(&mut self) {
+            ::buffa::sensitive::Zeroize::zeroize(self);
+        }
+    }
+    #[derive(Clone)]
+    pub enum KeySource<'a> {
+        Key(&'a [u8]),
+        Recipients(
+            ::buffa::alloc::boxed::Box<
+                super::super::super::super::__buffa::view::CoseRecipientCreateGroupView<'a>,
+            >,
+        ),
+    }
+    impl<'a> ::core::fmt::Debug for KeySource<'a> {
+        fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            f.write_str("KeySource([REDACTED])")
         }
     }
 }

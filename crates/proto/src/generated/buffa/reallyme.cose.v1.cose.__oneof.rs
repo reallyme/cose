@@ -703,6 +703,8 @@ pub mod cose_operation_request {
             ::buffa::alloc::boxed::Box<super::super::super::CoseEncrypt0DecryptRequest>,
         ),
         Mac0VerifyDetached(::buffa::alloc::boxed::Box<super::super::super::CoseMac0VerifyRequest>),
+        MacCreate(::buffa::alloc::boxed::Box<super::super::super::CoseMacCreateRequest>),
+        MacVerify(::buffa::alloc::boxed::Box<super::super::super::CoseMacVerifyRequest>),
         PreferredCborValidate(::buffa::alloc::boxed::Box<super::super::super::CoseOpaqueBytes>),
         ContractInfo(::buffa::alloc::boxed::Box<super::super::super::CoseValidationResult>),
     }
@@ -794,6 +796,8 @@ pub mod cose_operation_request {
                 Self::Mac0VerifyDetached(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::MacCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::MacVerify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::PreferredCborValidate(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -1084,6 +1088,30 @@ pub mod cose_operation_request {
             Self::Some(Operation::from(v))
         }
     }
+    impl ::core::convert::From<super::super::super::CoseMacCreateRequest> for Operation {
+        fn from(v: super::super::super::CoseMacCreateRequest) -> Self {
+            Self::MacCreate(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseMacCreateRequest>
+        for ::core::option::Option<Operation>
+    {
+        fn from(v: super::super::super::CoseMacCreateRequest) -> Self {
+            Self::Some(Operation::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseMacVerifyRequest> for Operation {
+        fn from(v: super::super::super::CoseMacVerifyRequest) -> Self {
+            Self::MacVerify(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseMacVerifyRequest>
+        for ::core::option::Option<Operation>
+    {
+        fn from(v: super::super::super::CoseMacVerifyRequest) -> Self {
+            Self::Some(Operation::from(v))
+        }
+    }
     impl ::core::convert::From<super::super::super::CoseOpaqueBytes> for Operation {
         fn from(v: super::super::super::CoseOpaqueBytes) -> Self {
             Self::PreferredCborValidate(::buffa::alloc::boxed::Box::new(v))
@@ -1236,6 +1264,12 @@ pub mod cose_operation_request {
                 Self::Mac0VerifyDetached(v) => {
                     map.serialize_entry("mac0VerifyDetached", &**v)?;
                 }
+                Self::MacCreate(v) => {
+                    map.serialize_entry("macCreate", &**v)?;
+                }
+                Self::MacVerify(v) => {
+                    map.serialize_entry("macVerify", &**v)?;
+                }
                 Self::PreferredCborValidate(v) => {
                     map.serialize_entry("preferredCborValidate", &**v)?;
                 }
@@ -1367,6 +1401,8 @@ pub mod cose_operation_result {
         Encrypt0Create(::buffa::alloc::boxed::Box<super::super::super::CoseEncrypt0CreateResult>),
         Encrypt0Decrypt(::buffa::alloc::boxed::Box<super::super::super::CoseEncrypt0DecryptResult>),
         Mac0VerifyDetached(::buffa::alloc::boxed::Box<super::super::super::CoseMac0VerifyResult>),
+        MacCreate(::buffa::alloc::boxed::Box<super::super::super::CoseMessageCreateResult>),
+        MacVerify(::buffa::alloc::boxed::Box<super::super::super::CoseMacVerifyResult>),
         PreferredCborValidate(
             ::buffa::alloc::boxed::Box<super::super::super::CoseValidationResult>,
         ),
@@ -1460,6 +1496,8 @@ pub mod cose_operation_result {
                 Self::Mac0VerifyDetached(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
+                Self::MacCreate(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+                Self::MacVerify(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
                 Self::PreferredCborValidate(value) => {
                     ::buffa::sensitive::Zeroize::zeroize(&mut **value)
                 }
@@ -1531,18 +1569,6 @@ pub mod cose_operation_result {
         for ::core::option::Option<Result>
     {
         fn from(v: super::super::super::CoseSign1SignatureStructureResult) -> Self {
-            Self::Some(Result::from(v))
-        }
-    }
-    impl ::core::convert::From<super::super::super::CoseMessageCreateResult> for Result {
-        fn from(v: super::super::super::CoseMessageCreateResult) -> Self {
-            Self::SignCreate(::buffa::alloc::boxed::Box::new(v))
-        }
-    }
-    impl ::core::convert::From<super::super::super::CoseMessageCreateResult>
-        for ::core::option::Option<Result>
-    {
-        fn from(v: super::super::super::CoseMessageCreateResult) -> Self {
             Self::Some(Result::from(v))
         }
     }
@@ -1649,6 +1675,18 @@ pub mod cose_operation_result {
         for ::core::option::Option<Result>
     {
         fn from(v: super::super::super::CoseMac0VerifyResult) -> Self {
+            Self::Some(Result::from(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseMacVerifyResult> for Result {
+        fn from(v: super::super::super::CoseMacVerifyResult) -> Self {
+            Self::MacVerify(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseMacVerifyResult>
+        for ::core::option::Option<Result>
+    {
+        fn from(v: super::super::super::CoseMacVerifyResult) -> Self {
             Self::Some(Result::from(v))
         }
     }
@@ -1792,6 +1830,12 @@ pub mod cose_operation_result {
                 Self::Mac0VerifyDetached(v) => {
                     map.serialize_entry("mac0VerifyDetached", &**v)?;
                 }
+                Self::MacCreate(v) => {
+                    map.serialize_entry("macCreate", &**v)?;
+                }
+                Self::MacVerify(v) => {
+                    map.serialize_entry("macVerify", &**v)?;
+                }
                 Self::PreferredCborValidate(v) => {
                     map.serialize_entry("preferredCborValidate", &**v)?;
                 }
@@ -1908,6 +1952,70 @@ pub mod cose_key_set_entry {
                 }
                 Self::Rejected(v) => {
                     map.serialize_entry("rejected", v)?;
+                }
+            }
+            map.end()
+        }
+    }
+}
+pub mod cose_recipient_create {
+    #[allow(unused_imports)]
+    use super::*;
+    #[derive(Clone, PartialEq)]
+    pub enum KeySource {
+        Key(crate::SecretBytes),
+        Recipients(::buffa::alloc::boxed::Box<super::super::super::CoseRecipientCreateGroup>),
+    }
+    impl ::core::fmt::Debug for KeySource {
+        fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            f.write_str("KeySource([REDACTED])")
+        }
+    }
+    impl ::buffa::sensitive::Zeroize for KeySource {
+        fn zeroize(&mut self) {
+            match self {
+                Self::Key(value) => ::buffa::sensitive::Zeroize::zeroize(value),
+                Self::Recipients(value) => ::buffa::sensitive::Zeroize::zeroize(&mut **value),
+            }
+        }
+    }
+    impl ::buffa::sensitive::ZeroizeOnDrop for KeySource {}
+    impl ::core::ops::Drop for KeySource {
+        fn drop(&mut self) {
+            ::buffa::sensitive::Zeroize::zeroize(self);
+        }
+    }
+    impl ::buffa::Oneof for KeySource {}
+    impl ::core::convert::From<super::super::super::CoseRecipientCreateGroup> for KeySource {
+        fn from(v: super::super::super::CoseRecipientCreateGroup) -> Self {
+            Self::Recipients(::buffa::alloc::boxed::Box::new(v))
+        }
+    }
+    impl ::core::convert::From<super::super::super::CoseRecipientCreateGroup>
+        for ::core::option::Option<KeySource>
+    {
+        fn from(v: super::super::super::CoseRecipientCreateGroup) -> Self {
+            Self::Some(KeySource::from(v))
+        }
+    }
+    impl ::serde::Serialize for KeySource {
+        fn serialize<__S: ::serde::Serializer>(
+            &self,
+            s: __S,
+        ) -> ::core::result::Result<__S::Ok, __S::Error> {
+            use ::serde::ser::SerializeMap;
+            let mut map = s.serialize_map(Some(1))?;
+            match self {
+                Self::Key(v) => {
+                    map.serialize_entry(
+                        "key",
+                        &::buffa::json_helpers::BytesPolicyJson::<crate::SecretBytes>::new(
+                            ::core::convert::AsRef::<[u8]>::as_ref(v),
+                        ),
+                    )?;
+                }
+                Self::Recipients(v) => {
+                    map.serialize_entry("recipients", &**v)?;
                 }
             }
             map.end()

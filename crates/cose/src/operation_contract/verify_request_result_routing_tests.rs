@@ -63,6 +63,8 @@ routing_fixtures! {
     1021 => SignVerify,
     3010 => Encrypt0Create,
     3011 => Encrypt0Decrypt,
+    4010 => MacCreate,
+    4011 => MacVerify,
     2014 => KeySetParse,
     2015 => KeySetCreate,
     3000 => MlKemEncryptDirect,

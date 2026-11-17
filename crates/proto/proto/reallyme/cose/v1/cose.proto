@@ -1123,6 +1123,8 @@ message CoseOperationRequest {
     CoseEncrypt0DecryptRequest encrypt0_decrypt = 3011;
     // Rust adapter: mac0/verify.rs#cose_verify_mac0_detached
     CoseMac0VerifyRequest mac0_verify_detached = 4000;
+    CoseMacCreateRequest mac_create = 4010;
+    CoseMacVerifyRequest mac_verify = 4011;
     // Rust adapter: containers/preflight.rs#validate_preferred_cbor
     CoseOpaqueBytes preferred_cbor_validate = 5000;
     CoseValidationResult contract_info = 5001;
@@ -1191,6 +1193,8 @@ message CoseOperationResult {
     CoseEncrypt0CreateResult encrypt0_create = 3010;
     CoseEncrypt0DecryptResult encrypt0_decrypt = 3011;
     CoseMac0VerifyResult mac0_verify_detached = 4000;
+    CoseMessageCreateResult mac_create = 4010;
+    CoseMacVerifyResult mac_verify = 4011;
     CoseValidationResult preferred_cbor_validate = 5000;
     CoseContractInfoResult contract_info = 5001;
   }
@@ -1581,6 +1585,80 @@ message CoseMessageHeaders {
 message CoseMessageCreateResult {
   // SENSITIVE: protected ownership and redacted diagnostics.
   bytes encoded = 1;
+}
+
+// Explicit RFC 9052 section 8.5 direct and AE key-wrap distributions.
+// Values are protobuf selectors, not COSE registrations.
+enum CoseRecipientAlgorithm {
+  COSE_RECIPIENT_ALGORITHM_UNSPECIFIED = 0;
+  // Wire -6. Exactly one direct recipient at its layer; ciphertext is h''.
+  COSE_RECIPIENT_ALGORITHM_DIRECT = 1;
+  // Wire -3, -4, -5 respectively.
+  COSE_RECIPIENT_ALGORITHM_A128KW = 100;
+  COSE_RECIPIENT_ALGORITHM_A192KW = 110;
+  COSE_RECIPIENT_ALGORITHM_A256KW = 120;
+}
+
+message CoseRecipientCreateGroup {
+  repeated CoseRecipientCreate recipients = 1;
+}
+
+// Recipient algorithms are carried in the supplied unprotected map. Direct
+// and AES-KW require empty protected bytes. A key source is either a leaf
+// shared key or nested recipient distribution, never both. Direct is a leaf.
+message CoseRecipientCreate {
+  CoseMessageHeaders headers = 1;
+  oneof key_source {
+    // SENSITIVE: leaf shared key; never serialized into the recipient.
+    bytes key = 2;
+    CoseRecipientCreateGroup recipients = 3;
+  }
+}
+
+// RFC 9052 sections 6.1/6.3. One to 32 recipients in the entire tree, at most
+// four layers. Wrapped MAC keys and intermediate wrapped KEKs are generated
+// securely; direct keys come from the sole direct recipient at that layer.
+message CoseMacCreateRequest {
+  CoseMessageHeaders headers = 1;
+  // SENSITIVE: attached or detached content.
+  bytes payload = 2;
+  // SENSITIVE: explicit external AAD, at most 64 KiB.
+  bytes external_aad = 3;
+  CoseMacAlgorithm algorithm = 4;
+  repeated CoseMacAlgorithm allowed_algorithms = 5;
+  CoseContentMode content_mode = 6;
+  bool tagged = 7;
+  repeated CoseRecipientCreate recipients = 8;
+  repeated CoseRecipientAlgorithm allowed_recipient_algorithms = 9;
+}
+
+// The caller selects a single recipient path, starting at the outer array.
+// Unsupported unselected recipient algorithms do not block this path. No
+// discovery, identity inference or trust policy is performed by COSE.
+message CoseMacVerifyRequest {
+  // SENSITIVE: exact message, at most 1 MiB.
+  bytes encoded = 1;
+  // SENSITIVE: presence requires a nil payload slot.
+  optional bytes detached_payload = 2;
+  // SENSITIVE: explicit external AAD.
+  bytes external_aad = 3;
+  CoseMacAlgorithm algorithm = 4;
+  repeated CoseMacAlgorithm allowed_algorithms = 5;
+  repeated uint32 recipient_path = 6;
+  // SENSITIVE: leaf key bound by caller policy to this path.
+  bytes recipient_key = 7;
+  repeated CoseRecipientAlgorithm allowed_recipient_algorithms = 8;
+  CoseEnvelopePolicy envelope = 9;
+}
+
+message CoseMacVerifyResult {
+  CoseMacAlgorithm algorithm = 1;
+  // SENSITIVE: exact authenticated protected headers.
+  bytes protected = 2;
+  // SENSITIVE: authenticated identity only when protected.
+  optional bytes protected_kid = 3;
+  // SENSITIVE: present exactly for attached content.
+  optional bytes attached_payload = 4;
 }
 
 // RFC 9052 sections 5.2/5.3. Keys are exact-width AES-GCM keys, not a KDF

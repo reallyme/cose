@@ -18695,6 +18695,8 @@ impl<'a> ::buffa::sensitive::Zeroize for CoseOperationRequestView<'a> {
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseEncrypt0DecryptRequestView<'a>>(
         );
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseMac0VerifyRequestView<'a>>();
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseMacCreateRequestView<'a>>();
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseMacVerifyRequestView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseOpaqueBytesView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseValidationResultView<'a>>();
         ::buffa::sensitive::Zeroize::zeroize(&mut self.operation);
@@ -19972,6 +19974,68 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                     );
                 }
             }
+            4010u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_request::Operation::MacCreate(
+                        ref mut existing,
+                    ),
+                ) = view.operation
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.operation = Some(
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::MacCreate(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseMacCreateRequestView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
+            4011u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_request::Operation::MacVerify(
+                        ref mut existing,
+                    ),
+                ) = view.operation
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.operation = Some(
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::MacVerify(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseMacVerifyRequestView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
             5000u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
@@ -20423,6 +20487,24 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                                 ),
                             )
                         }
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::MacCreate(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_request::Operation::MacCreate(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
+                        super::super::__buffa::view::oneof::cose_operation_request::Operation::MacVerify(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_request::Operation::MacVerify(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::PreferredCborValidate(
                             v,
                         ) => {
@@ -20857,6 +20939,26 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseOperationRequestView<'a> {
                         += 3u64 + ::buffa::encoding::varint_len(inner as u64) as u64
                             + inner as u64;
                 }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::MacCreate(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 3u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::MacVerify(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 3u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
                 super::super::__buffa::view::oneof::cose_operation_request::Operation::PreferredCborValidate(
                     x,
                 ) => {
@@ -21282,6 +21384,26 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseOperationRequestView<'a> {
                 ) => {
                     ::buffa::types::put_len_delimited_header(
                         4000u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::MacCreate(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        4010u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_request::Operation::MacVerify(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        4011u32,
                         u64::from(__cache.consume_next()),
                         buf,
                     );
@@ -21890,6 +22012,9 @@ impl<'a> ::buffa::sensitive::Zeroize for CoseOperationResultView<'a> {
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseEncrypt0DecryptResultView<'a>>(
         );
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseMac0VerifyResultView<'a>>();
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseMessageCreateResultView<'a>>(
+        );
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseMacVerifyResultView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseValidationResultView<'a>>();
         __requires_view_wipe_owner::<super::super::__buffa::view::CoseContractInfoResultView<'a>>();
         ::buffa::sensitive::Zeroize::zeroize(&mut self.result);
@@ -23139,6 +23264,60 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                     );
                 }
             }
+            4010u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_result::Result::MacCreate(
+                        ref mut existing,
+                    ),
+                ) = view.result
+                {
+                    ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
+                } else {
+                    view.result = Some(
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::MacCreate(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseMessageCreateResultView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
+            4011u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_operation_result::Result::MacVerify(
+                        ref mut existing,
+                    ),
+                ) = view.result
+                {
+                    ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
+                } else {
+                    view.result = Some(
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::MacVerify(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseMacVerifyResultView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
             5000u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
@@ -23586,6 +23765,24 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                                 ),
                             )
                         }
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::MacCreate(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_result::Result::MacCreate(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
+                        super::super::__buffa::view::oneof::cose_operation_result::Result::MacVerify(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_operation_result::Result::MacVerify(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
                         super::super::__buffa::view::oneof::cose_operation_result::Result::PreferredCborValidate(
                             v,
                         ) => {
@@ -24020,6 +24217,26 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseOperationResultView<'a> {
                         += 3u64 + ::buffa::encoding::varint_len(inner as u64) as u64
                             + inner as u64;
                 }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::MacCreate(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 3u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::MacVerify(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 3u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
                 super::super::__buffa::view::oneof::cose_operation_result::Result::PreferredCborValidate(
                     x,
                 ) => {
@@ -24445,6 +24662,26 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseOperationResultView<'a> {
                 ) => {
                     ::buffa::types::put_len_delimited_header(
                         4000u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::MacCreate(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        4010u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+                super::super::__buffa::view::oneof::cose_operation_result::Result::MacVerify(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        4011u32,
                         u64::from(__cache.consume_next()),
                         buf,
                     );
@@ -33049,6 +33286,2156 @@ impl ::buffa::HasMessageView for super::super::CoseMessageCreateResult {
     type ViewHandle = CoseMessageCreateResultOwnedView;
 }
 impl ::serde::Serialize for CoseMessageCreateResultOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+#[derive(Clone, Default)]
+pub struct CoseRecipientCreateGroupView<'a> {
+    /// Field 1: `recipients`
+    pub recipients: ::buffa::sensitive::RepeatedView<
+        'a,
+        super::super::__buffa::view::CoseRecipientCreateView<'a>,
+    >,
+}
+impl<'a> ::core::fmt::Debug for CoseRecipientCreateGroupView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseRecipientCreateGroupView")
+            .field("recipients", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseRecipientCreateGroupView<'a> {
+    fn zeroize(&mut self) {
+        fn __requires_view_wipe_owner<
+            T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop,
+        >() {
+        }
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseRecipientCreateView<'a>>();
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.recipients);
+    }
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseRecipientCreateGroupView<'a> {}
+impl<'a> ::core::ops::Drop for CoseRecipientCreateGroupView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseRecipientCreateGroupView<'a> {
+    type Owned = super::super::CoseRecipientCreateGroup;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                ctx.register_element_memory(::core::mem::size_of::<
+                    super::super::__buffa::view::CoseRecipientCreateView,
+                >())?;
+                view.recipients
+                    .push(
+                        <super::super::__buffa::view::CoseRecipientCreateView as ::buffa::MessageView>::decode_view_ctx(
+                            sub,
+                            __sub_ctx,
+                        )?,
+                    );
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<super::super::CoseRecipientCreateGroup, ::buffa::DecodeError> {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<super::super::CoseRecipientCreateGroup, ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let mut __owned =
+            <super::super::CoseRecipientCreateGroup as ::core::default::Default>::default();
+        __owned.recipients = self
+            .recipients
+            .iter()
+            .map(|v| v.to_owned_from_source(__buffa_src))
+            .collect::<::core::result::Result<_, ::buffa::DecodeError>>()?;
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseRecipientCreateGroupView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        for v in &self.recipients {
+            let __slot = __cache.reserve();
+            let inner_size = v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, __cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        for v in &self.recipients {
+            ::buffa::types::put_len_delimited_header(1u32, u64::from(__cache.consume_next()), buf);
+            v.write_to(__cache, buf);
+        }
+    }
+}
+impl<'__a> ::serde::Serialize for CoseRecipientCreateGroupView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseRecipientCreateGroupView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseRecipientCreateGroup";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseRecipientCreateGroup";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseRecipientCreateGroup";
+}
+::buffa::impl_default_view_instance!(CoseRecipientCreateGroupView);
+::buffa::impl_view_reborrow!(CoseRecipientCreateGroupView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseRecipientCreateGroupView);
+/** Self-contained, `'static` owned view of a `CoseRecipientCreateGroup` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseRecipientCreateGroupView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseRecipientCreateGroupView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseRecipientCreateGroupOwnedView(
+    ::buffa::OwnedView<CoseRecipientCreateGroupView<'static>>,
+);
+impl CoseRecipientCreateGroupOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseRecipientCreateGroupOwnedView(
+            ::buffa::OwnedView::decode(bytes)?,
+        ))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseRecipientCreateGroupOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseRecipientCreateGroup,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseRecipientCreateGroupOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseRecipientCreateGroupView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseRecipientCreateGroupView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseRecipientCreateGroup {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+    /// Field 1: `recipients`
+    #[must_use]
+    pub fn recipients(
+        &self,
+    ) -> &::buffa::sensitive::RepeatedView<
+        '_,
+        super::super::__buffa::view::CoseRecipientCreateView<'_>,
+    > {
+        &self.0.reborrow().recipients
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseRecipientCreateGroupView<'static>>>
+    for CoseRecipientCreateGroupOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseRecipientCreateGroupView<'static>>) -> Self {
+        CoseRecipientCreateGroupOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseRecipientCreateGroupOwnedView>
+    for ::buffa::OwnedView<CoseRecipientCreateGroupView<'static>>
+{
+    fn from(wrapper: CoseRecipientCreateGroupOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseRecipientCreateGroupView<'static>>>
+    for CoseRecipientCreateGroupOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseRecipientCreateGroupView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseRecipientCreateGroup {
+    type View<'a> = CoseRecipientCreateGroupView<'a>;
+    type ViewHandle = CoseRecipientCreateGroupOwnedView;
+}
+impl ::serde::Serialize for CoseRecipientCreateGroupOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+/// Recipient algorithms are carried in the supplied unprotected map. Direct
+/// and AES-KW require empty protected bytes. A key source is either a leaf
+/// shared key or nested recipient distribution, never both. Direct is a leaf.
+#[derive(Clone, Default)]
+pub struct CoseRecipientCreateView<'a> {
+    /// Field 1: `headers`
+    pub headers: ::buffa::MessageFieldView<super::super::__buffa::view::CoseMessageHeadersView<'a>>,
+    pub key_source: ::core::option::Option<
+        super::super::__buffa::view::oneof::cose_recipient_create::KeySource<'a>,
+    >,
+}
+impl<'a> ::core::fmt::Debug for CoseRecipientCreateView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseRecipientCreateView")
+            .field("headers", &::core::format_args!("[REDACTED]"))
+            .field("key_source", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseRecipientCreateView<'a> {
+    fn zeroize(&mut self) {
+        fn __requires_view_wipe_owner<
+            T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop,
+        >() {
+        }
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseMessageHeadersView<'a>>();
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseRecipientCreateGroupView<'a>>(
+        );
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.headers);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.key_source);
+    }
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseRecipientCreateView<'a> {}
+impl<'a> ::core::ops::Drop for CoseRecipientCreateView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseRecipientCreateView<'a> {
+    type Owned = super::super::CoseRecipientCreate;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                match view.headers.as_mut() {
+                    Some(existing) => {
+                        ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
+                    }
+                    None => {
+                        view.headers = ::buffa::MessageFieldView::set(
+                            <super::super::__buffa::view::CoseMessageHeadersView as ::buffa::MessageView>::decode_view_ctx(
+                                sub,
+                                __sub_ctx,
+                            )?,
+                        );
+                    }
+                }
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.key_source = Some(
+                    super::super::__buffa::view::oneof::cose_recipient_create::KeySource::Key(
+                        ::buffa::types::borrow_bytes(&mut cur)?,
+                    ),
+                );
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                if let Some(
+                    super::super::__buffa::view::oneof::cose_recipient_create::KeySource::Recipients(
+                        ref mut existing,
+                    ),
+                ) = view.key_source
+                {
+                    ::buffa::MessageView::merge_into_view(
+                        &mut **existing,
+                        sub,
+                        __sub_ctx,
+                    )?;
+                } else {
+                    view.key_source = Some(
+                        super::super::__buffa::view::oneof::cose_recipient_create::KeySource::Recipients(
+                            ::buffa::alloc::boxed::Box::new(
+                                <super::super::__buffa::view::CoseRecipientCreateGroupView as ::buffa::MessageView>::decode_view_ctx(
+                                    sub,
+                                    __sub_ctx,
+                                )?,
+                            ),
+                        ),
+                    );
+                }
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<super::super::CoseRecipientCreate, ::buffa::DecodeError> {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<super::super::CoseRecipientCreate, ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let mut __owned =
+            <super::super::CoseRecipientCreate as ::core::default::Default>::default();
+        __owned.headers = match self.headers.as_option() {
+            Some(v) => ::buffa::MessageField::<
+                super::super::CoseMessageHeaders,
+                ::buffa::Inline<super::super::CoseMessageHeaders>,
+            >::some(v.to_owned_from_source(__buffa_src)?),
+            None => ::buffa::MessageField::none(),
+        };
+        __owned.key_source = match self.key_source.as_ref() {
+            ::core::option::Option::Some(v) => {
+                ::core::option::Option::Some(
+                    match v {
+                        super::super::__buffa::view::oneof::cose_recipient_create::KeySource::Key(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_recipient_create::KeySource::Key(
+                                ::core::convert::Into::into((v).to_vec()),
+                            )
+                        }
+                        super::super::__buffa::view::oneof::cose_recipient_create::KeySource::Recipients(
+                            v,
+                        ) => {
+                            super::super::__buffa::oneof::cose_recipient_create::KeySource::Recipients(
+                                ::buffa::alloc::boxed::Box::new(
+                                    v.to_owned_from_source(__buffa_src)?,
+                                ),
+                            )
+                        }
+                    },
+                )
+            }
+            ::core::option::Option::None => ::core::option::Option::None,
+        };
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseRecipientCreateView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if let ::core::option::Option::Some(__v) = self.headers.as_option() {
+            let __slot = __cache.reserve();
+            let inner_size = __v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        if let ::core::option::Option::Some(ref v) = self.key_source {
+            match v {
+                super::super::__buffa::view::oneof::cose_recipient_create::KeySource::Key(
+                    x,
+                ) => {
+                    size += 1u64 + ::buffa::types::bytes_encoded_len(x) as u64;
+                }
+                super::super::__buffa::view::oneof::cose_recipient_create::KeySource::Recipients(
+                    x,
+                ) => {
+                    let __slot = __cache.reserve();
+                    let inner = x.compute_size(__cache);
+                    __cache.set(__slot, inner);
+                    size
+                        += 1u64 + ::buffa::encoding::varint_len(inner as u64) as u64
+                            + inner as u64;
+                }
+            }
+        }
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, __cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if let ::core::option::Option::Some(__v) = self.headers.as_option() {
+            ::buffa::types::put_len_delimited_header(1u32, u64::from(__cache.consume_next()), buf);
+            __v.write_to(__cache, buf);
+        }
+        if let ::core::option::Option::Some(ref v) = self.key_source {
+            match v {
+                super::super::__buffa::view::oneof::cose_recipient_create::KeySource::Key(
+                    x,
+                ) => {
+                    ::buffa::types::put_shared_bytes_field(2u32, x, buf);
+                }
+                super::super::__buffa::view::oneof::cose_recipient_create::KeySource::Recipients(
+                    x,
+                ) => {
+                    ::buffa::types::put_len_delimited_header(
+                        3u32,
+                        u64::from(__cache.consume_next()),
+                        buf,
+                    );
+                    x.write_to(__cache, buf);
+                }
+            }
+        }
+    }
+}
+impl<'__a> ::serde::Serialize for CoseRecipientCreateView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseRecipientCreateView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseRecipientCreate";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseRecipientCreate";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseRecipientCreate";
+}
+::buffa::impl_default_view_instance!(CoseRecipientCreateView);
+::buffa::impl_view_reborrow!(CoseRecipientCreateView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseRecipientCreateView);
+/** Self-contained, `'static` owned view of a `CoseRecipientCreate` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseRecipientCreateView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseRecipientCreateView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseRecipientCreateOwnedView(::buffa::OwnedView<CoseRecipientCreateView<'static>>);
+impl CoseRecipientCreateOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseRecipientCreateOwnedView(::buffa::OwnedView::decode(
+            bytes,
+        )?))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseRecipientCreateOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseRecipientCreate,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseRecipientCreateOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseRecipientCreateView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseRecipientCreateView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseRecipientCreate {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+    /// Field 1: `headers`
+    #[must_use]
+    pub fn headers(
+        &self,
+    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseMessageHeadersView<'_>> {
+        &self.0.reborrow().headers
+    }
+    /// Oneof `key_source`.
+    #[must_use]
+    pub fn key_source(
+        &self,
+    ) -> ::core::option::Option<
+        &super::super::__buffa::view::oneof::cose_recipient_create::KeySource<'_>,
+    > {
+        self.0.reborrow().key_source.as_ref()
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseRecipientCreateView<'static>>>
+    for CoseRecipientCreateOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseRecipientCreateView<'static>>) -> Self {
+        CoseRecipientCreateOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseRecipientCreateOwnedView>
+    for ::buffa::OwnedView<CoseRecipientCreateView<'static>>
+{
+    fn from(wrapper: CoseRecipientCreateOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseRecipientCreateView<'static>>>
+    for CoseRecipientCreateOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseRecipientCreateView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseRecipientCreate {
+    type View<'a> = CoseRecipientCreateView<'a>;
+    type ViewHandle = CoseRecipientCreateOwnedView;
+}
+impl ::serde::Serialize for CoseRecipientCreateOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+/// RFC 9052 sections 6.1/6.3. One to 32 recipients in the entire tree, at most
+/// four layers. Wrapped MAC keys and intermediate wrapped KEKs are generated
+/// securely; direct keys come from the sole direct recipient at that layer.
+#[derive(Clone, Default)]
+pub struct CoseMacCreateRequestView<'a> {
+    /// Field 1: `headers`
+    pub headers: ::buffa::MessageFieldView<super::super::__buffa::view::CoseMessageHeadersView<'a>>,
+    /// SENSITIVE: attached or detached content.
+    ///
+    /// Field 2: `payload`
+    pub payload: &'a [u8],
+    /// SENSITIVE: explicit external AAD, at most 64 KiB.
+    ///
+    /// Field 3: `external_aad`
+    pub external_aad: &'a [u8],
+    /// Field 4: `algorithm`
+    pub algorithm: ::buffa::EnumValue<super::super::CoseMacAlgorithm>,
+    /// Field 5: `allowed_algorithms`
+    pub allowed_algorithms:
+        ::buffa::sensitive::RepeatedView<'a, ::buffa::EnumValue<super::super::CoseMacAlgorithm>>,
+    /// Field 6: `content_mode`
+    pub content_mode: ::buffa::EnumValue<super::super::CoseContentMode>,
+    /// Field 7: `tagged`
+    pub tagged: bool,
+    /// Field 8: `recipients`
+    pub recipients: ::buffa::sensitive::RepeatedView<
+        'a,
+        super::super::__buffa::view::CoseRecipientCreateView<'a>,
+    >,
+    /// Field 9: `allowed_recipient_algorithms`
+    pub allowed_recipient_algorithms: ::buffa::sensitive::RepeatedView<
+        'a,
+        ::buffa::EnumValue<super::super::CoseRecipientAlgorithm>,
+    >,
+}
+impl<'a> ::core::fmt::Debug for CoseMacCreateRequestView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseMacCreateRequestView")
+            .field("headers", &::core::format_args!("[REDACTED]"))
+            .field("payload", &::core::format_args!("[REDACTED]"))
+            .field("external_aad", &::core::format_args!("[REDACTED]"))
+            .field("algorithm", &::core::format_args!("[REDACTED]"))
+            .field("allowed_algorithms", &::core::format_args!("[REDACTED]"))
+            .field("content_mode", &::core::format_args!("[REDACTED]"))
+            .field("tagged", &::core::format_args!("[REDACTED]"))
+            .field("recipients", &::core::format_args!("[REDACTED]"))
+            .field(
+                "allowed_recipient_algorithms",
+                &::core::format_args!("[REDACTED]"),
+            )
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseMacCreateRequestView<'a> {
+    fn zeroize(&mut self) {
+        fn __requires_view_wipe_owner<
+            T: ::buffa::sensitive::Zeroize + ::buffa::sensitive::ZeroizeOnDrop,
+        >() {
+        }
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseMessageHeadersView<'a>>();
+        __requires_view_wipe_owner::<super::super::__buffa::view::CoseRecipientCreateView<'a>>();
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.headers);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.algorithm);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.allowed_algorithms);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.content_mode);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.tagged);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.recipients);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.allowed_recipient_algorithms);
+    }
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseMacCreateRequestView<'a> {}
+impl<'a> ::core::ops::Drop for CoseMacCreateRequestView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseMacCreateRequestView<'a> {
+    type Owned = super::super::CoseMacCreateRequest;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                match view.headers.as_mut() {
+                    Some(existing) => {
+                        ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
+                    }
+                    None => {
+                        view.headers = ::buffa::MessageFieldView::set(
+                            <super::super::__buffa::view::CoseMessageHeadersView as ::buffa::MessageView>::decode_view_ctx(
+                                sub,
+                                __sub_ctx,
+                            )?,
+                        );
+                    }
+                }
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.payload = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.external_aad = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            4u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                view.algorithm = ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?);
+            }
+            6u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                view.content_mode =
+                    ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?);
+            }
+            7u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                view.tagged = ::buffa::types::decode_bool(&mut cur)?;
+            }
+            5u32 => {
+                if tag.wire_type() == ::buffa::encoding::WireType::LengthDelimited {
+                    let payload = ::buffa::types::borrow_bytes(&mut cur)?;
+                    view.allowed_algorithms
+                        .reserve(::buffa::encoding::count_varints(payload));
+                    let mut pcur: &[u8] = payload;
+                    while !pcur.is_empty() {
+                        view.allowed_algorithms.push(::buffa::EnumValue::from(
+                            ::buffa::types::decode_int32_packed(&mut pcur)?,
+                        ));
+                    }
+                } else if tag.wire_type() == ::buffa::encoding::WireType::Varint {
+                    view.allowed_algorithms.push(::buffa::EnumValue::from(
+                        ::buffa::types::decode_int32(&mut cur)?,
+                    ));
+                } else {
+                    return Err(::buffa::encoding::wire_type_mismatch(
+                        tag,
+                        ::buffa::encoding::WireType::LengthDelimited,
+                    ));
+                }
+            }
+            8u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                let __sub_ctx = ctx.descend()?;
+                let sub = ::buffa::types::borrow_bytes(&mut cur)?;
+                ctx.register_element_memory(::core::mem::size_of::<
+                    super::super::__buffa::view::CoseRecipientCreateView,
+                >())?;
+                view.recipients
+                    .push(
+                        <super::super::__buffa::view::CoseRecipientCreateView as ::buffa::MessageView>::decode_view_ctx(
+                            sub,
+                            __sub_ctx,
+                        )?,
+                    );
+            }
+            9u32 => {
+                if tag.wire_type() == ::buffa::encoding::WireType::LengthDelimited {
+                    let payload = ::buffa::types::borrow_bytes(&mut cur)?;
+                    view.allowed_recipient_algorithms
+                        .reserve(::buffa::encoding::count_varints(payload));
+                    let mut pcur: &[u8] = payload;
+                    while !pcur.is_empty() {
+                        view.allowed_recipient_algorithms
+                            .push(::buffa::EnumValue::from(
+                                ::buffa::types::decode_int32_packed(&mut pcur)?,
+                            ));
+                    }
+                } else if tag.wire_type() == ::buffa::encoding::WireType::Varint {
+                    view.allowed_recipient_algorithms
+                        .push(::buffa::EnumValue::from(::buffa::types::decode_int32(
+                            &mut cur,
+                        )?));
+                } else {
+                    return Err(::buffa::encoding::wire_type_mismatch(
+                        tag,
+                        ::buffa::encoding::WireType::LengthDelimited,
+                    ));
+                }
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<super::super::CoseMacCreateRequest, ::buffa::DecodeError> {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<super::super::CoseMacCreateRequest, ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let mut __owned =
+            <super::super::CoseMacCreateRequest as ::core::default::Default>::default();
+        __owned.headers = match self.headers.as_option() {
+            Some(v) => ::buffa::MessageField::<
+                super::super::CoseMessageHeaders,
+                ::buffa::Inline<super::super::CoseMessageHeaders>,
+            >::some(v.to_owned_from_source(__buffa_src)?),
+            None => ::buffa::MessageField::none(),
+        };
+        __owned.payload = ::core::convert::Into::into((self.payload).to_vec());
+        __owned.external_aad = ::core::convert::Into::into((self.external_aad).to_vec());
+        __owned.algorithm = self.algorithm;
+        __owned.allowed_algorithms = self.allowed_algorithms.iter().copied().collect();
+        __owned.content_mode = self.content_mode;
+        __owned.tagged = self.tagged;
+        __owned.recipients = self
+            .recipients
+            .iter()
+            .map(|v| v.to_owned_from_source(__buffa_src))
+            .collect::<::core::result::Result<_, ::buffa::DecodeError>>()?;
+        __owned.allowed_recipient_algorithms =
+            self.allowed_recipient_algorithms.iter().copied().collect();
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseMacCreateRequestView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, __cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if let ::core::option::Option::Some(__v) = self.headers.as_option() {
+            let __slot = __cache.reserve();
+            let inner_size = __v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        if !self.payload.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.payload) as u64;
+        }
+        if !self.external_aad.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.external_aad) as u64;
+        }
+        {
+            let val = self.algorithm.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        if !self.allowed_algorithms.is_empty() {
+            let payload: u64 = self
+                .allowed_algorithms
+                .iter()
+                .map(|v| ::buffa::types::int32_encoded_len(v.to_i32()) as u64)
+                .sum::<u64>();
+            size += 1u64 + ::buffa::encoding::varint_len(payload) as u64 + payload;
+        }
+        {
+            let val = self.content_mode.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        if self.tagged {
+            size += 1u64 + ::buffa::types::BOOL_ENCODED_LEN as u64;
+        }
+        for v in &self.recipients {
+            let __slot = __cache.reserve();
+            let inner_size = v.compute_size(__cache);
+            __cache.set(__slot, inner_size);
+            size +=
+                1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
+        }
+        if !self.allowed_recipient_algorithms.is_empty() {
+            let payload: u64 = self
+                .allowed_recipient_algorithms
+                .iter()
+                .map(|v| ::buffa::types::int32_encoded_len(v.to_i32()) as u64)
+                .sum::<u64>();
+            size += 1u64 + ::buffa::encoding::varint_len(payload) as u64 + payload;
+        }
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, __cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if let ::core::option::Option::Some(__v) = self.headers.as_option() {
+            ::buffa::types::put_len_delimited_header(1u32, u64::from(__cache.consume_next()), buf);
+            __v.write_to(__cache, buf);
+        }
+        if !self.payload.is_empty() {
+            ::buffa::types::put_shared_bytes_field(2u32, &self.payload, buf);
+        }
+        if !self.external_aad.is_empty() {
+            ::buffa::types::put_shared_bytes_field(3u32, &self.external_aad, buf);
+        }
+        {
+            let val = self.algorithm.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(4u32, val, buf);
+            }
+        }
+        if !self.allowed_algorithms.is_empty() {
+            let payload: u64 = self
+                .allowed_algorithms
+                .iter()
+                .map(|v| ::buffa::types::int32_encoded_len(v.to_i32()) as u64)
+                .sum::<u64>();
+            ::buffa::types::put_len_delimited_header(5u32, payload, buf);
+            for v in &self.allowed_algorithms {
+                ::buffa::types::encode_int32(v.to_i32(), buf);
+            }
+        }
+        {
+            let val = self.content_mode.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(6u32, val, buf);
+            }
+        }
+        if self.tagged {
+            ::buffa::types::put_bool_field(7u32, self.tagged, buf);
+        }
+        for v in &self.recipients {
+            ::buffa::types::put_len_delimited_header(8u32, u64::from(__cache.consume_next()), buf);
+            v.write_to(__cache, buf);
+        }
+        if !self.allowed_recipient_algorithms.is_empty() {
+            let payload: u64 = self
+                .allowed_recipient_algorithms
+                .iter()
+                .map(|v| ::buffa::types::int32_encoded_len(v.to_i32()) as u64)
+                .sum::<u64>();
+            ::buffa::types::put_len_delimited_header(9u32, payload, buf);
+            for v in &self.allowed_recipient_algorithms {
+                ::buffa::types::encode_int32(v.to_i32(), buf);
+            }
+        }
+    }
+}
+impl<'__a> ::serde::Serialize for CoseMacCreateRequestView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseMacCreateRequestView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseMacCreateRequest";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseMacCreateRequest";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseMacCreateRequest";
+}
+::buffa::impl_default_view_instance!(CoseMacCreateRequestView);
+::buffa::impl_view_reborrow!(CoseMacCreateRequestView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseMacCreateRequestView);
+/** Self-contained, `'static` owned view of a `CoseMacCreateRequest` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseMacCreateRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseMacCreateRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseMacCreateRequestOwnedView(::buffa::OwnedView<CoseMacCreateRequestView<'static>>);
+impl CoseMacCreateRequestOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseMacCreateRequestOwnedView(::buffa::OwnedView::decode(
+            bytes,
+        )?))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseMacCreateRequestOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseMacCreateRequest,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseMacCreateRequestOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseMacCreateRequestView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseMacCreateRequestView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseMacCreateRequest {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+    /// Field 1: `headers`
+    #[must_use]
+    pub fn headers(
+        &self,
+    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseMessageHeadersView<'_>> {
+        &self.0.reborrow().headers
+    }
+    /// SENSITIVE: attached or detached content.
+    ///
+    /// Field 2: `payload`
+    #[must_use]
+    pub fn payload(&self) -> &'_ [u8] {
+        self.0.reborrow().payload
+    }
+    /// SENSITIVE: explicit external AAD, at most 64 KiB.
+    ///
+    /// Field 3: `external_aad`
+    #[must_use]
+    pub fn external_aad(&self) -> &'_ [u8] {
+        self.0.reborrow().external_aad
+    }
+    /// Field 4: `algorithm`
+    #[must_use]
+    pub fn algorithm(&self) -> ::buffa::EnumValue<super::super::CoseMacAlgorithm> {
+        self.0.reborrow().algorithm
+    }
+    /// Field 5: `allowed_algorithms`
+    #[must_use]
+    pub fn allowed_algorithms(
+        &self,
+    ) -> &::buffa::sensitive::RepeatedView<'_, ::buffa::EnumValue<super::super::CoseMacAlgorithm>>
+    {
+        &self.0.reborrow().allowed_algorithms
+    }
+    /// Field 6: `content_mode`
+    #[must_use]
+    pub fn content_mode(&self) -> ::buffa::EnumValue<super::super::CoseContentMode> {
+        self.0.reborrow().content_mode
+    }
+    /// Field 7: `tagged`
+    #[must_use]
+    pub fn tagged(&self) -> bool {
+        self.0.reborrow().tagged
+    }
+    /// Field 8: `recipients`
+    #[must_use]
+    pub fn recipients(
+        &self,
+    ) -> &::buffa::sensitive::RepeatedView<
+        '_,
+        super::super::__buffa::view::CoseRecipientCreateView<'_>,
+    > {
+        &self.0.reborrow().recipients
+    }
+    /// Field 9: `allowed_recipient_algorithms`
+    #[must_use]
+    pub fn allowed_recipient_algorithms(
+        &self,
+    ) -> &::buffa::sensitive::RepeatedView<
+        '_,
+        ::buffa::EnumValue<super::super::CoseRecipientAlgorithm>,
+    > {
+        &self.0.reborrow().allowed_recipient_algorithms
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseMacCreateRequestView<'static>>>
+    for CoseMacCreateRequestOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseMacCreateRequestView<'static>>) -> Self {
+        CoseMacCreateRequestOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseMacCreateRequestOwnedView>
+    for ::buffa::OwnedView<CoseMacCreateRequestView<'static>>
+{
+    fn from(wrapper: CoseMacCreateRequestOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseMacCreateRequestView<'static>>>
+    for CoseMacCreateRequestOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseMacCreateRequestView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseMacCreateRequest {
+    type View<'a> = CoseMacCreateRequestView<'a>;
+    type ViewHandle = CoseMacCreateRequestOwnedView;
+}
+impl ::serde::Serialize for CoseMacCreateRequestOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+/// The caller selects a single recipient path, starting at the outer array.
+/// Unsupported unselected recipient algorithms do not block this path. No
+/// discovery, identity inference or trust policy is performed by COSE.
+#[derive(Clone, Default)]
+pub struct CoseMacVerifyRequestView<'a> {
+    /// SENSITIVE: exact message, at most 1 MiB.
+    ///
+    /// Field 1: `encoded`
+    pub encoded: &'a [u8],
+    /// SENSITIVE: presence requires a nil payload slot.
+    ///
+    /// Field 2: `detached_payload`
+    pub detached_payload: ::core::option::Option<&'a [u8]>,
+    /// SENSITIVE: explicit external AAD.
+    ///
+    /// Field 3: `external_aad`
+    pub external_aad: &'a [u8],
+    /// Field 4: `algorithm`
+    pub algorithm: ::buffa::EnumValue<super::super::CoseMacAlgorithm>,
+    /// Field 5: `allowed_algorithms`
+    pub allowed_algorithms:
+        ::buffa::sensitive::RepeatedView<'a, ::buffa::EnumValue<super::super::CoseMacAlgorithm>>,
+    /// Field 6: `recipient_path`
+    pub recipient_path: ::buffa::sensitive::RepeatedView<'a, u32>,
+    /// SENSITIVE: leaf key bound by caller policy to this path.
+    ///
+    /// Field 7: `recipient_key`
+    pub recipient_key: &'a [u8],
+    /// Field 8: `allowed_recipient_algorithms`
+    pub allowed_recipient_algorithms: ::buffa::sensitive::RepeatedView<
+        'a,
+        ::buffa::EnumValue<super::super::CoseRecipientAlgorithm>,
+    >,
+    /// Field 9: `envelope`
+    pub envelope: ::buffa::EnumValue<super::super::CoseEnvelopePolicy>,
+}
+impl<'a> ::core::fmt::Debug for CoseMacVerifyRequestView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseMacVerifyRequestView")
+            .field("encoded", &::core::format_args!("[REDACTED]"))
+            .field("detached_payload", &::core::format_args!("[REDACTED]"))
+            .field("external_aad", &::core::format_args!("[REDACTED]"))
+            .field("algorithm", &::core::format_args!("[REDACTED]"))
+            .field("allowed_algorithms", &::core::format_args!("[REDACTED]"))
+            .field("recipient_path", &::core::format_args!("[REDACTED]"))
+            .field("recipient_key", &::core::format_args!("[REDACTED]"))
+            .field(
+                "allowed_recipient_algorithms",
+                &::core::format_args!("[REDACTED]"),
+            )
+            .field("envelope", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseMacVerifyRequestView<'a> {
+    fn zeroize(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.algorithm);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.allowed_algorithms);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.recipient_path);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.allowed_recipient_algorithms);
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.envelope);
+    }
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseMacVerifyRequestView<'a> {}
+impl<'a> ::core::ops::Drop for CoseMacVerifyRequestView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseMacVerifyRequestView<'a> {
+    type Owned = super::super::CoseMacVerifyRequest;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.encoded = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.detached_payload = Some(::buffa::types::borrow_bytes(&mut cur)?);
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.external_aad = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            4u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                view.algorithm = ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?);
+            }
+            7u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.recipient_key = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            9u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                view.envelope = ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?);
+            }
+            5u32 => {
+                if tag.wire_type() == ::buffa::encoding::WireType::LengthDelimited {
+                    let payload = ::buffa::types::borrow_bytes(&mut cur)?;
+                    view.allowed_algorithms
+                        .reserve(::buffa::encoding::count_varints(payload));
+                    let mut pcur: &[u8] = payload;
+                    while !pcur.is_empty() {
+                        view.allowed_algorithms.push(::buffa::EnumValue::from(
+                            ::buffa::types::decode_int32_packed(&mut pcur)?,
+                        ));
+                    }
+                } else if tag.wire_type() == ::buffa::encoding::WireType::Varint {
+                    view.allowed_algorithms.push(::buffa::EnumValue::from(
+                        ::buffa::types::decode_int32(&mut cur)?,
+                    ));
+                } else {
+                    return Err(::buffa::encoding::wire_type_mismatch(
+                        tag,
+                        ::buffa::encoding::WireType::LengthDelimited,
+                    ));
+                }
+            }
+            6u32 => {
+                if tag.wire_type() == ::buffa::encoding::WireType::LengthDelimited {
+                    let payload = ::buffa::types::borrow_bytes(&mut cur)?;
+                    view.recipient_path
+                        .reserve(::buffa::encoding::count_varints(payload));
+                    let mut pcur: &[u8] = payload;
+                    while !pcur.is_empty() {
+                        view.recipient_path
+                            .push(::buffa::types::decode_uint32_packed(&mut pcur)?);
+                    }
+                } else if tag.wire_type() == ::buffa::encoding::WireType::Varint {
+                    view.recipient_path
+                        .push(::buffa::types::decode_uint32(&mut cur)?);
+                } else {
+                    return Err(::buffa::encoding::wire_type_mismatch(
+                        tag,
+                        ::buffa::encoding::WireType::LengthDelimited,
+                    ));
+                }
+            }
+            8u32 => {
+                if tag.wire_type() == ::buffa::encoding::WireType::LengthDelimited {
+                    let payload = ::buffa::types::borrow_bytes(&mut cur)?;
+                    view.allowed_recipient_algorithms
+                        .reserve(::buffa::encoding::count_varints(payload));
+                    let mut pcur: &[u8] = payload;
+                    while !pcur.is_empty() {
+                        view.allowed_recipient_algorithms
+                            .push(::buffa::EnumValue::from(
+                                ::buffa::types::decode_int32_packed(&mut pcur)?,
+                            ));
+                    }
+                } else if tag.wire_type() == ::buffa::encoding::WireType::Varint {
+                    view.allowed_recipient_algorithms
+                        .push(::buffa::EnumValue::from(::buffa::types::decode_int32(
+                            &mut cur,
+                        )?));
+                } else {
+                    return Err(::buffa::encoding::wire_type_mismatch(
+                        tag,
+                        ::buffa::encoding::WireType::LengthDelimited,
+                    ));
+                }
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<super::super::CoseMacVerifyRequest, ::buffa::DecodeError> {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<super::super::CoseMacVerifyRequest, ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let mut __owned =
+            <super::super::CoseMacVerifyRequest as ::core::default::Default>::default();
+        __owned.encoded = ::core::convert::Into::into((self.encoded).to_vec());
+        __owned.detached_payload = self
+            .detached_payload
+            .map(|b| ::core::convert::Into::into((b).to_vec()));
+        __owned.external_aad = ::core::convert::Into::into((self.external_aad).to_vec());
+        __owned.algorithm = self.algorithm;
+        __owned.allowed_algorithms = self.allowed_algorithms.iter().copied().collect();
+        __owned.recipient_path = self.recipient_path.iter().copied().collect();
+        __owned.recipient_key = ::core::convert::Into::into((self.recipient_key).to_vec());
+        __owned.allowed_recipient_algorithms =
+            self.allowed_recipient_algorithms.iter().copied().collect();
+        __owned.envelope = self.envelope;
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseMacVerifyRequestView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, _cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        if !self.encoded.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.encoded) as u64;
+        }
+        if let Some(ref v) = self.detached_payload {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
+        }
+        if !self.external_aad.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.external_aad) as u64;
+        }
+        {
+            let val = self.algorithm.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        if !self.allowed_algorithms.is_empty() {
+            let payload: u64 = self
+                .allowed_algorithms
+                .iter()
+                .map(|v| ::buffa::types::int32_encoded_len(v.to_i32()) as u64)
+                .sum::<u64>();
+            size += 1u64 + ::buffa::encoding::varint_len(payload) as u64 + payload;
+        }
+        if !self.recipient_path.is_empty() {
+            let payload: u64 = self
+                .recipient_path
+                .iter()
+                .map(|&v| ::buffa::types::uint32_encoded_len(v) as u64)
+                .sum::<u64>();
+            size += 1u64 + ::buffa::encoding::varint_len(payload) as u64 + payload;
+        }
+        if !self.recipient_key.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.recipient_key) as u64;
+        }
+        if !self.allowed_recipient_algorithms.is_empty() {
+            let payload: u64 = self
+                .allowed_recipient_algorithms
+                .iter()
+                .map(|v| ::buffa::types::int32_encoded_len(v.to_i32()) as u64)
+                .sum::<u64>();
+            size += 1u64 + ::buffa::encoding::varint_len(payload) as u64 + payload;
+        }
+        {
+            let val = self.envelope.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, _cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        if !self.encoded.is_empty() {
+            ::buffa::types::put_shared_bytes_field(1u32, &self.encoded, buf);
+        }
+        if let Some(ref v) = self.detached_payload {
+            ::buffa::types::put_shared_bytes_field(2u32, v, buf);
+        }
+        if !self.external_aad.is_empty() {
+            ::buffa::types::put_shared_bytes_field(3u32, &self.external_aad, buf);
+        }
+        {
+            let val = self.algorithm.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(4u32, val, buf);
+            }
+        }
+        if !self.allowed_algorithms.is_empty() {
+            let payload: u64 = self
+                .allowed_algorithms
+                .iter()
+                .map(|v| ::buffa::types::int32_encoded_len(v.to_i32()) as u64)
+                .sum::<u64>();
+            ::buffa::types::put_len_delimited_header(5u32, payload, buf);
+            for v in &self.allowed_algorithms {
+                ::buffa::types::encode_int32(v.to_i32(), buf);
+            }
+        }
+        if !self.recipient_path.is_empty() {
+            let payload: u64 = self
+                .recipient_path
+                .iter()
+                .map(|&v| ::buffa::types::uint32_encoded_len(v) as u64)
+                .sum::<u64>();
+            ::buffa::types::put_len_delimited_header(6u32, payload, buf);
+            for &v in &self.recipient_path {
+                ::buffa::types::encode_uint32(v, buf);
+            }
+        }
+        if !self.recipient_key.is_empty() {
+            ::buffa::types::put_shared_bytes_field(7u32, &self.recipient_key, buf);
+        }
+        if !self.allowed_recipient_algorithms.is_empty() {
+            let payload: u64 = self
+                .allowed_recipient_algorithms
+                .iter()
+                .map(|v| ::buffa::types::int32_encoded_len(v.to_i32()) as u64)
+                .sum::<u64>();
+            ::buffa::types::put_len_delimited_header(8u32, payload, buf);
+            for v in &self.allowed_recipient_algorithms {
+                ::buffa::types::encode_int32(v.to_i32(), buf);
+            }
+        }
+        {
+            let val = self.envelope.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(9u32, val, buf);
+            }
+        }
+    }
+}
+impl<'__a> ::serde::Serialize for CoseMacVerifyRequestView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseMacVerifyRequestView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseMacVerifyRequest";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseMacVerifyRequest";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseMacVerifyRequest";
+}
+::buffa::impl_default_view_instance!(CoseMacVerifyRequestView);
+::buffa::impl_view_reborrow!(CoseMacVerifyRequestView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseMacVerifyRequestView);
+/** Self-contained, `'static` owned view of a `CoseMacVerifyRequest` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseMacVerifyRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseMacVerifyRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseMacVerifyRequestOwnedView(::buffa::OwnedView<CoseMacVerifyRequestView<'static>>);
+impl CoseMacVerifyRequestOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseMacVerifyRequestOwnedView(::buffa::OwnedView::decode(
+            bytes,
+        )?))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseMacVerifyRequestOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseMacVerifyRequest,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseMacVerifyRequestOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseMacVerifyRequestView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseMacVerifyRequestView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseMacVerifyRequest {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+    /// SENSITIVE: exact message, at most 1 MiB.
+    ///
+    /// Field 1: `encoded`
+    #[must_use]
+    pub fn encoded(&self) -> &'_ [u8] {
+        self.0.reborrow().encoded
+    }
+    /// SENSITIVE: presence requires a nil payload slot.
+    ///
+    /// Field 2: `detached_payload`
+    #[must_use]
+    pub fn detached_payload(&self) -> ::core::option::Option<&'_ [u8]> {
+        self.0.reborrow().detached_payload
+    }
+    /// SENSITIVE: explicit external AAD.
+    ///
+    /// Field 3: `external_aad`
+    #[must_use]
+    pub fn external_aad(&self) -> &'_ [u8] {
+        self.0.reborrow().external_aad
+    }
+    /// Field 4: `algorithm`
+    #[must_use]
+    pub fn algorithm(&self) -> ::buffa::EnumValue<super::super::CoseMacAlgorithm> {
+        self.0.reborrow().algorithm
+    }
+    /// Field 5: `allowed_algorithms`
+    #[must_use]
+    pub fn allowed_algorithms(
+        &self,
+    ) -> &::buffa::sensitive::RepeatedView<'_, ::buffa::EnumValue<super::super::CoseMacAlgorithm>>
+    {
+        &self.0.reborrow().allowed_algorithms
+    }
+    /// Field 6: `recipient_path`
+    #[must_use]
+    pub fn recipient_path(&self) -> &::buffa::sensitive::RepeatedView<'_, u32> {
+        &self.0.reborrow().recipient_path
+    }
+    /// SENSITIVE: leaf key bound by caller policy to this path.
+    ///
+    /// Field 7: `recipient_key`
+    #[must_use]
+    pub fn recipient_key(&self) -> &'_ [u8] {
+        self.0.reborrow().recipient_key
+    }
+    /// Field 8: `allowed_recipient_algorithms`
+    #[must_use]
+    pub fn allowed_recipient_algorithms(
+        &self,
+    ) -> &::buffa::sensitive::RepeatedView<
+        '_,
+        ::buffa::EnumValue<super::super::CoseRecipientAlgorithm>,
+    > {
+        &self.0.reborrow().allowed_recipient_algorithms
+    }
+    /// Field 9: `envelope`
+    #[must_use]
+    pub fn envelope(&self) -> ::buffa::EnumValue<super::super::CoseEnvelopePolicy> {
+        self.0.reborrow().envelope
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseMacVerifyRequestView<'static>>>
+    for CoseMacVerifyRequestOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseMacVerifyRequestView<'static>>) -> Self {
+        CoseMacVerifyRequestOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseMacVerifyRequestOwnedView>
+    for ::buffa::OwnedView<CoseMacVerifyRequestView<'static>>
+{
+    fn from(wrapper: CoseMacVerifyRequestOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseMacVerifyRequestView<'static>>>
+    for CoseMacVerifyRequestOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseMacVerifyRequestView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseMacVerifyRequest {
+    type View<'a> = CoseMacVerifyRequestView<'a>;
+    type ViewHandle = CoseMacVerifyRequestOwnedView;
+}
+impl ::serde::Serialize for CoseMacVerifyRequestOwnedView {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        __s: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        ::serde::Serialize::serialize(&self.0, __s)
+    }
+}
+#[derive(Clone, Default)]
+pub struct CoseMacVerifyResultView<'a> {
+    /// Field 1: `algorithm`
+    pub algorithm: ::buffa::EnumValue<super::super::CoseMacAlgorithm>,
+    /// SENSITIVE: exact authenticated protected headers.
+    ///
+    /// Field 2: `protected`
+    pub protected: &'a [u8],
+    /// SENSITIVE: authenticated identity only when protected.
+    ///
+    /// Field 3: `protected_kid`
+    pub protected_kid: ::core::option::Option<&'a [u8]>,
+    /// SENSITIVE: present exactly for attached content.
+    ///
+    /// Field 4: `attached_payload`
+    pub attached_payload: ::core::option::Option<&'a [u8]>,
+}
+impl<'a> ::core::fmt::Debug for CoseMacVerifyResultView<'a> {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.debug_struct("CoseMacVerifyResultView")
+            .field("algorithm", &::core::format_args!("[REDACTED]"))
+            .field("protected", &::core::format_args!("[REDACTED]"))
+            .field("protected_kid", &::core::format_args!("[REDACTED]"))
+            .field("attached_payload", &::core::format_args!("[REDACTED]"))
+            .finish()
+    }
+}
+impl<'a> ::buffa::sensitive::Zeroize for CoseMacVerifyResultView<'a> {
+    fn zeroize(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(&mut self.algorithm);
+    }
+}
+impl<'a> ::buffa::sensitive::ZeroizeOnDrop for CoseMacVerifyResultView<'a> {}
+impl<'a> ::core::ops::Drop for CoseMacVerifyResultView<'a> {
+    fn drop(&mut self) {
+        ::buffa::sensitive::Zeroize::zeroize(self);
+    }
+}
+impl<'a> ::buffa::MessageView<'a> for CoseMacVerifyResultView<'a> {
+    type Owned = super::super::CoseMacVerifyResult;
+    fn decode_view(buf: &'a [u8]) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        let __limit = ::core::cell::Cell::new(::buffa::DEFAULT_UNKNOWN_FIELD_LIMIT);
+        let __elem = ::core::cell::Cell::new(::buffa::DEFAULT_ELEMENT_MEMORY_LIMIT);
+        <Self as ::buffa::MessageView>::decode_view_ctx(
+            buf,
+            ::buffa::DecodeContext::new(::buffa::RECURSION_LIMIT, &__limit)
+                .with_element_memory(&__elem),
+        )
+    }
+    fn decode_view_with_ctx(
+        buf: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        <Self as ::buffa::MessageView>::decode_view_ctx(buf, ctx)
+    }
+    #[inline]
+    fn merge_view_field(
+        &mut self,
+        tag: ::buffa::encoding::Tag,
+        cur: &'a [u8],
+        _before_tag: &'a [u8],
+        ctx: ::buffa::DecodeContext<'_>,
+    ) -> ::core::result::Result<&'a [u8], ::buffa::DecodeError> {
+        let _ = ctx;
+        #[allow(unused_variables)]
+        let view = self;
+        let mut cur = cur;
+        match tag.field_number() {
+            1u32 => {
+                ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
+                view.algorithm = ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?);
+            }
+            2u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.protected = ::buffa::types::borrow_bytes(&mut cur)?;
+            }
+            3u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.protected_kid = Some(::buffa::types::borrow_bytes(&mut cur)?);
+            }
+            4u32 => {
+                ::buffa::encoding::check_wire_type(
+                    tag,
+                    ::buffa::encoding::WireType::LengthDelimited,
+                )?;
+                view.attached_payload = Some(::buffa::types::borrow_bytes(&mut cur)?);
+            }
+            _ => {
+                ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
+            }
+        }
+        ::core::result::Result::Ok(cur)
+    }
+    fn to_owned_message(
+        &self,
+    ) -> ::core::result::Result<super::super::CoseMacVerifyResult, ::buffa::DecodeError> {
+        self.to_owned_from_source(None)
+    }
+    #[allow(
+        clippy::useless_conversion,
+        clippy::needless_update,
+        clippy::field_reassign_with_default
+    )]
+    fn to_owned_from_source(
+        &self,
+        __buffa_src: ::core::option::Option<&::buffa::bytes::Bytes>,
+    ) -> ::core::result::Result<super::super::CoseMacVerifyResult, ::buffa::DecodeError> {
+        #[allow(unused_imports)]
+        use ::buffa::alloc::string::ToString as _;
+        let _ = __buffa_src;
+        let mut __owned =
+            <super::super::CoseMacVerifyResult as ::core::default::Default>::default();
+        __owned.algorithm = self.algorithm;
+        __owned.protected = ::core::convert::Into::into((self.protected).to_vec());
+        __owned.protected_kid = self
+            .protected_kid
+            .map(|b| ::core::convert::Into::into((b).to_vec()));
+        __owned.attached_payload = self
+            .attached_payload
+            .map(|b| ::core::convert::Into::into((b).to_vec()));
+        ::core::result::Result::Ok(__owned)
+    }
+}
+impl<'a> ::buffa::ViewEncode<'a> for CoseMacVerifyResultView<'a> {
+    #[allow(clippy::needless_borrow, clippy::let_and_return)]
+    fn compute_size(&self, _cache: &mut ::buffa::SizeCache) -> u32 {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        let mut size = 0u64;
+        {
+            let val = self.algorithm.to_i32();
+            if val != 0 {
+                size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
+            }
+        }
+        if !self.protected.is_empty() {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected) as u64;
+        }
+        if let Some(ref v) = self.protected_kid {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
+        }
+        if let Some(ref v) = self.attached_payload {
+            size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
+        }
+        ::buffa::saturate_size(size)
+    }
+    #[allow(clippy::needless_borrow)]
+    fn write_to(&self, _cache: &mut ::buffa::SizeCache, buf: &mut impl ::buffa::EncodeSink) {
+        #[allow(unused_imports)]
+        use ::buffa::Enumeration as _;
+        {
+            let val = self.algorithm.to_i32();
+            if val != 0 {
+                ::buffa::types::put_int32_field(1u32, val, buf);
+            }
+        }
+        if !self.protected.is_empty() {
+            ::buffa::types::put_shared_bytes_field(2u32, &self.protected, buf);
+        }
+        if let Some(ref v) = self.protected_kid {
+            ::buffa::types::put_shared_bytes_field(3u32, v, buf);
+        }
+        if let Some(ref v) = self.attached_payload {
+            ::buffa::types::put_shared_bytes_field(4u32, v, buf);
+        }
+    }
+}
+impl<'__a> ::serde::Serialize for CoseMacVerifyResultView<'__a> {
+    fn serialize<__S: ::serde::Serializer>(
+        &self,
+        _serializer: __S,
+    ) -> ::core::result::Result<__S::Ok, __S::Error> {
+        Err(<__S::Error as ::serde::ser::Error>::custom(
+            ::buffa::json_helpers::ViewJsonErrorReason::Denied,
+        ))
+    }
+}
+impl<'a> ::buffa::MessageName for CoseMacVerifyResultView<'a> {
+    const PACKAGE: &'static str = "reallyme.cose.v1";
+    const NAME: &'static str = "CoseMacVerifyResult";
+    const FULL_NAME: &'static str = "reallyme.cose.v1.CoseMacVerifyResult";
+    const TYPE_URL: &'static str = "type.googleapis.com/reallyme.cose.v1.CoseMacVerifyResult";
+}
+::buffa::impl_default_view_instance!(CoseMacVerifyResultView);
+::buffa::impl_view_reborrow!(CoseMacVerifyResultView);
+::buffa::unsafe_impl_view_lifetime_parametric!(CoseMacVerifyResultView);
+/** Self-contained, `'static` owned view of a `CoseMacVerifyResult` message.
+
+Wraps [`::buffa::OwnedView`]`<`[`CoseMacVerifyResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
+
+Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseMacVerifyResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
+#[derive(Clone, Debug)]
+pub struct CoseMacVerifyResultOwnedView(::buffa::OwnedView<CoseMacVerifyResultView<'static>>);
+impl CoseMacVerifyResultOwnedView {
+    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
+    ///
+    /// The view borrows directly from the buffer's data; the buffer is
+    /// retained inside the returned handle.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
+    /// protobuf data.
+    pub fn decode(
+        bytes: ::buffa::bytes::Bytes,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseMacVerifyResultOwnedView(::buffa::OwnedView::decode(
+            bytes,
+        )?))
+    }
+    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
+    /// max message size).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
+    /// exceeds the configured limits.
+    pub fn decode_with_options(
+        bytes: ::buffa::bytes::Bytes,
+        opts: &::buffa::DecodeOptions,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseMacVerifyResultOwnedView(
+            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
+        ))
+    }
+    /// Build from an owned message via an encode → decode round-trip.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
+    /// message's encoded size exceeds the 2 GiB protobuf limit, or
+    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
+    /// somehow invalid (should not happen for well-formed messages).
+    pub fn from_owned(
+        msg: &super::super::CoseMacVerifyResult,
+    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
+        ::core::result::Result::Ok(CoseMacVerifyResultOwnedView(
+            ::buffa::OwnedView::from_owned(msg)?,
+        ))
+    }
+    /// Borrow the full [`CoseMacVerifyResultView`] with its lifetime tied to `&self`.
+    #[must_use]
+    pub fn view(&self) -> &CoseMacVerifyResultView<'_> {
+        self.0.reborrow()
+    }
+    /// Convert to the owned message type.
+    ///
+    /// Infallible: this type's constructors wire-decode their
+    /// buffer, and a view produced by wire decoding always
+    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
+    /// whose contract also governs handles converted from a raw
+    /// [`::buffa::OwnedView`].
+    #[must_use]
+    pub fn to_owned_message(&self) -> super::super::CoseMacVerifyResult {
+        self.0.to_owned_message()
+    }
+    /// The underlying bytes buffer.
+    #[must_use]
+    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
+        self.0.bytes()
+    }
+    /// Consume the handle, returning the underlying bytes buffer.
+    #[must_use]
+    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
+        self.0.into_bytes()
+    }
+    /// Field 1: `algorithm`
+    #[must_use]
+    pub fn algorithm(&self) -> ::buffa::EnumValue<super::super::CoseMacAlgorithm> {
+        self.0.reborrow().algorithm
+    }
+    /// SENSITIVE: exact authenticated protected headers.
+    ///
+    /// Field 2: `protected`
+    #[must_use]
+    pub fn protected(&self) -> &'_ [u8] {
+        self.0.reborrow().protected
+    }
+    /// SENSITIVE: authenticated identity only when protected.
+    ///
+    /// Field 3: `protected_kid`
+    #[must_use]
+    pub fn protected_kid(&self) -> ::core::option::Option<&'_ [u8]> {
+        self.0.reborrow().protected_kid
+    }
+    /// SENSITIVE: present exactly for attached content.
+    ///
+    /// Field 4: `attached_payload`
+    #[must_use]
+    pub fn attached_payload(&self) -> ::core::option::Option<&'_ [u8]> {
+        self.0.reborrow().attached_payload
+    }
+}
+impl ::core::convert::From<::buffa::OwnedView<CoseMacVerifyResultView<'static>>>
+    for CoseMacVerifyResultOwnedView
+{
+    fn from(inner: ::buffa::OwnedView<CoseMacVerifyResultView<'static>>) -> Self {
+        CoseMacVerifyResultOwnedView(inner)
+    }
+}
+impl ::core::convert::From<CoseMacVerifyResultOwnedView>
+    for ::buffa::OwnedView<CoseMacVerifyResultView<'static>>
+{
+    fn from(wrapper: CoseMacVerifyResultOwnedView) -> Self {
+        wrapper.0
+    }
+}
+impl ::core::convert::AsRef<::buffa::OwnedView<CoseMacVerifyResultView<'static>>>
+    for CoseMacVerifyResultOwnedView
+{
+    fn as_ref(&self) -> &::buffa::OwnedView<CoseMacVerifyResultView<'static>> {
+        &self.0
+    }
+}
+impl ::buffa::HasMessageView for super::super::CoseMacVerifyResult {
+    type View<'a> = CoseMacVerifyResultView<'a>;
+    type ViewHandle = CoseMacVerifyResultOwnedView;
+}
+impl ::serde::Serialize for CoseMacVerifyResultOwnedView {
     fn serialize<__S: ::serde::Serializer>(
         &self,
         __s: __S,

@@ -109,6 +109,11 @@ pub mod __buffa {
         reg.register_json_any(super::__COSE_KEY_SET_CREATE_RESULT_JSON_ANY);
         reg.register_json_any(super::__COSE_MESSAGE_HEADERS_JSON_ANY);
         reg.register_json_any(super::__COSE_MESSAGE_CREATE_RESULT_JSON_ANY);
+        reg.register_json_any(super::__COSE_RECIPIENT_CREATE_GROUP_JSON_ANY);
+        reg.register_json_any(super::__COSE_RECIPIENT_CREATE_JSON_ANY);
+        reg.register_json_any(super::__COSE_MAC_CREATE_REQUEST_JSON_ANY);
+        reg.register_json_any(super::__COSE_MAC_VERIFY_REQUEST_JSON_ANY);
+        reg.register_json_any(super::__COSE_MAC_VERIFY_RESULT_JSON_ANY);
         reg.register_json_any(super::__COSE_ENCRYPT0CREATE_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_ENCRYPT0CREATE_RESULT_JSON_ANY);
         reg.register_json_any(super::__COSE_ENCRYPT0DECRYPT_REQUEST_JSON_ANY);
@@ -278,6 +283,18 @@ pub use self::__buffa::view::CoseMac0VerifyResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseMac0VerifyResultView;
 #[doc(inline)]
+pub use self::__buffa::view::CoseMacCreateRequestOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseMacCreateRequestView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseMacVerifyRequestOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseMacVerifyRequestView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseMacVerifyResultOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseMacVerifyResultView;
+#[doc(inline)]
 pub use self::__buffa::view::CoseMessageCreateResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseMessageCreateResultView;
@@ -397,6 +414,14 @@ pub use self::__buffa::view::CoseProviderSignerDescriptionView;
 pub use self::__buffa::view::CoseProviderVerifyRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseProviderVerifyRequestView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseRecipientCreateGroupOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseRecipientCreateGroupView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseRecipientCreateOwnedView;
+#[doc(inline)]
+pub use self::__buffa::view::CoseRecipientCreateView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSign1CreateDetachedRequestOwnedView;
 #[doc(inline)]

@@ -61,3 +61,6 @@ mod sign_message;
 
 #[path = "contract_encrypt0_tests.rs"]
 mod encrypt0;
+
+#[path = "contract_mac_message_tests.rs"]
+mod mac_message;

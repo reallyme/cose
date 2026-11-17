@@ -28,6 +28,20 @@ pub(super) fn read_with_critical<'a>(
     unprotected: &'a [u8],
     understood: &[i64],
 ) -> Result<Headers<'a>, CoseError> {
+    read_policy(protected, unprotected, understood, true)
+}
+pub(super) fn recipient<'a>(
+    protected: &'a [u8],
+    unprotected: &'a [u8],
+) -> Result<Headers<'a>, CoseError> {
+    read_policy(protected, unprotected, &[1, 3, 4], false)
+}
+fn read_policy<'a>(
+    protected: &'a [u8],
+    unprotected: &'a [u8],
+    understood: &[i64],
+    protect_algorithm: bool,
+) -> Result<Headers<'a>, CoseError> {
     if protected.len() > MAX_HEADER_BYTES || unprotected.len() > MAX_HEADER_BYTES {
         return Err(CoseError::ResourceLimitExceeded);
     }
@@ -58,7 +72,7 @@ pub(super) fn read_with_critical<'a>(
             }
             match numeric {
                 Some(1) => {
-                    if !is_protected {
+                    if protect_algorithm && !is_protected {
                         return Err(CoseError::UnprotectedHeaderNotAllowed);
                     }
                     algorithm = Some(integer(value)?);

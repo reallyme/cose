@@ -31,6 +31,7 @@ pub(crate) mod suite;
 #[cfg(test)]
 mod map_failure_tests;
 mod message_encrypt0;
+mod message_mac;
 mod message_sign;
 mod response_metadata;
 #[cfg(test)]

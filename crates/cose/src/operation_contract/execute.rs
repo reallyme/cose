@@ -42,6 +42,12 @@ fn dispatch_operation(
     };
 
     match &mut operation {
+        cose_operation_request::Operation::MacCreate(request) => {
+            super::message_mac::create(core::mem::take(&mut **request))
+        }
+        cose_operation_request::Operation::MacVerify(request) => {
+            super::message_mac::verify(core::mem::take(&mut **request))
+        }
         cose_operation_request::Operation::Encrypt0Create(request) => {
             super::message_encrypt0::create(core::mem::take(&mut **request))
         }

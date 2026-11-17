@@ -104,6 +104,12 @@ fn validate_for_request(
 
 fn validate_result(result: &CoseOperationResult) -> CoseWireResult<()> {
     let valid = match result.result.as_ref() {
+        Some(CoseOperationResultBranch::MacCreate(value)) => {
+            crate::messages::mac::valid_created(value)
+        }
+        Some(CoseOperationResultBranch::MacVerify(value)) => {
+            crate::messages::mac::valid_verified(value)
+        }
         Some(CoseOperationResultBranch::Encrypt0Create(value)) => {
             crate::messages::encrypt0::valid_created(value)
         }
@@ -238,6 +244,12 @@ fn result_matches_request(request: &CoseOperationRequest, result: &CoseOperation
     matches!(
         (request.operation.as_ref(), result.result.as_ref()),
         (
+            Some(cose_operation_request::Operation::MacCreate(_)),
+            Some(CoseOperationResultBranch::MacCreate(_))
+        ) | (
+            Some(cose_operation_request::Operation::MacVerify(_)),
+            Some(CoseOperationResultBranch::MacVerify(_))
+        ) | (
             Some(cose_operation_request::Operation::Encrypt0Create(_)),
             Some(CoseOperationResultBranch::Encrypt0Create(_))
         ) | (

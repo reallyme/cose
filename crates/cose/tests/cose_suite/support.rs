@@ -225,6 +225,8 @@ fn encode_result_branch(mut result: reallyme_cose::wire::CoseOperationResult) ->
         Some(cose_operation_result::Result::SignVerify(message)) => message.encode_to_vec(),
         Some(cose_operation_result::Result::Encrypt0Create(message)) => message.encode_to_vec(),
         Some(cose_operation_result::Result::Encrypt0Decrypt(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::MacCreate(message)) => message.encode_to_vec(),
+        Some(cose_operation_result::Result::MacVerify(message)) => message.encode_to_vec(),
         Some(cose_operation_result::Result::KeySetCreate(message)) => message.encode_to_vec(),
         Some(cose_operation_result::Result::Sign1SignatureStructure(message)) => {
             message.encode_to_vec()

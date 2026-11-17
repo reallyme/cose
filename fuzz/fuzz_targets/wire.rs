@@ -90,6 +90,14 @@ fuzz_target!(|data: &[u8]| {
         allowed_algorithms:vec![CoseContentEncryptionAlgorithm::Aes128Gcm.into()].into(),base_iv:None,
         envelope:reallyme_cose::api::contract::CoseEnvelopePolicy::Either.into(),
     })));
+    execute(Operation::MacVerify(Box::new(reallyme_cose::api::contract::CoseMacVerifyRequest {
+        encoded:data.to_vec().into(),detached_payload:None,external_aad:Vec::new().into(),
+        algorithm:reallyme_cose::api::contract::CoseMacAlgorithm::Hmac256256.into(),
+        allowed_algorithms:vec![reallyme_cose::api::contract::CoseMacAlgorithm::Hmac256256.into()].into(),
+        recipient_path:vec![0].into(),recipient_key:data.to_vec().into(),
+        allowed_recipient_algorithms:vec![reallyme_cose::api::contract::CoseRecipientAlgorithm::Direct.into()].into(),
+        envelope:reallyme_cose::api::contract::CoseEnvelopePolicy::Either.into(),
+    })));
     // Sign1 operation tags are equally sparse. Exercise attached and detached
     // creation and verification through both transports on every iteration.
     execute(Operation::Sign1Create(Box::new(sign1_create_request(
