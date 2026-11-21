@@ -3,7 +3,7 @@
 ///Process-local adapter generated from authoritative descriptors.
 pub enum SigningContent<'a> {
     ///Descriptor-defined native alternative.
-    Attached(&'a [u8]),
+    Attached(&'a [::core::primitive::u8]),
     ///Descriptor-defined native alternative.
-    Detached(&'a [u8]),
+    Detached(&'a [::core::primitive::u8]),
 }

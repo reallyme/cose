@@ -26,7 +26,7 @@ export function assertGuardedBuffaContract({root,readText,fail,assertWorkflowRun
   }
   if((config.match(/strategy: all/gu)??[]).length!==2) fail("whole-project generator selector validation required");
   for(const path of ["Cargo.toml","fuzz/Cargo.toml"]) {
-    if(!readText(path).includes('buffa = { package = "reallyme-buffa", version = "=0.1.2", features = ["json", "zeroize"] }')) fail("exact ReallyMe Buffa runtime dependency required");
+    if(!readText(path).includes('buffa = { package = "reallyme-buffa", version = "=0.1.3", features = ["json", "zeroize"] }')) fail("exact ReallyMe Buffa runtime dependency required");
   }
   const schema=readText("crates/proto/proto/reallyme/cose/v1/cose.proto");
   for(const adapter of nativeAdapterBindings(schema)) {

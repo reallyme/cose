@@ -1,0 +1,105 @@
+{
+  "schema": 1,
+  "documents": [
+    {
+      "path": "docs/agreement-keys.md",
+      "kind": "contract",
+      "purpose": "Define public agreement-key import, encoding and validation policies."
+    },
+    {
+      "path": "docs/buffa-migration.md",
+      "kind": "guide",
+      "purpose": "Explain protobuf generation, protected field ownership and binding regeneration."
+    },
+    {
+      "path": "docs/cbor-boundary.md",
+      "kind": "architecture",
+      "purpose": "Define the Codec framing boundary, authenticated byte preservation and resource limits."
+    },
+    {
+      "path": "docs/countersignature-contract.md",
+      "kind": "contract",
+      "purpose": "Specify RFC 9338 countersignature operations and their authentication structures."
+    },
+    {
+      "path": "docs/encrypt0-contract.md",
+      "kind": "contract",
+      "purpose": "Specify COSE_Encrypt0 algorithms, key requirements and authenticated inputs."
+    },
+    {
+      "path": "docs/encryption-context-limits.md",
+      "kind": "reference",
+      "purpose": "Document the ML-KEM SuppPrivInfo bound and its KMAC context overhead."
+    },
+    {
+      "path": "docs/formal-verification.md",
+      "kind": "guide",
+      "purpose": "Explain how to run Kani proofs and interpret their bounded verification scope."
+    },
+    {
+      "path": "docs/generated-operation-contract.md",
+      "kind": "contract",
+      "purpose": "Describe protobuf operation routing, native adapters and typed provider contracts."
+    },
+    {
+      "path": "docs/iso18013-signature-profile.md",
+      "kind": "contract",
+      "purpose": "Define the explicit ISO 18013-5:2021 signature profile and supported provider boundary."
+    },
+    {
+      "path": "docs/key-set-contract.md",
+      "kind": "contract",
+      "purpose": "Specify COSE_KeySet parsing, creation and public-key projection rules."
+    },
+    {
+      "path": "docs/mac-message-contract.md",
+      "kind": "contract",
+      "purpose": "Specify COSE_Mac recipient handling, key binding and MAC authentication inputs."
+    },
+    {
+      "path": "docs/message-family-support.md",
+      "kind": "reference",
+      "purpose": "List supported COSE message families, algorithms and deliberate feature limits."
+    },
+    {
+      "path": "docs/performance-baseline-0.2.3.md",
+      "kind": "reference",
+      "purpose": "Preserve reproducible 0.2.3 benchmark measurements with their original environment and limits."
+    },
+    {
+      "path": "docs/protobuf-presence-migration.md",
+      "kind": "guide",
+      "purpose": "Explain the 0.3.0 protobuf field-presence changes required by existing consumers."
+    },
+    {
+      "path": "docs/public-key-encoding.md",
+      "kind": "contract",
+      "purpose": "Define safe public-key export and the treatment of extension parameters."
+    },
+    {
+      "path": "docs/repository-privacy.md",
+      "kind": "contributing",
+      "purpose": "Explain local-only file exclusions, Git safeguards and publication privacy checks."
+    },
+    {
+      "path": "docs/rsa-verification.md",
+      "kind": "contract",
+      "purpose": "Specify RSA registration identities, key policies and verification parameters."
+    },
+    {
+      "path": "docs/sign-message-contract.md",
+      "kind": "contract",
+      "purpose": "Specify COSE_Sign operations, signer requirements and verification modes."
+    },
+    {
+      "path": "docs/sign1-key-binding.md",
+      "kind": "contract",
+      "purpose": "Define exact Sign1 registration and key binding across native and protobuf APIs."
+    },
+    {
+      "path": "docs/signed-container-contracts.md",
+      "kind": "contract",
+      "purpose": "Specify signed-container content modes, certificate binding and authenticated metadata."
+    }
+  ]
+}

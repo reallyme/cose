@@ -13,7 +13,7 @@ on:
         description: Release version without a leading v
         required: true
         type: string
-        default: 0.3.0
+        default: 0.3.1
       source_sha:
         description: Full source commit SHA on main
         required: true
@@ -57,7 +57,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: reallyme/release-readiness
-          ref: a89da82a662e02ecb3b7cfc6756c450aff64417a
+          ref: 16aab5287de498e858ff3b85d9e66d7c9f7ebb74
           path: .release-readiness
           persist-credentials: false
 
@@ -74,6 +74,15 @@ jobs:
       - name: Enforce package release policy
         run: node .release-readiness/scripts/run-consumer-check.mjs --release-packages
 
+      - name: Install dependency maintenance tools
+        uses: taiki-e/install-action@25f51f6b1bf4e18876107cece836f4f77ac17c8c # v2.90.7
+        with:
+          tool: cargo-audit@0.23.0
+          fallback: none
+
+      - name: Install cargo-outdated
+        run: cargo +1.100.0 install cargo-outdated --version '=0.19.0' --locked
+
       - name: Verify release candidate
         id: candidate
         env:
@@ -82,6 +91,12 @@ jobs:
           RELEASE_TAG: reallyme-cose-v${{ inputs.version }}
           SOURCE_SHA: ${{ inputs.source_sha }}
         run: node .release-readiness/scripts/run-consumer-check.mjs --check-release crates preflight "$RELEASE_VERSION" "$RELEASE_TAG" "$SOURCE_SHA"
+
+      - name: Verify publication privacy
+        shell: bash
+        env:
+          PUBLICATION_PATH: ${{ runner.temp }}/release-readiness-ci.json
+        run: node .release-readiness/scripts/repository-privacy.mjs --artifact "$PUBLICATION_PATH"
 
       - name: Record verified CI
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
@@ -104,6 +119,14 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Checkout publication privacy runner
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: reallyme/release-readiness
+          ref: 16aab5287de498e858ff3b85d9e66d7c9f7ebb74
+          path: .release-readiness
+          persist-credentials: false
+
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc
         with:
@@ -115,7 +138,7 @@ jobs:
           node-version: '26'
 
       - name: Install cargo-audit
-        uses: taiki-e/install-action@ab49d3c64680143e184118bed66a46419fc15519
+        uses: taiki-e/install-action@25f51f6b1bf4e18876107cece836f4f77ac17c8c # v2.90.7
         with:
           tool: cargo-audit@0.23.0
           fallback: none
@@ -128,6 +151,12 @@ jobs:
         env:
           RELEASE_VERSION: ${{ inputs.version }}
           CRATE_ARCHIVE_DIR: ${{ runner.temp }}/release-package
+
+      - name: Verify publication privacy
+        shell: bash
+        env:
+          PUBLICATION_PATH: ${{ runner.temp }}/release-package
+        run: node .release-readiness/scripts/repository-privacy.mjs --artifact "$PUBLICATION_PATH"
 
       - name: Upload verified package
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9

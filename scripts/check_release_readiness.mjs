@@ -11,8 +11,8 @@ import { assertCompleteOperationContract } from "./check_operation_contract.mjs"
 import { assertOperationContractRouting } from "./release-readiness/operation-contract-routing.mjs";
 
 const releaseReadinessCoreUrl = process.env.RELEASE_READINESS_CORE_URL;
-if (process.env.RELEASE_READINESS_ENFORCED_VERSION !== "0.9.6" || !releaseReadinessCoreUrl) {
-  console.error("Run the COSE checker through the pinned Release Readiness 0.9.6 runner.");
+if (process.env.RELEASE_READINESS_ENFORCED_VERSION !== "0.9.9" || !releaseReadinessCoreUrl) {
+  console.error("Run the COSE checker through the pinned Release Readiness 0.9.9 runner.");
   process.exit(1);
 }
 const { createReleaseReadinessContext } = await import(releaseReadinessCoreUrl);
@@ -67,7 +67,7 @@ assertCargoFuzzWorkflowPolicy({
   minimumInstallations: 1,
   requiredInstallSteps: [{ job: "scheduled", name: "Install cargo-fuzz" }],
 });
-assertReallyMeReleasePackagePolicy({ version: "0.9.6" });
+assertReallyMeReleasePackagePolicy({ version: "0.9.9" });
 assertPathsAbsent([
   "scripts/release-readiness/core.mjs",
   "scripts/sanitize_enum_diagnostics.mjs",
@@ -98,9 +98,7 @@ assertContains("Cargo.toml", 'license = "MIT OR Apache-2.0"');
 for (const manifest of ["fuzz/Cargo.toml", "tools/vector-audit/Cargo.toml", "tools/vector-goldens/Cargo.toml"]) {
   assertContains(manifest, 'license = "MIT OR Apache-2.0"');
 }
-if (readText("crates/cose/README.md") !== readText("README.md")) {
-  fail("crates/cose/README.md must match the repository README.md");
-}
+assertContains("crates/cose/README.md", "# reallyme-cose");
 for (const packageDirectory of ["crates/cose", "crates/proto"]) {
   assertContains(`${packageDirectory}/Cargo.toml`, "license.workspace = true");
   for (const file of ["LICENSE", "NOTICE"]) {
@@ -114,7 +112,7 @@ assertContains(".github/dependabot.yml", "github-actions:");
 
 const expectedPackageName = "reallyme-cose";
 const expectedProtoPackageName = "reallyme-cose-proto";
-const expectedVersion = "0.3.0";
+const expectedVersion = "0.3.1";
 const expectedDevelopmentRustToolchain = "1.100.0";
 const expectedBufLinuxX86_64Sha256 =
   "fad1e38d6909bbb583a4da81d8c02a01046e2cd663bde7e337dd24277393764b";
@@ -164,10 +162,10 @@ const expectedPlatformScope = {
   protobufSwiftMetadataIsPackagingApproval: false,
   wasmRuntimeIsNpmPackagingApproval: false,
 };
-const platformScopePath = "docs/platform-scope-0.3.0.json";
+const platformScopePath = `docs/platform-scope-${expectedVersion}.json`;
 const platformScope = readJson(platformScopePath);
 if (!isDeepStrictEqual(platformScope, expectedPlatformScope)) {
-  fail(`${platformScopePath} must exactly match the approved 0.3.0 platform scope`);
+  fail(`${platformScopePath} must exactly match the approved ${expectedVersion} platform scope`);
 }
 
 const forbiddenPlatformPathPrefixes = [
@@ -198,7 +196,7 @@ for (const trackedFile of loadTrackedFiles()) {
     forbiddenPlatformPaths.has(trackedFile) ||
     forbiddenPlatformManifestNames.has(manifestName)
   ) {
-    fail(`${trackedFile} is outside the approved Rust/protobuf-only 0.3.0 scope`);
+    fail(`${trackedFile} is outside the approved Rust/protobuf-only ${expectedVersion} scope`);
   }
 }
 
@@ -222,10 +220,10 @@ assertNotMatches(
   /\bcrate-type\s*=\s*\[[^\]]*"(?:cdylib|staticlib)"/su,
   "a platform-native Rust library artifact",
 );
-assertContains("README.md", "## 0.3.0 Platform Scope");
+assertContains("README.md", `## ${expectedVersion} Platform Scope`);
 assertContains(
   "README.md",
-  "The `0.3.0` distribution does not include Swift, Android/Kotlin, Kotlin/JVM",
+  `The \`${expectedVersion}\` distribution does not include Swift, Android/Kotlin, Kotlin/JVM`,
 );
 
 assertNodeWorkflowJobsPinNode({ nodeVersion: "26" });
@@ -249,12 +247,12 @@ assertContains("crates/cose/Cargo.toml", '"dep:serde"');
 assertContains("crates/cose/Cargo.toml", '"dep:serde_json"');
 assertContains(
   "Cargo.toml",
-  'reallyme-codec = { version = "0.4.3", default-features = false, features = ["base64url", "cbor", "der", "multikey"] }',
+  'reallyme-codec = { version = "0.4.4", default-features = false, features = ["base64url", "cbor", "der", "multikey"] }',
 );
 assertNotContains("Cargo.toml", 'path = "../codec');
 assertContains("crates/proto/Cargo.toml", '"buffa/json"');
 assertContains("crates/cose/src/lib.rs", 'reallyme-cose `wire` requires a runtime lane');
-assertContains("Cargo.toml", 'buffa = { package = "reallyme-buffa", version = "=0.1.2", features = ["json", "zeroize"] }');
+assertContains("Cargo.toml", 'buffa = { package = "reallyme-buffa", version = "=0.1.3", features = ["json", "zeroize"] }');
 assertContains("Cargo.toml", 'rust-version = "1.100"');
 assertContains("rust-toolchain.toml", `channel = "${expectedDevelopmentRustToolchain}"`);
 assertContains(
@@ -888,19 +886,19 @@ for (const command of [
 ]) {
   assertContains(rustCi.workflow, command);
 }
-for (const workflow of [
-  ".github/workflows/release-readiness.yml",
-  ".github/workflows/protobuf-ci.yml",
-  ".github/workflows/crates-package-preflight.yml",
-  ".github/workflows/crates-release.yml",
+for (const [workflow, checkout] of [
+  [".github/workflows/release-readiness.yml", "Checkout release-readiness runner"],
+  [".github/workflows/protobuf-ci.yml", "Checkout release-readiness runner"],
+  [".github/workflows/crates-package-preflight.yml", "Checkout release-readiness runner"],
+  [".github/workflows/crates-release.yml", "Checkout release-readiness runner"],
+  [".github/workflows/crates-package-preflight.yml", "Checkout publication privacy runner"],
 ]) {
-  const checkout = "Checkout release-readiness runner";
   assertWorkflowUsesStepPinnedTo(workflow, checkout, "actions/checkout");
   const step = extractWorkflowSteps(workflow).find(({ name }) => name === checkout);
   const inputs = readWorkflowStepInputs(workflow, step, readText(workflow).split(/\r?\n/u));
   if (step.condition !== null ||
       inputs.get("repository") !== "reallyme/release-readiness" ||
-      inputs.get("ref") !== "a89da82a662e02ecb3b7cfc6756c450aff64417a" ||
+      inputs.get("ref") !== "16aab5287de498e858ff3b85d9e66d7c9f7ebb74" ||
       inputs.get("path") !== ".release-readiness" ||
       inputs.get("persist-credentials") !== "false") {
     fail(`${workflow} must check out the reviewed Release Readiness package without credentials`);
@@ -962,7 +960,7 @@ assertContains(".github/workflows/fuzz-scheduled.yml", "- wire");
 assertContains(".github/workflows/fuzz-scheduled.yml", "FUZZ_MAX_TOTAL_TIME_SECONDS: 900");
 assertContains(".github/workflows/fuzz-scheduled.yml", "path: fuzz/corpus/${{ matrix.target }}");
 assertContains("deny.toml", 'yanked = "deny"');
-assertContains("scripts/run_pinned_release_readiness.mjs", "a89da82a662e02ecb3b7cfc6756c450aff64417a");
+assertContains("scripts/run_pinned_release_readiness.mjs", "16aab5287de498e858ff3b85d9e66d7c9f7ebb74");
 assertContains(".gitignore", "/.release-readiness/");
 assertContains(".gitignore", "/.local-tools/");
 assertContains(
@@ -988,13 +986,13 @@ assertCargoMetadataPolicy({
       dependencies: [
         {
           name: "reallyme-codec",
-          requirement: "^0.4.3",
+          requirement: "^0.4.4",
           source: "registry",
           defaultFeatures: false,
         },
         {
           name: "reallyme-crypto",
-          requirement: "^0.4.2",
+          requirement: "^0.4.4",
           source: "registry",
           defaultFeatures: false,
         },

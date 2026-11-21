@@ -43,7 +43,7 @@ ProtoJSON entrypoints. The explicit `wire` feature remains available for existin
 feature recipes:
 
 ```toml
-reallyme-cose = { version = "0.3.0", features = ["wire"] }
+reallyme-cose = { version = "0.3.1", features = ["wire"] }
 ```
 
 When default features are disabled, pair `wire` with an explicit runtime lane,
@@ -132,7 +132,7 @@ This example generates its key pair with `reallyme-crypto`, so add that direct
 dependency alongside `reallyme-cose`:
 
 ```toml
-reallyme-crypto = { version = "0.4.2", default-features = false, features = ["native", "dispatch", "ed25519"] }
+reallyme-crypto = { version = "0.4.4", default-features = false, features = ["native", "dispatch", "ed25519"] }
 ```
 
 ```rust
@@ -769,20 +769,20 @@ repeated-message merge semantics; ProtoJSON rejects duplicate fields. Callers
 that require one canonical request encoding should choose one lane and enforce
 it before admission.
 
-## 0.3.0 Platform Scope
+## 0.3.1 Platform Scope
 
-The `0.3.0` release is intentionally Rust and protobuf only. Its publishable
+The `0.3.1` release is intentionally Rust and protobuf only. Its publishable
 artifacts are `reallyme-cose-proto` and `reallyme-cose`; the `native` and `wasm`
 features are Rust runtime lanes, not platform SDK packages.
 
-The `0.3.0` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
+The `0.3.1` distribution does not include Swift, Android/Kotlin, Kotlin/JVM,
 native C/JNI, or TypeScript/WASM npm packages. Those package formats are not
 part of this release's compatibility or support contract.
 
 The protobuf `swift_prefix` option is generation metadata, not a published
 Swift package. Likewise, `wasm32-unknown-unknown` is a Rust compilation target,
 not an npm package. The exact artifact scope is recorded in
-[`docs/platform-scope-0.3.0.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.3.0.json).
+[`docs/platform-scope-0.3.1.json`](https://github.com/reallyme/cose/blob/main/docs/platform-scope-0.3.1.json).
 
 ## Development Checks
 
@@ -799,9 +799,9 @@ bash scripts/install_external_type_checker.sh .local-tools
 node scripts/run_pinned_release_readiness.mjs
 ```
 
-Protobuf regeneration requires Buf 1.75.0 and the ReallyMe Buffa 0.1.3 tools.
-The runtime remains 0.1.2 until Codec's exact dependency pin can advance.
-See the [Buffa integration](docs/buffa-migration.md) for that dependency boundary.
+Protobuf regeneration requires Buf 1.75.0 and the ReallyMe Buffa 0.1.3 runtime
+and tools. See the [Buffa integration](docs/buffa-migration.md) for the generated
+ownership contract.
 
 ```sh
 cargo install reallyme-protoc-gen-buffa --version '=0.1.3' --locked
@@ -832,7 +832,7 @@ The [formal verification guide](https://github.com/reallyme/cose/blob/main/docs/
 documents the Kani checks, their input bounds, and how to run them locally.
 
 Release readiness requires crates.io dependencies for the published ReallyMe
-foundational crates: `reallyme-crypto` `^0.4.2` and `reallyme-codec` `^0.4.3`.
+foundational crates: `reallyme-crypto` `^0.4.4` and `reallyme-codec` `^0.4.4`.
 Local `../crypto` or `../codec` path dependencies are not accepted for release.
 
 The package preflight verifies the requested release commit and crate version,

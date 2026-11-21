@@ -73,14 +73,14 @@ fn cbor_integer_extensions_keep_all_64_bits_on_wasm32() {
 }
 
 #[wasm_bindgen_test]
-fn cbor_lengths_exceeding_usize_are_still_rejected_on_wasm32() {
+fn truncated_cbor_lengths_exceeding_usize_are_rejected_on_wasm32() {
     let mut encoded = vec![0xa5, 0x01, 0x01, 0x03, 0x32, 0x20, 0x06, 0x21, 0x58, 0x20];
     encoded.extend_from_slice(&ED25519_PUBLIC_KEY);
     encoded.extend_from_slice(&[0x22, 0x5b]);
     encoded.extend_from_slice(&u64::MAX.to_be_bytes());
     assert_eq!(
         reallyme_cose::cose_key_from_slice(&encoded).err(),
-        Some(CoseError::ResourceLimitExceeded),
+        Some(CoseError::Cbor),
     );
 }
 

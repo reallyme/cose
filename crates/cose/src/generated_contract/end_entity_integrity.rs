@@ -24,7 +24,7 @@ impl
         value: ::buffa::EnumValue<
             reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseEndEntityIntegrity,
         >,
-    ) -> ::core::result::Result<Self, Self::Error> {
+    ) -> ::core::result::Result<Self, crate::CoseError> {
         if value.is_unknown() {
             return ::core::result::Result::Err(::core::convert::Into::into(
                 crate::error::CoseErrorReason::CommonInvalidParameter,

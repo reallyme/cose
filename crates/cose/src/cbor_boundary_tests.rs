@@ -78,3 +78,35 @@ fn shared_codec_maps_fixed_errors_without_dependency_diagnostics() {
         assert_eq!(error(general::CborError::new(reason)), expected);
     }
 }
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
+fn truncated_string_extents_have_the_same_fixed_error_on_every_target() -> Result<(), CoseError> {
+    const CBOR_64_BIT_LENGTH_HEADER_BYTES: u64 = 9;
+    let lengths = [
+        u64::from(u32::MAX)
+            .checked_add(1)
+            .ok_or(CoseError::ResourceLimitExceeded)?,
+        u64::MAX
+            .checked_sub(CBOR_64_BIT_LENGTH_HEADER_BYTES)
+            .ok_or(CoseError::ResourceLimitExceeded)?,
+        u64::MAX,
+    ];
+    // These headers claim a missing body. Codec checks that extent in the CBOR
+    // integer domain before any address-width conversion or allocation budget.
+    for major in [0x5b, 0x7b] {
+        for length in lengths {
+            let mut encoded = vec![major];
+            encoded.extend_from_slice(&length.to_be_bytes());
+            let failure =
+                general::validate_exact(&encoded, Profile::preferred(), general::Limits::default())
+                    .err();
+            assert_eq!(
+                failure.map(|error| error.reason()),
+                Some(ErrorReason::Truncated)
+            );
+            assert_eq!(validate_preferred_cbor(&encoded), Err(CoseError::Cbor));
+        }
+    }
+    Ok(())
+}

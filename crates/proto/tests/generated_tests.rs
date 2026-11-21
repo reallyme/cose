@@ -9,15 +9,16 @@
 
 use buffa::{
     json::{with_json_parse_options, JsonParseOptions},
-    EnumValue, Message,
+    sensitive::GuardedOwnedView,
+    DecodeOptions, EnumValue, Message,
 };
 use reallyme_cose_proto::generated::proto::reallyme::cose::v1::{
     __buffa::oneof::{cose_algorithm_identifier, cose_error},
     CoseAlgorithmIdentifier, CoseContentEncryptionAlgorithm, CoseEc2PointEncoding, CoseError,
     CoseErrorReason, CoseKemAlgorithm, CoseKeyAgreementAlgorithm, CoseKeyBytesRequest,
-    CoseKeyBytesResult, CoseKeyBytesResultOwnedView, CoseKeyFromPrivateBytesRequest,
-    CoseKeyFromPublicBytesRequest, CoseMlKemDecryptResult, CoseMlKemDecryptResultOwnedView,
-    CoseMultikeyResult, CoseMultikeyToCoseKeyRequest, CoseMultikeyToCoseKeyRequestOwnedView,
+    CoseKeyBytesResult, CoseKeyBytesResultView, CoseKeyFromPrivateBytesRequest,
+    CoseKeyFromPublicBytesRequest, CoseMlKemDecryptResult, CoseMlKemDecryptResultView,
+    CoseMultikeyResult, CoseMultikeyToCoseKeyRequest, CoseMultikeyToCoseKeyRequestView,
     CoseOperationRequest, CoseOperationResponseV2, CoseOperationResult, CosePrimitiveError,
     CoseSign1CreateDetachedRequest, CoseSign1CreateRequest, CoseSign1CreateResult,
     CoseSign1Options, CoseSign1VerifyDetachedRequest, CoseSign1VerifyRequest,
@@ -124,7 +125,7 @@ fn cose_error_wire_contract_is_stable() {
 
 #[test]
 fn key_bytes_result_uses_unambiguous_proto_json_and_view_accessors(
-) -> Result<(), buffa::DecodeError> {
+) -> Result<(), buffa::sensitive::GuardedViewError> {
     let result = CoseKeyBytesResult {
         key_bytes: vec![241, 242, 243, 244].into(),
         signature_algorithm: EnumValue::from(CoseSignatureAlgorithm::Es256),
@@ -138,10 +139,13 @@ fn key_bytes_result_uses_unambiguous_proto_json_and_view_accessors(
         r#"{"keyBytes":"8fLz9A==","signatureAlgorithm":"COSE_SIGNATURE_ALGORITHM_ES256"}"#,
     );
 
-    let view = CoseKeyBytesResultOwnedView::from_owned(&result)?;
-    assert_eq!(view.key_bytes(), result.key_bytes.as_slice());
+    let view = GuardedOwnedView::<CoseKeyBytesResultView<'static>>::from_owned(
+        &result,
+        &DecodeOptions::new().reject_unknown_fields(),
+    )?;
+    assert_eq!(view.view().key_bytes, result.key_bytes.as_slice());
     assert_eq!(
-        view.signature_algorithm().as_known(),
+        view.view().signature_algorithm.as_known(),
         Some(CoseSignatureAlgorithm::Es256),
     );
 
@@ -257,7 +261,8 @@ fn generated_secret_byte_json_preserves_base64_padding_compatibility(
 }
 
 #[test]
-fn generated_owned_views_redact_retained_protobuf_buffers() -> Result<(), buffa::DecodeError> {
+fn generated_owned_views_redact_retained_protobuf_buffers(
+) -> Result<(), buffa::sensitive::GuardedViewError> {
     let result = CoseMlKemDecryptResult {
         profile: Default::default(),
         plaintext: vec![251, 252, 253, 254].into(),
@@ -266,7 +271,10 @@ fn generated_owned_views_redact_retained_protobuf_buffers() -> Result<(), buffa:
         mode: Default::default(),
         recipient_kid: vec![241, 242, 243, 244].into(),
     };
-    let view = CoseMlKemDecryptResultOwnedView::from_owned(&result)?;
+    let view = GuardedOwnedView::<CoseMlKemDecryptResultView<'static>>::from_owned(
+        &result,
+        &DecodeOptions::new().reject_unknown_fields(),
+    )?;
     let debug = format!("{view:?}");
     assert!(debug.to_ascii_lowercase().contains("redacted"));
     assert!(!debug.contains("251"));
@@ -397,8 +405,8 @@ fn generated_byte_fields_redact_debug_output() {
 }
 
 #[test]
-fn generated_multikey_strings_redact_owned_and_view_debug_output() -> Result<(), buffa::DecodeError>
-{
+fn generated_multikey_strings_redact_owned_and_view_debug_output(
+) -> Result<(), buffa::sensitive::GuardedViewError> {
     const MULTIKEY: &str = "z6MkrzSensitivePersistentIdentifier";
     let request = serde_json::from_str::<CoseMultikeyToCoseKeyRequest>(&format!(
         r#"{{"multikey":"{MULTIKEY}"}}"#
@@ -406,7 +414,10 @@ fn generated_multikey_strings_redact_owned_and_view_debug_output() -> Result<(),
     .unwrap_or_else(|error| panic!("generated Multikey request JSON decoding failed: {error}"));
     assert_redacts_string(format!("{request:?}"), MULTIKEY);
 
-    let view = CoseMultikeyToCoseKeyRequestOwnedView::from_owned(&request)?;
+    let view = GuardedOwnedView::<CoseMultikeyToCoseKeyRequestView<'static>>::from_owned(
+        &request,
+        &DecodeOptions::new().reject_unknown_fields(),
+    )?;
     assert_redacts_string(format!("{view:?}"), MULTIKEY);
 
     let result = CoseMultikeyResult {

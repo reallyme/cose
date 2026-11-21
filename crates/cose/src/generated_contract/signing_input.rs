@@ -3,13 +3,13 @@
 ///Process-local adapter generated from authoritative descriptors.
 pub enum SigningInput<'a> {
     ///Descriptor-defined native alternative.
-    Message(&'a [u8]),
+    Message(&'a [::core::primitive::u8]),
     ///Descriptor-defined native alternative.
     EcdsaPrehash {
         ///Projected canonical descriptor field.
         hash: super::Iso18013EcdsaHash,
         ///Projected canonical descriptor field.
-        digest: &'a [u8],
+        digest: &'a [::core::primitive::u8],
     },
 }
 const _: fn() = || {

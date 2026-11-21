@@ -5059,7 +5059,7 @@ impl CoseError {
     #[must_use]
     pub fn with_error(mut self, value: __buffa::oneof::cose_error::Error) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.error);
-        self.error = Some(value);
+        self.error = ::core::option::Option::Some(value);
         self
     }
 }
@@ -5249,14 +5249,41 @@ impl<'de> ::serde::Deserialize<'de> for CoseError {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseError")
             }
+            fn visit_none<__E: ::serde::de::Error>(self) -> ::core::result::Result<CoseError, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseError, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseError as ::core::default::Default>::default();
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "primitive" => {
                             let v: ::core::option::Option<CosePrimitiveError> = map
@@ -5326,10 +5353,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseError {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseError {
@@ -5491,21 +5525,50 @@ impl<'de> ::serde::Deserialize<'de> for CosePrimitiveError {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CosePrimitiveError")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CosePrimitiveError, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CosePrimitiveError, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CosePrimitiveError as ::core::default::Default>::default();
                 let mut __f_reason = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "reason" => {
                             if __f_reason {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "reason",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("reason"),
+                                );
                             }
                             __f_reason = true;
                             let value = {
@@ -5536,10 +5599,17 @@ impl<'de> ::serde::Deserialize<'de> for CosePrimitiveError {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CosePrimitiveError {
@@ -5691,21 +5761,50 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderError {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseProviderError")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseProviderError, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseProviderError, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseProviderError as ::core::default::Default>::default();
                 let mut __f_reason = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "reason" => {
                             if __f_reason {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "reason",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("reason"),
+                                );
                             }
                             __f_reason = true;
                             let value = {
@@ -5736,10 +5835,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderError {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseProviderError {
@@ -5892,21 +5998,50 @@ impl<'de> ::serde::Deserialize<'de> for CoseBackendError {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseBackendError")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseBackendError, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseBackendError, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseBackendError as ::core::default::Default>::default();
                 let mut __f_reason = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "reason" => {
                             if __f_reason {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "reason",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("reason"),
+                                );
                             }
                             __f_reason = true;
                             let value = {
@@ -5937,10 +6072,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseBackendError {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseBackendError {
@@ -6212,23 +6354,54 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyPolicy {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseAgreementKeyPolicy")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseAgreementKeyPolicy, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseAgreementKeyPolicy, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseAgreementKeyPolicy as ::core::default::Default>::default();
                 let mut __f_allowed_curves = false;
                 let mut __f_optional_parameters = false;
                 let mut __f_ec2_encoding = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "allowedCurves" | "allowed_curves" => {
                             if __f_allowed_curves {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_curves",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_curves",
+                                    ),
+                                );
                             }
                             __f_allowed_curves = true;
                             let value = {
@@ -6256,9 +6429,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyPolicy {
                         }
                         "optionalParameters" | "optional_parameters" => {
                             if __f_optional_parameters {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "optional_parameters",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "optional_parameters",
+                                    ),
+                                );
                             }
                             __f_optional_parameters = true;
                             let value = {
@@ -6283,9 +6458,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyPolicy {
                         }
                         "ec2Encoding" | "ec2_encoding" => {
                             if __f_ec2_encoding {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "ec2_encoding",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "ec2_encoding",
+                                    ),
+                                );
                             }
                             __f_ec2_encoding = true;
                             let value = {
@@ -6316,10 +6493,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyPolicy {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseAgreementKeyPolicy {
@@ -6591,7 +6775,7 @@ impl ::buffa::Message for CoseAgreementKeyCreateRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.public_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.public_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -6644,11 +6828,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyCreateRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseAgreementKeyCreateRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseAgreementKeyCreateRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseAgreementKeyCreateRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseAgreementKeyCreateRequest as ::core::default::Default>::default();
                 let mut __f_curve = false;
@@ -6656,14 +6858,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyCreateRequest {
                 let mut __f_point_encoding = false;
                 let mut __f_policy = false;
                 let mut __f_capability = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "curve" => {
                             if __f_curve {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "curve",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("curve"),
+                                );
                             }
                             __f_curve = true;
                             let value = {
@@ -6687,9 +6900,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyCreateRequest {
                         }
                         "publicKey" | "public_key" => {
                             if __f_public_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "public_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "public_key",
+                                    ),
+                                );
                             }
                             __f_public_key = true;
                             let value = {
@@ -6711,9 +6926,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyCreateRequest {
                         }
                         "pointEncoding" | "point_encoding" => {
                             if __f_point_encoding {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "point_encoding",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "point_encoding",
+                                    ),
+                                );
                             }
                             __f_point_encoding = true;
                             let value = {
@@ -6737,9 +6954,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyCreateRequest {
                         }
                         "policy" => {
                             if __f_policy {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "policy",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("policy"),
+                                );
                             }
                             __f_policy = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -6751,9 +6968,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyCreateRequest {
                         }
                         "capability" => {
                             if __f_capability {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "capability",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "capability",
+                                    ),
+                                );
                             }
                             __f_capability = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -6772,10 +6991,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyCreateRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseAgreementKeyCreateRequest {
@@ -6974,7 +7200,7 @@ impl ::buffa::Message for CoseAgreementKeyParseRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.cose_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.cose_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -7021,23 +7247,52 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyParseRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseAgreementKeyParseRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseAgreementKeyParseRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseAgreementKeyParseRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseAgreementKeyParseRequest as ::core::default::Default>::default();
                 let mut __f_cose_key = false;
                 let mut __f_policy = false;
                 let mut __f_capability = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "coseKey" | "cose_key" => {
                             if __f_cose_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "cose_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("cose_key"),
+                                );
                             }
                             __f_cose_key = true;
                             let value = {
@@ -7059,9 +7314,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyParseRequest {
                         }
                         "policy" => {
                             if __f_policy {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "policy",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("policy"),
+                                );
                             }
                             __f_policy = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -7073,9 +7328,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyParseRequest {
                         }
                         "capability" => {
                             if __f_capability {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "capability",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "capability",
+                                    ),
+                                );
                             }
                             __f_capability = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -7094,10 +7351,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyParseRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseAgreementKeyParseRequest {
@@ -7326,14 +7590,14 @@ impl ::buffa::Message for CoseAgreementKeyResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.cose_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.cose_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.public_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.public_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -7367,24 +7631,53 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseAgreementKeyResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseAgreementKeyResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseAgreementKeyResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseAgreementKeyResult as ::core::default::Default>::default();
                 let mut __f_cose_key = false;
                 let mut __f_public_key = false;
                 let mut __f_curve = false;
                 let mut __f_point_encoding = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "coseKey" | "cose_key" => {
                             if __f_cose_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "cose_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("cose_key"),
+                                );
                             }
                             __f_cose_key = true;
                             let value = {
@@ -7406,9 +7699,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyResult {
                         }
                         "publicKey" | "public_key" => {
                             if __f_public_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "public_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "public_key",
+                                    ),
+                                );
                             }
                             __f_public_key = true;
                             let value = {
@@ -7430,9 +7725,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyResult {
                         }
                         "curve" => {
                             if __f_curve {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "curve",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("curve"),
+                                );
                             }
                             __f_curve = true;
                             let value = {
@@ -7456,9 +7751,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyResult {
                         }
                         "pointEncoding" | "point_encoding" => {
                             if __f_point_encoding {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "point_encoding",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "point_encoding",
+                                    ),
+                                );
                             }
                             __f_point_encoding = true;
                             let value = {
@@ -7489,10 +7786,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseAgreementKeyResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseAgreementKeyResult {
@@ -7678,22 +7982,53 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignatureSuite {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSignatureSuite")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSignatureSuite, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSignatureSuite, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseSignatureSuite as ::core::default::Default>::default();
                 let mut __f_registration = false;
                 let mut __f_curve = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "registration" => {
                             if __f_registration {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "registration",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "registration",
+                                    ),
+                                );
                             }
                             __f_registration = true;
                             let value = {
@@ -7717,9 +8052,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignatureSuite {
                         }
                         "curve" => {
                             if __f_curve {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "curve",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("curve"),
+                                );
                             }
                             __f_curve = true;
                             let value = {
@@ -7750,10 +8085,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignatureSuite {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSignatureSuite {
@@ -7964,23 +8306,54 @@ impl<'de> ::serde::Deserialize<'de> for CoseByteLimits {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseByteLimits")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseByteLimits, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseByteLimits, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseByteLimits as ::core::default::Default>::default();
                 let mut __f_encoded_bytes = false;
                 let mut __f_payload_bytes = false;
                 let mut __f_external_aad_bytes = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "encodedBytes" | "encoded_bytes" => {
                             if __f_encoded_bytes {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoded_bytes",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "encoded_bytes",
+                                    ),
+                                );
                             }
                             __f_encoded_bytes = true;
                             let value = {
@@ -8002,9 +8375,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseByteLimits {
                         }
                         "payloadBytes" | "payload_bytes" => {
                             if __f_payload_bytes {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "payload_bytes",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "payload_bytes",
+                                    ),
+                                );
                             }
                             __f_payload_bytes = true;
                             let value = {
@@ -8026,9 +8401,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseByteLimits {
                         }
                         "externalAadBytes" | "external_aad_bytes" => {
                             if __f_external_aad_bytes {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad_bytes",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad_bytes",
+                                    ),
+                                );
                             }
                             __f_external_aad_bytes = true;
                             let value = {
@@ -8057,10 +8434,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseByteLimits {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseByteLimits {
@@ -8457,21 +8841,21 @@ impl ::buffa::Message for CoseMac0VerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+                self.encoded = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.detached_payload = ::buffa::types::decode_bytes_to(buf)?;
+                self.detached_payload = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 #[allow(unused_imports)]
@@ -8517,7 +8901,7 @@ impl ::buffa::Message for CoseMac0VerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.key = ::buffa::types::decode_bytes_to(buf)?;
+                self.key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             9u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -8570,11 +8954,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseMac0VerifyRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseMac0VerifyRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseMac0VerifyRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseMac0VerifyRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseMac0VerifyRequest as ::core::default::Default>::default();
                 let mut __f_encoded = false;
                 let mut __f_detached_payload = false;
@@ -8585,14 +8987,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseMac0VerifyRequest {
                 let mut __f_key = false;
                 let mut __f_capability = false;
                 let mut __f_limits = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "encoded" => {
                             if __f_encoded {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoded",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("encoded"),
+                                );
                             }
                             __f_encoded = true;
                             let value = {
@@ -8614,9 +9027,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMac0VerifyRequest {
                         }
                         "detachedPayload" | "detached_payload" => {
                             if __f_detached_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "detached_payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "detached_payload",
+                                    ),
+                                );
                             }
                             __f_detached_payload = true;
                             let value = {
@@ -8638,9 +9053,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMac0VerifyRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -8662,9 +9079,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMac0VerifyRequest {
                         }
                         "allowedAlgorithms" | "allowed_algorithms" => {
                             if __f_allowed_algorithms {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_algorithms",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_algorithms",
+                                    ),
+                                );
                             }
                             __f_allowed_algorithms = true;
                             let value = {
@@ -8692,9 +9111,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMac0VerifyRequest {
                         }
                         "keyAlgorithm" | "key_algorithm" => {
                             if __f_key_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key_algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "key_algorithm",
+                                    ),
+                                );
                             }
                             __f_key_algorithm = true;
                             let value = {
@@ -8718,9 +9139,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMac0VerifyRequest {
                         }
                         "keySource" | "key_source" => {
                             if __f_key_source {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key_source",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "key_source",
+                                    ),
+                                );
                             }
                             __f_key_source = true;
                             let value = {
@@ -8744,9 +9167,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseMac0VerifyRequest {
                         }
                         "key" => {
                             if __f_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("key"),
+                                );
                             }
                             __f_key = true;
                             let value = {
@@ -8768,9 +9191,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMac0VerifyRequest {
                         }
                         "capability" => {
                             if __f_capability {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "capability",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "capability",
+                                    ),
+                                );
                             }
                             __f_capability = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -8782,9 +9207,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseMac0VerifyRequest {
                         }
                         "limits" => {
                             if __f_limits {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "limits",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("limits"),
+                                );
                             }
                             __f_limits = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -8803,10 +9228,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseMac0VerifyRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseMac0VerifyRequest {
@@ -8911,7 +9343,7 @@ impl CoseMac0VerifyResult {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.protected_kid);
-        self.protected_kid = Some(value.into());
+        self.protected_kid = ::core::option::Option::Some(value.into());
         self
     }
 }
@@ -8963,7 +9395,7 @@ impl ::buffa::Message for CoseMac0VerifyResult {
         if !self.protected_headers.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected_headers) as u64;
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -8980,7 +9412,7 @@ impl ::buffa::Message for CoseMac0VerifyResult {
         if !self.protected_headers.is_empty() {
             ::buffa::types::put_shared_bytes_field(2u32, &self.protected_headers, buf);
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             ::buffa::types::put_shared_bytes_field(3u32, v, buf);
         }
     }
@@ -9004,7 +9436,7 @@ impl ::buffa::Message for CoseMac0VerifyResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.protected_headers = ::buffa::types::decode_bytes_to(buf)?;
+                self.protected_headers = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -9012,7 +9444,7 @@ impl ::buffa::Message for CoseMac0VerifyResult {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.protected_kid =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -9037,23 +9469,54 @@ impl<'de> ::serde::Deserialize<'de> for CoseMac0VerifyResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseMac0VerifyResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseMac0VerifyResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseMac0VerifyResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseMac0VerifyResult as ::core::default::Default>::default();
                 let mut __f_algorithm = false;
                 let mut __f_protected_headers = false;
                 let mut __f_protected_kid = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "algorithm" => {
                             if __f_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "algorithm",
+                                    ),
+                                );
                             }
                             __f_algorithm = true;
                             let value = {
@@ -9077,9 +9540,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMac0VerifyResult {
                         }
                         "protectedHeaders" | "protected_headers" => {
                             if __f_protected_headers {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected_headers",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected_headers",
+                                    ),
+                                );
                             }
                             __f_protected_headers = true;
                             let value = {
@@ -9101,9 +9566,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMac0VerifyResult {
                         }
                         "protectedKid" | "protected_kid" => {
                             if __f_protected_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected_kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected_kid",
+                                    ),
+                                );
                             }
                             __f_protected_kid = true;
                             let value = {
@@ -9134,10 +9601,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseMac0VerifyResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseMac0VerifyResult {
@@ -9557,7 +10031,7 @@ impl ::buffa::Message for CoseIsoSign1VerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+                self.encoded = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -9568,7 +10042,7 @@ impl ::buffa::Message for CoseIsoSign1VerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.detached_payload = ::buffa::types::decode_bytes_to(buf)?;
+                self.detached_payload = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 #[allow(unused_imports)]
@@ -9598,7 +10072,7 @@ impl ::buffa::Message for CoseIsoSign1VerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.public_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.public_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             7u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -9660,11 +10134,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseIsoSign1VerifyRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseIsoSign1VerifyRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseIsoSign1VerifyRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseIsoSign1VerifyRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseIsoSign1VerifyRequest as ::core::default::Default>::default();
                 let mut __f_encoded = false;
                 let mut __f_content = false;
@@ -9676,14 +10168,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseIsoSign1VerifyRequest {
                 let mut __f_key_source = false;
                 let mut __f_capability = false;
                 let mut __f_limits = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "encoded" => {
                             if __f_encoded {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoded",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("encoded"),
+                                );
                             }
                             __f_encoded = true;
                             let value = {
@@ -9705,9 +10208,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseIsoSign1VerifyRequest {
                         }
                         "content" => {
                             if __f_content {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "content",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("content"),
+                                );
                             }
                             __f_content = true;
                             let value = {
@@ -9731,9 +10234,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseIsoSign1VerifyRequest {
                         }
                         "detachedPayload" | "detached_payload" => {
                             if __f_detached_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "detached_payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "detached_payload",
+                                    ),
+                                );
                             }
                             __f_detached_payload = true;
                             let value = {
@@ -9755,9 +10260,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseIsoSign1VerifyRequest {
                         }
                         "allowedSuites" | "allowed_suites" => {
                             if __f_allowed_suites {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_suites",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_suites",
+                                    ),
+                                );
                             }
                             __f_allowed_suites = true;
                             let value = {
@@ -9781,9 +10288,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseIsoSign1VerifyRequest {
                         }
                         "keySuite" | "key_suite" => {
                             if __f_key_suite {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key_suite",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "key_suite",
+                                    ),
+                                );
                             }
                             __f_key_suite = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -9795,9 +10304,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseIsoSign1VerifyRequest {
                         }
                         "publicKey" | "public_key" => {
                             if __f_public_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "public_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "public_key",
+                                    ),
+                                );
                             }
                             __f_public_key = true;
                             let value = {
@@ -9819,9 +10330,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseIsoSign1VerifyRequest {
                         }
                         "publicKeyIsCose" | "public_key_is_cose" => {
                             if __f_public_key_is_cose {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "public_key_is_cose",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "public_key_is_cose",
+                                    ),
+                                );
                             }
                             __f_public_key_is_cose = true;
                             let value = {
@@ -9843,9 +10356,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseIsoSign1VerifyRequest {
                         }
                         "keySource" | "key_source" => {
                             if __f_key_source {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key_source",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "key_source",
+                                    ),
+                                );
                             }
                             __f_key_source = true;
                             let value = {
@@ -9869,9 +10384,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseIsoSign1VerifyRequest {
                         }
                         "capability" => {
                             if __f_capability {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "capability",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "capability",
+                                    ),
+                                );
                             }
                             __f_capability = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -9883,9 +10400,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseIsoSign1VerifyRequest {
                         }
                         "limits" => {
                             if __f_limits {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "limits",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("limits"),
+                                );
                             }
                             __f_limits = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -9904,10 +10421,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseIsoSign1VerifyRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseIsoSign1VerifyRequest {
@@ -10026,7 +10550,7 @@ impl CoseIsoSign1VerifyResult {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.protected_kid);
-        self.protected_kid = Some(value.into());
+        self.protected_kid = ::core::option::Option::Some(value.into());
         self
     }
     #[must_use = "with_* setters return `self` by value; assign or chain the result"]
@@ -10037,7 +10561,7 @@ impl CoseIsoSign1VerifyResult {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.attached_payload);
-        self.attached_payload = Some(value.into());
+        self.attached_payload = ::core::option::Option::Some(value.into());
         self
     }
 }
@@ -10093,10 +10617,10 @@ impl ::buffa::Message for CoseIsoSign1VerifyResult {
         if !self.protected_headers.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected_headers) as u64;
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
-        if let Some(ref v) = self.attached_payload {
+        if let ::core::option::Option::Some(ref v) = self.attached_payload {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -10111,10 +10635,10 @@ impl ::buffa::Message for CoseIsoSign1VerifyResult {
         if !self.protected_headers.is_empty() {
             ::buffa::types::put_shared_bytes_field(2u32, &self.protected_headers, buf);
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             ::buffa::types::put_shared_bytes_field(3u32, v, buf);
         }
-        if let Some(ref v) = self.attached_payload {
+        if let ::core::option::Option::Some(ref v) = self.attached_payload {
             ::buffa::types::put_shared_bytes_field(5u32, v, buf);
         }
     }
@@ -10145,7 +10669,7 @@ impl ::buffa::Message for CoseIsoSign1VerifyResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.protected_headers = ::buffa::types::decode_bytes_to(buf)?;
+                self.protected_headers = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -10153,7 +10677,7 @@ impl ::buffa::Message for CoseIsoSign1VerifyResult {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.protected_kid =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             5u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -10161,7 +10685,7 @@ impl ::buffa::Message for CoseIsoSign1VerifyResult {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.attached_payload =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -10187,24 +10711,53 @@ impl<'de> ::serde::Deserialize<'de> for CoseIsoSign1VerifyResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseIsoSign1VerifyResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseIsoSign1VerifyResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseIsoSign1VerifyResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseIsoSign1VerifyResult as ::core::default::Default>::default();
                 let mut __f_suite = false;
                 let mut __f_protected_headers = false;
                 let mut __f_protected_kid = false;
                 let mut __f_attached_payload = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "suite" => {
                             if __f_suite {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "suite",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("suite"),
+                                );
                             }
                             __f_suite = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -10216,9 +10769,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseIsoSign1VerifyResult {
                         }
                         "protectedHeaders" | "protected_headers" => {
                             if __f_protected_headers {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected_headers",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected_headers",
+                                    ),
+                                );
                             }
                             __f_protected_headers = true;
                             let value = {
@@ -10240,9 +10795,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseIsoSign1VerifyResult {
                         }
                         "protectedKid" | "protected_kid" => {
                             if __f_protected_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected_kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected_kid",
+                                    ),
+                                );
                             }
                             __f_protected_kid = true;
                             let value = {
@@ -10266,9 +10823,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseIsoSign1VerifyResult {
                         }
                         "attachedPayload" | "attached_payload" => {
                             if __f_attached_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "attached_payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "attached_payload",
+                                    ),
+                                );
                             }
                             __f_attached_payload = true;
                             let value = {
@@ -10299,10 +10858,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseIsoSign1VerifyResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseIsoSign1VerifyResult {
@@ -10526,23 +11092,52 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerPolicy {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseContainerPolicy")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseContainerPolicy, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseContainerPolicy, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseContainerPolicy as ::core::default::Default>::default();
                 let mut __f_profile = false;
                 let mut __f_purpose = false;
                 let mut __f_envelope = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "profile" => {
                             if __f_profile {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "profile",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("profile"),
+                                );
                             }
                             __f_profile = true;
                             let value = {
@@ -10566,9 +11161,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerPolicy {
                         }
                         "purpose" => {
                             if __f_purpose {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "purpose",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("purpose"),
+                                );
                             }
                             __f_purpose = true;
                             let value = {
@@ -10592,9 +11187,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerPolicy {
                         }
                         "envelope" => {
                             if __f_envelope {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "envelope",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("envelope"),
+                                );
                             }
                             __f_envelope = true;
                             let value = {
@@ -10625,10 +11220,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerPolicy {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseContainerPolicy {
@@ -10836,14 +11438,14 @@ impl ::buffa::Message for CoseWorkingKey {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.public_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.public_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.context_id = ::buffa::types::decode_bytes_to(buf)?;
+                self.context_id = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -10868,23 +11470,52 @@ impl<'de> ::serde::Deserialize<'de> for CoseWorkingKey {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseWorkingKey")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseWorkingKey, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseWorkingKey, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseWorkingKey as ::core::default::Default>::default();
                 let mut __f_suite = false;
                 let mut __f_public_key = false;
                 let mut __f_context_id = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "suite" => {
                             if __f_suite {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "suite",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("suite"),
+                                );
                             }
                             __f_suite = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -10896,9 +11527,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseWorkingKey {
                         }
                         "publicKey" | "public_key" => {
                             if __f_public_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "public_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "public_key",
+                                    ),
+                                );
                             }
                             __f_public_key = true;
                             let value = {
@@ -10920,9 +11553,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseWorkingKey {
                         }
                         "contextId" | "context_id" => {
                             if __f_context_id {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "context_id",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "context_id",
+                                    ),
+                                );
                             }
                             __f_context_id = true;
                             let value = {
@@ -10951,10 +11586,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseWorkingKey {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseWorkingKey {
@@ -11384,7 +12026,7 @@ impl ::buffa::Message for CoseContainerVerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+                self.encoded = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -11395,14 +12037,14 @@ impl ::buffa::Message for CoseContainerVerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.detached_payload = ::buffa::types::decode_bytes_to(buf)?;
+                self.detached_payload = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             5u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -11494,11 +12136,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseContainerVerifyRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseContainerVerifyRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseContainerVerifyRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseContainerVerifyRequest as ::core::default::Default>::default();
                 let mut __f_encoded = false;
                 let mut __f_content_mode = false;
@@ -11510,14 +12170,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyRequest {
                 let mut __f_key = false;
                 let mut __f_capability = false;
                 let mut __f_limits = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "encoded" => {
                             if __f_encoded {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoded",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("encoded"),
+                                );
                             }
                             __f_encoded = true;
                             let value = {
@@ -11539,9 +12210,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyRequest {
                         }
                         "contentMode" | "content_mode" => {
                             if __f_content_mode {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "content_mode",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "content_mode",
+                                    ),
+                                );
                             }
                             __f_content_mode = true;
                             let value = {
@@ -11565,9 +12238,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyRequest {
                         }
                         "detachedPayload" | "detached_payload" => {
                             if __f_detached_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "detached_payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "detached_payload",
+                                    ),
+                                );
                             }
                             __f_detached_payload = true;
                             let value = {
@@ -11589,9 +12264,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -11613,9 +12290,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyRequest {
                         }
                         "policy" => {
                             if __f_policy {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "policy",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("policy"),
+                                );
                             }
                             __f_policy = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -11627,9 +12304,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyRequest {
                         }
                         "allowedSuites" | "allowed_suites" => {
                             if __f_allowed_suites {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_suites",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_suites",
+                                    ),
+                                );
                             }
                             __f_allowed_suites = true;
                             let value = {
@@ -11653,9 +12332,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyRequest {
                         }
                         "keySource" | "key_source" => {
                             if __f_key_source {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key_source",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "key_source",
+                                    ),
+                                );
                             }
                             __f_key_source = true;
                             let value = {
@@ -11679,9 +12360,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyRequest {
                         }
                         "key" => {
                             if __f_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("key"),
+                                );
                             }
                             __f_key = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -11693,9 +12374,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyRequest {
                         }
                         "capability" => {
                             if __f_capability {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "capability",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "capability",
+                                    ),
+                                );
                             }
                             __f_capability = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -11707,9 +12390,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyRequest {
                         }
                         "limits" => {
                             if __f_limits {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "limits",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("limits"),
+                                );
                             }
                             __f_limits = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -11728,10 +12411,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseContainerVerifyRequest {
@@ -11981,7 +12671,7 @@ impl CoseContainerVerifyResult {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.certificate_sha256);
-        self.certificate_sha256 = Some(value.into());
+        self.certificate_sha256 = ::core::option::Option::Some(value.into());
         self
     }
 }
@@ -12077,7 +12767,7 @@ impl ::buffa::Message for CoseContainerVerifyResult {
                 size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
             }
         }
-        if let Some(ref v) = self.certificate_sha256 {
+        if let ::core::option::Option::Some(ref v) = self.certificate_sha256 {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -12120,7 +12810,7 @@ impl ::buffa::Message for CoseContainerVerifyResult {
                 ::buffa::types::put_int32_field(9u32, val, buf);
             }
         }
-        if let Some(ref v) = self.certificate_sha256 {
+        if let ::core::option::Option::Some(ref v) = self.certificate_sha256 {
             ::buffa::types::put_shared_bytes_field(10u32, v, buf);
         }
     }
@@ -12140,28 +12830,28 @@ impl ::buffa::Message for CoseContainerVerifyResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+                self.encoded = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.protected_headers = ::buffa::types::decode_bytes_to(buf)?;
+                self.protected_headers = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.unprotected_headers = ::buffa::types::decode_bytes_to(buf)?;
+                self.unprotected_headers = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.payload = ::buffa::types::decode_bytes_to(buf)?;
+                self.payload = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             5u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -12204,7 +12894,7 @@ impl ::buffa::Message for CoseContainerVerifyResult {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.certificate_sha256 =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -12236,11 +12926,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseContainerVerifyResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseContainerVerifyResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseContainerVerifyResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseContainerVerifyResult as ::core::default::Default>::default();
                 let mut __f_encoded = false;
                 let mut __f_protected_headers = false;
@@ -12252,14 +12960,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyResult {
                 let mut __f_protected_thumbprint = false;
                 let mut __f_end_entity_integrity = false;
                 let mut __f_certificate_sha256 = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "encoded" => {
                             if __f_encoded {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoded",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("encoded"),
+                                );
                             }
                             __f_encoded = true;
                             let value = {
@@ -12281,9 +13000,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyResult {
                         }
                         "protectedHeaders" | "protected_headers" => {
                             if __f_protected_headers {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected_headers",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected_headers",
+                                    ),
+                                );
                             }
                             __f_protected_headers = true;
                             let value = {
@@ -12305,9 +13026,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyResult {
                         }
                         "unprotectedHeaders" | "unprotected_headers" => {
                             if __f_unprotected_headers {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "unprotected_headers",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "unprotected_headers",
+                                    ),
+                                );
                             }
                             __f_unprotected_headers = true;
                             let value = {
@@ -12329,9 +13052,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyResult {
                         }
                         "payload" => {
                             if __f_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("payload"),
+                                );
                             }
                             __f_payload = true;
                             let value = {
@@ -12353,9 +13076,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyResult {
                         }
                         "policy" => {
                             if __f_policy {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "policy",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("policy"),
+                                );
                             }
                             __f_policy = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -12367,9 +13090,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyResult {
                         }
                         "key" => {
                             if __f_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("key"),
+                                );
                             }
                             __f_key = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -12381,9 +13104,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyResult {
                         }
                         "chainPlacement" | "chain_placement" => {
                             if __f_chain_placement {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "chain_placement",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "chain_placement",
+                                    ),
+                                );
                             }
                             __f_chain_placement = true;
                             let value = {
@@ -12407,9 +13132,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyResult {
                         }
                         "protectedThumbprint" | "protected_thumbprint" => {
                             if __f_protected_thumbprint {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected_thumbprint",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected_thumbprint",
+                                    ),
+                                );
                             }
                             __f_protected_thumbprint = true;
                             let value = {
@@ -12431,9 +13158,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyResult {
                         }
                         "endEntityIntegrity" | "end_entity_integrity" => {
                             if __f_end_entity_integrity {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "end_entity_integrity",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "end_entity_integrity",
+                                    ),
+                                );
                             }
                             __f_end_entity_integrity = true;
                             let value = {
@@ -12457,9 +13186,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyResult {
                         }
                         "certificateSha256" | "certificate_sha256" => {
                             if __f_certificate_sha256 {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "certificate_sha256",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "certificate_sha256",
+                                    ),
+                                );
                             }
                             __f_certificate_sha256 = true;
                             let value = {
@@ -12490,10 +13221,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerVerifyResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseContainerVerifyResult {
@@ -12885,21 +13623,21 @@ impl ::buffa::Message for CoseContainerSignRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.protected_headers = ::buffa::types::decode_bytes_to(buf)?;
+                self.protected_headers = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.unprotected_headers = ::buffa::types::decode_bytes_to(buf)?;
+                self.unprotected_headers = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.payload = ::buffa::types::decode_bytes_to(buf)?;
+                self.payload = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -12910,7 +13648,7 @@ impl ::buffa::Message for CoseContainerSignRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             6u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -12986,11 +13724,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerSignRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseContainerSignRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseContainerSignRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseContainerSignRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseContainerSignRequest as ::core::default::Default>::default();
                 let mut __f_protected_headers = false;
                 let mut __f_unprotected_headers = false;
@@ -13001,14 +13757,27 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerSignRequest {
                 let mut __f_allowed_suites = false;
                 let mut __f_capability = false;
                 let mut __f_limits = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "protectedHeaders" | "protected_headers" => {
                             if __f_protected_headers {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected_headers",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected_headers",
+                                    ),
+                                );
                             }
                             __f_protected_headers = true;
                             let value = {
@@ -13030,9 +13799,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerSignRequest {
                         }
                         "unprotectedHeaders" | "unprotected_headers" => {
                             if __f_unprotected_headers {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "unprotected_headers",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "unprotected_headers",
+                                    ),
+                                );
                             }
                             __f_unprotected_headers = true;
                             let value = {
@@ -13054,9 +13825,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerSignRequest {
                         }
                         "payload" => {
                             if __f_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("payload"),
+                                );
                             }
                             __f_payload = true;
                             let value = {
@@ -13078,9 +13849,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerSignRequest {
                         }
                         "contentMode" | "content_mode" => {
                             if __f_content_mode {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "content_mode",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "content_mode",
+                                    ),
+                                );
                             }
                             __f_content_mode = true;
                             let value = {
@@ -13104,9 +13877,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerSignRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -13128,9 +13903,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerSignRequest {
                         }
                         "policy" => {
                             if __f_policy {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "policy",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("policy"),
+                                );
                             }
                             __f_policy = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -13142,9 +13917,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerSignRequest {
                         }
                         "allowedSuites" | "allowed_suites" => {
                             if __f_allowed_suites {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_suites",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_suites",
+                                    ),
+                                );
                             }
                             __f_allowed_suites = true;
                             let value = {
@@ -13168,9 +13945,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerSignRequest {
                         }
                         "capability" => {
                             if __f_capability {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "capability",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "capability",
+                                    ),
+                                );
                             }
                             __f_capability = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -13182,9 +13961,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerSignRequest {
                         }
                         "limits" => {
                             if __f_limits {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "limits",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("limits"),
+                                );
                             }
                             __f_limits = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -13203,10 +13982,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseContainerSignRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseContainerSignRequest {
@@ -13473,7 +14259,7 @@ impl ::buffa::Message for CosePeerKeyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.cose_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.cose_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -13531,25 +14317,54 @@ impl<'de> ::serde::Deserialize<'de> for CosePeerKeyRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CosePeerKeyRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CosePeerKeyRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CosePeerKeyRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CosePeerKeyRequest as ::core::default::Default>::default();
                 let mut __f_cose_key = false;
                 let mut __f_purpose = false;
                 let mut __f_signature_suite = false;
                 let mut __f_optional_parameters = false;
                 let mut __f_capability = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "coseKey" | "cose_key" => {
                             if __f_cose_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "cose_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("cose_key"),
+                                );
                             }
                             __f_cose_key = true;
                             let value = {
@@ -13571,9 +14386,9 @@ impl<'de> ::serde::Deserialize<'de> for CosePeerKeyRequest {
                         }
                         "purpose" => {
                             if __f_purpose {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "purpose",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("purpose"),
+                                );
                             }
                             __f_purpose = true;
                             let value = {
@@ -13597,9 +14412,11 @@ impl<'de> ::serde::Deserialize<'de> for CosePeerKeyRequest {
                         }
                         "signatureSuite" | "signature_suite" => {
                             if __f_signature_suite {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "signature_suite",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "signature_suite",
+                                    ),
+                                );
                             }
                             __f_signature_suite = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -13611,9 +14428,11 @@ impl<'de> ::serde::Deserialize<'de> for CosePeerKeyRequest {
                         }
                         "optionalParameters" | "optional_parameters" => {
                             if __f_optional_parameters {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "optional_parameters",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "optional_parameters",
+                                    ),
+                                );
                             }
                             __f_optional_parameters = true;
                             let value = {
@@ -13638,9 +14457,11 @@ impl<'de> ::serde::Deserialize<'de> for CosePeerKeyRequest {
                         }
                         "capability" => {
                             if __f_capability {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "capability",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "capability",
+                                    ),
+                                );
                             }
                             __f_capability = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -13659,10 +14480,17 @@ impl<'de> ::serde::Deserialize<'de> for CosePeerKeyRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CosePeerKeyRequest {
@@ -13983,14 +14811,14 @@ impl ::buffa::Message for CosePeerKeyResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.cose_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.cose_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.public_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.public_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -14046,11 +14874,29 @@ impl<'de> ::serde::Deserialize<'de> for CosePeerKeyResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CosePeerKeyResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CosePeerKeyResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CosePeerKeyResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CosePeerKeyResult as ::core::default::Default>::default();
                 let mut __f_cose_key = false;
                 let mut __f_public_key = false;
@@ -14059,14 +14905,25 @@ impl<'de> ::serde::Deserialize<'de> for CosePeerKeyResult {
                 let mut __f_signature_suite = false;
                 let mut __f_point_encoding = false;
                 let mut __f_validated = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "coseKey" | "cose_key" => {
                             if __f_cose_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "cose_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("cose_key"),
+                                );
                             }
                             __f_cose_key = true;
                             let value = {
@@ -14088,9 +14945,11 @@ impl<'de> ::serde::Deserialize<'de> for CosePeerKeyResult {
                         }
                         "publicKey" | "public_key" => {
                             if __f_public_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "public_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "public_key",
+                                    ),
+                                );
                             }
                             __f_public_key = true;
                             let value = {
@@ -14112,9 +14971,9 @@ impl<'de> ::serde::Deserialize<'de> for CosePeerKeyResult {
                         }
                         "curve" => {
                             if __f_curve {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "curve",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("curve"),
+                                );
                             }
                             __f_curve = true;
                             let value = {
@@ -14138,9 +14997,9 @@ impl<'de> ::serde::Deserialize<'de> for CosePeerKeyResult {
                         }
                         "purpose" => {
                             if __f_purpose {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "purpose",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("purpose"),
+                                );
                             }
                             __f_purpose = true;
                             let value = {
@@ -14164,9 +15023,11 @@ impl<'de> ::serde::Deserialize<'de> for CosePeerKeyResult {
                         }
                         "signatureSuite" | "signature_suite" => {
                             if __f_signature_suite {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "signature_suite",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "signature_suite",
+                                    ),
+                                );
                             }
                             __f_signature_suite = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -14178,9 +15039,11 @@ impl<'de> ::serde::Deserialize<'de> for CosePeerKeyResult {
                         }
                         "pointEncoding" | "point_encoding" => {
                             if __f_point_encoding {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "point_encoding",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "point_encoding",
+                                    ),
+                                );
                             }
                             __f_point_encoding = true;
                             let value = {
@@ -14204,9 +15067,11 @@ impl<'de> ::serde::Deserialize<'de> for CosePeerKeyResult {
                         }
                         "validated" => {
                             if __f_validated {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "validated",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "validated",
+                                    ),
+                                );
                             }
                             __f_validated = true;
                             let value = {
@@ -14235,10 +15100,17 @@ impl<'de> ::serde::Deserialize<'de> for CosePeerKeyResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CosePeerKeyResult {
@@ -14439,7 +15311,7 @@ impl ::buffa::Message for CoseSignatureConvertRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.signature = ::buffa::types::decode_bytes_to(buf)?;
+                self.signature = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -14464,23 +15336,52 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignatureConvertRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSignatureConvertRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSignatureConvertRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSignatureConvertRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseSignatureConvertRequest as ::core::default::Default>::default();
                 let mut __f_curve = false;
                 let mut __f_encoding = false;
                 let mut __f_signature = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "curve" => {
                             if __f_curve {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "curve",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("curve"),
+                                );
                             }
                             __f_curve = true;
                             let value = {
@@ -14504,9 +15405,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignatureConvertRequest {
                         }
                         "encoding" => {
                             if __f_encoding {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoding",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("encoding"),
+                                );
                             }
                             __f_encoding = true;
                             let value = {
@@ -14530,9 +15431,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignatureConvertRequest {
                         }
                         "signature" => {
                             if __f_signature {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "signature",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "signature",
+                                    ),
+                                );
                             }
                             __f_signature = true;
                             let value = {
@@ -14561,10 +15464,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignatureConvertRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSignatureConvertRequest {
@@ -14690,7 +15600,7 @@ impl ::buffa::Message for CoseOpaqueBytes {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+                self.encoded = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -14713,21 +15623,50 @@ impl<'de> ::serde::Deserialize<'de> for CoseOpaqueBytes {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseOpaqueBytes")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseOpaqueBytes, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseOpaqueBytes, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseOpaqueBytes as ::core::default::Default>::default();
                 let mut __f_encoded = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "encoded" => {
                             if __f_encoded {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoded",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("encoded"),
+                                );
                             }
                             __f_encoded = true;
                             let value = {
@@ -14756,10 +15695,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseOpaqueBytes {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseOpaqueBytes {
@@ -14863,22 +15809,59 @@ impl<'de> ::serde::Deserialize<'de> for CoseValidationResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseValidationResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseValidationResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseValidationResult, __A::Error> {
+                #[allow(unused_mut)]
                 let __r = <CoseValidationResult as ::core::default::Default>::default();
-                if let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
-                    let _key = ::buffa::sensitive::Zeroizing::new(key);
-                    return Err(<__A::Error as ::serde::de::Error>::custom(
-                        ::buffa::sensitive::JsonErrorReason::UnknownField,
-                    ));
+                if let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
+                    let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
+                    return ::core::result::Result::Err(
+                        <__A::Error as ::serde::de::Error>::custom(
+                            ::buffa::sensitive::JsonErrorReason::UnknownField,
+                        ),
+                    );
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseValidationResult {
@@ -15069,22 +16052,51 @@ impl<'de> ::serde::Deserialize<'de> for CoseSuiteInfoRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSuiteInfoRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSuiteInfoRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSuiteInfoRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseSuiteInfoRequest as ::core::default::Default>::default();
                 let mut __f_suite = false;
                 let mut __f_require_iso_pair = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "suite" => {
                             if __f_suite {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "suite",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("suite"),
+                                );
                             }
                             __f_suite = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -15096,9 +16108,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSuiteInfoRequest {
                         }
                         "requireIsoPair" | "require_iso_pair" => {
                             if __f_require_iso_pair {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "require_iso_pair",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "require_iso_pair",
+                                    ),
+                                );
                             }
                             __f_require_iso_pair = true;
                             let value = {
@@ -15127,10 +16141,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSuiteInfoRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSuiteInfoRequest {
@@ -15409,25 +16430,54 @@ impl<'de> ::serde::Deserialize<'de> for CoseSuiteInfoResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSuiteInfoResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSuiteInfoResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSuiteInfoResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseSuiteInfoResult as ::core::default::Default>::default();
                 let mut __f_suite = false;
                 let mut __f_signature_bytes = false;
                 let mut __f_coordinate_bytes = false;
                 let mut __f_okp_public_bytes = false;
                 let mut __f_builtin_provider = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "suite" => {
                             if __f_suite {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "suite",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("suite"),
+                                );
                             }
                             __f_suite = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -15439,9 +16489,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSuiteInfoResult {
                         }
                         "signatureBytes" | "signature_bytes" => {
                             if __f_signature_bytes {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "signature_bytes",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "signature_bytes",
+                                    ),
+                                );
                             }
                             __f_signature_bytes = true;
                             let value = {
@@ -15463,9 +16515,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSuiteInfoResult {
                         }
                         "coordinateBytes" | "coordinate_bytes" => {
                             if __f_coordinate_bytes {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "coordinate_bytes",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "coordinate_bytes",
+                                    ),
+                                );
                             }
                             __f_coordinate_bytes = true;
                             let value = {
@@ -15487,9 +16541,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSuiteInfoResult {
                         }
                         "okpPublicBytes" | "okp_public_bytes" => {
                             if __f_okp_public_bytes {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "okp_public_bytes",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "okp_public_bytes",
+                                    ),
+                                );
                             }
                             __f_okp_public_bytes = true;
                             let value = {
@@ -15511,9 +16567,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSuiteInfoResult {
                         }
                         "builtinProvider" | "builtin_provider" => {
                             if __f_builtin_provider {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "builtin_provider",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "builtin_provider",
+                                    ),
+                                );
                             }
                             __f_builtin_provider = true;
                             let value = {
@@ -15542,10 +16600,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSuiteInfoResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSuiteInfoResult {
@@ -15803,7 +16868,7 @@ impl ::buffa::Message for CoseVerificationKeyImportRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.public_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.public_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -15814,7 +16879,7 @@ impl ::buffa::Message for CoseVerificationKeyImportRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.context_id = ::buffa::types::decode_bytes_to(buf)?;
+                self.context_id = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             5u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -15845,11 +16910,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerificationKeyImportRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseVerificationKeyImportRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseVerificationKeyImportRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseVerificationKeyImportRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseVerificationKeyImportRequest as ::core::default::Default>::default();
                 let mut __f_suite = false;
@@ -15857,14 +16940,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerificationKeyImportRequest {
                 let mut __f_public_key_is_cose = false;
                 let mut __f_context_id = false;
                 let mut __f_require_iso_pair = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "suite" => {
                             if __f_suite {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "suite",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("suite"),
+                                );
                             }
                             __f_suite = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -15876,9 +16970,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerificationKeyImportRequest {
                         }
                         "publicKey" | "public_key" => {
                             if __f_public_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "public_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "public_key",
+                                    ),
+                                );
                             }
                             __f_public_key = true;
                             let value = {
@@ -15900,9 +16996,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerificationKeyImportRequest {
                         }
                         "publicKeyIsCose" | "public_key_is_cose" => {
                             if __f_public_key_is_cose {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "public_key_is_cose",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "public_key_is_cose",
+                                    ),
+                                );
                             }
                             __f_public_key_is_cose = true;
                             let value = {
@@ -15924,9 +17022,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerificationKeyImportRequest {
                         }
                         "contextId" | "context_id" => {
                             if __f_context_id {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "context_id",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "context_id",
+                                    ),
+                                );
                             }
                             __f_context_id = true;
                             let value = {
@@ -15948,9 +17048,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerificationKeyImportRequest {
                         }
                         "requireIsoPair" | "require_iso_pair" => {
                             if __f_require_iso_pair {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "require_iso_pair",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "require_iso_pair",
+                                    ),
+                                );
                             }
                             __f_require_iso_pair = true;
                             let value = {
@@ -15979,10 +17081,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerificationKeyImportRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseVerificationKeyImportRequest {
@@ -16238,24 +17347,53 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateProfileRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSign1CreateProfileRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSign1CreateProfileRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSign1CreateProfileRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseSign1CreateProfileRequest as ::core::default::Default>::default();
                 let mut __f_request = false;
                 let mut __f_protected_type = false;
                 let mut __f_capability = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "request" => {
                             if __f_request {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "request",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("request"),
+                                );
                             }
                             __f_request = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -16267,9 +17405,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateProfileRequest {
                         }
                         "protectedType" | "protected_type" => {
                             if __f_protected_type {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected_type",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected_type",
+                                    ),
+                                );
                             }
                             __f_protected_type = true;
                             let value = map
@@ -16281,9 +17421,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateProfileRequest {
                         }
                         "capability" => {
                             if __f_capability {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "capability",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "capability",
+                                    ),
+                                );
                             }
                             __f_capability = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -16302,10 +17444,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateProfileRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSign1CreateProfileRequest {
@@ -16610,7 +17759,7 @@ impl ::buffa::Message for CoseSign1VerifyProfileRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.detached_payload = ::buffa::types::decode_bytes_to(buf)?;
+                self.detached_payload = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -16668,11 +17817,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyProfileRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSign1VerifyProfileRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSign1VerifyProfileRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSign1VerifyProfileRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseSign1VerifyProfileRequest as ::core::default::Default>::default();
                 let mut __f_request = false;
@@ -16681,14 +17848,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyProfileRequest {
                 let mut __f_allow_unprotected_x5chain = false;
                 let mut __f_capability = false;
                 let mut __f_policy = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "request" => {
                             if __f_request {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "request",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("request"),
+                                );
                             }
                             __f_request = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -16700,9 +17878,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyProfileRequest {
                         }
                         "detachedPayload" | "detached_payload" => {
                             if __f_detached_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "detached_payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "detached_payload",
+                                    ),
+                                );
                             }
                             __f_detached_payload = true;
                             let value = {
@@ -16724,9 +17904,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyProfileRequest {
                         }
                         "detached" => {
                             if __f_detached {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "detached",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("detached"),
+                                );
                             }
                             __f_detached = true;
                             let value = {
@@ -16748,9 +17928,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyProfileRequest {
                         }
                         "allowUnprotectedX5chain" | "allow_unprotected_x5chain" => {
                             if __f_allow_unprotected_x5chain {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allow_unprotected_x5chain",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allow_unprotected_x5chain",
+                                    ),
+                                );
                             }
                             __f_allow_unprotected_x5chain = true;
                             let value = {
@@ -16774,9 +17956,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyProfileRequest {
                         }
                         "capability" => {
                             if __f_capability {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "capability",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "capability",
+                                    ),
+                                );
                             }
                             __f_capability = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -16788,9 +17972,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyProfileRequest {
                         }
                         "policy" => {
                             if __f_policy {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "policy",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("policy"),
+                                );
                             }
                             __f_policy = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -16809,10 +17993,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyProfileRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSign1VerifyProfileRequest {
@@ -17058,23 +18249,52 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1X5ChainResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSign1X5ChainResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSign1X5ChainResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSign1X5ChainResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseSign1X5ChainResult as ::core::default::Default>::default();
                 let mut __f_verified = false;
                 let mut __f_x5chain = false;
                 let mut __f_placement = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "verified" => {
                             if __f_verified {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "verified",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("verified"),
+                                );
                             }
                             __f_verified = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -17086,9 +18306,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1X5ChainResult {
                         }
                         "x5chain" => {
                             if __f_x5chain {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "x5chain",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("x5chain"),
+                                );
                             }
                             __f_x5chain = true;
                             let value =
@@ -17101,9 +18321,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1X5ChainResult {
                         }
                         "placement" => {
                             if __f_placement {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "placement",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "placement",
+                                    ),
+                                );
                             }
                             __f_placement = true;
                             let value = {
@@ -17134,10 +18356,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1X5ChainResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSign1X5ChainResult {
@@ -17192,7 +18421,7 @@ impl CoseAlgorithmIdentifier {
         value: __buffa::oneof::cose_algorithm_identifier::Algorithm,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.algorithm);
-        self.algorithm = Some(value);
+        self.algorithm = ::core::option::Option::Some(value);
         self
     }
 }
@@ -17315,14 +18544,43 @@ impl<'de> ::serde::Deserialize<'de> for CoseAlgorithmIdentifier {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseAlgorithmIdentifier")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseAlgorithmIdentifier, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseAlgorithmIdentifier, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseAlgorithmIdentifier as ::core::default::Default>::default();
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "signature" => {
                             struct _DeserSeed;
@@ -17419,10 +18677,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseAlgorithmIdentifier {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseAlgorithmIdentifier {
@@ -17609,22 +18874,51 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderCapability {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseProviderCapability")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseProviderCapability, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseProviderCapability, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseProviderCapability as ::core::default::Default>::default();
                 let mut __f_handle = false;
                 let mut __f_kind = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "handle" => {
                             if __f_handle {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "handle",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("handle"),
+                                );
                             }
                             __f_handle = true;
                             let value = {
@@ -17646,9 +18940,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderCapability {
                         }
                         "kind" => {
                             if __f_kind {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "kind",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("kind"),
+                                );
                             }
                             __f_kind = true;
                             let value = {
@@ -17679,10 +18973,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderCapability {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseProviderCapability {
@@ -17844,21 +19145,52 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderRegistry {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseProviderRegistry")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseProviderRegistry, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseProviderRegistry, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseProviderRegistry as ::core::default::Default>::default();
                 let mut __f_capabilities = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "capabilities" => {
                             if __f_capabilities {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "capabilities",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "capabilities",
+                                    ),
+                                );
                             }
                             __f_capabilities = true;
                             let value = {
@@ -17889,10 +19221,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderRegistry {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseProviderRegistry {
@@ -18054,7 +19393,7 @@ impl ::buffa::Message for CoseEcdsaPrehash {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.digest = ::buffa::types::decode_bytes_to(buf)?;
+                self.digest = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -18078,22 +19417,51 @@ impl<'de> ::serde::Deserialize<'de> for CoseEcdsaPrehash {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseEcdsaPrehash")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseEcdsaPrehash, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseEcdsaPrehash, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseEcdsaPrehash as ::core::default::Default>::default();
                 let mut __f_hash = false;
                 let mut __f_digest = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "hash" => {
                             if __f_hash {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "hash",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("hash"),
+                                );
                             }
                             __f_hash = true;
                             let value = {
@@ -18117,9 +19485,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseEcdsaPrehash {
                         }
                         "digest" => {
                             if __f_digest {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "digest",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("digest"),
+                                );
                             }
                             __f_digest = true;
                             let value = {
@@ -18148,10 +19516,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseEcdsaPrehash {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseEcdsaPrehash {
@@ -18200,7 +19575,7 @@ impl CoseSigningInput {
     #[must_use]
     pub fn with_input(mut self, value: __buffa::oneof::cose_signing_input::Input) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.input);
-        self.input = Some(value);
+        self.input = ::core::option::Option::Some(value);
         self
     }
 }
@@ -18357,14 +19732,43 @@ impl<'de> ::serde::Deserialize<'de> for CoseSigningInput {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSigningInput")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSigningInput, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSigningInput, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseSigningInput as ::core::default::Default>::default();
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "message" => {
                             let v: ::core::option::Option<CoseOpaqueBytes> =
@@ -18418,10 +19822,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSigningInput {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSigningInput {
@@ -18481,7 +19892,7 @@ impl CoseProviderDescription {
         value: __buffa::oneof::cose_provider_description::Description,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.description);
-        self.description = Some(value);
+        self.description = ::core::option::Option::Some(value);
         self
     }
 }
@@ -18656,14 +20067,43 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderDescription {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseProviderDescription")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseProviderDescription, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseProviderDescription, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseProviderDescription as ::core::default::Default>::default();
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "verificationKey" | "verification_key" => {
                             let v: ::core::option::Option<CoseWorkingKey> =
@@ -18743,10 +20183,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderDescription {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseProviderDescription {
@@ -19085,11 +20532,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderSignerDescription {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseProviderSignerDescription")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseProviderSignerDescription, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseProviderSignerDescription, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseProviderSignerDescription as ::core::default::Default>::default();
                 let mut __f_key = false;
@@ -19097,14 +20562,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderSignerDescription {
                 let mut __f_prehash = false;
                 let mut __f_signature_encoding = false;
                 let mut __f_verifier = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "key" => {
                             if __f_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("key"),
+                                );
                             }
                             __f_key = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -19116,9 +20592,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderSignerDescription {
                         }
                         "signingMode" | "signing_mode" => {
                             if __f_signing_mode {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "signing_mode",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "signing_mode",
+                                    ),
+                                );
                             }
                             __f_signing_mode = true;
                             let value = {
@@ -19142,9 +20620,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderSignerDescription {
                         }
                         "prehash" => {
                             if __f_prehash {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "prehash",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("prehash"),
+                                );
                             }
                             __f_prehash = true;
                             let value = {
@@ -19168,9 +20646,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderSignerDescription {
                         }
                         "signatureEncoding" | "signature_encoding" => {
                             if __f_signature_encoding {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "signature_encoding",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "signature_encoding",
+                                    ),
+                                );
                             }
                             __f_signature_encoding = true;
                             let value = {
@@ -19194,9 +20674,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderSignerDescription {
                         }
                         "verifier" => {
                             if __f_verifier {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "verifier",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("verifier"),
+                                );
                             }
                             __f_verifier = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -19215,10 +20695,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderSignerDescription {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseProviderSignerDescription {
@@ -19407,14 +20894,14 @@ impl ::buffa::Message for CoseProviderVerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.message = ::buffa::types::decode_bytes_to(buf)?;
+                self.message = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.signature = ::buffa::types::decode_bytes_to(buf)?;
+                self.signature = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -19450,23 +20937,52 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderVerifyRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseProviderVerifyRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseProviderVerifyRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseProviderVerifyRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseProviderVerifyRequest as ::core::default::Default>::default();
                 let mut __f_message = false;
                 let mut __f_signature = false;
                 let mut __f_key = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "message" => {
                             if __f_message {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "message",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("message"),
+                                );
                             }
                             __f_message = true;
                             let value = {
@@ -19488,9 +21004,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderVerifyRequest {
                         }
                         "signature" => {
                             if __f_signature {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "signature",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "signature",
+                                    ),
+                                );
                             }
                             __f_signature = true;
                             let value = {
@@ -19512,9 +21030,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderVerifyRequest {
                         }
                         "key" => {
                             if __f_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("key"),
+                                );
                             }
                             __f_key = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -19533,10 +21051,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderVerifyRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseProviderVerifyRequest {
@@ -19703,7 +21228,7 @@ impl ::buffa::Message for CoseProviderResolveKeyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.kid = ::buffa::types::decode_bytes_to(buf)?;
+                self.kid = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -19727,23 +21252,54 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderResolveKeyRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseProviderResolveKeyRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseProviderResolveKeyRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseProviderResolveKeyRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseProviderResolveKeyRequest as ::core::default::Default>::default();
                 let mut __f_algorithm = false;
                 let mut __f_kid = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "algorithm" => {
                             if __f_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "algorithm",
+                                    ),
+                                );
                             }
                             __f_algorithm = true;
                             let value = {
@@ -19767,9 +21323,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderResolveKeyRequest {
                         }
                         "kid" => {
                             if __f_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("kid"),
+                                );
                             }
                             __f_kid = true;
                             let value = {
@@ -19798,10 +21354,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderResolveKeyRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseProviderResolveKeyRequest {
@@ -20058,7 +21621,7 @@ impl ::buffa::Message for CoseProviderCertificateRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.sha256_thumbprint = ::buffa::types::decode_bytes_to(buf)?;
+                self.sha256_thumbprint = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -20084,25 +21647,56 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderCertificateRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseProviderCertificateRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseProviderCertificateRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseProviderCertificateRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseProviderCertificateRequest as ::core::default::Default>::default();
                 let mut __f_algorithm = false;
                 let mut __f_chain = false;
                 let mut __f_placement = false;
                 let mut __f_sha256_thumbprint = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "algorithm" => {
                             if __f_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "algorithm",
+                                    ),
+                                );
                             }
                             __f_algorithm = true;
                             let value = {
@@ -20126,9 +21720,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderCertificateRequest {
                         }
                         "chain" => {
                             if __f_chain {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "chain",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("chain"),
+                                );
                             }
                             __f_chain = true;
                             let value =
@@ -20141,9 +21735,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderCertificateRequest {
                         }
                         "placement" => {
                             if __f_placement {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "placement",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "placement",
+                                    ),
+                                );
                             }
                             __f_placement = true;
                             let value = {
@@ -20167,9 +21763,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderCertificateRequest {
                         }
                         "sha256Thumbprint" | "sha256_thumbprint" => {
                             if __f_sha256_thumbprint {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "sha256_thumbprint",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "sha256_thumbprint",
+                                    ),
+                                );
                             }
                             __f_sha256_thumbprint = true;
                             let value = {
@@ -20198,10 +21796,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderCertificateRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseProviderCertificateRequest {
@@ -20380,7 +21985,7 @@ impl ::buffa::Message for CoseProviderCertificateResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.end_entity_der = ::buffa::types::decode_bytes_to(buf)?;
+                self.end_entity_der = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -20404,23 +22009,52 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderCertificateResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseProviderCertificateResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseProviderCertificateResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseProviderCertificateResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseProviderCertificateResult as ::core::default::Default>::default();
                 let mut __f_key = false;
                 let mut __f_end_entity_der = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "key" => {
                             if __f_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("key"),
+                                );
                             }
                             __f_key = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -20432,9 +22066,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderCertificateResult {
                         }
                         "endEntityDer" | "end_entity_der" => {
                             if __f_end_entity_der {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "end_entity_der",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "end_entity_der",
+                                    ),
+                                );
                             }
                             __f_end_entity_der = true;
                             let value = {
@@ -20463,10 +22099,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderCertificateResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseProviderCertificateResult {
@@ -20706,7 +22349,7 @@ impl ::buffa::Message for CoseProviderPointRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.public_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.public_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -20743,24 +22386,53 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderPointRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseProviderPointRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseProviderPointRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseProviderPointRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseProviderPointRequest as ::core::default::Default>::default();
                 let mut __f_curve = false;
                 let mut __f_purpose = false;
                 let mut __f_public_key = false;
                 let mut __f_signature_suite = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "curve" => {
                             if __f_curve {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "curve",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("curve"),
+                                );
                             }
                             __f_curve = true;
                             let value = {
@@ -20784,9 +22456,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderPointRequest {
                         }
                         "purpose" => {
                             if __f_purpose {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "purpose",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("purpose"),
+                                );
                             }
                             __f_purpose = true;
                             let value = {
@@ -20810,9 +22482,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderPointRequest {
                         }
                         "publicKey" | "public_key" => {
                             if __f_public_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "public_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "public_key",
+                                    ),
+                                );
                             }
                             __f_public_key = true;
                             let value = {
@@ -20834,9 +22508,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderPointRequest {
                         }
                         "signatureSuite" | "signature_suite" => {
                             if __f_signature_suite {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "signature_suite",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "signature_suite",
+                                    ),
+                                );
                             }
                             __f_signature_suite = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -20855,10 +22531,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderPointRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseProviderPointRequest {
@@ -21048,14 +22731,14 @@ impl ::buffa::Message for CoseProviderMacRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.message = ::buffa::types::decode_bytes_to(buf)?;
+                self.message = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.tag = ::buffa::types::decode_bytes_to(buf)?;
+                self.tag = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -21080,23 +22763,54 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderMacRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseProviderMacRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseProviderMacRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseProviderMacRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseProviderMacRequest as ::core::default::Default>::default();
                 let mut __f_algorithm = false;
                 let mut __f_message = false;
                 let mut __f_tag = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "algorithm" => {
                             if __f_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "algorithm",
+                                    ),
+                                );
                             }
                             __f_algorithm = true;
                             let value = {
@@ -21120,9 +22834,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderMacRequest {
                         }
                         "message" => {
                             if __f_message {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "message",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("message"),
+                                );
                             }
                             __f_message = true;
                             let value = {
@@ -21144,9 +22858,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderMacRequest {
                         }
                         "tag" => {
                             if __f_tag {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "tag",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("tag"),
+                                );
                             }
                             __f_tag = true;
                             let value = {
@@ -21175,10 +22889,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderMacRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseProviderMacRequest {
@@ -21292,7 +23013,7 @@ impl CoseProviderCallRequest {
     #[must_use]
     pub fn with_call(mut self, value: __buffa::oneof::cose_provider_call_request::Call) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.call);
-        self.call = Some(value);
+        self.call = ::core::option::Option::Some(value);
         self
     }
 }
@@ -21696,14 +23417,43 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderCallRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseProviderCallRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseProviderCallRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseProviderCallRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseProviderCallRequest as ::core::default::Default>::default();
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "capability" => {
                             let value = map.next_value::<::buffa::MessageField<
@@ -21882,10 +23632,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderCallRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseProviderCallRequest {
@@ -21942,7 +23699,7 @@ impl CoseProviderCallResult {
     #[must_use]
     pub fn with_result(mut self, value: __buffa::oneof::cose_provider_call_result::Result) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.result);
-        self.result = Some(value);
+        self.result = ::core::option::Option::Some(value);
         self
     }
 }
@@ -22321,14 +24078,43 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderCallResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseProviderCallResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseProviderCallResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseProviderCallResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseProviderCallResult as ::core::default::Default>::default();
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "describe" => {
                             let v: ::core::option::Option<CoseProviderDescription> = map
@@ -22503,10 +24289,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderCallResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseProviderCallResult {
@@ -22566,7 +24359,7 @@ impl CoseProviderCallResponse {
         value: __buffa::oneof::cose_provider_call_response::Outcome,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.outcome);
-        self.outcome = Some(value);
+        self.outcome = ::core::option::Option::Some(value);
         self
     }
 }
@@ -22723,14 +24516,43 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderCallResponse {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseProviderCallResponse")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseProviderCallResponse, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseProviderCallResponse, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseProviderCallResponse as ::core::default::Default>::default();
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "result" => {
                             let v: ::core::option::Option<CoseProviderCallResult> = map
@@ -22781,10 +24603,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseProviderCallResponse {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseProviderCallResponse {
@@ -23200,11 +25029,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerificationPolicy {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseVerificationPolicy")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseVerificationPolicy, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseVerificationPolicy, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseVerificationPolicy as ::core::default::Default>::default();
                 let mut __f_allowed_algorithms = false;
                 let mut __f_allow_any_algorithm = false;
@@ -23213,14 +25060,27 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerificationPolicy {
                 let mut __f_allow_unprotected_x5chain = false;
                 let mut __f_expected_type = false;
                 let mut __f_limits = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "allowedAlgorithms" | "allowed_algorithms" => {
                             if __f_allowed_algorithms {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_algorithms",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_algorithms",
+                                    ),
+                                );
                             }
                             __f_allowed_algorithms = true;
                             let value = {
@@ -23248,9 +25108,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerificationPolicy {
                         }
                         "allowAnyAlgorithm" | "allow_any_algorithm" => {
                             if __f_allow_any_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allow_any_algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allow_any_algorithm",
+                                    ),
+                                );
                             }
                             __f_allow_any_algorithm = true;
                             let value = {
@@ -23272,9 +25134,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerificationPolicy {
                         }
                         "requireKid" | "require_kid" => {
                             if __f_require_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "require_kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "require_kid",
+                                    ),
+                                );
                             }
                             __f_require_kid = true;
                             let value = {
@@ -23296,9 +25160,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerificationPolicy {
                         }
                         "requireTaggedSign1" | "require_tagged_sign1" => {
                             if __f_require_tagged_sign1 {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "require_tagged_sign1",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "require_tagged_sign1",
+                                    ),
+                                );
                             }
                             __f_require_tagged_sign1 = true;
                             let value = {
@@ -23320,9 +25186,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerificationPolicy {
                         }
                         "allowUnprotectedX5chain" | "allow_unprotected_x5chain" => {
                             if __f_allow_unprotected_x5chain {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allow_unprotected_x5chain",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allow_unprotected_x5chain",
+                                    ),
+                                );
                             }
                             __f_allow_unprotected_x5chain = true;
                             let value = {
@@ -23346,9 +25214,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerificationPolicy {
                         }
                         "expectedType" | "expected_type" => {
                             if __f_expected_type {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "expected_type",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "expected_type",
+                                    ),
+                                );
                             }
                             __f_expected_type = true;
                             let value = map
@@ -23360,9 +25230,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerificationPolicy {
                         }
                         "limits" => {
                             if __f_limits {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "limits",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("limits"),
+                                );
                             }
                             __f_limits = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -23381,10 +25251,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerificationPolicy {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseVerificationPolicy {
@@ -23560,22 +25437,51 @@ impl<'de> ::serde::Deserialize<'de> for CoseNamedConstant {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseNamedConstant")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseNamedConstant, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseNamedConstant, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseNamedConstant as ::core::default::Default>::default();
                 let mut __f_constant = false;
                 let mut __f_value = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "constant" => {
                             if __f_constant {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "constant",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("constant"),
+                                );
                             }
                             __f_constant = true;
                             let value = {
@@ -23599,9 +25505,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseNamedConstant {
                         }
                         "value" => {
                             if __f_value {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "value",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("value"),
+                                );
                             }
                             __f_value = true;
                             let value = {
@@ -23630,10 +25536,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseNamedConstant {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseNamedConstant {
@@ -23794,21 +25707,52 @@ impl<'de> ::serde::Deserialize<'de> for CoseContractInfoResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseContractInfoResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseContractInfoResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseContractInfoResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseContractInfoResult as ::core::default::Default>::default();
                 let mut __f_constants = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "constants" => {
                             if __f_constants {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "constants",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "constants",
+                                    ),
+                                );
                             }
                             __f_constants = true;
                             let value = {
@@ -23839,10 +25783,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseContractInfoResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseContractInfoResult {
@@ -23897,7 +25848,7 @@ impl CoseOperationRequest {
         value: __buffa::oneof::cose_operation_request::Operation,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.operation);
-        self.operation = Some(value);
+        self.operation = ::core::option::Option::Some(value);
         self
     }
 }
@@ -25876,14 +27827,43 @@ impl<'de> ::serde::Deserialize<'de> for CoseOperationRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseOperationRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseOperationRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseOperationRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseOperationRequest as ::core::default::Default>::default();
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "sign1Create" | "sign1_create" => {
                             let v: ::core::option::Option<CoseSign1CreateRequest> = map
@@ -26859,10 +28839,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseOperationRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseOperationRequest {
@@ -26925,7 +28912,7 @@ impl CoseOperationResponseV2 {
         value: __buffa::oneof::cose_operation_response_v2::Outcome,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.outcome);
-        self.outcome = Some(value);
+        self.outcome = ::core::option::Option::Some(value);
         self
     }
 }
@@ -27082,14 +29069,43 @@ impl<'de> ::serde::Deserialize<'de> for CoseOperationResponseV2 {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseOperationResponseV2")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseOperationResponseV2, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseOperationResponseV2, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseOperationResponseV2 as ::core::default::Default>::default();
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "result" => {
                             let v: ::core::option::Option<CoseOperationResult> = map
@@ -27140,10 +29156,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseOperationResponseV2 {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseOperationResponseV2 {
@@ -27202,7 +29225,7 @@ impl CoseOperationResult {
     #[must_use]
     pub fn with_result(mut self, value: __buffa::oneof::cose_operation_result::Result) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.result);
-        self.result = Some(value);
+        self.result = ::core::option::Option::Some(value);
         self
     }
 }
@@ -29149,14 +31172,43 @@ impl<'de> ::serde::Deserialize<'de> for CoseOperationResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseOperationResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseOperationResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseOperationResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseOperationResult as ::core::default::Default>::default();
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "sign1Create" | "sign1_create" => {
                             let v: ::core::option::Option<CoseSign1CreateResult> = map
@@ -30153,10 +32205,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseOperationResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseOperationResult {
@@ -30369,7 +32428,7 @@ impl CoseMlKemEncryptRequest {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.supp_priv_info);
-        self.supp_priv_info = Some(value.into());
+        self.supp_priv_info = ::core::option::Option::Some(value.into());
         self
     }
 }
@@ -30443,7 +32502,7 @@ impl ::buffa::Message for CoseMlKemEncryptRequest {
         if !self.external_aad.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.external_aad) as u64;
         }
-        if let Some(ref v) = self.supp_priv_info {
+        if let ::core::option::Option::Some(ref v) = self.supp_priv_info {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -30475,7 +32534,7 @@ impl ::buffa::Message for CoseMlKemEncryptRequest {
         if !self.external_aad.is_empty() {
             ::buffa::types::put_shared_bytes_field(6u32, &self.external_aad, buf);
         }
-        if let Some(ref v) = self.supp_priv_info {
+        if let ::core::option::Option::Some(ref v) = self.supp_priv_info {
             ::buffa::types::put_shared_bytes_field(7u32, v, buf);
         }
     }
@@ -30504,28 +32563,28 @@ impl ::buffa::Message for CoseMlKemEncryptRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.recipient_public_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.recipient_public_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.recipient_kid = ::buffa::types::decode_bytes_to(buf)?;
+                self.recipient_kid = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             5u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.plaintext = ::buffa::types::decode_bytes_to(buf)?;
+                self.plaintext = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             6u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             7u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -30533,7 +32592,7 @@ impl ::buffa::Message for CoseMlKemEncryptRequest {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.supp_priv_info =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -30562,11 +32621,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemEncryptRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseMlKemEncryptRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseMlKemEncryptRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseMlKemEncryptRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseMlKemEncryptRequest as ::core::default::Default>::default();
                 let mut __f_kem_algorithm = false;
                 let mut __f_content_algorithm = false;
@@ -30575,14 +32652,27 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemEncryptRequest {
                 let mut __f_plaintext = false;
                 let mut __f_external_aad = false;
                 let mut __f_supp_priv_info = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "kemAlgorithm" | "kem_algorithm" => {
                             if __f_kem_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "kem_algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "kem_algorithm",
+                                    ),
+                                );
                             }
                             __f_kem_algorithm = true;
                             let value = {
@@ -30606,9 +32696,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemEncryptRequest {
                         }
                         "contentAlgorithm" | "content_algorithm" => {
                             if __f_content_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "content_algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "content_algorithm",
+                                    ),
+                                );
                             }
                             __f_content_algorithm = true;
                             let value = {
@@ -30632,9 +32724,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemEncryptRequest {
                         }
                         "recipientPublicKey" | "recipient_public_key" => {
                             if __f_recipient_public_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "recipient_public_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "recipient_public_key",
+                                    ),
+                                );
                             }
                             __f_recipient_public_key = true;
                             let value = {
@@ -30656,9 +32750,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemEncryptRequest {
                         }
                         "recipientKid" | "recipient_kid" => {
                             if __f_recipient_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "recipient_kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "recipient_kid",
+                                    ),
+                                );
                             }
                             __f_recipient_kid = true;
                             let value = {
@@ -30680,9 +32776,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemEncryptRequest {
                         }
                         "plaintext" => {
                             if __f_plaintext {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "plaintext",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "plaintext",
+                                    ),
+                                );
                             }
                             __f_plaintext = true;
                             let value = {
@@ -30704,9 +32802,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemEncryptRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -30728,9 +32828,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemEncryptRequest {
                         }
                         "suppPrivInfo" | "supp_priv_info" => {
                             if __f_supp_priv_info {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "supp_priv_info",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "supp_priv_info",
+                                    ),
+                                );
                             }
                             __f_supp_priv_info = true;
                             let value = {
@@ -30761,10 +32863,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemEncryptRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseMlKemEncryptRequest {
@@ -30894,7 +33003,7 @@ impl ::buffa::Message for CoseMlKemEncryptResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.cose_encrypt = ::buffa::types::decode_bytes_to(buf)?;
+                self.cose_encrypt = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -30917,21 +33026,52 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemEncryptResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseMlKemEncryptResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseMlKemEncryptResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseMlKemEncryptResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseMlKemEncryptResult as ::core::default::Default>::default();
                 let mut __f_cose_encrypt = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "coseEncrypt" | "cose_encrypt" => {
                             if __f_cose_encrypt {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "cose_encrypt",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "cose_encrypt",
+                                    ),
+                                );
                             }
                             __f_cose_encrypt = true;
                             let value = {
@@ -30960,10 +33100,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemEncryptResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseMlKemEncryptResult {
@@ -31127,7 +33274,7 @@ impl CoseMlKemDecryptRequest {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.supp_priv_info);
-        self.supp_priv_info = Some(value.into());
+        self.supp_priv_info = ::core::option::Option::Some(value.into());
         self
     }
 }
@@ -31187,7 +33334,7 @@ impl ::buffa::Message for CoseMlKemDecryptRequest {
         if !self.external_aad.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.external_aad) as u64;
         }
-        if let Some(ref v) = self.supp_priv_info {
+        if let ::core::option::Option::Some(ref v) = self.supp_priv_info {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -31207,7 +33354,7 @@ impl ::buffa::Message for CoseMlKemDecryptRequest {
         if !self.external_aad.is_empty() {
             ::buffa::types::put_shared_bytes_field(4u32, &self.external_aad, buf);
         }
-        if let Some(ref v) = self.supp_priv_info {
+        if let ::core::option::Option::Some(ref v) = self.supp_priv_info {
             ::buffa::types::put_shared_bytes_field(5u32, v, buf);
         }
     }
@@ -31227,28 +33374,28 @@ impl ::buffa::Message for CoseMlKemDecryptRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.cose_encrypt = ::buffa::types::decode_bytes_to(buf)?;
+                self.cose_encrypt = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.recipient_private_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.recipient_private_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.expected_recipient_kid = ::buffa::types::decode_bytes_to(buf)?;
+                self.expected_recipient_kid = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             5u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -31256,7 +33403,7 @@ impl ::buffa::Message for CoseMlKemDecryptRequest {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.supp_priv_info =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -31283,25 +33430,56 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemDecryptRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseMlKemDecryptRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseMlKemDecryptRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseMlKemDecryptRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseMlKemDecryptRequest as ::core::default::Default>::default();
                 let mut __f_cose_encrypt = false;
                 let mut __f_recipient_private_key = false;
                 let mut __f_expected_recipient_kid = false;
                 let mut __f_external_aad = false;
                 let mut __f_supp_priv_info = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "coseEncrypt" | "cose_encrypt" => {
                             if __f_cose_encrypt {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "cose_encrypt",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "cose_encrypt",
+                                    ),
+                                );
                             }
                             __f_cose_encrypt = true;
                             let value = {
@@ -31323,9 +33501,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemDecryptRequest {
                         }
                         "recipientPrivateKey" | "recipient_private_key" => {
                             if __f_recipient_private_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "recipient_private_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "recipient_private_key",
+                                    ),
+                                );
                             }
                             __f_recipient_private_key = true;
                             let value = {
@@ -31347,9 +33527,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemDecryptRequest {
                         }
                         "expectedRecipientKid" | "expected_recipient_kid" => {
                             if __f_expected_recipient_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "expected_recipient_kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "expected_recipient_kid",
+                                    ),
+                                );
                             }
                             __f_expected_recipient_kid = true;
                             let value = {
@@ -31371,9 +33553,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemDecryptRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -31395,9 +33579,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemDecryptRequest {
                         }
                         "suppPrivInfo" | "supp_priv_info" => {
                             if __f_supp_priv_info {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "supp_priv_info",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "supp_priv_info",
+                                    ),
+                                );
                             }
                             __f_supp_priv_info = true;
                             let value = {
@@ -31428,10 +33614,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemDecryptRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseMlKemDecryptRequest {
@@ -31724,7 +33917,7 @@ impl ::buffa::Message for CoseMlKemDecryptResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.plaintext = ::buffa::types::decode_bytes_to(buf)?;
+                self.plaintext = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -31744,7 +33937,7 @@ impl ::buffa::Message for CoseMlKemDecryptResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.recipient_kid = ::buffa::types::decode_bytes_to(buf)?;
+                self.recipient_kid = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             6u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -31776,11 +33969,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemDecryptResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseMlKemDecryptResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseMlKemDecryptResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseMlKemDecryptResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseMlKemDecryptResult as ::core::default::Default>::default();
                 let mut __f_plaintext = false;
                 let mut __f_content_algorithm = false;
@@ -31788,14 +33999,27 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemDecryptResult {
                 let mut __f_mode = false;
                 let mut __f_recipient_kid = false;
                 let mut __f_profile = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "plaintext" => {
                             if __f_plaintext {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "plaintext",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "plaintext",
+                                    ),
+                                );
                             }
                             __f_plaintext = true;
                             let value = {
@@ -31817,9 +34041,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemDecryptResult {
                         }
                         "contentAlgorithm" | "content_algorithm" => {
                             if __f_content_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "content_algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "content_algorithm",
+                                    ),
+                                );
                             }
                             __f_content_algorithm = true;
                             let value = {
@@ -31843,9 +34069,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemDecryptResult {
                         }
                         "kemAlgorithm" | "kem_algorithm" => {
                             if __f_kem_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "kem_algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "kem_algorithm",
+                                    ),
+                                );
                             }
                             __f_kem_algorithm = true;
                             let value = {
@@ -31869,9 +34097,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemDecryptResult {
                         }
                         "mode" => {
                             if __f_mode {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "mode",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("mode"),
+                                );
                             }
                             __f_mode = true;
                             let value = {
@@ -31895,9 +34123,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemDecryptResult {
                         }
                         "recipientKid" | "recipient_kid" => {
                             if __f_recipient_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "recipient_kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "recipient_kid",
+                                    ),
+                                );
                             }
                             __f_recipient_kid = true;
                             let value = {
@@ -31919,9 +34149,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemDecryptResult {
                         }
                         "profile" => {
                             if __f_profile {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "profile",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("profile"),
+                                );
                             }
                             __f_profile = true;
                             let value = {
@@ -31952,10 +34182,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseMlKemDecryptResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseMlKemDecryptResult {
@@ -31988,7 +34225,7 @@ pub struct CoseX5Chain {
     #[serde(
         rename = "certificatesDer",
         alias = "certificates_der",
-        with = "::buffa::json_helpers::proto_list",
+        with = "::buffa::json_helpers::list_bytes_policy",
         skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_vec"
     )]
     #[serde(default)]
@@ -32088,7 +34325,7 @@ impl ::buffa::Message for CoseX5Chain {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                let __elem = ::buffa::types::decode_bytes_to(buf)?;
+                let __elem = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
                 ctx.register_element_memory(::buffa::__private::element_footprint(&__elem))?;
                 self.certificates_der.push(__elem);
             }
@@ -32113,21 +34350,52 @@ impl<'de> ::serde::Deserialize<'de> for CoseX5Chain {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseX5Chain")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseX5Chain, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseX5Chain, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseX5Chain as ::core::default::Default>::default();
                 let mut __f_certificates_der = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "certificatesDer" | "certificates_der" => {
                             if __f_certificates_der {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "certificates_der",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "certificates_der",
+                                    ),
+                                );
                             }
                             __f_certificates_der = true;
                             let value = {
@@ -32141,7 +34409,7 @@ impl<'de> ::serde::Deserialize<'de> for CoseX5Chain {
                                         ::buffa::sensitive::List<crate::SecretBytes>,
                                         __D::Error,
                                     > {
-                                        ::buffa::json_helpers::proto_list::deserialize(d)
+                                        ::buffa::json_helpers::list_bytes_policy::deserialize(d)
                                     }
                                 }
                                 map.next_value_seed(_S)?
@@ -32158,10 +34426,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseX5Chain {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseX5Chain {
@@ -32529,11 +34804,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1Options {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSign1Options")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSign1Options, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSign1Options, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseSign1Options as ::core::default::Default>::default();
                 let mut __f_tag = false;
                 let mut __f_max_cose_sign1_bytes = false;
@@ -32541,14 +34834,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1Options {
                 let mut __f_x5chain_header_placement = false;
                 let mut __f_protected_type = false;
                 let mut __f_limits = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "tag" => {
                             if __f_tag {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "tag",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("tag"),
+                                );
                             }
                             __f_tag = true;
                             let value = {
@@ -32570,9 +34874,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1Options {
                         }
                         "maxCoseSign1Bytes" | "max_cose_sign1_bytes" => {
                             if __f_max_cose_sign1_bytes {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "max_cose_sign1_bytes",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "max_cose_sign1_bytes",
+                                    ),
+                                );
                             }
                             __f_max_cose_sign1_bytes = true;
                             let value = {
@@ -32594,9 +34900,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1Options {
                         }
                         "x5chain" => {
                             if __f_x5chain {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "x5chain",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("x5chain"),
+                                );
                             }
                             __f_x5chain = true;
                             let value =
@@ -32609,9 +34915,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1Options {
                         }
                         "x5chainHeaderPlacement" | "x5chain_header_placement" => {
                             if __f_x5chain_header_placement {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "x5chain_header_placement",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "x5chain_header_placement",
+                                    ),
+                                );
                             }
                             __f_x5chain_header_placement = true;
                             let value = {
@@ -32635,9 +34943,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1Options {
                         }
                         "protectedType" | "protected_type" => {
                             if __f_protected_type {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected_type",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected_type",
+                                    ),
+                                );
                             }
                             __f_protected_type = true;
                             let value = map
@@ -32649,9 +34959,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1Options {
                         }
                         "limits" => {
                             if __f_limits {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "limits",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("limits"),
+                                );
                             }
                             __f_limits = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -32670,10 +34980,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1Options {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSign1Options {
@@ -32823,7 +35140,7 @@ impl CoseSign1CreateRequest {
     ///Sets [`Self::kid`] to `Some(value)`, consuming and returning `self`.
     pub fn with_kid(mut self, value: impl ::core::convert::Into<crate::SecretBytes>) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.kid);
-        self.kid = Some(value.into());
+        self.kid = ::core::option::Option::Some(value.into());
         self
     }
     #[must_use = "with_* setters return `self` by value; assign or chain the result"]
@@ -32908,7 +35225,7 @@ impl ::buffa::Message for CoseSign1CreateRequest {
         if !self.private_key.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.private_key) as u64;
         }
-        if let Some(ref v) = self.kid {
+        if let ::core::option::Option::Some(ref v) = self.kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         if let ::core::option::Option::Some(__v) = self.options.as_option() {
@@ -32938,7 +35255,7 @@ impl ::buffa::Message for CoseSign1CreateRequest {
         if !self.private_key.is_empty() {
             ::buffa::types::put_shared_bytes_field(3u32, &self.private_key, buf);
         }
-        if let Some(ref v) = self.kid {
+        if let ::core::option::Option::Some(ref v) = self.kid {
             ::buffa::types::put_shared_bytes_field(4u32, v, buf);
         }
         if let ::core::option::Option::Some(__v) = self.options.as_option() {
@@ -32969,21 +35286,22 @@ impl ::buffa::Message for CoseSign1CreateRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.payload = ::buffa::types::decode_bytes_to(buf)?;
+                self.payload = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.private_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.private_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.kid = ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                self.kid =
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             6u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -33001,7 +35319,7 @@ impl ::buffa::Message for CoseSign1CreateRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -33029,11 +35347,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSign1CreateRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSign1CreateRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSign1CreateRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseSign1CreateRequest as ::core::default::Default>::default();
                 let mut __f_algorithm = false;
                 let mut __f_payload = false;
@@ -33041,14 +35377,27 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateRequest {
                 let mut __f_kid = false;
                 let mut __f_options = false;
                 let mut __f_external_aad = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "algorithm" => {
                             if __f_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "algorithm",
+                                    ),
+                                );
                             }
                             __f_algorithm = true;
                             let value = {
@@ -33072,9 +35421,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateRequest {
                         }
                         "payload" => {
                             if __f_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("payload"),
+                                );
                             }
                             __f_payload = true;
                             let value = {
@@ -33096,9 +35445,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateRequest {
                         }
                         "privateKey" | "private_key" => {
                             if __f_private_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "private_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "private_key",
+                                    ),
+                                );
                             }
                             __f_private_key = true;
                             let value = {
@@ -33120,9 +35471,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateRequest {
                         }
                         "kid" => {
                             if __f_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("kid"),
+                                );
                             }
                             __f_kid = true;
                             let value = {
@@ -33146,9 +35497,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateRequest {
                         }
                         "options" => {
                             if __f_options {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "options",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("options"),
+                                );
                             }
                             __f_options = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -33160,9 +35511,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -33191,10 +35544,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSign1CreateRequest {
@@ -33345,7 +35705,7 @@ impl CoseSign1CreateDetachedRequest {
     ///Sets [`Self::kid`] to `Some(value)`, consuming and returning `self`.
     pub fn with_kid(mut self, value: impl ::core::convert::Into<crate::SecretBytes>) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.kid);
-        self.kid = Some(value.into());
+        self.kid = ::core::option::Option::Some(value.into());
         self
     }
     #[must_use = "with_* setters return `self` by value; assign or chain the result"]
@@ -33431,7 +35791,7 @@ impl ::buffa::Message for CoseSign1CreateDetachedRequest {
         if !self.private_key.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.private_key) as u64;
         }
-        if let Some(ref v) = self.kid {
+        if let ::core::option::Option::Some(ref v) = self.kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         if let ::core::option::Option::Some(__v) = self.options.as_option() {
@@ -33461,7 +35821,7 @@ impl ::buffa::Message for CoseSign1CreateDetachedRequest {
         if !self.private_key.is_empty() {
             ::buffa::types::put_shared_bytes_field(3u32, &self.private_key, buf);
         }
-        if let Some(ref v) = self.kid {
+        if let ::core::option::Option::Some(ref v) = self.kid {
             ::buffa::types::put_shared_bytes_field(4u32, v, buf);
         }
         if let ::core::option::Option::Some(__v) = self.options.as_option() {
@@ -33492,21 +35852,22 @@ impl ::buffa::Message for CoseSign1CreateDetachedRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.payload = ::buffa::types::decode_bytes_to(buf)?;
+                self.payload = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.private_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.private_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.kid = ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                self.kid =
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             6u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -33524,7 +35885,7 @@ impl ::buffa::Message for CoseSign1CreateDetachedRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -33552,11 +35913,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateDetachedRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSign1CreateDetachedRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSign1CreateDetachedRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSign1CreateDetachedRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseSign1CreateDetachedRequest as ::core::default::Default>::default();
                 let mut __f_algorithm = false;
@@ -33565,14 +35944,27 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateDetachedRequest {
                 let mut __f_kid = false;
                 let mut __f_options = false;
                 let mut __f_external_aad = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "algorithm" => {
                             if __f_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "algorithm",
+                                    ),
+                                );
                             }
                             __f_algorithm = true;
                             let value = {
@@ -33596,9 +35988,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateDetachedRequest {
                         }
                         "payload" => {
                             if __f_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("payload"),
+                                );
                             }
                             __f_payload = true;
                             let value = {
@@ -33620,9 +36012,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateDetachedRequest {
                         }
                         "privateKey" | "private_key" => {
                             if __f_private_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "private_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "private_key",
+                                    ),
+                                );
                             }
                             __f_private_key = true;
                             let value = {
@@ -33644,9 +36038,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateDetachedRequest {
                         }
                         "kid" => {
                             if __f_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("kid"),
+                                );
                             }
                             __f_kid = true;
                             let value = {
@@ -33670,9 +36064,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateDetachedRequest {
                         }
                         "options" => {
                             if __f_options {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "options",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("options"),
+                                );
                             }
                             __f_options = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -33684,9 +36078,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateDetachedRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -33715,10 +36111,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateDetachedRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSign1CreateDetachedRequest {
@@ -33850,7 +36253,7 @@ impl ::buffa::Message for CoseSign1CreateResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.cose_sign1 = ::buffa::types::decode_bytes_to(buf)?;
+                self.cose_sign1 = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -33873,21 +36276,52 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSign1CreateResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSign1CreateResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSign1CreateResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseSign1CreateResult as ::core::default::Default>::default();
                 let mut __f_cose_sign1 = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "coseSign1" | "cose_sign1" => {
                             if __f_cose_sign1 {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "cose_sign1",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "cose_sign1",
+                                    ),
+                                );
                             }
                             __f_cose_sign1 = true;
                             let value = {
@@ -33916,10 +36350,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1CreateResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSign1CreateResult {
@@ -34138,21 +36579,21 @@ impl ::buffa::Message for CoseSign1SignatureStructureRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.protected = ::buffa::types::decode_bytes_to(buf)?;
+                self.protected = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.payload = ::buffa::types::decode_bytes_to(buf)?;
+                self.payload = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -34182,26 +36623,57 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1SignatureStructureRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSign1SignatureStructureRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSign1SignatureStructureRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSign1SignatureStructureRequest, __A::Error>
             {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseSign1SignatureStructureRequest as ::core::default::Default>::default();
                 let mut __f_protected = false;
                 let mut __f_external_aad = false;
                 let mut __f_payload = false;
                 let mut __f_max_output_bytes = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "protected" => {
                             if __f_protected {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected",
+                                    ),
+                                );
                             }
                             __f_protected = true;
                             let value = {
@@ -34223,9 +36695,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1SignatureStructureRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -34247,9 +36721,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1SignatureStructureRequest {
                         }
                         "payload" => {
                             if __f_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("payload"),
+                                );
                             }
                             __f_payload = true;
                             let value = {
@@ -34271,9 +36745,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1SignatureStructureRequest {
                         }
                         "maxOutputBytes" | "max_output_bytes" => {
                             if __f_max_output_bytes {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "max_output_bytes",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "max_output_bytes",
+                                    ),
+                                );
                             }
                             __f_max_output_bytes = true;
                             let value = {
@@ -34302,10 +36778,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1SignatureStructureRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSign1SignatureStructureRequest {
@@ -34436,7 +36919,7 @@ impl ::buffa::Message for CoseSign1SignatureStructureResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.signature_structure = ::buffa::types::decode_bytes_to(buf)?;
+                self.signature_structure = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -34459,22 +36942,53 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1SignatureStructureResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSign1SignatureStructureResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSign1SignatureStructureResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSign1SignatureStructureResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseSign1SignatureStructureResult as ::core::default::Default>::default();
                 let mut __f_signature_structure = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "signatureStructure" | "signature_structure" => {
                             if __f_signature_structure {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "signature_structure",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "signature_structure",
+                                    ),
+                                );
                             }
                             __f_signature_structure = true;
                             let value = {
@@ -34503,10 +37017,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1SignatureStructureResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSign1SignatureStructureResult {
@@ -34556,7 +37077,7 @@ impl CoseType {
     #[must_use]
     pub fn with_value(mut self, value: __buffa::oneof::cose_type::Value) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.value);
-        self.value = Some(value);
+        self.value = ::core::option::Option::Some(value);
         self
     }
 }
@@ -34640,7 +37161,7 @@ impl ::buffa::Message for CoseType {
                 )?;
                 self.value =
                     ::core::option::Option::Some(__buffa::oneof::cose_type::Value::MediaType(
-                        ::buffa::types::decode_string_to(buf)?,
+                        ::buffa::types::decode_string_to_ctx(buf, ctx)?,
                     ));
             }
             2u32 => {
@@ -34671,14 +37192,41 @@ impl<'de> ::serde::Deserialize<'de> for CoseType {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseType")
             }
+            fn visit_none<__E: ::serde::de::Error>(self) -> ::core::result::Result<CoseType, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseType, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseType as ::core::default::Default>::default();
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "mediaType" | "media_type" => {
                             let v: ::core::option::Option<crate::SecretString> =
@@ -34733,10 +37281,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseType {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseType {
@@ -35215,14 +37770,14 @@ impl ::buffa::Message for CoseSign1VerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.cose_sign1 = ::buffa::types::decode_bytes_to(buf)?;
+                self.cose_sign1 = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.public_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.public_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -35272,14 +37827,14 @@ impl ::buffa::Message for CoseSign1VerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             8u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.expected_kid = ::buffa::types::decode_bytes_to(buf)?;
+                self.expected_kid = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             9u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -35332,11 +37887,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSign1VerifyRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSign1VerifyRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSign1VerifyRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseSign1VerifyRequest as ::core::default::Default>::default();
                 let mut __f_cose_sign1 = false;
                 let mut __f_public_key = false;
@@ -35349,14 +37922,27 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyRequest {
                 let mut __f_require_tagged_sign1 = false;
                 let mut __f_expected_type = false;
                 let mut __f_public_key_algorithm = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "coseSign1" | "cose_sign1" => {
                             if __f_cose_sign1 {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "cose_sign1",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "cose_sign1",
+                                    ),
+                                );
                             }
                             __f_cose_sign1 = true;
                             let value = {
@@ -35378,9 +37964,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyRequest {
                         }
                         "publicKey" | "public_key" => {
                             if __f_public_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "public_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "public_key",
+                                    ),
+                                );
                             }
                             __f_public_key = true;
                             let value = {
@@ -35402,9 +37990,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyRequest {
                         }
                         "maxCoseSign1Bytes" | "max_cose_sign1_bytes" => {
                             if __f_max_cose_sign1_bytes {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "max_cose_sign1_bytes",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "max_cose_sign1_bytes",
+                                    ),
+                                );
                             }
                             __f_max_cose_sign1_bytes = true;
                             let value = {
@@ -35426,9 +38016,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyRequest {
                         }
                         "maxDetachedPayloadBytes" | "max_detached_payload_bytes" => {
                             if __f_max_detached_payload_bytes {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "max_detached_payload_bytes",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "max_detached_payload_bytes",
+                                    ),
+                                );
                             }
                             __f_max_detached_payload_bytes = true;
                             let value = {
@@ -35452,9 +38044,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyRequest {
                         }
                         "requireKid" | "require_kid" => {
                             if __f_require_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "require_kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "require_kid",
+                                    ),
+                                );
                             }
                             __f_require_kid = true;
                             let value = {
@@ -35476,9 +38070,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyRequest {
                         }
                         "allowedAlgorithms" | "allowed_algorithms" => {
                             if __f_allowed_algorithms {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_algorithms",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_algorithms",
+                                    ),
+                                );
                             }
                             __f_allowed_algorithms = true;
                             let value = {
@@ -35506,9 +38102,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -35530,9 +38128,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyRequest {
                         }
                         "expectedKid" | "expected_kid" => {
                             if __f_expected_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "expected_kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "expected_kid",
+                                    ),
+                                );
                             }
                             __f_expected_kid = true;
                             let value = {
@@ -35554,9 +38154,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyRequest {
                         }
                         "requireTaggedSign1" | "require_tagged_sign1" => {
                             if __f_require_tagged_sign1 {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "require_tagged_sign1",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "require_tagged_sign1",
+                                    ),
+                                );
                             }
                             __f_require_tagged_sign1 = true;
                             let value = {
@@ -35578,9 +38180,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyRequest {
                         }
                         "expectedType" | "expected_type" => {
                             if __f_expected_type {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "expected_type",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "expected_type",
+                                    ),
+                                );
                             }
                             __f_expected_type = true;
                             let value = map
@@ -35592,9 +38196,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyRequest {
                         }
                         "publicKeyAlgorithm" | "public_key_algorithm" => {
                             if __f_public_key_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "public_key_algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "public_key_algorithm",
+                                    ),
+                                );
                             }
                             __f_public_key_algorithm = true;
                             let value = {
@@ -35625,10 +38231,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSign1VerifyRequest {
@@ -36126,21 +38739,21 @@ impl ::buffa::Message for CoseSign1VerifyDetachedRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.cose_sign1 = ::buffa::types::decode_bytes_to(buf)?;
+                self.cose_sign1 = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.payload = ::buffa::types::decode_bytes_to(buf)?;
+                self.payload = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.public_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.public_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -36190,14 +38803,14 @@ impl ::buffa::Message for CoseSign1VerifyDetachedRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             9u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.expected_kid = ::buffa::types::decode_bytes_to(buf)?;
+                self.expected_kid = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             10u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -36251,11 +38864,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyDetachedRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSign1VerifyDetachedRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSign1VerifyDetachedRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSign1VerifyDetachedRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseSign1VerifyDetachedRequest as ::core::default::Default>::default();
                 let mut __f_cose_sign1 = false;
@@ -36270,14 +38901,27 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyDetachedRequest {
                 let mut __f_require_tagged_sign1 = false;
                 let mut __f_expected_type = false;
                 let mut __f_public_key_algorithm = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "coseSign1" | "cose_sign1" => {
                             if __f_cose_sign1 {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "cose_sign1",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "cose_sign1",
+                                    ),
+                                );
                             }
                             __f_cose_sign1 = true;
                             let value = {
@@ -36299,9 +38943,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyDetachedRequest {
                         }
                         "payload" => {
                             if __f_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("payload"),
+                                );
                             }
                             __f_payload = true;
                             let value = {
@@ -36323,9 +38967,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyDetachedRequest {
                         }
                         "publicKey" | "public_key" => {
                             if __f_public_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "public_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "public_key",
+                                    ),
+                                );
                             }
                             __f_public_key = true;
                             let value = {
@@ -36347,9 +38993,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyDetachedRequest {
                         }
                         "maxCoseSign1Bytes" | "max_cose_sign1_bytes" => {
                             if __f_max_cose_sign1_bytes {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "max_cose_sign1_bytes",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "max_cose_sign1_bytes",
+                                    ),
+                                );
                             }
                             __f_max_cose_sign1_bytes = true;
                             let value = {
@@ -36371,9 +39019,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyDetachedRequest {
                         }
                         "maxDetachedPayloadBytes" | "max_detached_payload_bytes" => {
                             if __f_max_detached_payload_bytes {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "max_detached_payload_bytes",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "max_detached_payload_bytes",
+                                    ),
+                                );
                             }
                             __f_max_detached_payload_bytes = true;
                             let value = {
@@ -36397,9 +39047,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyDetachedRequest {
                         }
                         "requireKid" | "require_kid" => {
                             if __f_require_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "require_kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "require_kid",
+                                    ),
+                                );
                             }
                             __f_require_kid = true;
                             let value = {
@@ -36421,9 +39073,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyDetachedRequest {
                         }
                         "allowedAlgorithms" | "allowed_algorithms" => {
                             if __f_allowed_algorithms {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_algorithms",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_algorithms",
+                                    ),
+                                );
                             }
                             __f_allowed_algorithms = true;
                             let value = {
@@ -36451,9 +39105,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyDetachedRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -36475,9 +39131,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyDetachedRequest {
                         }
                         "expectedKid" | "expected_kid" => {
                             if __f_expected_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "expected_kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "expected_kid",
+                                    ),
+                                );
                             }
                             __f_expected_kid = true;
                             let value = {
@@ -36499,9 +39157,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyDetachedRequest {
                         }
                         "requireTaggedSign1" | "require_tagged_sign1" => {
                             if __f_require_tagged_sign1 {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "require_tagged_sign1",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "require_tagged_sign1",
+                                    ),
+                                );
                             }
                             __f_require_tagged_sign1 = true;
                             let value = {
@@ -36523,9 +39183,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyDetachedRequest {
                         }
                         "expectedType" | "expected_type" => {
                             if __f_expected_type {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "expected_type",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "expected_type",
+                                    ),
+                                );
                             }
                             __f_expected_type = true;
                             let value = map
@@ -36537,9 +39199,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyDetachedRequest {
                         }
                         "publicKeyAlgorithm" | "public_key_algorithm" => {
                             if __f_public_key_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "public_key_algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "public_key_algorithm",
+                                    ),
+                                );
                             }
                             __f_public_key_algorithm = true;
                             let value = {
@@ -36570,10 +39234,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyDetachedRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSign1VerifyDetachedRequest {
@@ -36842,7 +39513,7 @@ impl ::buffa::Message for CoseSign1VerifyResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.payload = ::buffa::types::decode_bytes_to(buf)?;
+                self.payload = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -36853,7 +39524,7 @@ impl ::buffa::Message for CoseSign1VerifyResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.kid = ::buffa::types::decode_bytes_to(buf)?;
+                self.kid = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -36896,25 +39567,54 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSign1VerifyResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSign1VerifyResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSign1VerifyResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseSign1VerifyResult as ::core::default::Default>::default();
                 let mut __f_payload = false;
                 let mut __f_algorithm = false;
                 let mut __f_kid = false;
                 let mut __f_exact_signature_algorithm = false;
                 let mut __f_protected_type = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "payload" => {
                             if __f_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("payload"),
+                                );
                             }
                             __f_payload = true;
                             let value = {
@@ -36936,9 +39636,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyResult {
                         }
                         "algorithm" => {
                             if __f_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "algorithm",
+                                    ),
+                                );
                             }
                             __f_algorithm = true;
                             let value = {
@@ -36962,9 +39664,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyResult {
                         }
                         "kid" => {
                             if __f_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("kid"),
+                                );
                             }
                             __f_kid = true;
                             let value = {
@@ -36986,9 +39688,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyResult {
                         }
                         "exactSignatureAlgorithm" | "exact_signature_algorithm" => {
                             if __f_exact_signature_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "exact_signature_algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "exact_signature_algorithm",
+                                    ),
+                                );
                             }
                             __f_exact_signature_algorithm = true;
                             let value = {
@@ -37014,9 +39718,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyResult {
                         }
                         "protectedType" | "protected_type" => {
                             if __f_protected_type {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected_type",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected_type",
+                                    ),
+                                );
                             }
                             __f_protected_type = true;
                             let value = map
@@ -37035,10 +39741,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSign1VerifyResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSign1VerifyResult {
@@ -37267,22 +39980,53 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetPolicy {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseKeySetPolicy")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseKeySetPolicy, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseKeySetPolicy, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseKeySetPolicy as ::core::default::Default>::default();
                 let mut __f_projection = false;
                 let mut __f_allowed_key_types = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "projection" => {
                             if __f_projection {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "projection",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "projection",
+                                    ),
+                                );
                             }
                             __f_projection = true;
                             let value = {
@@ -37306,9 +40050,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetPolicy {
                         }
                         "allowedKeyTypes" | "allowed_key_types" => {
                             if __f_allowed_key_types {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_key_types",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_key_types",
+                                    ),
+                                );
                             }
                             __f_allowed_key_types = true;
                             let value = {
@@ -37343,10 +40089,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetPolicy {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseKeySetPolicy {
@@ -37506,7 +40259,7 @@ impl ::buffa::Message for CoseKeySetParseRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+                self.encoded = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -37541,22 +40294,51 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetParseRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseKeySetParseRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseKeySetParseRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseKeySetParseRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseKeySetParseRequest as ::core::default::Default>::default();
                 let mut __f_encoded = false;
                 let mut __f_policy = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "encoded" => {
                             if __f_encoded {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoded",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("encoded"),
+                                );
                             }
                             __f_encoded = true;
                             let value = {
@@ -37578,9 +40360,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetParseRequest {
                         }
                         "policy" => {
                             if __f_policy {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "policy",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("policy"),
+                                );
                             }
                             __f_policy = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -37599,10 +40381,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetParseRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseKeySetParseRequest {
@@ -37765,7 +40554,7 @@ impl ::buffa::Message for CoseKeySetMember {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+                self.encoded = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -37789,22 +40578,51 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetMember {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseKeySetMember")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseKeySetMember, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseKeySetMember, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseKeySetMember as ::core::default::Default>::default();
                 let mut __f_key_type = false;
                 let mut __f_encoded = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "keyType" | "key_type" => {
                             if __f_key_type {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key_type",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("key_type"),
+                                );
                             }
                             __f_key_type = true;
                             let value = {
@@ -37828,9 +40646,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetMember {
                         }
                         "encoded" => {
                             if __f_encoded {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoded",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("encoded"),
+                                );
                             }
                             __f_encoded = true;
                             let value = {
@@ -37859,10 +40677,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetMember {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseKeySetMember {
@@ -37928,7 +40753,7 @@ impl CoseKeySetEntry {
     #[must_use]
     pub fn with_outcome(mut self, value: __buffa::oneof::cose_key_set_entry::Outcome) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.outcome);
-        self.outcome = Some(value);
+        self.outcome = ::core::option::Option::Some(value);
         self
     }
 }
@@ -38075,14 +40900,43 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetEntry {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseKeySetEntry")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseKeySetEntry, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseKeySetEntry, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseKeySetEntry as ::core::default::Default>::default();
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "sourceIndex" | "source_index" => {
                             let value = {
@@ -38159,10 +41013,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetEntry {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseKeySetEntry {
@@ -38330,21 +41191,50 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetParseResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseKeySetParseResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseKeySetParseResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseKeySetParseResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseKeySetParseResult as ::core::default::Default>::default();
                 let mut __f_entries = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "entries" => {
                             if __f_entries {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "entries",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("entries"),
+                                );
                             }
                             __f_entries = true;
                             let value = {
@@ -38375,10 +41265,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetParseResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseKeySetParseResult {
@@ -38409,7 +41306,7 @@ pub struct CoseKeySetCreateRequest {
     /// Field 1: `keys`
     #[serde(
         rename = "keys",
-        with = "::buffa::json_helpers::proto_list",
+        with = "::buffa::json_helpers::list_bytes_policy",
         skip_serializing_if = "::buffa::json_helpers::skip_if::is_empty_vec"
     )]
     #[serde(default)]
@@ -38544,7 +41441,7 @@ impl ::buffa::Message for CoseKeySetCreateRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                let __elem = ::buffa::types::decode_bytes_to(buf)?;
+                let __elem = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
                 ctx.register_element_memory(::buffa::__private::element_footprint(&__elem))?;
                 self.keys.push(__elem);
             }
@@ -38581,22 +41478,51 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetCreateRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseKeySetCreateRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseKeySetCreateRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseKeySetCreateRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseKeySetCreateRequest as ::core::default::Default>::default();
                 let mut __f_keys = false;
                 let mut __f_policy = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "keys" => {
                             if __f_keys {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "keys",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("keys"),
+                                );
                             }
                             __f_keys = true;
                             let value = {
@@ -38610,7 +41536,7 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetCreateRequest {
                                         ::buffa::sensitive::List<crate::SecretBytes>,
                                         __D::Error,
                                     > {
-                                        ::buffa::json_helpers::proto_list::deserialize(d)
+                                        ::buffa::json_helpers::list_bytes_policy::deserialize(d)
                                     }
                                 }
                                 map.next_value_seed(_S)?
@@ -38620,9 +41546,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetCreateRequest {
                         }
                         "policy" => {
                             if __f_policy {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "policy",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("policy"),
+                                );
                             }
                             __f_policy = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -38641,10 +41567,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetCreateRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseKeySetCreateRequest {
@@ -38795,7 +41728,7 @@ impl ::buffa::Message for CoseKeySetCreateResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+                self.encoded = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -38823,22 +41756,51 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetCreateResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseKeySetCreateResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseKeySetCreateResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseKeySetCreateResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseKeySetCreateResult as ::core::default::Default>::default();
                 let mut __f_encoded = false;
                 let mut __f_key_count = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "encoded" => {
                             if __f_encoded {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoded",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("encoded"),
+                                );
                             }
                             __f_encoded = true;
                             let value = {
@@ -38860,9 +41822,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetCreateResult {
                         }
                         "keyCount" | "key_count" => {
                             if __f_key_count {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key_count",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "key_count",
+                                    ),
+                                );
                             }
                             __f_key_count = true;
                             let value = {
@@ -38891,10 +41855,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeySetCreateResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseKeySetCreateResult {
@@ -39054,14 +42025,14 @@ impl ::buffa::Message for CoseMessageHeaders {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.protected = ::buffa::types::decode_bytes_to(buf)?;
+                self.protected = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.unprotected = ::buffa::types::decode_bytes_to(buf)?;
+                self.unprotected = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -39085,22 +42056,53 @@ impl<'de> ::serde::Deserialize<'de> for CoseMessageHeaders {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseMessageHeaders")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseMessageHeaders, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseMessageHeaders, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseMessageHeaders as ::core::default::Default>::default();
                 let mut __f_protected = false;
                 let mut __f_unprotected = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "protected" => {
                             if __f_protected {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected",
+                                    ),
+                                );
                             }
                             __f_protected = true;
                             let value = {
@@ -39122,9 +42124,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMessageHeaders {
                         }
                         "unprotected" => {
                             if __f_unprotected {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "unprotected",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "unprotected",
+                                    ),
+                                );
                             }
                             __f_unprotected = true;
                             let value = {
@@ -39153,10 +42157,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseMessageHeaders {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseMessageHeaders {
@@ -39284,7 +42295,7 @@ impl ::buffa::Message for CoseMessageCreateResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+                self.encoded = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -39307,21 +42318,50 @@ impl<'de> ::serde::Deserialize<'de> for CoseMessageCreateResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseMessageCreateResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseMessageCreateResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseMessageCreateResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseMessageCreateResult as ::core::default::Default>::default();
                 let mut __f_encoded = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "encoded" => {
                             if __f_encoded {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoded",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("encoded"),
+                                );
                             }
                             __f_encoded = true;
                             let value = {
@@ -39350,10 +42390,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseMessageCreateResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseMessageCreateResult {
@@ -39478,7 +42525,7 @@ impl CoseCounterSignatureTarget {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.detached_content);
-        self.detached_content = Some(value.into());
+        self.detached_content = ::core::option::Option::Some(value.into());
         self
     }
 }
@@ -39538,7 +42585,7 @@ impl ::buffa::Message for CoseCounterSignatureTarget {
                 size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
             }
         }
-        if let Some(ref v) = self.detached_content {
+        if let ::core::option::Option::Some(ref v) = self.detached_content {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -39561,7 +42608,7 @@ impl ::buffa::Message for CoseCounterSignatureTarget {
                 ::buffa::types::put_int32_field(3u32, val, buf);
             }
         }
-        if let Some(ref v) = self.detached_content {
+        if let ::core::option::Option::Some(ref v) = self.detached_content {
             ::buffa::types::put_shared_bytes_field(4u32, v, buf);
         }
     }
@@ -39581,7 +42628,7 @@ impl ::buffa::Message for CoseCounterSignatureTarget {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+                self.encoded = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -39597,7 +42644,7 @@ impl ::buffa::Message for CoseCounterSignatureTarget {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.detached_content =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -39623,24 +42670,53 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureTarget {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseCounterSignatureTarget")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseCounterSignatureTarget, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseCounterSignatureTarget, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseCounterSignatureTarget as ::core::default::Default>::default();
                 let mut __f_encoded = false;
                 let mut __f_kind = false;
                 let mut __f_envelope = false;
                 let mut __f_detached_content = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "encoded" => {
                             if __f_encoded {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoded",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("encoded"),
+                                );
                             }
                             __f_encoded = true;
                             let value = {
@@ -39662,9 +42738,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureTarget {
                         }
                         "kind" => {
                             if __f_kind {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "kind",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("kind"),
+                                );
                             }
                             __f_kind = true;
                             let value = {
@@ -39688,9 +42764,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureTarget {
                         }
                         "envelope" => {
                             if __f_envelope {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "envelope",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("envelope"),
+                                );
                             }
                             __f_envelope = true;
                             let value = {
@@ -39714,9 +42790,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureTarget {
                         }
                         "detachedContent" | "detached_content" => {
                             if __f_detached_content {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "detached_content",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "detached_content",
+                                    ),
+                                );
                             }
                             __f_detached_content = true;
                             let value = {
@@ -39747,10 +42825,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureTarget {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseCounterSignatureTarget {
@@ -40050,7 +43135,7 @@ impl ::buffa::Message for CoseCounterSignatureCreateRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             5u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -40081,11 +43166,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureCreateRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseCounterSignatureCreateRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseCounterSignatureCreateRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseCounterSignatureCreateRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseCounterSignatureCreateRequest as ::core::default::Default>::default();
                 let mut __f_target = false;
@@ -40093,14 +43196,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureCreateRequest {
                 let mut __f_allowed_suites = false;
                 let mut __f_external_aad = false;
                 let mut __f_tagged = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "target" => {
                             if __f_target {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "target",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("target"),
+                                );
                             }
                             __f_target = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -40112,9 +43226,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureCreateRequest {
                         }
                         "signer" => {
                             if __f_signer {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "signer",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("signer"),
+                                );
                             }
                             __f_signer = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -40126,9 +43240,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureCreateRequest {
                         }
                         "allowedSuites" | "allowed_suites" => {
                             if __f_allowed_suites {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_suites",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_suites",
+                                    ),
+                                );
                             }
                             __f_allowed_suites = true;
                             let value = {
@@ -40152,9 +43268,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureCreateRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -40176,9 +43294,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureCreateRequest {
                         }
                         "tagged" => {
                             if __f_tagged {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "tagged",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("tagged"),
+                                );
                             }
                             __f_tagged = true;
                             let value = {
@@ -40207,10 +43325,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureCreateRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseCounterSignatureCreateRequest {
@@ -40370,7 +43495,7 @@ impl ::buffa::Message for CoseCounterSignatureEncoded {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+                self.encoded = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -40398,22 +43523,51 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureEncoded {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseCounterSignatureEncoded")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseCounterSignatureEncoded, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseCounterSignatureEncoded, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseCounterSignatureEncoded as ::core::default::Default>::default();
                 let mut __f_encoded = false;
                 let mut __f_envelope = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "encoded" => {
                             if __f_encoded {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoded",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("encoded"),
+                                );
                             }
                             __f_encoded = true;
                             let value = {
@@ -40435,9 +43589,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureEncoded {
                         }
                         "envelope" => {
                             if __f_envelope {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "envelope",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("envelope"),
+                                );
                             }
                             __f_envelope = true;
                             let value = {
@@ -40468,10 +43622,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureEncoded {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseCounterSignatureEncoded {
@@ -40618,7 +43779,7 @@ impl CoseCounterSignatureVerifyRequest {
         value: __buffa::oneof::cose_counter_signature_verify_request::Signature,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.signature);
-        self.signature = Some(value);
+        self.signature = ::core::option::Option::Some(value);
         self
     }
 }
@@ -40796,7 +43957,7 @@ impl ::buffa::Message for CoseCounterSignatureVerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             5u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -40853,15 +44014,44 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureVerifyRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseCounterSignatureVerifyRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseCounterSignatureVerifyRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseCounterSignatureVerifyRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseCounterSignatureVerifyRequest as ::core::default::Default>::default();
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "target" => {
                             let value = map.next_value::<::buffa::MessageField<
@@ -40972,10 +44162,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureVerifyRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseCounterSignatureVerifyRequest {
@@ -41278,7 +44475,7 @@ impl ::buffa::Message for CoseCounterSignature0CreateRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.private_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.private_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 #[allow(unused_imports)]
@@ -41297,7 +44494,7 @@ impl ::buffa::Message for CoseCounterSignature0CreateRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -41324,12 +44521,30 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignature0CreateRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseCounterSignature0CreateRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseCounterSignature0CreateRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseCounterSignature0CreateRequest, __A::Error>
             {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseCounterSignature0CreateRequest as ::core::default::Default>::default();
                 let mut __f_target = false;
@@ -41337,14 +44552,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignature0CreateRequest {
                 let mut __f_private_key = false;
                 let mut __f_allowed_suites = false;
                 let mut __f_external_aad = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "target" => {
                             if __f_target {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "target",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("target"),
+                                );
                             }
                             __f_target = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -41356,9 +44582,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignature0CreateRequest {
                         }
                         "suite" => {
                             if __f_suite {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "suite",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("suite"),
+                                );
                             }
                             __f_suite = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -41370,9 +44596,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignature0CreateRequest {
                         }
                         "privateKey" | "private_key" => {
                             if __f_private_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "private_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "private_key",
+                                    ),
+                                );
                             }
                             __f_private_key = true;
                             let value = {
@@ -41394,9 +44622,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignature0CreateRequest {
                         }
                         "allowedSuites" | "allowed_suites" => {
                             if __f_allowed_suites {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_suites",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_suites",
+                                    ),
+                                );
                             }
                             __f_allowed_suites = true;
                             let value = {
@@ -41420,9 +44650,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignature0CreateRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -41451,10 +44683,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignature0CreateRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseCounterSignature0CreateRequest {
@@ -41562,24 +44801,61 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureHeaderSelection {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseCounterSignatureHeaderSelection")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseCounterSignatureHeaderSelection, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseCounterSignatureHeaderSelection, __A::Error>
             {
+                #[allow(unused_mut)]
                 let __r =
                     <CoseCounterSignatureHeaderSelection as ::core::default::Default>::default();
-                if let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
-                    let _key = ::buffa::sensitive::Zeroizing::new(key);
-                    return Err(<__A::Error as ::serde::de::Error>::custom(
-                        ::buffa::sensitive::JsonErrorReason::UnknownField,
-                    ));
+                if let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
+                    let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
+                    return ::core::result::Result::Err(
+                        <__A::Error as ::serde::de::Error>::custom(
+                            ::buffa::sensitive::JsonErrorReason::UnknownField,
+                        ),
+                    );
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseCounterSignatureHeaderSelection {
@@ -41726,7 +45002,7 @@ impl CoseCounterSignature0VerifyRequest {
         value: __buffa::oneof::cose_counter_signature0verify_request::Signature,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.signature);
-        self.signature = Some(value);
+        self.signature = ::core::option::Option::Some(value);
         self
     }
 }
@@ -41901,7 +45177,7 @@ impl ::buffa::Message for CoseCounterSignature0VerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             5u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -41910,7 +45186,7 @@ impl ::buffa::Message for CoseCounterSignature0VerifyRequest {
                 )?;
                 self.signature = ::core::option::Option::Some(
                     __buffa::oneof::cose_counter_signature0verify_request::Signature::Standalone(
-                        ::buffa::types::decode_bytes_to(buf)?,
+                        ::buffa::types::decode_bytes_to_ctx(buf, ctx)?,
                     ),
                 );
             }
@@ -41961,16 +45237,45 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignature0VerifyRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseCounterSignature0VerifyRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseCounterSignature0VerifyRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseCounterSignature0VerifyRequest, __A::Error>
             {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseCounterSignature0VerifyRequest as ::core::default::Default>::default();
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "target" => {
                             let value = map.next_value::<::buffa::MessageField<
@@ -42077,10 +45382,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignature0VerifyRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseCounterSignature0VerifyRequest {
@@ -42202,7 +45514,7 @@ impl CoseCounterSignatureVerifyResult {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.protected_kid);
-        self.protected_kid = Some(value.into());
+        self.protected_kid = ::core::option::Option::Some(value.into());
         self
     }
     #[must_use = "with_* setters return `self` by value; assign or chain the result"]
@@ -42270,7 +45582,7 @@ impl ::buffa::Message for CoseCounterSignatureVerifyResult {
         if !self.protected.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected) as u64;
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         if !self.target_protected.is_empty() {
@@ -42288,7 +45600,7 @@ impl ::buffa::Message for CoseCounterSignatureVerifyResult {
         if !self.protected.is_empty() {
             ::buffa::types::put_shared_bytes_field(2u32, &self.protected, buf);
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             ::buffa::types::put_shared_bytes_field(3u32, v, buf);
         }
         if !self.target_protected.is_empty() {
@@ -42322,7 +45634,7 @@ impl ::buffa::Message for CoseCounterSignatureVerifyResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.protected = ::buffa::types::decode_bytes_to(buf)?;
+                self.protected = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -42330,14 +45642,14 @@ impl ::buffa::Message for CoseCounterSignatureVerifyResult {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.protected_kid =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.target_protected = ::buffa::types::decode_bytes_to(buf)?;
+                self.target_protected = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -42363,25 +45675,54 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureVerifyResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseCounterSignatureVerifyResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseCounterSignatureVerifyResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseCounterSignatureVerifyResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseCounterSignatureVerifyResult as ::core::default::Default>::default();
                 let mut __f_suite = false;
                 let mut __f_protected = false;
                 let mut __f_protected_kid = false;
                 let mut __f_target_protected = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "suite" => {
                             if __f_suite {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "suite",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("suite"),
+                                );
                             }
                             __f_suite = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -42393,9 +45734,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureVerifyResult {
                         }
                         "protected" => {
                             if __f_protected {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected",
+                                    ),
+                                );
                             }
                             __f_protected = true;
                             let value = {
@@ -42417,9 +45760,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureVerifyResult {
                         }
                         "protectedKid" | "protected_kid" => {
                             if __f_protected_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected_kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected_kid",
+                                    ),
+                                );
                             }
                             __f_protected_kid = true;
                             let value = {
@@ -42443,9 +45788,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureVerifyResult {
                         }
                         "targetProtected" | "target_protected" => {
                             if __f_target_protected {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "target_protected",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "target_protected",
+                                    ),
+                                );
                             }
                             __f_target_protected = true;
                             let value = {
@@ -42474,10 +45821,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureVerifyResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseCounterSignatureVerifyResult {
@@ -42561,7 +45915,7 @@ impl CoseCounterSignatureAttachRequest {
         value: __buffa::oneof::cose_counter_signature_attach_request::Signature,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.signature);
-        self.signature = Some(value);
+        self.signature = ::core::option::Option::Some(value);
         self
     }
 }
@@ -42675,7 +46029,7 @@ impl ::buffa::Message for CoseCounterSignatureAttachRequest {
                 )?;
                 self.signature = ::core::option::Option::Some(
                     __buffa::oneof::cose_counter_signature_attach_request::Signature::Full(
-                        ::buffa::types::decode_bytes_to(buf)?,
+                        ::buffa::types::decode_bytes_to_ctx(buf, ctx)?,
                     ),
                 );
             }
@@ -42686,7 +46040,7 @@ impl ::buffa::Message for CoseCounterSignatureAttachRequest {
                 )?;
                 self.signature = ::core::option::Option::Some(
                     __buffa::oneof::cose_counter_signature_attach_request::Signature::Abbreviated(
-                        ::buffa::types::decode_bytes_to(buf)?,
+                        ::buffa::types::decode_bytes_to_ctx(buf, ctx)?,
                     ),
                 );
             }
@@ -42712,15 +46066,44 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureAttachRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseCounterSignatureAttachRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseCounterSignatureAttachRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseCounterSignatureAttachRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseCounterSignatureAttachRequest as ::core::default::Default>::default();
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "target" => {
                             let value = map.next_value::<::buffa::MessageField<
@@ -42781,10 +46164,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseCounterSignatureAttachRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseCounterSignatureAttachRequest {
@@ -42953,21 +46343,52 @@ impl<'de> ::serde::Deserialize<'de> for CoseRecipientCreateGroup {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseRecipientCreateGroup")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseRecipientCreateGroup, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseRecipientCreateGroup, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseRecipientCreateGroup as ::core::default::Default>::default();
                 let mut __f_recipients = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "recipients" => {
                             if __f_recipients {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "recipients",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "recipients",
+                                    ),
+                                );
                             }
                             __f_recipients = true;
                             let value = {
@@ -42998,10 +46419,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseRecipientCreateGroup {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseRecipientCreateGroup {
@@ -43076,7 +46504,7 @@ impl CoseRecipientCreate {
         value: __buffa::oneof::cose_recipient_create::KeySource,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.key_source);
-        self.key_source = Some(value);
+        self.key_source = ::core::option::Option::Some(value);
         self
     }
 }
@@ -43194,7 +46622,7 @@ impl ::buffa::Message for CoseRecipientCreate {
                 )?;
                 self.key_source = ::core::option::Option::Some(
                     __buffa::oneof::cose_recipient_create::KeySource::Key(
-                        ::buffa::types::decode_bytes_to(buf)?,
+                        ::buffa::types::decode_bytes_to_ctx(buf, ctx)?,
                     ),
                 );
             }
@@ -43240,14 +46668,43 @@ impl<'de> ::serde::Deserialize<'de> for CoseRecipientCreate {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseRecipientCreate")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseRecipientCreate, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseRecipientCreate, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseRecipientCreate as ::core::default::Default>::default();
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "headers" => {
                             let value = map.next_value::<::buffa::MessageField<
@@ -43306,10 +46763,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseRecipientCreate {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseRecipientCreate {
@@ -43738,14 +47202,14 @@ impl ::buffa::Message for CoseMacCreateRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.payload = ::buffa::types::decode_bytes_to(buf)?;
+                self.payload = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -43863,11 +47327,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacCreateRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseMacCreateRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseMacCreateRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseMacCreateRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseMacCreateRequest as ::core::default::Default>::default();
                 let mut __f_headers = false;
                 let mut __f_payload = false;
@@ -43878,14 +47360,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacCreateRequest {
                 let mut __f_tagged = false;
                 let mut __f_recipients = false;
                 let mut __f_allowed_recipient_algorithms = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "headers" => {
                             if __f_headers {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "headers",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("headers"),
+                                );
                             }
                             __f_headers = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -43897,9 +47390,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacCreateRequest {
                         }
                         "payload" => {
                             if __f_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("payload"),
+                                );
                             }
                             __f_payload = true;
                             let value = {
@@ -43921,9 +47414,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacCreateRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -43945,9 +47440,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacCreateRequest {
                         }
                         "algorithm" => {
                             if __f_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "algorithm",
+                                    ),
+                                );
                             }
                             __f_algorithm = true;
                             let value = {
@@ -43971,9 +47468,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacCreateRequest {
                         }
                         "allowedAlgorithms" | "allowed_algorithms" => {
                             if __f_allowed_algorithms {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_algorithms",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_algorithms",
+                                    ),
+                                );
                             }
                             __f_allowed_algorithms = true;
                             let value = {
@@ -44001,9 +47500,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacCreateRequest {
                         }
                         "contentMode" | "content_mode" => {
                             if __f_content_mode {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "content_mode",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "content_mode",
+                                    ),
+                                );
                             }
                             __f_content_mode = true;
                             let value = {
@@ -44027,9 +47528,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacCreateRequest {
                         }
                         "tagged" => {
                             if __f_tagged {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "tagged",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("tagged"),
+                                );
                             }
                             __f_tagged = true;
                             let value = {
@@ -44051,9 +47552,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacCreateRequest {
                         }
                         "recipients" => {
                             if __f_recipients {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "recipients",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "recipients",
+                                    ),
+                                );
                             }
                             __f_recipients = true;
                             let value = {
@@ -44077,9 +47580,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacCreateRequest {
                         }
                         "allowedRecipientAlgorithms" | "allowed_recipient_algorithms" => {
                             if __f_allowed_recipient_algorithms {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_recipient_algorithms",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_recipient_algorithms",
+                                    ),
+                                );
                             }
                             __f_allowed_recipient_algorithms = true;
                             let value = {
@@ -44116,10 +47621,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacCreateRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseMacCreateRequest {
@@ -44278,7 +47790,7 @@ impl CoseMacVerifyRequest {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.detached_payload);
-        self.detached_payload = Some(value.into());
+        self.detached_payload = ::core::option::Option::Some(value.into());
         self
     }
     #[must_use = "with_* setters return `self` by value; assign or chain the result"]
@@ -44416,7 +47928,7 @@ impl ::buffa::Message for CoseMacVerifyRequest {
         if !self.encoded.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.encoded) as u64;
         }
-        if let Some(ref v) = self.detached_payload {
+        if let ::core::option::Option::Some(ref v) = self.detached_payload {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         if !self.external_aad.is_empty() {
@@ -44469,7 +47981,7 @@ impl ::buffa::Message for CoseMacVerifyRequest {
         if !self.encoded.is_empty() {
             ::buffa::types::put_shared_bytes_field(1u32, &self.encoded, buf);
         }
-        if let Some(ref v) = self.detached_payload {
+        if let ::core::option::Option::Some(ref v) = self.detached_payload {
             ::buffa::types::put_shared_bytes_field(2u32, v, buf);
         }
         if !self.external_aad.is_empty() {
@@ -44540,7 +48052,7 @@ impl ::buffa::Message for CoseMacVerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+                self.encoded = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -44548,14 +48060,14 @@ impl ::buffa::Message for CoseMacVerifyRequest {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.detached_payload =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -44627,7 +48139,7 @@ impl ::buffa::Message for CoseMacVerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.recipient_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.recipient_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             8u32 => {
                 #[allow(unused_imports)]
@@ -44694,11 +48206,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacVerifyRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseMacVerifyRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseMacVerifyRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseMacVerifyRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseMacVerifyRequest as ::core::default::Default>::default();
                 let mut __f_encoded = false;
                 let mut __f_detached_payload = false;
@@ -44709,14 +48239,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacVerifyRequest {
                 let mut __f_recipient_key = false;
                 let mut __f_allowed_recipient_algorithms = false;
                 let mut __f_envelope = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "encoded" => {
                             if __f_encoded {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoded",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("encoded"),
+                                );
                             }
                             __f_encoded = true;
                             let value = {
@@ -44738,9 +48279,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacVerifyRequest {
                         }
                         "detachedPayload" | "detached_payload" => {
                             if __f_detached_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "detached_payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "detached_payload",
+                                    ),
+                                );
                             }
                             __f_detached_payload = true;
                             let value = {
@@ -44764,9 +48307,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacVerifyRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -44788,9 +48333,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacVerifyRequest {
                         }
                         "algorithm" => {
                             if __f_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "algorithm",
+                                    ),
+                                );
                             }
                             __f_algorithm = true;
                             let value = {
@@ -44814,9 +48361,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacVerifyRequest {
                         }
                         "allowedAlgorithms" | "allowed_algorithms" => {
                             if __f_allowed_algorithms {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_algorithms",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_algorithms",
+                                    ),
+                                );
                             }
                             __f_allowed_algorithms = true;
                             let value = {
@@ -44844,9 +48393,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacVerifyRequest {
                         }
                         "recipientPath" | "recipient_path" => {
                             if __f_recipient_path {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "recipient_path",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "recipient_path",
+                                    ),
+                                );
                             }
                             __f_recipient_path = true;
                             let value = {
@@ -44870,9 +48421,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacVerifyRequest {
                         }
                         "recipientKey" | "recipient_key" => {
                             if __f_recipient_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "recipient_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "recipient_key",
+                                    ),
+                                );
                             }
                             __f_recipient_key = true;
                             let value = {
@@ -44894,9 +48447,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacVerifyRequest {
                         }
                         "allowedRecipientAlgorithms" | "allowed_recipient_algorithms" => {
                             if __f_allowed_recipient_algorithms {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_recipient_algorithms",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_recipient_algorithms",
+                                    ),
+                                );
                             }
                             __f_allowed_recipient_algorithms = true;
                             let value = {
@@ -44926,9 +48481,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacVerifyRequest {
                         }
                         "envelope" => {
                             if __f_envelope {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "envelope",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("envelope"),
+                                );
                             }
                             __f_envelope = true;
                             let value = {
@@ -44959,10 +48514,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacVerifyRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseMacVerifyRequest {
@@ -45074,7 +48636,7 @@ impl CoseMacVerifyResult {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.protected_kid);
-        self.protected_kid = Some(value.into());
+        self.protected_kid = ::core::option::Option::Some(value.into());
         self
     }
     #[must_use = "with_* setters return `self` by value; assign or chain the result"]
@@ -45085,7 +48647,7 @@ impl CoseMacVerifyResult {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.attached_payload);
-        self.attached_payload = Some(value.into());
+        self.attached_payload = ::core::option::Option::Some(value.into());
         self
     }
 }
@@ -45139,10 +48701,10 @@ impl ::buffa::Message for CoseMacVerifyResult {
         if !self.protected.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected) as u64;
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
-        if let Some(ref v) = self.attached_payload {
+        if let ::core::option::Option::Some(ref v) = self.attached_payload {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -45159,10 +48721,10 @@ impl ::buffa::Message for CoseMacVerifyResult {
         if !self.protected.is_empty() {
             ::buffa::types::put_shared_bytes_field(2u32, &self.protected, buf);
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             ::buffa::types::put_shared_bytes_field(3u32, v, buf);
         }
-        if let Some(ref v) = self.attached_payload {
+        if let ::core::option::Option::Some(ref v) = self.attached_payload {
             ::buffa::types::put_shared_bytes_field(4u32, v, buf);
         }
     }
@@ -45186,7 +48748,7 @@ impl ::buffa::Message for CoseMacVerifyResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.protected = ::buffa::types::decode_bytes_to(buf)?;
+                self.protected = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -45194,7 +48756,7 @@ impl ::buffa::Message for CoseMacVerifyResult {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.protected_kid =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -45202,7 +48764,7 @@ impl ::buffa::Message for CoseMacVerifyResult {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.attached_payload =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -45228,24 +48790,55 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacVerifyResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseMacVerifyResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseMacVerifyResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseMacVerifyResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseMacVerifyResult as ::core::default::Default>::default();
                 let mut __f_algorithm = false;
                 let mut __f_protected = false;
                 let mut __f_protected_kid = false;
                 let mut __f_attached_payload = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "algorithm" => {
                             if __f_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "algorithm",
+                                    ),
+                                );
                             }
                             __f_algorithm = true;
                             let value = {
@@ -45269,9 +48862,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacVerifyResult {
                         }
                         "protected" => {
                             if __f_protected {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected",
+                                    ),
+                                );
                             }
                             __f_protected = true;
                             let value = {
@@ -45293,9 +48888,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacVerifyResult {
                         }
                         "protectedKid" | "protected_kid" => {
                             if __f_protected_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected_kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected_kid",
+                                    ),
+                                );
                             }
                             __f_protected_kid = true;
                             let value = {
@@ -45319,9 +48916,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacVerifyResult {
                         }
                         "attachedPayload" | "attached_payload" => {
                             if __f_attached_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "attached_payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "attached_payload",
+                                    ),
+                                );
                             }
                             __f_attached_payload = true;
                             let value = {
@@ -45352,10 +48951,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseMacVerifyResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseMacVerifyResult {
@@ -45563,7 +49169,7 @@ impl CoseEncrypt0CreateRequest {
     ///Sets [`Self::base_iv`] to `Some(value)`, consuming and returning `self`.
     pub fn with_base_iv(mut self, value: impl ::core::convert::Into<crate::SecretBytes>) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.base_iv);
-        self.base_iv = Some(value.into());
+        self.base_iv = ::core::option::Option::Some(value.into());
         self
     }
     #[must_use = "with_* setters return `self` by value; assign or chain the result"]
@@ -45667,7 +49273,7 @@ impl ::buffa::Message for CoseEncrypt0CreateRequest {
                 .sum::<u64>();
             size += 1u64 + ::buffa::encoding::varint_len(payload) as u64 + payload;
         }
-        if let Some(ref v) = self.base_iv {
+        if let ::core::option::Option::Some(ref v) = self.base_iv {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         {
@@ -45714,7 +49320,7 @@ impl ::buffa::Message for CoseEncrypt0CreateRequest {
                 ::buffa::types::encode_int32(v.to_i32(), buf);
             }
         }
-        if let Some(ref v) = self.base_iv {
+        if let ::core::option::Option::Some(ref v) = self.base_iv {
             ::buffa::types::put_shared_bytes_field(7u32, v, buf);
         }
         {
@@ -45754,14 +49360,14 @@ impl ::buffa::Message for CoseEncrypt0CreateRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.plaintext = ::buffa::types::decode_bytes_to(buf)?;
+                self.plaintext = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -45772,7 +49378,7 @@ impl ::buffa::Message for CoseEncrypt0CreateRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.key = ::buffa::types::decode_bytes_to(buf)?;
+                self.key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             6u32 => {
                 #[allow(unused_imports)]
@@ -45810,7 +49416,8 @@ impl ::buffa::Message for CoseEncrypt0CreateRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.base_iv = ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                self.base_iv =
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             8u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -45849,11 +49456,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0CreateRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseEncrypt0CreateRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseEncrypt0CreateRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseEncrypt0CreateRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseEncrypt0CreateRequest as ::core::default::Default>::default();
                 let mut __f_headers = false;
                 let mut __f_plaintext = false;
@@ -45864,14 +49489,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0CreateRequest {
                 let mut __f_base_iv = false;
                 let mut __f_content_mode = false;
                 let mut __f_tagged = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "headers" => {
                             if __f_headers {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "headers",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("headers"),
+                                );
                             }
                             __f_headers = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -45883,9 +49519,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0CreateRequest {
                         }
                         "plaintext" => {
                             if __f_plaintext {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "plaintext",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "plaintext",
+                                    ),
+                                );
                             }
                             __f_plaintext = true;
                             let value = {
@@ -45907,9 +49545,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0CreateRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -45931,9 +49571,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0CreateRequest {
                         }
                         "keyAlgorithm" | "key_algorithm" => {
                             if __f_key_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key_algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "key_algorithm",
+                                    ),
+                                );
                             }
                             __f_key_algorithm = true;
                             let value = {
@@ -45957,9 +49599,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0CreateRequest {
                         }
                         "key" => {
                             if __f_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("key"),
+                                );
                             }
                             __f_key = true;
                             let value = {
@@ -45981,9 +49623,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0CreateRequest {
                         }
                         "allowedAlgorithms" | "allowed_algorithms" => {
                             if __f_allowed_algorithms {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_algorithms",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_algorithms",
+                                    ),
+                                );
                             }
                             __f_allowed_algorithms = true;
                             let value = {
@@ -46011,9 +49655,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0CreateRequest {
                         }
                         "baseIv" | "base_iv" => {
                             if __f_base_iv {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "base_iv",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("base_iv"),
+                                );
                             }
                             __f_base_iv = true;
                             let value = {
@@ -46037,9 +49681,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0CreateRequest {
                         }
                         "contentMode" | "content_mode" => {
                             if __f_content_mode {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "content_mode",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "content_mode",
+                                    ),
+                                );
                             }
                             __f_content_mode = true;
                             let value = {
@@ -46063,9 +49709,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0CreateRequest {
                         }
                         "tagged" => {
                             if __f_tagged {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "tagged",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("tagged"),
+                                );
                             }
                             __f_tagged = true;
                             let value = {
@@ -46094,10 +49740,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0CreateRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseEncrypt0CreateRequest {
@@ -46178,7 +49831,7 @@ impl CoseEncrypt0CreateResult {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.detached_ciphertext);
-        self.detached_ciphertext = Some(value.into());
+        self.detached_ciphertext = ::core::option::Option::Some(value.into());
         self
     }
 }
@@ -46223,7 +49876,7 @@ impl ::buffa::Message for CoseEncrypt0CreateResult {
         if !self.encoded.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.encoded) as u64;
         }
-        if let Some(ref v) = self.detached_ciphertext {
+        if let ::core::option::Option::Some(ref v) = self.detached_ciphertext {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -46234,7 +49887,7 @@ impl ::buffa::Message for CoseEncrypt0CreateResult {
         if !self.encoded.is_empty() {
             ::buffa::types::put_shared_bytes_field(1u32, &self.encoded, buf);
         }
-        if let Some(ref v) = self.detached_ciphertext {
+        if let ::core::option::Option::Some(ref v) = self.detached_ciphertext {
             ::buffa::types::put_shared_bytes_field(2u32, v, buf);
         }
     }
@@ -46254,7 +49907,7 @@ impl ::buffa::Message for CoseEncrypt0CreateResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+                self.encoded = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -46262,7 +49915,7 @@ impl ::buffa::Message for CoseEncrypt0CreateResult {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.detached_ciphertext =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -46286,22 +49939,51 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0CreateResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseEncrypt0CreateResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseEncrypt0CreateResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseEncrypt0CreateResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseEncrypt0CreateResult as ::core::default::Default>::default();
                 let mut __f_encoded = false;
                 let mut __f_detached_ciphertext = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "encoded" => {
                             if __f_encoded {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoded",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("encoded"),
+                                );
                             }
                             __f_encoded = true;
                             let value = {
@@ -46323,9 +50005,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0CreateResult {
                         }
                         "detachedCiphertext" | "detached_ciphertext" => {
                             if __f_detached_ciphertext {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "detached_ciphertext",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "detached_ciphertext",
+                                    ),
+                                );
                             }
                             __f_detached_ciphertext = true;
                             let value = {
@@ -46356,10 +50040,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0CreateResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseEncrypt0CreateResult {
@@ -46505,7 +50196,7 @@ impl CoseEncrypt0DecryptRequest {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.detached_ciphertext);
-        self.detached_ciphertext = Some(value.into());
+        self.detached_ciphertext = ::core::option::Option::Some(value.into());
         self
     }
     #[must_use = "with_* setters return `self` by value; assign or chain the result"]
@@ -46556,7 +50247,7 @@ impl CoseEncrypt0DecryptRequest {
     ///Sets [`Self::base_iv`] to `Some(value)`, consuming and returning `self`.
     pub fn with_base_iv(mut self, value: impl ::core::convert::Into<crate::SecretBytes>) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.base_iv);
-        self.base_iv = Some(value.into());
+        self.base_iv = ::core::option::Option::Some(value.into());
         self
     }
     #[must_use = "with_* setters return `self` by value; assign or chain the result"]
@@ -46625,7 +50316,7 @@ impl ::buffa::Message for CoseEncrypt0DecryptRequest {
         if !self.encoded.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.encoded) as u64;
         }
-        if let Some(ref v) = self.detached_ciphertext {
+        if let ::core::option::Option::Some(ref v) = self.detached_ciphertext {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         if !self.external_aad.is_empty() {
@@ -46648,7 +50339,7 @@ impl ::buffa::Message for CoseEncrypt0DecryptRequest {
                 .sum::<u64>();
             size += 1u64 + ::buffa::encoding::varint_len(payload) as u64 + payload;
         }
-        if let Some(ref v) = self.base_iv {
+        if let ::core::option::Option::Some(ref v) = self.base_iv {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         {
@@ -46665,7 +50356,7 @@ impl ::buffa::Message for CoseEncrypt0DecryptRequest {
         if !self.encoded.is_empty() {
             ::buffa::types::put_shared_bytes_field(1u32, &self.encoded, buf);
         }
-        if let Some(ref v) = self.detached_ciphertext {
+        if let ::core::option::Option::Some(ref v) = self.detached_ciphertext {
             ::buffa::types::put_shared_bytes_field(2u32, v, buf);
         }
         if !self.external_aad.is_empty() {
@@ -46691,7 +50382,7 @@ impl ::buffa::Message for CoseEncrypt0DecryptRequest {
                 ::buffa::types::encode_int32(v.to_i32(), buf);
             }
         }
-        if let Some(ref v) = self.base_iv {
+        if let ::core::option::Option::Some(ref v) = self.base_iv {
             ::buffa::types::put_shared_bytes_field(7u32, v, buf);
         }
         {
@@ -46717,7 +50408,7 @@ impl ::buffa::Message for CoseEncrypt0DecryptRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+                self.encoded = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -46725,14 +50416,14 @@ impl ::buffa::Message for CoseEncrypt0DecryptRequest {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.detached_ciphertext =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -46743,7 +50434,7 @@ impl ::buffa::Message for CoseEncrypt0DecryptRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.key = ::buffa::types::decode_bytes_to(buf)?;
+                self.key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             6u32 => {
                 #[allow(unused_imports)]
@@ -46781,7 +50472,8 @@ impl ::buffa::Message for CoseEncrypt0DecryptRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.base_iv = ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                self.base_iv =
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             8u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -46815,11 +50507,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0DecryptRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseEncrypt0DecryptRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseEncrypt0DecryptRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseEncrypt0DecryptRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseEncrypt0DecryptRequest as ::core::default::Default>::default();
                 let mut __f_encoded = false;
                 let mut __f_detached_ciphertext = false;
@@ -46829,14 +50539,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0DecryptRequest {
                 let mut __f_allowed_algorithms = false;
                 let mut __f_base_iv = false;
                 let mut __f_envelope = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "encoded" => {
                             if __f_encoded {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoded",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("encoded"),
+                                );
                             }
                             __f_encoded = true;
                             let value = {
@@ -46858,9 +50579,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0DecryptRequest {
                         }
                         "detachedCiphertext" | "detached_ciphertext" => {
                             if __f_detached_ciphertext {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "detached_ciphertext",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "detached_ciphertext",
+                                    ),
+                                );
                             }
                             __f_detached_ciphertext = true;
                             let value = {
@@ -46884,9 +50607,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0DecryptRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -46908,9 +50633,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0DecryptRequest {
                         }
                         "keyAlgorithm" | "key_algorithm" => {
                             if __f_key_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key_algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "key_algorithm",
+                                    ),
+                                );
                             }
                             __f_key_algorithm = true;
                             let value = {
@@ -46934,9 +50661,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0DecryptRequest {
                         }
                         "key" => {
                             if __f_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("key"),
+                                );
                             }
                             __f_key = true;
                             let value = {
@@ -46958,9 +50685,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0DecryptRequest {
                         }
                         "allowedAlgorithms" | "allowed_algorithms" => {
                             if __f_allowed_algorithms {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_algorithms",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_algorithms",
+                                    ),
+                                );
                             }
                             __f_allowed_algorithms = true;
                             let value = {
@@ -46988,9 +50717,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0DecryptRequest {
                         }
                         "baseIv" | "base_iv" => {
                             if __f_base_iv {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "base_iv",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("base_iv"),
+                                );
                             }
                             __f_base_iv = true;
                             let value = {
@@ -47014,9 +50743,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0DecryptRequest {
                         }
                         "envelope" => {
                             if __f_envelope {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "envelope",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("envelope"),
+                                );
                             }
                             __f_envelope = true;
                             let value = {
@@ -47047,10 +50776,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0DecryptRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseEncrypt0DecryptRequest {
@@ -47170,7 +50906,7 @@ impl CoseEncrypt0DecryptResult {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.protected_kid);
-        self.protected_kid = Some(value.into());
+        self.protected_kid = ::core::option::Option::Some(value.into());
         self
     }
 }
@@ -47227,7 +50963,7 @@ impl ::buffa::Message for CoseEncrypt0DecryptResult {
         if !self.protected.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected) as u64;
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -47247,7 +50983,7 @@ impl ::buffa::Message for CoseEncrypt0DecryptResult {
         if !self.protected.is_empty() {
             ::buffa::types::put_shared_bytes_field(3u32, &self.protected, buf);
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             ::buffa::types::put_shared_bytes_field(4u32, v, buf);
         }
     }
@@ -47267,7 +51003,7 @@ impl ::buffa::Message for CoseEncrypt0DecryptResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.plaintext = ::buffa::types::decode_bytes_to(buf)?;
+                self.plaintext = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -47278,7 +51014,7 @@ impl ::buffa::Message for CoseEncrypt0DecryptResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.protected = ::buffa::types::decode_bytes_to(buf)?;
+                self.protected = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -47286,7 +51022,7 @@ impl ::buffa::Message for CoseEncrypt0DecryptResult {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.protected_kid =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -47312,24 +51048,55 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0DecryptResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseEncrypt0DecryptResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseEncrypt0DecryptResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseEncrypt0DecryptResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseEncrypt0DecryptResult as ::core::default::Default>::default();
                 let mut __f_plaintext = false;
                 let mut __f_algorithm = false;
                 let mut __f_protected = false;
                 let mut __f_protected_kid = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "plaintext" => {
                             if __f_plaintext {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "plaintext",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "plaintext",
+                                    ),
+                                );
                             }
                             __f_plaintext = true;
                             let value = {
@@ -47351,9 +51118,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0DecryptResult {
                         }
                         "algorithm" => {
                             if __f_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "algorithm",
+                                    ),
+                                );
                             }
                             __f_algorithm = true;
                             let value = {
@@ -47377,9 +51146,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0DecryptResult {
                         }
                         "protected" => {
                             if __f_protected {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected",
+                                    ),
+                                );
                             }
                             __f_protected = true;
                             let value = {
@@ -47401,9 +51172,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0DecryptResult {
                         }
                         "protectedKid" | "protected_kid" => {
                             if __f_protected_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected_kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected_kid",
+                                    ),
+                                );
                             }
                             __f_protected_kid = true;
                             let value = {
@@ -47434,10 +51207,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseEncrypt0DecryptResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseEncrypt0DecryptResult {
@@ -47657,7 +51437,7 @@ impl ::buffa::Message for CoseSignSigner {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.private_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.private_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -47682,23 +51462,52 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignSigner {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSignSigner")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSignSigner, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSignSigner, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseSignSigner as ::core::default::Default>::default();
                 let mut __f_headers = false;
                 let mut __f_suite = false;
                 let mut __f_private_key = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "headers" => {
                             if __f_headers {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "headers",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("headers"),
+                                );
                             }
                             __f_headers = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -47710,9 +51519,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignSigner {
                         }
                         "suite" => {
                             if __f_suite {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "suite",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("suite"),
+                                );
                             }
                             __f_suite = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -47724,9 +51533,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignSigner {
                         }
                         "privateKey" | "private_key" => {
                             if __f_private_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "private_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "private_key",
+                                    ),
+                                );
                             }
                             __f_private_key = true;
                             let value = {
@@ -47755,10 +51566,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignSigner {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSignSigner {
@@ -48088,14 +51906,14 @@ impl ::buffa::Message for CoseSignCreateRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.payload = ::buffa::types::decode_bytes_to(buf)?;
+                self.payload = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -48156,11 +51974,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignCreateRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSignCreateRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSignCreateRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSignCreateRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseSignCreateRequest as ::core::default::Default>::default();
                 let mut __f_headers = false;
                 let mut __f_payload = false;
@@ -48169,14 +52005,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignCreateRequest {
                 let mut __f_tagged = false;
                 let mut __f_signers = false;
                 let mut __f_allowed_suites = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "headers" => {
                             if __f_headers {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "headers",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("headers"),
+                                );
                             }
                             __f_headers = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -48188,9 +52035,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignCreateRequest {
                         }
                         "payload" => {
                             if __f_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("payload"),
+                                );
                             }
                             __f_payload = true;
                             let value = {
@@ -48212,9 +52059,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignCreateRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -48236,9 +52085,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignCreateRequest {
                         }
                         "contentMode" | "content_mode" => {
                             if __f_content_mode {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "content_mode",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "content_mode",
+                                    ),
+                                );
                             }
                             __f_content_mode = true;
                             let value = {
@@ -48262,9 +52113,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignCreateRequest {
                         }
                         "tagged" => {
                             if __f_tagged {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "tagged",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("tagged"),
+                                );
                             }
                             __f_tagged = true;
                             let value = {
@@ -48286,9 +52137,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignCreateRequest {
                         }
                         "signers" => {
                             if __f_signers {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "signers",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("signers"),
+                                );
                             }
                             __f_signers = true;
                             let value = {
@@ -48312,9 +52163,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignCreateRequest {
                         }
                         "allowedSuites" | "allowed_suites" => {
                             if __f_allowed_suites {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_suites",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_suites",
+                                    ),
+                                );
                             }
                             __f_allowed_suites = true;
                             let value = {
@@ -48345,10 +52198,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignCreateRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSignCreateRequest {
@@ -48554,7 +52414,7 @@ impl ::buffa::Message for CoseSignKeyBinding {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.public_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.public_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -48579,23 +52439,54 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignKeyBinding {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSignKeyBinding")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSignKeyBinding, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSignKeyBinding, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseSignKeyBinding as ::core::default::Default>::default();
                 let mut __f_signature_index = false;
                 let mut __f_suite = false;
                 let mut __f_public_key = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "signatureIndex" | "signature_index" => {
                             if __f_signature_index {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "signature_index",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "signature_index",
+                                    ),
+                                );
                             }
                             __f_signature_index = true;
                             let value = {
@@ -48617,9 +52508,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignKeyBinding {
                         }
                         "suite" => {
                             if __f_suite {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "suite",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("suite"),
+                                );
                             }
                             __f_suite = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -48631,9 +52522,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignKeyBinding {
                         }
                         "publicKey" | "public_key" => {
                             if __f_public_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "public_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "public_key",
+                                    ),
+                                );
                             }
                             __f_public_key = true;
                             let value = {
@@ -48662,10 +52555,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignKeyBinding {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSignKeyBinding {
@@ -48839,7 +52739,7 @@ impl CoseRsaSign1VerifyRequest {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.detached_payload);
-        self.detached_payload = Some(value.into());
+        self.detached_payload = ::core::option::Option::Some(value.into());
         self
     }
     #[must_use = "with_* setters return `self` by value; assign or chain the result"]
@@ -48861,7 +52761,7 @@ impl CoseRsaSign1VerifyRequest {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.expected_kid);
-        self.expected_kid = Some(value.into());
+        self.expected_kid = ::core::option::Option::Some(value.into());
         self
     }
 }
@@ -48936,13 +52836,13 @@ impl ::buffa::Message for CoseRsaSign1VerifyRequest {
             size +=
                 1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
         }
-        if let Some(ref v) = self.detached_payload {
+        if let ::core::option::Option::Some(ref v) = self.detached_payload {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         if !self.external_aad.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.external_aad) as u64;
         }
-        if let Some(ref v) = self.expected_kid {
+        if let ::core::option::Option::Some(ref v) = self.expected_kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -48967,13 +52867,13 @@ impl ::buffa::Message for CoseRsaSign1VerifyRequest {
             ::buffa::types::put_len_delimited_header(4u32, u64::from(__cache.consume_next()), buf);
             v.write_to(__cache, buf);
         }
-        if let Some(ref v) = self.detached_payload {
+        if let ::core::option::Option::Some(ref v) = self.detached_payload {
             ::buffa::types::put_shared_bytes_field(5u32, v, buf);
         }
         if !self.external_aad.is_empty() {
             ::buffa::types::put_shared_bytes_field(6u32, &self.external_aad, buf);
         }
-        if let Some(ref v) = self.expected_kid {
+        if let ::core::option::Option::Some(ref v) = self.expected_kid {
             ::buffa::types::put_shared_bytes_field(7u32, v, buf);
         }
     }
@@ -48993,7 +52893,7 @@ impl ::buffa::Message for CoseRsaSign1VerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+                self.encoded = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -49028,14 +52928,14 @@ impl ::buffa::Message for CoseRsaSign1VerifyRequest {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.detached_payload =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             6u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             7u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -49043,7 +52943,7 @@ impl ::buffa::Message for CoseRsaSign1VerifyRequest {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.expected_kid =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -49072,11 +52972,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseRsaSign1VerifyRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseRsaSign1VerifyRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseRsaSign1VerifyRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseRsaSign1VerifyRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseRsaSign1VerifyRequest as ::core::default::Default>::default();
                 let mut __f_encoded = false;
                 let mut __f_envelope = false;
@@ -49085,14 +53003,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseRsaSign1VerifyRequest {
                 let mut __f_detached_payload = false;
                 let mut __f_external_aad = false;
                 let mut __f_expected_kid = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "encoded" => {
                             if __f_encoded {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoded",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("encoded"),
+                                );
                             }
                             __f_encoded = true;
                             let value = {
@@ -49114,9 +53043,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseRsaSign1VerifyRequest {
                         }
                         "envelope" => {
                             if __f_envelope {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "envelope",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("envelope"),
+                                );
                             }
                             __f_envelope = true;
                             let value = {
@@ -49140,9 +53069,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseRsaSign1VerifyRequest {
                         }
                         "key" => {
                             if __f_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("key"),
+                                );
                             }
                             __f_key = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -49154,9 +53083,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseRsaSign1VerifyRequest {
                         }
                         "allowedSuites" | "allowed_suites" => {
                             if __f_allowed_suites {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_suites",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_suites",
+                                    ),
+                                );
                             }
                             __f_allowed_suites = true;
                             let value = {
@@ -49180,9 +53111,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseRsaSign1VerifyRequest {
                         }
                         "detachedPayload" | "detached_payload" => {
                             if __f_detached_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "detached_payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "detached_payload",
+                                    ),
+                                );
                             }
                             __f_detached_payload = true;
                             let value = {
@@ -49206,9 +53139,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseRsaSign1VerifyRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -49230,9 +53165,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseRsaSign1VerifyRequest {
                         }
                         "expectedKid" | "expected_kid" => {
                             if __f_expected_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "expected_kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "expected_kid",
+                                    ),
+                                );
                             }
                             __f_expected_kid = true;
                             let value = {
@@ -49263,10 +53200,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseRsaSign1VerifyRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseRsaSign1VerifyRequest {
@@ -49380,7 +53324,7 @@ impl CoseRsaSign1VerifyResult {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.protected_kid);
-        self.protected_kid = Some(value.into());
+        self.protected_kid = ::core::option::Option::Some(value.into());
         self
     }
     #[must_use = "with_* setters return `self` by value; assign or chain the result"]
@@ -49391,7 +53335,7 @@ impl CoseRsaSign1VerifyResult {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.attached_payload);
-        self.attached_payload = Some(value.into());
+        self.attached_payload = ::core::option::Option::Some(value.into());
         self
     }
 }
@@ -49447,10 +53391,10 @@ impl ::buffa::Message for CoseRsaSign1VerifyResult {
         if !self.protected.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected) as u64;
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
-        if let Some(ref v) = self.attached_payload {
+        if let ::core::option::Option::Some(ref v) = self.attached_payload {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -49465,10 +53409,10 @@ impl ::buffa::Message for CoseRsaSign1VerifyResult {
         if !self.protected.is_empty() {
             ::buffa::types::put_shared_bytes_field(2u32, &self.protected, buf);
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             ::buffa::types::put_shared_bytes_field(3u32, v, buf);
         }
-        if let Some(ref v) = self.attached_payload {
+        if let ::core::option::Option::Some(ref v) = self.attached_payload {
             ::buffa::types::put_shared_bytes_field(4u32, v, buf);
         }
     }
@@ -49499,7 +53443,7 @@ impl ::buffa::Message for CoseRsaSign1VerifyResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.protected = ::buffa::types::decode_bytes_to(buf)?;
+                self.protected = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -49507,7 +53451,7 @@ impl ::buffa::Message for CoseRsaSign1VerifyResult {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.protected_kid =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -49515,7 +53459,7 @@ impl ::buffa::Message for CoseRsaSign1VerifyResult {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.attached_payload =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -49541,24 +53485,53 @@ impl<'de> ::serde::Deserialize<'de> for CoseRsaSign1VerifyResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseRsaSign1VerifyResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseRsaSign1VerifyResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseRsaSign1VerifyResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseRsaSign1VerifyResult as ::core::default::Default>::default();
                 let mut __f_suite = false;
                 let mut __f_protected = false;
                 let mut __f_protected_kid = false;
                 let mut __f_attached_payload = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "suite" => {
                             if __f_suite {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "suite",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("suite"),
+                                );
                             }
                             __f_suite = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -49570,9 +53543,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseRsaSign1VerifyResult {
                         }
                         "protected" => {
                             if __f_protected {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected",
+                                    ),
+                                );
                             }
                             __f_protected = true;
                             let value = {
@@ -49594,9 +53569,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseRsaSign1VerifyResult {
                         }
                         "protectedKid" | "protected_kid" => {
                             if __f_protected_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected_kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected_kid",
+                                    ),
+                                );
                             }
                             __f_protected_kid = true;
                             let value = {
@@ -49620,9 +53597,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseRsaSign1VerifyResult {
                         }
                         "attachedPayload" | "attached_payload" => {
                             if __f_attached_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "attached_payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "attached_payload",
+                                    ),
+                                );
                             }
                             __f_attached_payload = true;
                             let value = {
@@ -49653,10 +53632,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseRsaSign1VerifyResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseRsaSign1VerifyResult {
@@ -49779,7 +53765,7 @@ impl CoseSignVerifyRequest {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.detached_payload);
-        self.detached_payload = Some(value.into());
+        self.detached_payload = ::core::option::Option::Some(value.into());
         self
     }
     #[must_use = "with_* setters return `self` by value; assign or chain the result"]
@@ -49877,7 +53863,7 @@ impl ::buffa::Message for CoseSignVerifyRequest {
         if !self.encoded.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.encoded) as u64;
         }
-        if let Some(ref v) = self.detached_payload {
+        if let ::core::option::Option::Some(ref v) = self.detached_payload {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         if !self.external_aad.is_empty() {
@@ -49911,7 +53897,7 @@ impl ::buffa::Message for CoseSignVerifyRequest {
         if !self.encoded.is_empty() {
             ::buffa::types::put_shared_bytes_field(1u32, &self.encoded, buf);
         }
-        if let Some(ref v) = self.detached_payload {
+        if let ::core::option::Option::Some(ref v) = self.detached_payload {
             ::buffa::types::put_shared_bytes_field(2u32, v, buf);
         }
         if !self.external_aad.is_empty() {
@@ -49948,7 +53934,7 @@ impl ::buffa::Message for CoseSignVerifyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.encoded = ::buffa::types::decode_bytes_to(buf)?;
+                self.encoded = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -49956,14 +53942,14 @@ impl ::buffa::Message for CoseSignVerifyRequest {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.detached_payload =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.external_aad = ::buffa::types::decode_bytes_to(buf)?;
+                self.external_aad = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -50019,11 +54005,29 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignVerifyRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSignVerifyRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSignVerifyRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSignVerifyRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseSignVerifyRequest as ::core::default::Default>::default();
                 let mut __f_encoded = false;
                 let mut __f_detached_payload = false;
@@ -50031,14 +54035,25 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignVerifyRequest {
                 let mut __f_envelope = false;
                 let mut __f_keys = false;
                 let mut __f_allowed_suites = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "encoded" => {
                             if __f_encoded {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "encoded",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("encoded"),
+                                );
                             }
                             __f_encoded = true;
                             let value = {
@@ -50060,9 +54075,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignVerifyRequest {
                         }
                         "detachedPayload" | "detached_payload" => {
                             if __f_detached_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "detached_payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "detached_payload",
+                                    ),
+                                );
                             }
                             __f_detached_payload = true;
                             let value = {
@@ -50086,9 +54103,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignVerifyRequest {
                         }
                         "externalAad" | "external_aad" => {
                             if __f_external_aad {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "external_aad",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "external_aad",
+                                    ),
+                                );
                             }
                             __f_external_aad = true;
                             let value = {
@@ -50110,9 +54129,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignVerifyRequest {
                         }
                         "envelope" => {
                             if __f_envelope {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "envelope",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("envelope"),
+                                );
                             }
                             __f_envelope = true;
                             let value = {
@@ -50136,9 +54155,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignVerifyRequest {
                         }
                         "keys" => {
                             if __f_keys {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "keys",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("keys"),
+                                );
                             }
                             __f_keys = true;
                             let value = {
@@ -50162,9 +54181,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignVerifyRequest {
                         }
                         "allowedSuites" | "allowed_suites" => {
                             if __f_allowed_suites {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "allowed_suites",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "allowed_suites",
+                                    ),
+                                );
                             }
                             __f_allowed_suites = true;
                             let value = {
@@ -50195,10 +54216,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignVerifyRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSignVerifyRequest {
@@ -50317,7 +54345,7 @@ impl CoseVerifiedSignature {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.protected_kid);
-        self.protected_kid = Some(value.into());
+        self.protected_kid = ::core::option::Option::Some(value.into());
         self
     }
 }
@@ -50375,7 +54403,7 @@ impl ::buffa::Message for CoseVerifiedSignature {
         if !self.protected.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected) as u64;
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -50393,7 +54421,7 @@ impl ::buffa::Message for CoseVerifiedSignature {
         if !self.protected.is_empty() {
             ::buffa::types::put_shared_bytes_field(3u32, &self.protected, buf);
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             ::buffa::types::put_shared_bytes_field(4u32, v, buf);
         }
     }
@@ -50428,7 +54456,7 @@ impl ::buffa::Message for CoseVerifiedSignature {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.protected = ::buffa::types::decode_bytes_to(buf)?;
+                self.protected = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -50436,7 +54464,7 @@ impl ::buffa::Message for CoseVerifiedSignature {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.protected_kid =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -50462,24 +54490,55 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerifiedSignature {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseVerifiedSignature")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseVerifiedSignature, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseVerifiedSignature, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseVerifiedSignature as ::core::default::Default>::default();
                 let mut __f_signature_index = false;
                 let mut __f_suite = false;
                 let mut __f_protected = false;
                 let mut __f_protected_kid = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "signatureIndex" | "signature_index" => {
                             if __f_signature_index {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "signature_index",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "signature_index",
+                                    ),
+                                );
                             }
                             __f_signature_index = true;
                             let value = {
@@ -50501,9 +54560,9 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerifiedSignature {
                         }
                         "suite" => {
                             if __f_suite {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "suite",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("suite"),
+                                );
                             }
                             __f_suite = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -50515,9 +54574,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerifiedSignature {
                         }
                         "protected" => {
                             if __f_protected {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected",
+                                    ),
+                                );
                             }
                             __f_protected = true;
                             let value = {
@@ -50539,9 +54600,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerifiedSignature {
                         }
                         "protectedKid" | "protected_kid" => {
                             if __f_protected_kid {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "protected_kid",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "protected_kid",
+                                    ),
+                                );
                             }
                             __f_protected_kid = true;
                             let value = {
@@ -50572,10 +54635,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseVerifiedSignature {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseVerifiedSignature {
@@ -50669,7 +54739,7 @@ impl CoseSignVerifyResult {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.attached_payload);
-        self.attached_payload = Some(value.into());
+        self.attached_payload = ::core::option::Option::Some(value.into());
         self
     }
     #[must_use = "with_* setters return `self` by value; assign or chain the result"]
@@ -50728,7 +54798,7 @@ impl ::buffa::Message for CoseSignVerifyResult {
         if !self.body_protected.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.body_protected) as u64;
         }
-        if let Some(ref v) = self.attached_payload {
+        if let ::core::option::Option::Some(ref v) = self.attached_payload {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         for v in self.signatures.iter() {
@@ -50746,7 +54816,7 @@ impl ::buffa::Message for CoseSignVerifyResult {
         if !self.body_protected.is_empty() {
             ::buffa::types::put_shared_bytes_field(1u32, &self.body_protected, buf);
         }
-        if let Some(ref v) = self.attached_payload {
+        if let ::core::option::Option::Some(ref v) = self.attached_payload {
             ::buffa::types::put_shared_bytes_field(2u32, v, buf);
         }
         for v in self.signatures.iter() {
@@ -50770,7 +54840,7 @@ impl ::buffa::Message for CoseSignVerifyResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.body_protected = ::buffa::types::decode_bytes_to(buf)?;
+                self.body_protected = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -50778,7 +54848,7 @@ impl ::buffa::Message for CoseSignVerifyResult {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.attached_payload =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             3u32 => {
                 #[allow(unused_imports)]
@@ -50815,23 +54885,54 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignVerifyResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseSignVerifyResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseSignVerifyResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseSignVerifyResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseSignVerifyResult as ::core::default::Default>::default();
                 let mut __f_body_protected = false;
                 let mut __f_attached_payload = false;
                 let mut __f_signatures = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "bodyProtected" | "body_protected" => {
                             if __f_body_protected {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "body_protected",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "body_protected",
+                                    ),
+                                );
                             }
                             __f_body_protected = true;
                             let value = {
@@ -50853,9 +54954,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignVerifyResult {
                         }
                         "attachedPayload" | "attached_payload" => {
                             if __f_attached_payload {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "attached_payload",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "attached_payload",
+                                    ),
+                                );
                             }
                             __f_attached_payload = true;
                             let value = {
@@ -50879,9 +54982,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignVerifyResult {
                         }
                         "signatures" => {
                             if __f_signatures {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "signatures",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "signatures",
+                                    ),
+                                );
                             }
                             __f_signatures = true;
                             let value = {
@@ -50912,10 +55017,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseSignVerifyResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseSignVerifyResult {
@@ -51135,7 +55247,7 @@ impl ::buffa::Message for CoseKeyFromPublicBytesRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.public_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.public_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -51165,24 +55277,55 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyFromPublicBytesRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseKeyFromPublicBytesRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseKeyFromPublicBytesRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseKeyFromPublicBytesRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseKeyFromPublicBytesRequest as ::core::default::Default>::default();
                 let mut __f_algorithm = false;
                 let mut __f_public_key = false;
                 let mut __f_ec2_point_encoding = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "algorithm" => {
                             if __f_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "algorithm",
+                                    ),
+                                );
                             }
                             __f_algorithm = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -51194,9 +55337,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyFromPublicBytesRequest {
                         }
                         "publicKey" | "public_key" => {
                             if __f_public_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "public_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "public_key",
+                                    ),
+                                );
                             }
                             __f_public_key = true;
                             let value = {
@@ -51218,9 +55363,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyFromPublicBytesRequest {
                         }
                         "ec2PointEncoding" | "ec2_point_encoding" => {
                             if __f_ec2_point_encoding {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "ec2_point_encoding",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "ec2_point_encoding",
+                                    ),
+                                );
                             }
                             __f_ec2_point_encoding = true;
                             let value = {
@@ -51251,10 +55398,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyFromPublicBytesRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseKeyFromPublicBytesRequest {
@@ -51371,7 +55525,7 @@ impl CoseKeyFromPrivateBytesRequest {
         value: impl ::core::convert::Into<crate::SecretBytes>,
     ) -> Self {
         ::buffa::sensitive::Zeroize::zeroize(&mut self.public_key);
-        self.public_key = Some(value.into());
+        self.public_key = ::core::option::Option::Some(value.into());
         self
     }
 }
@@ -51426,7 +55580,7 @@ impl ::buffa::Message for CoseKeyFromPrivateBytesRequest {
         if !self.private_key.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.private_key) as u64;
         }
-        if let Some(ref v) = self.public_key {
+        if let ::core::option::Option::Some(ref v) = self.public_key {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -51441,7 +55595,7 @@ impl ::buffa::Message for CoseKeyFromPrivateBytesRequest {
         if !self.private_key.is_empty() {
             ::buffa::types::put_shared_bytes_field(2u32, &self.private_key, buf);
         }
-        if let Some(ref v) = self.public_key {
+        if let ::core::option::Option::Some(ref v) = self.public_key {
             ::buffa::types::put_shared_bytes_field(3u32, v, buf);
         }
     }
@@ -51472,7 +55626,7 @@ impl ::buffa::Message for CoseKeyFromPrivateBytesRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.private_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.private_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -51480,7 +55634,7 @@ impl ::buffa::Message for CoseKeyFromPrivateBytesRequest {
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
                 self.public_key =
-                    ::core::option::Option::Some(::buffa::types::decode_bytes_to(buf)?);
+                    ::core::option::Option::Some(::buffa::types::decode_bytes_to_ctx(buf, ctx)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -51505,24 +55659,55 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyFromPrivateBytesRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseKeyFromPrivateBytesRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseKeyFromPrivateBytesRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseKeyFromPrivateBytesRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r =
                     <CoseKeyFromPrivateBytesRequest as ::core::default::Default>::default();
                 let mut __f_algorithm = false;
                 let mut __f_private_key = false;
                 let mut __f_public_key = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "algorithm" => {
                             if __f_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "algorithm",
+                                    ),
+                                );
                             }
                             __f_algorithm = true;
                             let value = map.next_value::<::buffa::MessageField<
@@ -51534,9 +55719,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyFromPrivateBytesRequest {
                         }
                         "privateKey" | "private_key" => {
                             if __f_private_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "private_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "private_key",
+                                    ),
+                                );
                             }
                             __f_private_key = true;
                             let value = {
@@ -51558,9 +55745,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyFromPrivateBytesRequest {
                         }
                         "publicKey" | "public_key" => {
                             if __f_public_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "public_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "public_key",
+                                    ),
+                                );
                             }
                             __f_public_key = true;
                             let value = {
@@ -51591,10 +55780,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyFromPrivateBytesRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseKeyFromPrivateBytesRequest {
@@ -51727,7 +55923,7 @@ impl ::buffa::Message for CoseKeyBytesRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.cose_key = ::buffa::types::decode_bytes_to(buf)?;
+                self.cose_key = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -51750,21 +55946,50 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyBytesRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseKeyBytesRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseKeyBytesRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseKeyBytesRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseKeyBytesRequest as ::core::default::Default>::default();
                 let mut __f_cose_key = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "coseKey" | "cose_key" => {
                             if __f_cose_key {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "cose_key",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("cose_key"),
+                                );
                             }
                             __f_cose_key = true;
                             let value = {
@@ -51793,10 +56018,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyBytesRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseKeyBytesRequest {
@@ -51965,7 +56197,7 @@ impl ::buffa::Message for CoseKeyBytesResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.key_bytes = ::buffa::types::decode_bytes_to(buf)?;
+                self.key_bytes = ::buffa::types::decode_bytes_to_ctx(buf, ctx)?;
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -51994,22 +56226,53 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyBytesResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseKeyBytesResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseKeyBytesResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseKeyBytesResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseKeyBytesResult as ::core::default::Default>::default();
                 let mut __f_key_bytes = false;
                 let mut __f_signature_algorithm = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "keyBytes" | "key_bytes" => {
                             if __f_key_bytes {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "key_bytes",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "key_bytes",
+                                    ),
+                                );
                             }
                             __f_key_bytes = true;
                             let value = {
@@ -52031,9 +56294,11 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyBytesResult {
                         }
                         "signatureAlgorithm" | "signature_algorithm" => {
                             if __f_signature_algorithm {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "signature_algorithm",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field(
+                                        "signature_algorithm",
+                                    ),
+                                );
                             }
                             __f_signature_algorithm = true;
                             let value = {
@@ -52064,10 +56329,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseKeyBytesResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseKeyBytesResult {
@@ -52197,7 +56469,7 @@ impl ::buffa::Message for CoseMultikeyToCoseKeyRequest {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.multikey = ::buffa::types::decode_string_to(buf)?;
+                self.multikey = ::buffa::types::decode_string_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -52220,21 +56492,50 @@ impl<'de> ::serde::Deserialize<'de> for CoseMultikeyToCoseKeyRequest {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseMultikeyToCoseKeyRequest")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseMultikeyToCoseKeyRequest, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseMultikeyToCoseKeyRequest, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseMultikeyToCoseKeyRequest as ::core::default::Default>::default();
                 let mut __f_multikey = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "multikey" => {
                             if __f_multikey {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "multikey",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("multikey"),
+                                );
                             }
                             __f_multikey = true;
                             let value = {
@@ -52263,10 +56564,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseMultikeyToCoseKeyRequest {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseMultikeyToCoseKeyRequest {
@@ -52393,7 +56701,7 @@ impl ::buffa::Message for CoseMultikeyResult {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                self.multikey = ::buffa::types::decode_string_to(buf)?;
+                self.multikey = ::buffa::types::decode_string_to_ctx(buf, ctx)?;
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, buf, ctx)?;
@@ -52416,21 +56724,50 @@ impl<'de> ::serde::Deserialize<'de> for CoseMultikeyResult {
             fn expecting(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 f.write_str("struct CoseMultikeyResult")
             }
+            fn visit_none<__E: ::serde::de::Error>(
+                self,
+            ) -> ::core::result::Result<CoseMultikeyResult, __E> {
+                ::serde::de::Visitor::visit_map(
+                    self,
+                    ::serde::de::value::MapDeserializer::<_, __E>::new(::core::iter::empty::<(
+                        ::core::primitive::u8,
+                        ::core::primitive::u8,
+                    )>()),
+                )
+            }
+            fn visit_enum<__A: ::serde::de::EnumAccess<'de>>(
+                self,
+                tagged: __A,
+            ) -> ::core::result::Result<Self::Value, __A::Error> {
+                ::buffa::json_helpers::deserialize_tagged(self, tagged)
+            }
             #[allow(clippy::field_reassign_with_default)]
             fn visit_map<__A: ::serde::de::MapAccess<'de>>(
                 self,
                 mut map: __A,
             ) -> ::core::result::Result<CoseMultikeyResult, __A::Error> {
+                #[allow(unused_mut)]
                 let mut __r = <CoseMultikeyResult as ::core::default::Default>::default();
                 let mut __f_multikey = false;
-                while let Some(key) = map.next_key::<::buffa::alloc::string::String>()? {
+                #[allow(clippy::never_loop)]
+                while let ::core::option::Option::Some(key) =
+                    map.next_key::<::buffa::alloc::string::String>()?
+                {
                     let key = ::buffa::sensitive::Zeroizing::new(key);
+                    if key.as_str() == ::buffa::json_helpers::SERDE_JSON_NUMBER_KEY {
+                        return ::core::result::Result::Err(
+                            <__A::Error as ::serde::de::Error>::invalid_type(
+                                ::serde::de::Unexpected::Other("number"),
+                                &self,
+                            ),
+                        );
+                    }
                     match key.as_str() {
                         "multikey" => {
                             if __f_multikey {
-                                return Err(<__A::Error as ::serde::de::Error>::duplicate_field(
-                                    "multikey",
-                                ));
+                                return ::core::result::Result::Err(
+                                    <__A::Error as ::serde::de::Error>::duplicate_field("multikey"),
+                                );
                             }
                             __f_multikey = true;
                             let value = {
@@ -52459,10 +56796,17 @@ impl<'de> ::serde::Deserialize<'de> for CoseMultikeyResult {
                         }
                     }
                 }
-                Ok(__r)
+                ::core::result::Result::Ok(__r)
             }
+            ::buffa::json_helpers::reject_other_json_kinds!(
+                bool, i64, u64, i128, u128, f64, str, string, bytes, byte_buf, unit, seq
+            );
         }
-        d.deserialize_map(_V)
+        if d.is_human_readable() {
+            d.deserialize_any(_V)
+        } else {
+            d.deserialize_map(_V)
+        }
     }
 }
 impl ::buffa::json_helpers::ProtoElemJson for CoseMultikeyResult {

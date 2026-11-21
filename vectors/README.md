@@ -1,34 +1,21 @@
-# COSE Conformance Vectors
+# COSE test vectors
 
-These suites pin ReallyMe's supported COSE encodings and exercise parsing,
-protected-header handling, Sig_structure construction, COSE_Key profiles,
-Multikey conversion, ML-KEM recipient processing, KDF inputs, AES Key Wrap, and
-authenticated decryption.
+The JSON suites contain fixed COSE encodings, authentication structures, key
+projections and encryption results. `manifest.json` records each suite's exact
+SHA-256 digest and case count. Keep those entries in sync when changing vectors.
 
-`reallyme-cose-vector-audit` is independent at the COSE layer: it does not
-depend on `reallyme-cose`, `reallyme-crypto`, or `reallyme-codec`. It uses direct
-RustCrypto dependencies as primitive oracles, so it is not an independent
-cryptographic implementation. Each suite file is bound into `manifest.json` by
-its exact SHA-256 digest and case count.
-
-Primitive conformance belongs to the pinned `reallyme-crypto` dependency. Its
-external-vector audit covers NIST ACVP ML-DSA key generation and signature
-verification, NIST ACVP ML-KEM key generation and encapsulation, and additional
-CCTV and Wycheproof adversarial corpora. Keeping those large primitive suites at
-the primitive boundary avoids duplicating them here while COSE tests verify that
-their typed rejection behavior survives the protocol wrapper.
-
-The suite distinguishes exact algorithm registrations. ES256 (`-7`) is supported
-for P-256, while generic EdDSA (`-8`) is rejected in favor of the fully specified
-Ed25519 identifier (`-19`). The `cose-sign1-ed25519-node-openssl` case uses
-RFC 8032 test-vector key material and a signature produced by Node's
-OpenSSL-backed Ed25519 implementation over a COSE Sig_structure containing
-`-19`. The golden generator preserves those bytes instead of recreating the
-signature with production code. The independent auditor uses strict Ed25519
-verification, matching the runtime's rejection of weak-point signatures.
-
-From the repository root, audit the committed suites with:
+Run the independent COSE-layer auditor from the repository root:
 
 ```sh
 cargo run --locked --manifest-path tools/vector-audit/Cargo.toml --bin reallyme-cose-vector-audit -- .
 ```
+
+The auditor uses direct RustCrypto dependencies rather than the production
+ReallyMe facades. It is an independent check of COSE processing, not an
+independent implementation of the cryptographic primitives.
+
+Preserve exact protected-header and authentication-structure bytes. Algorithm
+registrations are distinct even when they share a primitive. The
+`cose-sign1-ed25519-node-openssl` case uses RFC 8032 key material and an
+OpenSSL-generated signature for registration `-19`; retain that independent
+answer rather than regenerating it through production code.

@@ -5,7 +5,7 @@ pub enum Iso18013Sign1Content<'a> {
     ///Descriptor-defined native alternative.
     IssuerAttached,
     ///Descriptor-defined native alternative.
-    DeviceDetached(&'a [u8]),
+    DeviceDetached(&'a [::core::primitive::u8]),
     ///Descriptor-defined native alternative.
-    ReaderDetached(&'a [u8]),
+    ReaderDetached(&'a [::core::primitive::u8]),
 }

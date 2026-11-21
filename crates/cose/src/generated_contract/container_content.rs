@@ -5,5 +5,5 @@ pub enum ContainerContent<'a> {
     ///Descriptor-defined native alternative.
     Attached,
     ///Descriptor-defined native alternative.
-    Detached(&'a [u8]),
+    Detached(&'a [::core::primitive::u8]),
 }

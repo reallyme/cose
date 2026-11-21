@@ -75,13 +75,15 @@ impl<'a> ::buffa::MessageView<'a> for CoseErrorView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(super::super::__buffa::view::oneof::cose_error::Error::Primitive(
-                    ref mut existing,
-                )) = view.error
+                if let ::core::option::Option::Some(
+                    super::super::__buffa::view::oneof::cose_error::Error::Primitive(
+                        ref mut existing,
+                    ),
+                ) = view.error
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.error = Some(
+                    view.error = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_error::Error::Primitive(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CosePrimitiveErrorView as ::buffa::MessageView>::decode_view_ctx(
@@ -100,13 +102,15 @@ impl<'a> ::buffa::MessageView<'a> for CoseErrorView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(super::super::__buffa::view::oneof::cose_error::Error::Provider(
-                    ref mut existing,
-                )) = view.error
+                if let ::core::option::Option::Some(
+                    super::super::__buffa::view::oneof::cose_error::Error::Provider(
+                        ref mut existing,
+                    ),
+                ) = view.error
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.error = Some(
+                    view.error = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_error::Error::Provider(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseProviderErrorView as ::buffa::MessageView>::decode_view_ctx(
@@ -125,13 +129,15 @@ impl<'a> ::buffa::MessageView<'a> for CoseErrorView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(super::super::__buffa::view::oneof::cose_error::Error::Backend(
-                    ref mut existing,
-                )) = view.error
+                if let ::core::option::Option::Some(
+                    super::super::__buffa::view::oneof::cose_error::Error::Backend(
+                        ref mut existing,
+                    ),
+                ) = view.error
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.error = Some(
+                    view.error = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_error::Error::Backend(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseBackendErrorView as ::buffa::MessageView>::decode_view_ctx(
@@ -276,117 +282,6 @@ impl<'a> ::buffa::MessageName for CoseErrorView<'a> {
 ::buffa::impl_default_view_instance!(CoseErrorView);
 ::buffa::impl_view_reborrow!(CoseErrorView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseErrorView);
-/** Self-contained, `'static` owned view of a `CoseError` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseErrorView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseErrorView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseErrorOwnedView(::buffa::OwnedView<CoseErrorView<'static>>);
-impl CoseErrorOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseErrorOwnedView(::buffa::OwnedView::decode(bytes)?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseErrorOwnedView(::buffa::OwnedView::decode_with_options(
-            bytes, opts,
-        )?))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseError,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseErrorOwnedView(::buffa::OwnedView::from_owned(msg)?))
-    }
-    /// Borrow the full [`CoseErrorView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseErrorView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseError {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Oneof `error`.
-    #[must_use]
-    pub fn error(
-        &self,
-    ) -> ::core::option::Option<&super::super::__buffa::view::oneof::cose_error::Error<'_>> {
-        self.0.reborrow().error.as_ref()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseErrorView<'static>>> for CoseErrorOwnedView {
-    fn from(inner: ::buffa::OwnedView<CoseErrorView<'static>>) -> Self {
-        CoseErrorOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseErrorOwnedView> for ::buffa::OwnedView<CoseErrorView<'static>> {
-    fn from(wrapper: CoseErrorOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseErrorView<'static>>> for CoseErrorOwnedView {
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseErrorView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseError {
-    type View<'a> = CoseErrorView<'a>;
-    type ViewHandle = CoseErrorOwnedView;
-}
-impl ::serde::Serialize for CoseErrorOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CosePrimitiveError describes failures owned by COSE input validation,
 /// byte-format parsing, key material handling, signing inputs, and signature
 /// verification semantics.
@@ -526,129 +421,6 @@ impl<'a> ::buffa::MessageName for CosePrimitiveErrorView<'a> {
 ::buffa::impl_default_view_instance!(CosePrimitiveErrorView);
 ::buffa::impl_view_reborrow!(CosePrimitiveErrorView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CosePrimitiveErrorView);
-/** Self-contained, `'static` owned view of a `CosePrimitiveError` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CosePrimitiveErrorView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CosePrimitiveErrorView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CosePrimitiveErrorOwnedView(::buffa::OwnedView<CosePrimitiveErrorView<'static>>);
-impl CosePrimitiveErrorOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CosePrimitiveErrorOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CosePrimitiveErrorOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CosePrimitiveError,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CosePrimitiveErrorOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CosePrimitiveErrorView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CosePrimitiveErrorView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CosePrimitiveError {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Reason must be a caller-input, COSE semantic, Sign1, Key, or Multikey
-    /// reason. Provider-only and backend-only reasons are rejected by the Rust
-    /// wire adapter.
-    ///
-    /// Field 1: `reason`
-    #[must_use]
-    pub fn reason(&self) -> ::buffa::EnumValue<super::super::CoseErrorReason> {
-        self.0.reborrow().reason
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CosePrimitiveErrorView<'static>>>
-    for CosePrimitiveErrorOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CosePrimitiveErrorView<'static>>) -> Self {
-        CosePrimitiveErrorOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CosePrimitiveErrorOwnedView>
-    for ::buffa::OwnedView<CosePrimitiveErrorView<'static>>
-{
-    fn from(wrapper: CosePrimitiveErrorOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CosePrimitiveErrorView<'static>>>
-    for CosePrimitiveErrorOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CosePrimitiveErrorView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CosePrimitiveError {
-    type View<'a> = CosePrimitiveErrorView<'a>;
-    type ViewHandle = CosePrimitiveErrorOwnedView;
-}
-impl ::serde::Serialize for CosePrimitiveErrorOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseProviderError describes provider selection and algorithm availability
 /// failures. It intentionally contains no backend exception text.
 #[derive(Clone, Default)]
@@ -786,128 +558,6 @@ impl<'a> ::buffa::MessageName for CoseProviderErrorView<'a> {
 ::buffa::impl_default_view_instance!(CoseProviderErrorView);
 ::buffa::impl_view_reborrow!(CoseProviderErrorView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseProviderErrorView);
-/** Self-contained, `'static` owned view of a `CoseProviderError` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseProviderErrorView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseProviderErrorView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseProviderErrorOwnedView(::buffa::OwnedView<CoseProviderErrorView<'static>>);
-impl CoseProviderErrorOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderErrorOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderErrorOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseProviderError,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderErrorOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseProviderErrorView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseProviderErrorView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseProviderError {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Reason must be COSE_ERROR_REASON_COMMON_UNSUPPORTED_ALGORITHM or one of
-    /// the COSE_ERROR_REASON_PROVIDER_* values.
-    ///
-    /// Field 1: `reason`
-    #[must_use]
-    pub fn reason(&self) -> ::buffa::EnumValue<super::super::CoseErrorReason> {
-        self.0.reborrow().reason
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseProviderErrorView<'static>>>
-    for CoseProviderErrorOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseProviderErrorView<'static>>) -> Self {
-        CoseProviderErrorOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseProviderErrorOwnedView>
-    for ::buffa::OwnedView<CoseProviderErrorView<'static>>
-{
-    fn from(wrapper: CoseProviderErrorOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseProviderErrorView<'static>>>
-    for CoseProviderErrorOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseProviderErrorView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseProviderError {
-    type View<'a> = CoseProviderErrorView<'a>;
-    type ViewHandle = CoseProviderErrorOwnedView;
-}
-impl ::serde::Serialize for CoseProviderErrorOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseBackendError describes cryptographic backend, dispatch, and internal
 /// failures that are unsafe to expose as raw backend exception text.
 #[derive(Clone, Default)]
@@ -1046,129 +696,6 @@ impl<'a> ::buffa::MessageName for CoseBackendErrorView<'a> {
 ::buffa::impl_default_view_instance!(CoseBackendErrorView);
 ::buffa::impl_view_reborrow!(CoseBackendErrorView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseBackendErrorView);
-/** Self-contained, `'static` owned view of a `CoseBackendError` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseBackendErrorView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseBackendErrorView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseBackendErrorOwnedView(::buffa::OwnedView<CoseBackendErrorView<'static>>);
-impl CoseBackendErrorOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseBackendErrorOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseBackendErrorOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseBackendError,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseBackendErrorOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseBackendErrorView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseBackendErrorView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseBackendError {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Reason must describe cryptographic backend failure, output serialization,
-    /// dispatch failure, or an internal adapter invariant. Malformed or oversized
-    /// caller input belongs to the primitive branch.
-    ///
-    /// Field 1: `reason`
-    #[must_use]
-    pub fn reason(&self) -> ::buffa::EnumValue<super::super::CoseErrorReason> {
-        self.0.reborrow().reason
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseBackendErrorView<'static>>>
-    for CoseBackendErrorOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseBackendErrorView<'static>>) -> Self {
-        CoseBackendErrorOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseBackendErrorOwnedView>
-    for ::buffa::OwnedView<CoseBackendErrorView<'static>>
-{
-    fn from(wrapper: CoseBackendErrorOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseBackendErrorView<'static>>>
-    for CoseBackendErrorOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseBackendErrorView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseBackendError {
-    type View<'a> = CoseBackendErrorView<'a>;
-    type ViewHandle = CoseBackendErrorOwnedView;
-}
-impl ::serde::Serialize for CoseBackendErrorOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// All selectors are required and explicit. The caller assigns reader/device
 /// roles and selects full reader coordinates or permitted device compression.
 /// Rust view: containers/agreement_key.rs#AgreementKeyPolicy
@@ -1375,142 +902,6 @@ impl<'a> ::buffa::MessageName for CoseAgreementKeyPolicyView<'a> {
 ::buffa::impl_default_view_instance!(CoseAgreementKeyPolicyView);
 ::buffa::impl_view_reborrow!(CoseAgreementKeyPolicyView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseAgreementKeyPolicyView);
-/** Self-contained, `'static` owned view of a `CoseAgreementKeyPolicy` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseAgreementKeyPolicyView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseAgreementKeyPolicyView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseAgreementKeyPolicyOwnedView(::buffa::OwnedView<CoseAgreementKeyPolicyView<'static>>);
-impl CoseAgreementKeyPolicyOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseAgreementKeyPolicyOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseAgreementKeyPolicyOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseAgreementKeyPolicy,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseAgreementKeyPolicyOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseAgreementKeyPolicyView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseAgreementKeyPolicyView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseAgreementKeyPolicy {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Nonempty unique allowlist, at most nine exact registered curves.
-    ///
-    /// Field 1: `allowed_curves`
-    #[must_use]
-    pub fn allowed_curves(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<'_, ::buffa::EnumValue<super::super::CoseNamedCurve>>
-    {
-        &self.0.reborrow().allowed_curves
-    }
-    /// Field 2: `optional_parameters`
-    #[must_use]
-    pub fn optional_parameters(
-        &self,
-    ) -> ::buffa::EnumValue<super::super::CoseAgreementOptionalParameters> {
-        self.0.reborrow().optional_parameters
-    }
-    /// Field 3: `ec2_encoding`
-    #[must_use]
-    pub fn ec2_encoding(&self) -> ::buffa::EnumValue<super::super::CoseAgreementEc2EncodingPolicy> {
-        self.0.reborrow().ec2_encoding
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseAgreementKeyPolicyView<'static>>>
-    for CoseAgreementKeyPolicyOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseAgreementKeyPolicyView<'static>>) -> Self {
-        CoseAgreementKeyPolicyOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseAgreementKeyPolicyOwnedView>
-    for ::buffa::OwnedView<CoseAgreementKeyPolicyView<'static>>
-{
-    fn from(wrapper: CoseAgreementKeyPolicyOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseAgreementKeyPolicyView<'static>>>
-    for CoseAgreementKeyPolicyOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseAgreementKeyPolicyView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseAgreementKeyPolicy {
-    type View<'a> = CoseAgreementKeyPolicyView<'a>;
-    type ViewHandle = CoseAgreementKeyPolicyOwnedView;
-}
-impl ::serde::Serialize for CoseAgreementKeyPolicyOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseAgreementKeyCreateRequestView<'a> {
     /// Field 1: `curve`
@@ -1613,7 +1004,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseAgreementKeyCreateRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.policy.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -1634,7 +1025,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseAgreementKeyCreateRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.capability.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -1780,155 +1171,6 @@ impl<'a> ::buffa::MessageName for CoseAgreementKeyCreateRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseAgreementKeyCreateRequestView);
 ::buffa::impl_view_reborrow!(CoseAgreementKeyCreateRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseAgreementKeyCreateRequestView);
-/** Self-contained, `'static` owned view of a `CoseAgreementKeyCreateRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseAgreementKeyCreateRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseAgreementKeyCreateRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseAgreementKeyCreateRequestOwnedView(
-    ::buffa::OwnedView<CoseAgreementKeyCreateRequestView<'static>>,
-);
-impl CoseAgreementKeyCreateRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseAgreementKeyCreateRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseAgreementKeyCreateRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseAgreementKeyCreateRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseAgreementKeyCreateRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseAgreementKeyCreateRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseAgreementKeyCreateRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseAgreementKeyCreateRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `curve`
-    #[must_use]
-    pub fn curve(&self) -> ::buffa::EnumValue<super::super::CoseNamedCurve> {
-        self.0.reborrow().curve
-    }
-    /// SENSITIVE: public SEC1 EC2 or canonical Montgomery bytes; never private d.
-    ///
-    /// Field 2: `public_key`
-    #[must_use]
-    pub fn public_key(&self) -> &'_ [u8] {
-        self.0.reborrow().public_key
-    }
-    /// Field 3: `point_encoding`
-    #[must_use]
-    pub fn point_encoding(&self) -> ::buffa::EnumValue<super::super::CosePointEncoding> {
-        self.0.reborrow().point_encoding
-    }
-    /// Field 4: `policy`
-    #[must_use]
-    pub fn policy(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseAgreementKeyPolicyView<'_>>
-    {
-        &self.0.reborrow().policy
-    }
-    /// Field 6: `capability`
-    #[must_use]
-    pub fn capability(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseProviderCapabilityView<'_>>
-    {
-        &self.0.reborrow().capability
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseAgreementKeyCreateRequestView<'static>>>
-    for CoseAgreementKeyCreateRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseAgreementKeyCreateRequestView<'static>>) -> Self {
-        CoseAgreementKeyCreateRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseAgreementKeyCreateRequestOwnedView>
-    for ::buffa::OwnedView<CoseAgreementKeyCreateRequestView<'static>>
-{
-    fn from(wrapper: CoseAgreementKeyCreateRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseAgreementKeyCreateRequestView<'static>>>
-    for CoseAgreementKeyCreateRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseAgreementKeyCreateRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseAgreementKeyCreateRequest {
-    type View<'a> = CoseAgreementKeyCreateRequestView<'a>;
-    type ViewHandle = CoseAgreementKeyCreateRequestOwnedView;
-}
-impl ::serde::Serialize for CoseAgreementKeyCreateRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: containers/normalize_agreement_key.rs#CryptoAgreementKeyProvider
 #[derive(Clone, Default)]
 pub struct CoseAgreementKeyParseRequestView<'a> {
@@ -2015,7 +1257,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseAgreementKeyParseRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.policy.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -2036,7 +1278,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseAgreementKeyParseRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.capability.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -2156,145 +1398,6 @@ impl<'a> ::buffa::MessageName for CoseAgreementKeyParseRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseAgreementKeyParseRequestView);
 ::buffa::impl_view_reborrow!(CoseAgreementKeyParseRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseAgreementKeyParseRequestView);
-/** Self-contained, `'static` owned view of a `CoseAgreementKeyParseRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseAgreementKeyParseRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseAgreementKeyParseRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseAgreementKeyParseRequestOwnedView(
-    ::buffa::OwnedView<CoseAgreementKeyParseRequestView<'static>>,
-);
-impl CoseAgreementKeyParseRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseAgreementKeyParseRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseAgreementKeyParseRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseAgreementKeyParseRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseAgreementKeyParseRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseAgreementKeyParseRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseAgreementKeyParseRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseAgreementKeyParseRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: exact untagged public COSE_Key map; unsorted unique maps accepted.
-    ///
-    /// Field 1: `cose_key`
-    #[must_use]
-    pub fn cose_key(&self) -> &'_ [u8] {
-        self.0.reborrow().cose_key
-    }
-    /// Field 2: `policy`
-    #[must_use]
-    pub fn policy(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseAgreementKeyPolicyView<'_>>
-    {
-        &self.0.reborrow().policy
-    }
-    /// Field 4: `capability`
-    #[must_use]
-    pub fn capability(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseProviderCapabilityView<'_>>
-    {
-        &self.0.reborrow().capability
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseAgreementKeyParseRequestView<'static>>>
-    for CoseAgreementKeyParseRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseAgreementKeyParseRequestView<'static>>) -> Self {
-        CoseAgreementKeyParseRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseAgreementKeyParseRequestOwnedView>
-    for ::buffa::OwnedView<CoseAgreementKeyParseRequestView<'static>>
-{
-    fn from(wrapper: CoseAgreementKeyParseRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseAgreementKeyParseRequestView<'static>>>
-    for CoseAgreementKeyParseRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseAgreementKeyParseRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseAgreementKeyParseRequest {
-    type View<'a> = CoseAgreementKeyParseRequestView<'a>;
-    type ViewHandle = CoseAgreementKeyParseRequestOwnedView;
-}
-impl ::serde::Serialize for CoseAgreementKeyParseRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: containers/agreement_key.rs#AgreementKey
 #[derive(Clone, Default)]
 pub struct CoseAgreementKeyResultView<'a> {
@@ -2490,147 +1593,6 @@ impl<'a> ::buffa::MessageName for CoseAgreementKeyResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseAgreementKeyResultView);
 ::buffa::impl_view_reborrow!(CoseAgreementKeyResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseAgreementKeyResultView);
-/** Self-contained, `'static` owned view of a `CoseAgreementKeyResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseAgreementKeyResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseAgreementKeyResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseAgreementKeyResultOwnedView(::buffa::OwnedView<CoseAgreementKeyResultView<'static>>);
-impl CoseAgreementKeyResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseAgreementKeyResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseAgreementKeyResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseAgreementKeyResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseAgreementKeyResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseAgreementKeyResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseAgreementKeyResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseAgreementKeyResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: exact received map or minimal constructed map. Never reconstructed
-    /// from normalized points when parsing. Caller retains any outer tag/wrapper.
-    ///
-    /// Field 1: `cose_key`
-    #[must_use]
-    pub fn cose_key(&self) -> &'_ [u8] {
-        self.0.reborrow().cose_key
-    }
-    /// SENSITIVE: separately validated full SEC1 EC2 or canonical Montgomery bytes.
-    ///
-    /// Field 2: `public_key`
-    #[must_use]
-    pub fn public_key(&self) -> &'_ [u8] {
-        self.0.reborrow().public_key
-    }
-    /// Field 3: `curve`
-    #[must_use]
-    pub fn curve(&self) -> ::buffa::EnumValue<super::super::CoseNamedCurve> {
-        self.0.reborrow().curve
-    }
-    /// Original/emitted wire representation before normalization.
-    ///
-    /// Field 4: `point_encoding`
-    #[must_use]
-    pub fn point_encoding(&self) -> ::buffa::EnumValue<super::super::CosePointEncoding> {
-        self.0.reborrow().point_encoding
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseAgreementKeyResultView<'static>>>
-    for CoseAgreementKeyResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseAgreementKeyResultView<'static>>) -> Self {
-        CoseAgreementKeyResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseAgreementKeyResultOwnedView>
-    for ::buffa::OwnedView<CoseAgreementKeyResultView<'static>>
-{
-    fn from(wrapper: CoseAgreementKeyResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseAgreementKeyResultView<'static>>>
-    for CoseAgreementKeyResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseAgreementKeyResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseAgreementKeyResult {
-    type View<'a> = CoseAgreementKeyResultView<'a>;
-    type ViewHandle = CoseAgreementKeyResultOwnedView;
-}
-impl ::serde::Serialize for CoseAgreementKeyResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust closed value: SignatureSuite
 #[derive(Clone, Default)]
 pub struct CoseSignatureSuiteView<'a> {
@@ -2786,130 +1748,6 @@ impl<'a> ::buffa::MessageName for CoseSignatureSuiteView<'a> {
 ::buffa::impl_default_view_instance!(CoseSignatureSuiteView);
 ::buffa::impl_view_reborrow!(CoseSignatureSuiteView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSignatureSuiteView);
-/** Self-contained, `'static` owned view of a `CoseSignatureSuite` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSignatureSuiteView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSignatureSuiteView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSignatureSuiteOwnedView(::buffa::OwnedView<CoseSignatureSuiteView<'static>>);
-impl CoseSignatureSuiteOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignatureSuiteOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignatureSuiteOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSignatureSuite,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignatureSuiteOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseSignatureSuiteView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSignatureSuiteView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSignatureSuite {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `registration`
-    #[must_use]
-    pub fn registration(&self) -> ::buffa::EnumValue<super::super::CoseSignatureAlgorithm> {
-        self.0.reborrow().registration
-    }
-    /// Field 2: `curve`
-    #[must_use]
-    pub fn curve(&self) -> ::buffa::EnumValue<super::super::CoseNamedCurve> {
-        self.0.reborrow().curve
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSignatureSuiteView<'static>>>
-    for CoseSignatureSuiteOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSignatureSuiteView<'static>>) -> Self {
-        CoseSignatureSuiteOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSignatureSuiteOwnedView>
-    for ::buffa::OwnedView<CoseSignatureSuiteView<'static>>
-{
-    fn from(wrapper: CoseSignatureSuiteOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSignatureSuiteView<'static>>>
-    for CoseSignatureSuiteOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSignatureSuiteView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSignatureSuite {
-    type View<'a> = CoseSignatureSuiteView<'a>;
-    type ViewHandle = CoseSignatureSuiteOwnedView;
-}
-impl ::serde::Serialize for CoseSignatureSuiteOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// If this message is absent, operation-specific defaults apply. If present,
 /// zero is a real zero ceiling. Sign1 encoded budgets may exceed the historical
 /// 65,536-byte default up to the absolute 1,048,576-byte ceiling; larger encoded
@@ -3078,139 +1916,6 @@ impl<'a> ::buffa::MessageName for CoseByteLimitsView<'a> {
 ::buffa::impl_default_view_instance!(CoseByteLimitsView);
 ::buffa::impl_view_reborrow!(CoseByteLimitsView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseByteLimitsView);
-/** Self-contained, `'static` owned view of a `CoseByteLimits` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseByteLimitsView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseByteLimitsView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseByteLimitsOwnedView(::buffa::OwnedView<CoseByteLimitsView<'static>>);
-impl CoseByteLimitsOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseByteLimitsOwnedView(::buffa::OwnedView::decode(bytes)?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseByteLimitsOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseByteLimits,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseByteLimitsOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseByteLimitsView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseByteLimitsView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseByteLimits {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Rust maximum: MAX_COSE_SIGN1_ENCODED_BYTES; default: MAX_COSE_SIGN1_BYTES; reject
-    ///
-    /// Field 1: `encoded_bytes`
-    #[must_use]
-    pub fn encoded_bytes(&self) -> u64 {
-        self.0.reborrow().encoded_bytes
-    }
-    /// Rust maximum: MAX_DETACHED_PAYLOAD_BYTES
-    ///
-    /// Field 2: `payload_bytes`
-    #[must_use]
-    pub fn payload_bytes(&self) -> u64 {
-        self.0.reborrow().payload_bytes
-    }
-    /// Rust maximum: MAX_COSE_SIGN1_BYTES
-    ///
-    /// Field 3: `external_aad_bytes`
-    #[must_use]
-    pub fn external_aad_bytes(&self) -> u64 {
-        self.0.reborrow().external_aad_bytes
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseByteLimitsView<'static>>>
-    for CoseByteLimitsOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseByteLimitsView<'static>>) -> Self {
-        CoseByteLimitsOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseByteLimitsOwnedView>
-    for ::buffa::OwnedView<CoseByteLimitsView<'static>>
-{
-    fn from(wrapper: CoseByteLimitsOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseByteLimitsView<'static>>>
-    for CoseByteLimitsOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseByteLimitsView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseByteLimits {
-    type View<'a> = CoseByteLimitsView<'a>;
-    type ViewHandle = CoseByteLimitsOwnedView;
-}
-impl ::serde::Serialize for CoseByteLimitsOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: mac0/types.rs#CoseMac0VerifyRequest
 /// Rust view: mac0/key.rs#CoseMacKey
 #[derive(Clone, Default)]
@@ -3355,7 +2060,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseMac0VerifyRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.capability.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -3376,7 +2081,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseMac0VerifyRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.limits.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -3582,181 +2287,6 @@ impl<'a> ::buffa::MessageName for CoseMac0VerifyRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseMac0VerifyRequestView);
 ::buffa::impl_view_reborrow!(CoseMac0VerifyRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseMac0VerifyRequestView);
-/** Self-contained, `'static` owned view of a `CoseMac0VerifyRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseMac0VerifyRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseMac0VerifyRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseMac0VerifyRequestOwnedView(::buffa::OwnedView<CoseMac0VerifyRequestView<'static>>);
-impl CoseMac0VerifyRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMac0VerifyRequestOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMac0VerifyRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseMac0VerifyRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMac0VerifyRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseMac0VerifyRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseMac0VerifyRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseMac0VerifyRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: exact encoded COSE_Mac0, optionally tagged 17.
-    ///
-    /// Field 1: `encoded`
-    #[must_use]
-    pub fn encoded(&self) -> &'_ [u8] {
-        self.0.reborrow().encoded
-    }
-    /// SENSITIVE: expected detached payload; never returned in metadata.
-    ///
-    /// Field 2: `detached_payload`
-    #[must_use]
-    pub fn detached_payload(&self) -> &'_ [u8] {
-        self.0.reborrow().detached_payload
-    }
-    /// SENSITIVE: explicit external AAD, including empty bytes.
-    ///
-    /// Field 3: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// Field 4: `allowed_algorithms`
-    #[must_use]
-    pub fn allowed_algorithms(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<'_, ::buffa::EnumValue<super::super::CoseMacAlgorithm>>
-    {
-        &self.0.reborrow().allowed_algorithms
-    }
-    /// Field 5: `key_algorithm`
-    #[must_use]
-    pub fn key_algorithm(&self) -> ::buffa::EnumValue<super::super::CoseMacAlgorithm> {
-        self.0.reborrow().key_algorithm
-    }
-    /// Field 6: `key_source`
-    #[must_use]
-    pub fn key_source(&self) -> ::buffa::EnumValue<super::super::CoseKeySource> {
-        self.0.reborrow().key_source
-    }
-    /// SENSITIVE: direct key consumed into a protected owner; never returned.
-    ///
-    /// Field 7: `key`
-    #[must_use]
-    pub fn key(&self) -> &'_ [u8] {
-        self.0.reborrow().key
-    }
-    /// Field 10: `capability`
-    #[must_use]
-    pub fn capability(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseProviderCapabilityView<'_>>
-    {
-        &self.0.reborrow().capability
-    }
-    /// Field 9: `limits`
-    #[must_use]
-    pub fn limits(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseByteLimitsView<'_>> {
-        &self.0.reborrow().limits
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseMac0VerifyRequestView<'static>>>
-    for CoseMac0VerifyRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseMac0VerifyRequestView<'static>>) -> Self {
-        CoseMac0VerifyRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseMac0VerifyRequestOwnedView>
-    for ::buffa::OwnedView<CoseMac0VerifyRequestView<'static>>
-{
-    fn from(wrapper: CoseMac0VerifyRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseMac0VerifyRequestView<'static>>>
-    for CoseMac0VerifyRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseMac0VerifyRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseMac0VerifyRequest {
-    type View<'a> = CoseMac0VerifyRequestView<'a>;
-    type ViewHandle = CoseMac0VerifyRequestOwnedView;
-}
-impl ::serde::Serialize for CoseMac0VerifyRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: mac0/types.rs#VerifiedDetachedCoseMac0
 #[derive(Clone, Default)]
 pub struct CoseMac0VerifyResultView<'a> {
@@ -3837,7 +2367,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseMac0VerifyResultView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.protected_kid = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.protected_kid =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
@@ -3887,7 +2418,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseMac0VerifyResultView<'a> {
         if !self.protected_headers.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected_headers) as u64;
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -3905,7 +2436,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseMac0VerifyResultView<'a> {
         if !self.protected_headers.is_empty() {
             ::buffa::types::put_shared_bytes_field(2u32, &self.protected_headers, buf);
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             ::buffa::types::put_shared_bytes_field(3u32, v, buf);
         }
     }
@@ -3929,139 +2460,6 @@ impl<'a> ::buffa::MessageName for CoseMac0VerifyResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseMac0VerifyResultView);
 ::buffa::impl_view_reborrow!(CoseMac0VerifyResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseMac0VerifyResultView);
-/** Self-contained, `'static` owned view of a `CoseMac0VerifyResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseMac0VerifyResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseMac0VerifyResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseMac0VerifyResultOwnedView(::buffa::OwnedView<CoseMac0VerifyResultView<'static>>);
-impl CoseMac0VerifyResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMac0VerifyResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMac0VerifyResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseMac0VerifyResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMac0VerifyResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseMac0VerifyResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseMac0VerifyResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseMac0VerifyResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `algorithm`
-    #[must_use]
-    pub fn algorithm(&self) -> ::buffa::EnumValue<super::super::CoseMacAlgorithm> {
-        self.0.reborrow().algorithm
-    }
-    /// SENSITIVE: exact authenticated protected-header bytes.
-    ///
-    /// Field 2: `protected_headers`
-    #[must_use]
-    pub fn protected_headers(&self) -> &'_ [u8] {
-        self.0.reborrow().protected_headers
-    }
-    /// SENSITIVE: authenticated key identifier, if present.
-    ///
-    /// Field 3: `protected_kid`
-    #[must_use]
-    pub fn protected_kid(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().protected_kid
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseMac0VerifyResultView<'static>>>
-    for CoseMac0VerifyResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseMac0VerifyResultView<'static>>) -> Self {
-        CoseMac0VerifyResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseMac0VerifyResultOwnedView>
-    for ::buffa::OwnedView<CoseMac0VerifyResultView<'static>>
-{
-    fn from(wrapper: CoseMac0VerifyResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseMac0VerifyResultView<'static>>>
-    for CoseMac0VerifyResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseMac0VerifyResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseMac0VerifyResult {
-    type View<'a> = CoseMac0VerifyResultView<'a>;
-    type ViewHandle = CoseMac0VerifyResultOwnedView;
-}
-impl ::serde::Serialize for CoseMac0VerifyResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: iso18013/types.rs#Iso18013Sign1Request
 #[derive(Clone, Default)]
 pub struct CoseIsoSign1VerifyRequestView<'a> {
@@ -4194,7 +2592,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseIsoSign1VerifyRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.key_suite.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -4230,7 +2628,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseIsoSign1VerifyRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.capability.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -4251,7 +2649,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseIsoSign1VerifyRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.limits.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -4467,190 +2865,6 @@ impl<'a> ::buffa::MessageName for CoseIsoSign1VerifyRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseIsoSign1VerifyRequestView);
 ::buffa::impl_view_reborrow!(CoseIsoSign1VerifyRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseIsoSign1VerifyRequestView);
-/** Self-contained, `'static` owned view of a `CoseIsoSign1VerifyRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseIsoSign1VerifyRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseIsoSign1VerifyRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseIsoSign1VerifyRequestOwnedView(
-    ::buffa::OwnedView<CoseIsoSign1VerifyRequestView<'static>>,
-);
-impl CoseIsoSign1VerifyRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseIsoSign1VerifyRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseIsoSign1VerifyRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseIsoSign1VerifyRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseIsoSign1VerifyRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseIsoSign1VerifyRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseIsoSign1VerifyRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseIsoSign1VerifyRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: exact received Sign1 bytes.
-    ///
-    /// Field 1: `encoded`
-    #[must_use]
-    pub fn encoded(&self) -> &'_ [u8] {
-        self.0.reborrow().encoded
-    }
-    /// Field 2: `content`
-    #[must_use]
-    pub fn content(&self) -> ::buffa::EnumValue<super::super::CoseIsoSign1Content> {
-        self.0.reborrow().content
-    }
-    /// SENSITIVE: exact external device/reader bytes; empty for issuer role.
-    ///
-    /// Field 3: `detached_payload`
-    #[must_use]
-    pub fn detached_payload(&self) -> &'_ [u8] {
-        self.0.reborrow().detached_payload
-    }
-    /// Field 4: `allowed_suites`
-    #[must_use]
-    pub fn allowed_suites(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        super::super::__buffa::view::CoseSignatureSuiteView<'_>,
-    > {
-        &self.0.reborrow().allowed_suites
-    }
-    /// Field 5: `key_suite`
-    #[must_use]
-    pub fn key_suite(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'_>> {
-        &self.0.reborrow().key_suite
-    }
-    /// SENSITIVE: SEC1/Edwards public point or exact COSE_Key when flagged.
-    ///
-    /// Field 6: `public_key`
-    #[must_use]
-    pub fn public_key(&self) -> &'_ [u8] {
-        self.0.reborrow().public_key
-    }
-    /// Field 7: `public_key_is_cose`
-    #[must_use]
-    pub fn public_key_is_cose(&self) -> bool {
-        self.0.reborrow().public_key_is_cose
-    }
-    /// Field 8: `key_source`
-    #[must_use]
-    pub fn key_source(&self) -> ::buffa::EnumValue<super::super::CoseKeySource> {
-        self.0.reborrow().key_source
-    }
-    /// Field 11: `capability`
-    #[must_use]
-    pub fn capability(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseProviderCapabilityView<'_>>
-    {
-        &self.0.reborrow().capability
-    }
-    /// Field 10: `limits`
-    #[must_use]
-    pub fn limits(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseByteLimitsView<'_>> {
-        &self.0.reborrow().limits
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseIsoSign1VerifyRequestView<'static>>>
-    for CoseIsoSign1VerifyRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseIsoSign1VerifyRequestView<'static>>) -> Self {
-        CoseIsoSign1VerifyRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseIsoSign1VerifyRequestOwnedView>
-    for ::buffa::OwnedView<CoseIsoSign1VerifyRequestView<'static>>
-{
-    fn from(wrapper: CoseIsoSign1VerifyRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseIsoSign1VerifyRequestView<'static>>>
-    for CoseIsoSign1VerifyRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseIsoSign1VerifyRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseIsoSign1VerifyRequest {
-    type View<'a> = CoseIsoSign1VerifyRequestView<'a>;
-    type ViewHandle = CoseIsoSign1VerifyRequestOwnedView;
-}
-impl ::serde::Serialize for CoseIsoSign1VerifyRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: iso18013/types.rs#VerifiedIso18013Sign1
 #[derive(Clone, Default)]
 pub struct CoseIsoSign1VerifyResultView<'a> {
@@ -4733,7 +2947,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseIsoSign1VerifyResultView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.suite.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -4758,14 +2972,16 @@ impl<'a> ::buffa::MessageView<'a> for CoseIsoSign1VerifyResultView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.protected_kid = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.protected_kid =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             5u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.attached_payload = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.attached_payload =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
@@ -4825,10 +3041,10 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseIsoSign1VerifyResultView<'a> {
         if !self.protected_headers.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected_headers) as u64;
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
-        if let Some(ref v) = self.attached_payload {
+        if let ::core::option::Option::Some(ref v) = self.attached_payload {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -4844,10 +3060,10 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseIsoSign1VerifyResultView<'a> {
         if !self.protected_headers.is_empty() {
             ::buffa::types::put_shared_bytes_field(2u32, &self.protected_headers, buf);
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             ::buffa::types::put_shared_bytes_field(3u32, v, buf);
         }
-        if let Some(ref v) = self.attached_payload {
+        if let ::core::option::Option::Some(ref v) = self.attached_payload {
             ::buffa::types::put_shared_bytes_field(5u32, v, buf);
         }
     }
@@ -4871,150 +3087,6 @@ impl<'a> ::buffa::MessageName for CoseIsoSign1VerifyResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseIsoSign1VerifyResultView);
 ::buffa::impl_view_reborrow!(CoseIsoSign1VerifyResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseIsoSign1VerifyResultView);
-/** Self-contained, `'static` owned view of a `CoseIsoSign1VerifyResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseIsoSign1VerifyResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseIsoSign1VerifyResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseIsoSign1VerifyResultOwnedView(
-    ::buffa::OwnedView<CoseIsoSign1VerifyResultView<'static>>,
-);
-impl CoseIsoSign1VerifyResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseIsoSign1VerifyResultOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseIsoSign1VerifyResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseIsoSign1VerifyResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseIsoSign1VerifyResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseIsoSign1VerifyResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseIsoSign1VerifyResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseIsoSign1VerifyResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `suite`
-    #[must_use]
-    pub fn suite(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'_>> {
-        &self.0.reborrow().suite
-    }
-    /// SENSITIVE: exact authenticated protected map bytes.
-    ///
-    /// Field 2: `protected_headers`
-    #[must_use]
-    pub fn protected_headers(&self) -> &'_ [u8] {
-        self.0.reborrow().protected_headers
-    }
-    /// SENSITIVE: authenticated protected kid.
-    ///
-    /// Field 3: `protected_kid`
-    #[must_use]
-    pub fn protected_kid(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().protected_kid
-    }
-    /// SENSITIVE: attached issuer payload, never a copied detached payload.
-    ///
-    /// Field 5: `attached_payload`
-    #[must_use]
-    pub fn attached_payload(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().attached_payload
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseIsoSign1VerifyResultView<'static>>>
-    for CoseIsoSign1VerifyResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseIsoSign1VerifyResultView<'static>>) -> Self {
-        CoseIsoSign1VerifyResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseIsoSign1VerifyResultOwnedView>
-    for ::buffa::OwnedView<CoseIsoSign1VerifyResultView<'static>>
-{
-    fn from(wrapper: CoseIsoSign1VerifyResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseIsoSign1VerifyResultView<'static>>>
-    for CoseIsoSign1VerifyResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseIsoSign1VerifyResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseIsoSign1VerifyResult {
-    type View<'a> = CoseIsoSign1VerifyResultView<'a>;
-    type ViewHandle = CoseIsoSign1VerifyResultOwnedView;
-}
-impl ::serde::Serialize for CoseIsoSign1VerifyResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust closed value: ContainerPolicy
 #[derive(Clone, Default)]
 pub struct CoseContainerPolicyView<'a> {
@@ -5191,135 +3263,6 @@ impl<'a> ::buffa::MessageName for CoseContainerPolicyView<'a> {
 ::buffa::impl_default_view_instance!(CoseContainerPolicyView);
 ::buffa::impl_view_reborrow!(CoseContainerPolicyView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseContainerPolicyView);
-/** Self-contained, `'static` owned view of a `CoseContainerPolicy` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseContainerPolicyView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseContainerPolicyView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseContainerPolicyOwnedView(::buffa::OwnedView<CoseContainerPolicyView<'static>>);
-impl CoseContainerPolicyOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseContainerPolicyOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseContainerPolicyOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseContainerPolicy,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseContainerPolicyOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseContainerPolicyView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseContainerPolicyView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseContainerPolicy {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `profile`
-    #[must_use]
-    pub fn profile(&self) -> ::buffa::EnumValue<super::super::CoseContainerProfile> {
-        self.0.reborrow().profile
-    }
-    /// Field 2: `purpose`
-    #[must_use]
-    pub fn purpose(&self) -> ::buffa::EnumValue<super::super::CoseContainerPurpose> {
-        self.0.reborrow().purpose
-    }
-    /// Field 3: `envelope`
-    #[must_use]
-    pub fn envelope(&self) -> ::buffa::EnumValue<super::super::CoseEnvelopePolicy> {
-        self.0.reborrow().envelope
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseContainerPolicyView<'static>>>
-    for CoseContainerPolicyOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseContainerPolicyView<'static>>) -> Self {
-        CoseContainerPolicyOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseContainerPolicyOwnedView>
-    for ::buffa::OwnedView<CoseContainerPolicyView<'static>>
-{
-    fn from(wrapper: CoseContainerPolicyOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseContainerPolicyView<'static>>>
-    for CoseContainerPolicyOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseContainerPolicyView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseContainerPolicy {
-    type View<'a> = CoseContainerPolicyView<'a>;
-    type ViewHandle = CoseContainerPolicyOwnedView;
-}
-impl ::serde::Serialize for CoseContainerPolicyOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: containers/provider.rs#CryptoVerificationKey
 /// Rust view: containers/provider.rs#CertificateSelection
 /// Rust borrowed view: containers/provider.rs#CertificateSelection
@@ -5399,7 +3342,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseWorkingKeyView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.suite.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -5518,139 +3461,6 @@ impl<'a> ::buffa::MessageName for CoseWorkingKeyView<'a> {
 ::buffa::impl_default_view_instance!(CoseWorkingKeyView);
 ::buffa::impl_view_reborrow!(CoseWorkingKeyView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseWorkingKeyView);
-/** Self-contained, `'static` owned view of a `CoseWorkingKey` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseWorkingKeyView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseWorkingKeyView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseWorkingKeyOwnedView(::buffa::OwnedView<CoseWorkingKeyView<'static>>);
-impl CoseWorkingKeyOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseWorkingKeyOwnedView(::buffa::OwnedView::decode(bytes)?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseWorkingKeyOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseWorkingKey,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseWorkingKeyOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseWorkingKeyView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseWorkingKeyView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseWorkingKey {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `suite`
-    #[must_use]
-    pub fn suite(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'_>> {
-        &self.0.reborrow().suite
-    }
-    /// SENSITIVE: effective validated public key material, never a private key.
-    ///
-    /// Field 2: `public_key`
-    #[must_use]
-    pub fn public_key(&self) -> &'_ [u8] {
-        self.0.reborrow().public_key
-    }
-    /// SENSITIVE: exact 32-byte external trust/working-key context identity.
-    ///
-    /// Field 3: `context_id`
-    #[must_use]
-    pub fn context_id(&self) -> &'_ [u8] {
-        self.0.reborrow().context_id
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseWorkingKeyView<'static>>>
-    for CoseWorkingKeyOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseWorkingKeyView<'static>>) -> Self {
-        CoseWorkingKeyOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseWorkingKeyOwnedView>
-    for ::buffa::OwnedView<CoseWorkingKeyView<'static>>
-{
-    fn from(wrapper: CoseWorkingKeyOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseWorkingKeyView<'static>>>
-    for CoseWorkingKeyOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseWorkingKeyView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseWorkingKey {
-    type View<'a> = CoseWorkingKeyView<'a>;
-    type ViewHandle = CoseWorkingKeyOwnedView;
-}
-impl ::serde::Serialize for CoseWorkingKeyOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: containers/verify.rs#ContainerVerifyRequest
 #[derive(Clone, Default)]
 pub struct CoseContainerVerifyRequestView<'a> {
@@ -5791,7 +3601,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseContainerVerifyRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.policy.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -5816,7 +3626,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseContainerVerifyRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.key.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -5837,7 +3647,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseContainerVerifyRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.capability.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -5858,7 +3668,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseContainerVerifyRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.limits.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -6088,192 +3898,6 @@ impl<'a> ::buffa::MessageName for CoseContainerVerifyRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseContainerVerifyRequestView);
 ::buffa::impl_view_reborrow!(CoseContainerVerifyRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseContainerVerifyRequestView);
-/** Self-contained, `'static` owned view of a `CoseContainerVerifyRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseContainerVerifyRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseContainerVerifyRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseContainerVerifyRequestOwnedView(
-    ::buffa::OwnedView<CoseContainerVerifyRequestView<'static>>,
-);
-impl CoseContainerVerifyRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseContainerVerifyRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseContainerVerifyRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseContainerVerifyRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseContainerVerifyRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseContainerVerifyRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseContainerVerifyRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseContainerVerifyRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: exact received Sign1 bytes, never reconstructed.
-    ///
-    /// Field 1: `encoded`
-    #[must_use]
-    pub fn encoded(&self) -> &'_ [u8] {
-        self.0.reborrow().encoded
-    }
-    /// Field 2: `content_mode`
-    #[must_use]
-    pub fn content_mode(&self) -> ::buffa::EnumValue<super::super::CoseContentMode> {
-        self.0.reborrow().content_mode
-    }
-    /// SENSITIVE: exact detached content; empty when attached is selected.
-    ///
-    /// Field 3: `detached_payload`
-    #[must_use]
-    pub fn detached_payload(&self) -> &'_ [u8] {
-        self.0.reborrow().detached_payload
-    }
-    /// SENSITIVE: explicit AAD; ISO profiles require empty bytes.
-    ///
-    /// Field 4: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// Field 5: `policy`
-    #[must_use]
-    pub fn policy(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseContainerPolicyView<'_>> {
-        &self.0.reborrow().policy
-    }
-    /// Field 6: `allowed_suites`
-    #[must_use]
-    pub fn allowed_suites(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        super::super::__buffa::view::CoseSignatureSuiteView<'_>,
-    > {
-        &self.0.reborrow().allowed_suites
-    }
-    /// Field 7: `key_source`
-    #[must_use]
-    pub fn key_source(&self) -> ::buffa::EnumValue<super::super::CoseKeySource> {
-        self.0.reborrow().key_source
-    }
-    /// Field 8: `key`
-    #[must_use]
-    pub fn key(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseWorkingKeyView<'_>> {
-        &self.0.reborrow().key
-    }
-    /// Field 11: `capability`
-    #[must_use]
-    pub fn capability(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseProviderCapabilityView<'_>>
-    {
-        &self.0.reborrow().capability
-    }
-    /// Field 10: `limits`
-    #[must_use]
-    pub fn limits(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseByteLimitsView<'_>> {
-        &self.0.reborrow().limits
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseContainerVerifyRequestView<'static>>>
-    for CoseContainerVerifyRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseContainerVerifyRequestView<'static>>) -> Self {
-        CoseContainerVerifyRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseContainerVerifyRequestOwnedView>
-    for ::buffa::OwnedView<CoseContainerVerifyRequestView<'static>>
-{
-    fn from(wrapper: CoseContainerVerifyRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseContainerVerifyRequestView<'static>>>
-    for CoseContainerVerifyRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseContainerVerifyRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseContainerVerifyRequest {
-    type View<'a> = CoseContainerVerifyRequestView<'a>;
-    type ViewHandle = CoseContainerVerifyRequestOwnedView;
-}
-impl ::serde::Serialize for CoseContainerVerifyRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: containers/receipt.rs#HeaderProvenance
 /// Rust view: containers/receipt.rs#VerifiedContainer
 #[derive(Clone, Default)]
@@ -6412,7 +4036,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseContainerVerifyResultView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.policy.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -6433,7 +4057,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseContainerVerifyResultView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.key.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -6465,7 +4089,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseContainerVerifyResultView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.certificate_sha256 = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.certificate_sha256 =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
@@ -6567,7 +4192,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseContainerVerifyResultView<'a> {
                 size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
             }
         }
-        if let Some(ref v) = self.certificate_sha256 {
+        if let ::core::option::Option::Some(ref v) = self.certificate_sha256 {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -6611,7 +4236,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseContainerVerifyResultView<'a> {
                 ::buffa::types::put_int32_field(9u32, val, buf);
             }
         }
-        if let Some(ref v) = self.certificate_sha256 {
+        if let ::core::option::Option::Some(ref v) = self.certificate_sha256 {
             ::buffa::types::put_shared_bytes_field(10u32, v, buf);
         }
     }
@@ -6635,186 +4260,6 @@ impl<'a> ::buffa::MessageName for CoseContainerVerifyResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseContainerVerifyResultView);
 ::buffa::impl_view_reborrow!(CoseContainerVerifyResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseContainerVerifyResultView);
-/** Self-contained, `'static` owned view of a `CoseContainerVerifyResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseContainerVerifyResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseContainerVerifyResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseContainerVerifyResultOwnedView(
-    ::buffa::OwnedView<CoseContainerVerifyResultView<'static>>,
-);
-impl CoseContainerVerifyResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseContainerVerifyResultOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseContainerVerifyResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseContainerVerifyResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseContainerVerifyResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseContainerVerifyResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseContainerVerifyResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseContainerVerifyResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: exact complete envelope, including received map order.
-    ///
-    /// Field 1: `encoded`
-    #[must_use]
-    pub fn encoded(&self) -> &'_ [u8] {
-        self.0.reborrow().encoded
-    }
-    /// SENSITIVE: exact authenticated protected-header bytes.
-    ///
-    /// Field 2: `protected_headers`
-    #[must_use]
-    pub fn protected_headers(&self) -> &'_ [u8] {
-        self.0.reborrow().protected_headers
-    }
-    /// SENSITIVE: exact unprotected bytes; not authenticated by the signature.
-    ///
-    /// Field 3: `unprotected_headers`
-    #[must_use]
-    pub fn unprotected_headers(&self) -> &'_ [u8] {
-        self.0.reborrow().unprotected_headers
-    }
-    /// SENSITIVE: exact authenticated attached or supplied detached payload.
-    ///
-    /// Field 4: `payload`
-    #[must_use]
-    pub fn payload(&self) -> &'_ [u8] {
-        self.0.reborrow().payload
-    }
-    /// Field 5: `policy`
-    #[must_use]
-    pub fn policy(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseContainerPolicyView<'_>> {
-        &self.0.reborrow().policy
-    }
-    /// Field 6: `key`
-    #[must_use]
-    pub fn key(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseWorkingKeyView<'_>> {
-        &self.0.reborrow().key
-    }
-    /// Field 7: `chain_placement`
-    #[must_use]
-    pub fn chain_placement(&self) -> ::buffa::EnumValue<super::super::CoseX5ChainHeaderPlacement> {
-        self.0.reborrow().chain_placement
-    }
-    /// Field 8: `protected_thumbprint`
-    #[must_use]
-    pub fn protected_thumbprint(&self) -> bool {
-        self.0.reborrow().protected_thumbprint
-    }
-    /// Field 9: `end_entity_integrity`
-    #[must_use]
-    pub fn end_entity_integrity(&self) -> ::buffa::EnumValue<super::super::CoseEndEntityIntegrity> {
-        self.0.reborrow().end_entity_integrity
-    }
-    /// SENSITIVE: SHA-256 of the exact externally selected certificate, if present.
-    ///
-    /// Field 10: `certificate_sha256`
-    #[must_use]
-    pub fn certificate_sha256(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().certificate_sha256
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseContainerVerifyResultView<'static>>>
-    for CoseContainerVerifyResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseContainerVerifyResultView<'static>>) -> Self {
-        CoseContainerVerifyResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseContainerVerifyResultOwnedView>
-    for ::buffa::OwnedView<CoseContainerVerifyResultView<'static>>
-{
-    fn from(wrapper: CoseContainerVerifyResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseContainerVerifyResultView<'static>>>
-    for CoseContainerVerifyResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseContainerVerifyResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseContainerVerifyResult {
-    type View<'a> = CoseContainerVerifyResultView<'a>;
-    type ViewHandle = CoseContainerVerifyResultOwnedView;
-}
-impl ::serde::Serialize for CoseContainerVerifyResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: containers/sign.rs#ContainerSignRequest
 #[derive(Clone, Default)]
 pub struct CoseContainerSignRequestView<'a> {
@@ -6958,7 +4403,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseContainerSignRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.policy.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -6979,7 +4424,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseContainerSignRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.capability.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -7000,7 +4445,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseContainerSignRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.limits.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -7204,187 +4649,6 @@ impl<'a> ::buffa::MessageName for CoseContainerSignRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseContainerSignRequestView);
 ::buffa::impl_view_reborrow!(CoseContainerSignRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseContainerSignRequestView);
-/** Self-contained, `'static` owned view of a `CoseContainerSignRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseContainerSignRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseContainerSignRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseContainerSignRequestOwnedView(
-    ::buffa::OwnedView<CoseContainerSignRequestView<'static>>,
-);
-impl CoseContainerSignRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseContainerSignRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseContainerSignRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseContainerSignRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseContainerSignRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseContainerSignRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseContainerSignRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseContainerSignRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: exact finalized protected map, never re-encoded before signing.
-    ///
-    /// Field 1: `protected_headers`
-    #[must_use]
-    pub fn protected_headers(&self) -> &'_ [u8] {
-        self.0.reborrow().protected_headers
-    }
-    /// SENSITIVE: exact finalized unprotected map.
-    ///
-    /// Field 2: `unprotected_headers`
-    #[must_use]
-    pub fn unprotected_headers(&self) -> &'_ [u8] {
-        self.0.reborrow().unprotected_headers
-    }
-    /// SENSITIVE: exact attached or detached bytes.
-    ///
-    /// Field 3: `payload`
-    #[must_use]
-    pub fn payload(&self) -> &'_ [u8] {
-        self.0.reborrow().payload
-    }
-    /// Field 4: `content_mode`
-    #[must_use]
-    pub fn content_mode(&self) -> ::buffa::EnumValue<super::super::CoseContentMode> {
-        self.0.reborrow().content_mode
-    }
-    /// SENSITIVE: explicit AAD; ISO profiles require empty bytes.
-    ///
-    /// Field 5: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// Field 6: `policy`
-    #[must_use]
-    pub fn policy(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseContainerPolicyView<'_>> {
-        &self.0.reborrow().policy
-    }
-    /// Field 7: `allowed_suites`
-    #[must_use]
-    pub fn allowed_suites(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        super::super::__buffa::view::CoseSignatureSuiteView<'_>,
-    > {
-        &self.0.reborrow().allowed_suites
-    }
-    /// Field 10: `capability`
-    #[must_use]
-    pub fn capability(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseProviderCapabilityView<'_>>
-    {
-        &self.0.reborrow().capability
-    }
-    /// Field 9: `limits`
-    #[must_use]
-    pub fn limits(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseByteLimitsView<'_>> {
-        &self.0.reborrow().limits
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseContainerSignRequestView<'static>>>
-    for CoseContainerSignRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseContainerSignRequestView<'static>>) -> Self {
-        CoseContainerSignRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseContainerSignRequestOwnedView>
-    for ::buffa::OwnedView<CoseContainerSignRequestView<'static>>
-{
-    fn from(wrapper: CoseContainerSignRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseContainerSignRequestView<'static>>>
-    for CoseContainerSignRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseContainerSignRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseContainerSignRequest {
-    type View<'a> = CoseContainerSignRequestView<'a>;
-    type ViewHandle = CoseContainerSignRequestOwnedView;
-}
-impl ::serde::Serialize for CoseContainerSignRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: containers/peer_key.rs#CryptoPeerKeyValidator
 #[derive(Clone, Default)]
 pub struct CosePeerKeyRequestView<'a> {
@@ -7485,7 +4749,7 @@ impl<'a> ::buffa::MessageView<'a> for CosePeerKeyRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.signature_suite.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -7511,7 +4775,7 @@ impl<'a> ::buffa::MessageView<'a> for CosePeerKeyRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.capability.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -7653,156 +4917,6 @@ impl<'a> ::buffa::MessageName for CosePeerKeyRequestView<'a> {
 ::buffa::impl_default_view_instance!(CosePeerKeyRequestView);
 ::buffa::impl_view_reborrow!(CosePeerKeyRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CosePeerKeyRequestView);
-/** Self-contained, `'static` owned view of a `CosePeerKeyRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CosePeerKeyRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CosePeerKeyRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CosePeerKeyRequestOwnedView(::buffa::OwnedView<CosePeerKeyRequestView<'static>>);
-impl CosePeerKeyRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CosePeerKeyRequestOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CosePeerKeyRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CosePeerKeyRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CosePeerKeyRequestOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CosePeerKeyRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CosePeerKeyRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CosePeerKeyRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: exact public-only COSE_Key, unsorted unique maps accepted.
-    ///
-    /// Field 1: `cose_key`
-    #[must_use]
-    pub fn cose_key(&self) -> &'_ [u8] {
-        self.0.reborrow().cose_key
-    }
-    /// Field 2: `purpose`
-    #[must_use]
-    pub fn purpose(&self) -> ::buffa::EnumValue<super::super::CosePeerKeyPurpose> {
-        self.0.reborrow().purpose
-    }
-    /// Required only for signature purpose; omitted for agreement/HPKE.
-    ///
-    /// Field 3: `signature_suite`
-    #[must_use]
-    pub fn signature_suite(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'_>> {
-        &self.0.reborrow().signature_suite
-    }
-    /// Field 4: `optional_parameters`
-    #[must_use]
-    pub fn optional_parameters(
-        &self,
-    ) -> ::buffa::EnumValue<super::super::CoseAgreementOptionalParameters> {
-        self.0.reborrow().optional_parameters
-    }
-    /// Field 6: `capability`
-    #[must_use]
-    pub fn capability(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseProviderCapabilityView<'_>>
-    {
-        &self.0.reborrow().capability
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CosePeerKeyRequestView<'static>>>
-    for CosePeerKeyRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CosePeerKeyRequestView<'static>>) -> Self {
-        CosePeerKeyRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CosePeerKeyRequestOwnedView>
-    for ::buffa::OwnedView<CosePeerKeyRequestView<'static>>
-{
-    fn from(wrapper: CosePeerKeyRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CosePeerKeyRequestView<'static>>>
-    for CosePeerKeyRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CosePeerKeyRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CosePeerKeyRequest {
-    type View<'a> = CosePeerKeyRequestView<'a>;
-    type ViewHandle = CosePeerKeyRequestOwnedView;
-}
-impl ::serde::Serialize for CosePeerKeyRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: containers/peer_key.rs#InspectedPeerKey
 /// Rust view: containers/peer_key.rs#ValidatedPeerKey
 #[derive(Clone, Default)]
@@ -7922,7 +5036,7 @@ impl<'a> ::buffa::MessageView<'a> for CosePeerKeyResultView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.signature_suite.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -8082,163 +5196,6 @@ impl<'a> ::buffa::MessageName for CosePeerKeyResultView<'a> {
 ::buffa::impl_default_view_instance!(CosePeerKeyResultView);
 ::buffa::impl_view_reborrow!(CosePeerKeyResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CosePeerKeyResultView);
-/** Self-contained, `'static` owned view of a `CosePeerKeyResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CosePeerKeyResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CosePeerKeyResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CosePeerKeyResultOwnedView(::buffa::OwnedView<CosePeerKeyResultView<'static>>);
-impl CosePeerKeyResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CosePeerKeyResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CosePeerKeyResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CosePeerKeyResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CosePeerKeyResultOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CosePeerKeyResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CosePeerKeyResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CosePeerKeyResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: exact map bytes.
-    ///
-    /// Field 1: `cose_key`
-    #[must_use]
-    pub fn cose_key(&self) -> &'_ [u8] {
-        self.0.reborrow().cose_key
-    }
-    /// SENSITIVE: original SEC1 or OKP public representation, not normalized.
-    ///
-    /// Field 2: `public_key`
-    #[must_use]
-    pub fn public_key(&self) -> &'_ [u8] {
-        self.0.reborrow().public_key
-    }
-    /// Field 3: `curve`
-    #[must_use]
-    pub fn curve(&self) -> ::buffa::EnumValue<super::super::CoseNamedCurve> {
-        self.0.reborrow().curve
-    }
-    /// Field 4: `purpose`
-    #[must_use]
-    pub fn purpose(&self) -> ::buffa::EnumValue<super::super::CosePeerKeyPurpose> {
-        self.0.reborrow().purpose
-    }
-    /// Field 5: `signature_suite`
-    #[must_use]
-    pub fn signature_suite(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'_>> {
-        &self.0.reborrow().signature_suite
-    }
-    /// Field 6: `point_encoding`
-    #[must_use]
-    pub fn point_encoding(&self) -> ::buffa::EnumValue<super::super::CosePointEncoding> {
-        self.0.reborrow().point_encoding
-    }
-    /// Inspection alone never asserts mathematical validation.
-    ///
-    /// Field 7: `validated`
-    #[must_use]
-    pub fn validated(&self) -> bool {
-        self.0.reborrow().validated
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CosePeerKeyResultView<'static>>>
-    for CosePeerKeyResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CosePeerKeyResultView<'static>>) -> Self {
-        CosePeerKeyResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CosePeerKeyResultOwnedView>
-    for ::buffa::OwnedView<CosePeerKeyResultView<'static>>
-{
-    fn from(wrapper: CosePeerKeyResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CosePeerKeyResultView<'static>>>
-    for CosePeerKeyResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CosePeerKeyResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CosePeerKeyResult {
-    type View<'a> = CosePeerKeyResultView<'a>;
-    type ViewHandle = CosePeerKeyResultOwnedView;
-}
-impl ::serde::Serialize for CosePeerKeyResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseSignatureConvertRequestView<'a> {
     /// Field 1: `curve`
@@ -8413,139 +5370,6 @@ impl<'a> ::buffa::MessageName for CoseSignatureConvertRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseSignatureConvertRequestView);
 ::buffa::impl_view_reborrow!(CoseSignatureConvertRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSignatureConvertRequestView);
-/** Self-contained, `'static` owned view of a `CoseSignatureConvertRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSignatureConvertRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSignatureConvertRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSignatureConvertRequestOwnedView(
-    ::buffa::OwnedView<CoseSignatureConvertRequestView<'static>>,
-);
-impl CoseSignatureConvertRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignatureConvertRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignatureConvertRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSignatureConvertRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignatureConvertRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseSignatureConvertRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSignatureConvertRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSignatureConvertRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `curve`
-    #[must_use]
-    pub fn curve(&self) -> ::buffa::EnumValue<super::super::CoseNamedCurve> {
-        self.0.reborrow().curve
-    }
-    /// Field 2: `encoding`
-    #[must_use]
-    pub fn encoding(&self) -> ::buffa::EnumValue<super::super::CoseSignatureEncoding> {
-        self.0.reborrow().encoding
-    }
-    /// SENSITIVE: declared signature representation, never interpreted heuristically.
-    ///
-    /// Field 3: `signature`
-    #[must_use]
-    pub fn signature(&self) -> &'_ [u8] {
-        self.0.reborrow().signature
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSignatureConvertRequestView<'static>>>
-    for CoseSignatureConvertRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSignatureConvertRequestView<'static>>) -> Self {
-        CoseSignatureConvertRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSignatureConvertRequestOwnedView>
-    for ::buffa::OwnedView<CoseSignatureConvertRequestView<'static>>
-{
-    fn from(wrapper: CoseSignatureConvertRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSignatureConvertRequestView<'static>>>
-    for CoseSignatureConvertRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSignatureConvertRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSignatureConvertRequest {
-    type View<'a> = CoseSignatureConvertRequestView<'a>;
-    type ViewHandle = CoseSignatureConvertRequestOwnedView;
-}
-impl ::serde::Serialize for CoseSignatureConvertRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: containers/sign.rs#SignedContainer
 #[derive(Clone, Default)]
 pub struct CoseOpaqueBytesView<'a> {
@@ -8674,125 +5498,6 @@ impl<'a> ::buffa::MessageName for CoseOpaqueBytesView<'a> {
 ::buffa::impl_default_view_instance!(CoseOpaqueBytesView);
 ::buffa::impl_view_reborrow!(CoseOpaqueBytesView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseOpaqueBytesView);
-/** Self-contained, `'static` owned view of a `CoseOpaqueBytes` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseOpaqueBytesView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseOpaqueBytesView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseOpaqueBytesOwnedView(::buffa::OwnedView<CoseOpaqueBytesView<'static>>);
-impl CoseOpaqueBytesOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseOpaqueBytesOwnedView(::buffa::OwnedView::decode(bytes)?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseOpaqueBytesOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseOpaqueBytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseOpaqueBytesOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseOpaqueBytesView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseOpaqueBytesView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseOpaqueBytes {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: bounded operation-specific CBOR, signature or encoded result.
-    ///
-    /// Field 1: `encoded`
-    #[must_use]
-    pub fn encoded(&self) -> &'_ [u8] {
-        self.0.reborrow().encoded
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseOpaqueBytesView<'static>>>
-    for CoseOpaqueBytesOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseOpaqueBytesView<'static>>) -> Self {
-        CoseOpaqueBytesOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseOpaqueBytesOwnedView>
-    for ::buffa::OwnedView<CoseOpaqueBytesView<'static>>
-{
-    fn from(wrapper: CoseOpaqueBytesOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseOpaqueBytesView<'static>>>
-    for CoseOpaqueBytesOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseOpaqueBytesView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseOpaqueBytes {
-    type View<'a> = CoseOpaqueBytesView<'a>;
-    type ViewHandle = CoseOpaqueBytesOwnedView;
-}
-impl ::serde::Serialize for CoseOpaqueBytesOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseValidationResultView<'a> {
     #[doc(hidden)]
@@ -8902,120 +5607,6 @@ impl<'a> ::buffa::MessageName for CoseValidationResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseValidationResultView);
 ::buffa::impl_view_reborrow!(CoseValidationResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseValidationResultView);
-/** Self-contained, `'static` owned view of a `CoseValidationResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseValidationResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseValidationResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseValidationResultOwnedView(::buffa::OwnedView<CoseValidationResultView<'static>>);
-impl CoseValidationResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseValidationResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseValidationResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseValidationResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseValidationResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseValidationResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseValidationResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseValidationResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseValidationResultView<'static>>>
-    for CoseValidationResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseValidationResultView<'static>>) -> Self {
-        CoseValidationResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseValidationResultOwnedView>
-    for ::buffa::OwnedView<CoseValidationResultView<'static>>
-{
-    fn from(wrapper: CoseValidationResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseValidationResultView<'static>>>
-    for CoseValidationResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseValidationResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseValidationResult {
-    type View<'a> = CoseValidationResultView<'a>;
-    type ViewHandle = CoseValidationResultOwnedView;
-}
-impl ::serde::Serialize for CoseValidationResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseSuiteInfoRequestView<'a> {
     /// Field 1: `suite`
@@ -9090,7 +5681,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSuiteInfoRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.suite.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -9193,134 +5784,6 @@ impl<'a> ::buffa::MessageName for CoseSuiteInfoRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseSuiteInfoRequestView);
 ::buffa::impl_view_reborrow!(CoseSuiteInfoRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSuiteInfoRequestView);
-/** Self-contained, `'static` owned view of a `CoseSuiteInfoRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSuiteInfoRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSuiteInfoRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSuiteInfoRequestOwnedView(::buffa::OwnedView<CoseSuiteInfoRequestView<'static>>);
-impl CoseSuiteInfoRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSuiteInfoRequestOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSuiteInfoRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSuiteInfoRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSuiteInfoRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseSuiteInfoRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSuiteInfoRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSuiteInfoRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `suite`
-    #[must_use]
-    pub fn suite(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'_>> {
-        &self.0.reborrow().suite
-    }
-    /// ISO family compatibility (false) versus explicit ISO table pairs (true).
-    ///
-    /// Field 2: `require_iso_pair`
-    #[must_use]
-    pub fn require_iso_pair(&self) -> bool {
-        self.0.reborrow().require_iso_pair
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSuiteInfoRequestView<'static>>>
-    for CoseSuiteInfoRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSuiteInfoRequestView<'static>>) -> Self {
-        CoseSuiteInfoRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSuiteInfoRequestOwnedView>
-    for ::buffa::OwnedView<CoseSuiteInfoRequestView<'static>>
-{
-    fn from(wrapper: CoseSuiteInfoRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSuiteInfoRequestView<'static>>>
-    for CoseSuiteInfoRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSuiteInfoRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSuiteInfoRequest {
-    type View<'a> = CoseSuiteInfoRequestView<'a>;
-    type ViewHandle = CoseSuiteInfoRequestOwnedView;
-}
-impl ::serde::Serialize for CoseSuiteInfoRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseSuiteInfoResultView<'a> {
     /// Field 1: `suite`
@@ -9405,7 +5868,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSuiteInfoResultView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.suite.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -9541,147 +6004,6 @@ impl<'a> ::buffa::MessageName for CoseSuiteInfoResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseSuiteInfoResultView);
 ::buffa::impl_view_reborrow!(CoseSuiteInfoResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSuiteInfoResultView);
-/** Self-contained, `'static` owned view of a `CoseSuiteInfoResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSuiteInfoResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSuiteInfoResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSuiteInfoResultOwnedView(::buffa::OwnedView<CoseSuiteInfoResultView<'static>>);
-impl CoseSuiteInfoResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSuiteInfoResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSuiteInfoResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSuiteInfoResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSuiteInfoResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseSuiteInfoResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSuiteInfoResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSuiteInfoResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `suite`
-    #[must_use]
-    pub fn suite(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'_>> {
-        &self.0.reborrow().suite
-    }
-    /// Field 2: `signature_bytes`
-    #[must_use]
-    pub fn signature_bytes(&self) -> u64 {
-        self.0.reborrow().signature_bytes
-    }
-    /// Field 3: `coordinate_bytes`
-    #[must_use]
-    pub fn coordinate_bytes(&self) -> u64 {
-        self.0.reborrow().coordinate_bytes
-    }
-    /// Field 4: `okp_public_bytes`
-    #[must_use]
-    pub fn okp_public_bytes(&self) -> u64 {
-        self.0.reborrow().okp_public_bytes
-    }
-    /// Field 5: `builtin_provider`
-    #[must_use]
-    pub fn builtin_provider(&self) -> bool {
-        self.0.reborrow().builtin_provider
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSuiteInfoResultView<'static>>>
-    for CoseSuiteInfoResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSuiteInfoResultView<'static>>) -> Self {
-        CoseSuiteInfoResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSuiteInfoResultOwnedView>
-    for ::buffa::OwnedView<CoseSuiteInfoResultView<'static>>
-{
-    fn from(wrapper: CoseSuiteInfoResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSuiteInfoResultView<'static>>>
-    for CoseSuiteInfoResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSuiteInfoResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSuiteInfoResult {
-    type View<'a> = CoseSuiteInfoResultView<'a>;
-    type ViewHandle = CoseSuiteInfoResultOwnedView;
-}
-impl ::serde::Serialize for CoseSuiteInfoResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: iso18013/provider.rs#Iso18013CryptoVerifier
 #[derive(Clone, Default)]
 pub struct CoseVerificationKeyImportRequestView<'a> {
@@ -9767,7 +6089,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseVerificationKeyImportRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.suite.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -9912,153 +6234,6 @@ impl<'a> ::buffa::MessageName for CoseVerificationKeyImportRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseVerificationKeyImportRequestView);
 ::buffa::impl_view_reborrow!(CoseVerificationKeyImportRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseVerificationKeyImportRequestView);
-/** Self-contained, `'static` owned view of a `CoseVerificationKeyImportRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseVerificationKeyImportRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseVerificationKeyImportRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseVerificationKeyImportRequestOwnedView(
-    ::buffa::OwnedView<CoseVerificationKeyImportRequestView<'static>>,
-);
-impl CoseVerificationKeyImportRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseVerificationKeyImportRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseVerificationKeyImportRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseVerificationKeyImportRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseVerificationKeyImportRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseVerificationKeyImportRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseVerificationKeyImportRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseVerificationKeyImportRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `suite`
-    #[must_use]
-    pub fn suite(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'_>> {
-        &self.0.reborrow().suite
-    }
-    /// SENSITIVE: public-only COSE_Key or SEC1/Edwards bytes, according to the flag.
-    ///
-    /// Field 2: `public_key`
-    #[must_use]
-    pub fn public_key(&self) -> &'_ [u8] {
-        self.0.reborrow().public_key
-    }
-    /// Field 3: `public_key_is_cose`
-    #[must_use]
-    pub fn public_key_is_cose(&self) -> bool {
-        self.0.reborrow().public_key_is_cose
-    }
-    /// SENSITIVE: fixed 32-byte identity for a generic working key.
-    ///
-    /// Field 4: `context_id`
-    #[must_use]
-    pub fn context_id(&self) -> &'_ [u8] {
-        self.0.reborrow().context_id
-    }
-    /// Field 5: `require_iso_pair`
-    #[must_use]
-    pub fn require_iso_pair(&self) -> bool {
-        self.0.reborrow().require_iso_pair
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseVerificationKeyImportRequestView<'static>>>
-    for CoseVerificationKeyImportRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseVerificationKeyImportRequestView<'static>>) -> Self {
-        CoseVerificationKeyImportRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseVerificationKeyImportRequestOwnedView>
-    for ::buffa::OwnedView<CoseVerificationKeyImportRequestView<'static>>
-{
-    fn from(wrapper: CoseVerificationKeyImportRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseVerificationKeyImportRequestView<'static>>>
-    for CoseVerificationKeyImportRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseVerificationKeyImportRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseVerificationKeyImportRequest {
-    type View<'a> = CoseVerificationKeyImportRequestView<'a>;
-    type ViewHandle = CoseVerificationKeyImportRequestOwnedView;
-}
-impl ::serde::Serialize for CoseVerificationKeyImportRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Full modern signing contract, preserving the existing request field numbers.
 /// A nonzero signer handle requires an empty private_key in the nested request.
 #[derive(Clone, Default)]
@@ -10141,7 +6316,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1CreateProfileRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.request.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -10162,7 +6337,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1CreateProfileRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.protected_type.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -10183,7 +6358,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1CreateProfileRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.capability.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -10314,145 +6489,6 @@ impl<'a> ::buffa::MessageName for CoseSign1CreateProfileRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseSign1CreateProfileRequestView);
 ::buffa::impl_view_reborrow!(CoseSign1CreateProfileRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSign1CreateProfileRequestView);
-/** Self-contained, `'static` owned view of a `CoseSign1CreateProfileRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSign1CreateProfileRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSign1CreateProfileRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSign1CreateProfileRequestOwnedView(
-    ::buffa::OwnedView<CoseSign1CreateProfileRequestView<'static>>,
-);
-impl CoseSign1CreateProfileRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1CreateProfileRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1CreateProfileRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSign1CreateProfileRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1CreateProfileRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseSign1CreateProfileRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSign1CreateProfileRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSign1CreateProfileRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `request`
-    #[must_use]
-    pub fn request(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSign1CreateRequestView<'_>>
-    {
-        &self.0.reborrow().request
-    }
-    /// Field 2: `protected_type`
-    #[must_use]
-    pub fn protected_type(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseTypeView<'_>> {
-        &self.0.reborrow().protected_type
-    }
-    /// Field 4: `capability`
-    #[must_use]
-    pub fn capability(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseProviderCapabilityView<'_>>
-    {
-        &self.0.reborrow().capability
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSign1CreateProfileRequestView<'static>>>
-    for CoseSign1CreateProfileRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSign1CreateProfileRequestView<'static>>) -> Self {
-        CoseSign1CreateProfileRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSign1CreateProfileRequestOwnedView>
-    for ::buffa::OwnedView<CoseSign1CreateProfileRequestView<'static>>
-{
-    fn from(wrapper: CoseSign1CreateProfileRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSign1CreateProfileRequestView<'static>>>
-    for CoseSign1CreateProfileRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSign1CreateProfileRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSign1CreateProfileRequest {
-    type View<'a> = CoseSign1CreateProfileRequestView<'a>;
-    type ViewHandle = CoseSign1CreateProfileRequestOwnedView;
-}
-impl ::serde::Serialize for CoseSign1CreateProfileRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Callback-aware verification contract. A resolver handle requires an empty
 /// direct public_key. Resolvers receive the exact COSE registration and kid;
 /// authorizing only a cryptographic primitive is insufficient. With a direct key,
@@ -10554,7 +6590,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1VerifyProfileRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.request.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -10590,7 +6626,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1VerifyProfileRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.capability.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -10611,7 +6647,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1VerifyProfileRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.policy.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -10763,163 +6799,6 @@ impl<'a> ::buffa::MessageName for CoseSign1VerifyProfileRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseSign1VerifyProfileRequestView);
 ::buffa::impl_view_reborrow!(CoseSign1VerifyProfileRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSign1VerifyProfileRequestView);
-/** Self-contained, `'static` owned view of a `CoseSign1VerifyProfileRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSign1VerifyProfileRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSign1VerifyProfileRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSign1VerifyProfileRequestOwnedView(
-    ::buffa::OwnedView<CoseSign1VerifyProfileRequestView<'static>>,
-);
-impl CoseSign1VerifyProfileRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1VerifyProfileRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1VerifyProfileRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSign1VerifyProfileRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1VerifyProfileRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseSign1VerifyProfileRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSign1VerifyProfileRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSign1VerifyProfileRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `request`
-    #[must_use]
-    pub fn request(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSign1VerifyRequestView<'_>>
-    {
-        &self.0.reborrow().request
-    }
-    /// SENSITIVE: exact detached bytes, including an intentionally empty payload.
-    ///
-    /// Field 2: `detached_payload`
-    #[must_use]
-    pub fn detached_payload(&self) -> &'_ [u8] {
-        self.0.reborrow().detached_payload
-    }
-    /// Field 3: `detached`
-    #[must_use]
-    pub fn detached(&self) -> bool {
-        self.0.reborrow().detached
-    }
-    /// Field 4: `allow_unprotected_x5chain`
-    #[must_use]
-    pub fn allow_unprotected_x5chain(&self) -> bool {
-        self.0.reborrow().allow_unprotected_x5chain
-    }
-    /// Field 6: `capability`
-    #[must_use]
-    pub fn capability(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseProviderCapabilityView<'_>>
-    {
-        &self.0.reborrow().capability
-    }
-    /// Field 7: `policy`
-    #[must_use]
-    pub fn policy(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseVerificationPolicyView<'_>>
-    {
-        &self.0.reborrow().policy
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSign1VerifyProfileRequestView<'static>>>
-    for CoseSign1VerifyProfileRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSign1VerifyProfileRequestView<'static>>) -> Self {
-        CoseSign1VerifyProfileRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSign1VerifyProfileRequestOwnedView>
-    for ::buffa::OwnedView<CoseSign1VerifyProfileRequestView<'static>>
-{
-    fn from(wrapper: CoseSign1VerifyProfileRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSign1VerifyProfileRequestView<'static>>>
-    for CoseSign1VerifyProfileRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSign1VerifyProfileRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSign1VerifyProfileRequest {
-    type View<'a> = CoseSign1VerifyProfileRequestView<'a>;
-    type ViewHandle = CoseSign1VerifyProfileRequestOwnedView;
-}
-impl ::serde::Serialize for CoseSign1VerifyProfileRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: sign1/verify.rs#VerifiedCoseSign1WithX5Chain
 #[derive(Clone, Default)]
 pub struct CoseSign1X5ChainResultView<'a> {
@@ -10999,7 +6878,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1X5ChainResultView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.verified.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -11020,7 +6899,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1X5ChainResultView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.x5chain.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -11147,140 +7026,6 @@ impl<'a> ::buffa::MessageName for CoseSign1X5ChainResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseSign1X5ChainResultView);
 ::buffa::impl_view_reborrow!(CoseSign1X5ChainResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSign1X5ChainResultView);
-/** Self-contained, `'static` owned view of a `CoseSign1X5ChainResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSign1X5ChainResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSign1X5ChainResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSign1X5ChainResultOwnedView(::buffa::OwnedView<CoseSign1X5ChainResultView<'static>>);
-impl CoseSign1X5ChainResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1X5ChainResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1X5ChainResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSign1X5ChainResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1X5ChainResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseSign1X5ChainResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSign1X5ChainResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSign1X5ChainResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `verified`
-    #[must_use]
-    pub fn verified(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSign1VerifyResultView<'_>>
-    {
-        &self.0.reborrow().verified
-    }
-    /// Field 2: `x5chain`
-    #[must_use]
-    pub fn x5chain(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseX5ChainView<'_>> {
-        &self.0.reborrow().x5chain
-    }
-    /// Field 3: `placement`
-    #[must_use]
-    pub fn placement(&self) -> ::buffa::EnumValue<super::super::CoseX5ChainHeaderPlacement> {
-        self.0.reborrow().placement
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSign1X5ChainResultView<'static>>>
-    for CoseSign1X5ChainResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSign1X5ChainResultView<'static>>) -> Self {
-        CoseSign1X5ChainResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSign1X5ChainResultOwnedView>
-    for ::buffa::OwnedView<CoseSign1X5ChainResultView<'static>>
-{
-    fn from(wrapper: CoseSign1X5ChainResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSign1X5ChainResultView<'static>>>
-    for CoseSign1X5ChainResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSign1X5ChainResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSign1X5ChainResult {
-    type View<'a> = CoseSign1X5ChainResultView<'a>;
-    type ViewHandle = CoseSign1X5ChainResultOwnedView;
-}
-impl ::serde::Serialize for CoseSign1X5ChainResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseAlgorithmIdentifier is used only by COSE_Key operations that accept
 /// more than one algorithm family. Operation-specific messages use the narrower
 /// family enum directly so invalid combinations are unrepresentable.
@@ -11342,7 +7087,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseAlgorithmIdentifierView<'a> {
         match tag.field_number() {
             1u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
-                view.algorithm = Some(
+                view.algorithm = ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_algorithm_identifier::Algorithm::Signature(
                         ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?),
                     ),
@@ -11350,7 +7095,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseAlgorithmIdentifierView<'a> {
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
-                view.algorithm = Some(
+                view.algorithm = ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_algorithm_identifier::Algorithm::KeyAgreement(
                         ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?),
                     ),
@@ -11358,7 +7103,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseAlgorithmIdentifierView<'a> {
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
-                view.algorithm = Some(
+                view.algorithm = ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_algorithm_identifier::Algorithm::Kem(
                         ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?),
                     ),
@@ -11489,131 +7234,6 @@ impl<'a> ::buffa::MessageName for CoseAlgorithmIdentifierView<'a> {
 ::buffa::impl_default_view_instance!(CoseAlgorithmIdentifierView);
 ::buffa::impl_view_reborrow!(CoseAlgorithmIdentifierView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseAlgorithmIdentifierView);
-/** Self-contained, `'static` owned view of a `CoseAlgorithmIdentifier` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseAlgorithmIdentifierView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseAlgorithmIdentifierView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseAlgorithmIdentifierOwnedView(
-    ::buffa::OwnedView<CoseAlgorithmIdentifierView<'static>>,
-);
-impl CoseAlgorithmIdentifierOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseAlgorithmIdentifierOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseAlgorithmIdentifierOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseAlgorithmIdentifier,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseAlgorithmIdentifierOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseAlgorithmIdentifierView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseAlgorithmIdentifierView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseAlgorithmIdentifier {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Oneof `algorithm`.
-    #[must_use]
-    pub fn algorithm(
-        &self,
-    ) -> ::core::option::Option<
-        &super::super::__buffa::view::oneof::cose_algorithm_identifier::Algorithm,
-    > {
-        self.0.reborrow().algorithm.as_ref()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseAlgorithmIdentifierView<'static>>>
-    for CoseAlgorithmIdentifierOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseAlgorithmIdentifierView<'static>>) -> Self {
-        CoseAlgorithmIdentifierOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseAlgorithmIdentifierOwnedView>
-    for ::buffa::OwnedView<CoseAlgorithmIdentifierView<'static>>
-{
-    fn from(wrapper: CoseAlgorithmIdentifierOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseAlgorithmIdentifierView<'static>>>
-    for CoseAlgorithmIdentifierOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseAlgorithmIdentifierView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseAlgorithmIdentifier {
-    type View<'a> = CoseAlgorithmIdentifierView<'a>;
-    type ViewHandle = CoseAlgorithmIdentifierOwnedView;
-}
-impl ::serde::Serialize for CoseAlgorithmIdentifierOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseProviderCapabilityView<'a> {
     /// SENSITIVE: nonzero application-local capability identifier.
@@ -11764,132 +7384,6 @@ impl<'a> ::buffa::MessageName for CoseProviderCapabilityView<'a> {
 ::buffa::impl_default_view_instance!(CoseProviderCapabilityView);
 ::buffa::impl_view_reborrow!(CoseProviderCapabilityView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseProviderCapabilityView);
-/** Self-contained, `'static` owned view of a `CoseProviderCapability` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseProviderCapabilityView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseProviderCapabilityView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseProviderCapabilityOwnedView(::buffa::OwnedView<CoseProviderCapabilityView<'static>>);
-impl CoseProviderCapabilityOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCapabilityOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCapabilityOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseProviderCapability,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCapabilityOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseProviderCapabilityView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseProviderCapabilityView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseProviderCapability {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: nonzero application-local capability identifier.
-    ///
-    /// Field 1: `handle`
-    #[must_use]
-    pub fn handle(&self) -> u64 {
-        self.0.reborrow().handle
-    }
-    /// Field 2: `kind`
-    #[must_use]
-    pub fn kind(&self) -> ::buffa::EnumValue<super::super::CoseProviderKind> {
-        self.0.reborrow().kind
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseProviderCapabilityView<'static>>>
-    for CoseProviderCapabilityOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseProviderCapabilityView<'static>>) -> Self {
-        CoseProviderCapabilityOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseProviderCapabilityOwnedView>
-    for ::buffa::OwnedView<CoseProviderCapabilityView<'static>>
-{
-    fn from(wrapper: CoseProviderCapabilityOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseProviderCapabilityView<'static>>>
-    for CoseProviderCapabilityOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseProviderCapabilityView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseProviderCapability {
-    type View<'a> = CoseProviderCapabilityView<'a>;
-    type ViewHandle = CoseProviderCapabilityOwnedView;
-}
-impl ::serde::Serialize for CoseProviderCapabilityOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: operation_contract/providers.rs#BuiltinProviders
 /// At most 32 unique, nonzero (handle, kind) capabilities in one caller context.
 #[derive(Clone, Default)]
@@ -12048,130 +7542,6 @@ impl<'a> ::buffa::MessageName for CoseProviderRegistryView<'a> {
 ::buffa::impl_default_view_instance!(CoseProviderRegistryView);
 ::buffa::impl_view_reborrow!(CoseProviderRegistryView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseProviderRegistryView);
-/** Self-contained, `'static` owned view of a `CoseProviderRegistry` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseProviderRegistryView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseProviderRegistryView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseProviderRegistryOwnedView(::buffa::OwnedView<CoseProviderRegistryView<'static>>);
-impl CoseProviderRegistryOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderRegistryOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderRegistryOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseProviderRegistry,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderRegistryOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseProviderRegistryView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseProviderRegistryView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseProviderRegistry {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `capabilities`
-    #[must_use]
-    pub fn capabilities(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        super::super::__buffa::view::CoseProviderCapabilityView<'_>,
-    > {
-        &self.0.reborrow().capabilities
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseProviderRegistryView<'static>>>
-    for CoseProviderRegistryOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseProviderRegistryView<'static>>) -> Self {
-        CoseProviderRegistryOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseProviderRegistryOwnedView>
-    for ::buffa::OwnedView<CoseProviderRegistryView<'static>>
-{
-    fn from(wrapper: CoseProviderRegistryOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseProviderRegistryView<'static>>>
-    for CoseProviderRegistryOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseProviderRegistryView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseProviderRegistry {
-    type View<'a> = CoseProviderRegistryView<'a>;
-    type ViewHandle = CoseProviderRegistryOwnedView;
-}
-impl ::serde::Serialize for CoseProviderRegistryOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseEcdsaPrehashView<'a> {
     /// Field 1: `hash`
@@ -12321,132 +7691,6 @@ impl<'a> ::buffa::MessageName for CoseEcdsaPrehashView<'a> {
 ::buffa::impl_default_view_instance!(CoseEcdsaPrehashView);
 ::buffa::impl_view_reborrow!(CoseEcdsaPrehashView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseEcdsaPrehashView);
-/** Self-contained, `'static` owned view of a `CoseEcdsaPrehash` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseEcdsaPrehashView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseEcdsaPrehashView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseEcdsaPrehashOwnedView(::buffa::OwnedView<CoseEcdsaPrehashView<'static>>);
-impl CoseEcdsaPrehashOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseEcdsaPrehashOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseEcdsaPrehashOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseEcdsaPrehash,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseEcdsaPrehashOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseEcdsaPrehashView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseEcdsaPrehashView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseEcdsaPrehash {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `hash`
-    #[must_use]
-    pub fn hash(&self) -> ::buffa::EnumValue<super::super::CoseHashAlgorithm> {
-        self.0.reborrow().hash
-    }
-    /// SENSITIVE: exactly one digest of the finalized Sig_structure.
-    ///
-    /// Field 2: `digest`
-    #[must_use]
-    pub fn digest(&self) -> &'_ [u8] {
-        self.0.reborrow().digest
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseEcdsaPrehashView<'static>>>
-    for CoseEcdsaPrehashOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseEcdsaPrehashView<'static>>) -> Self {
-        CoseEcdsaPrehashOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseEcdsaPrehashOwnedView>
-    for ::buffa::OwnedView<CoseEcdsaPrehashView<'static>>
-{
-    fn from(wrapper: CoseEcdsaPrehashOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseEcdsaPrehashView<'static>>>
-    for CoseEcdsaPrehashOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseEcdsaPrehashView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseEcdsaPrehash {
-    type View<'a> = CoseEcdsaPrehashView<'a>;
-    type ViewHandle = CoseEcdsaPrehashOwnedView;
-}
-impl ::serde::Serialize for CoseEcdsaPrehashOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust borrowed view: containers/signer.rs#SigningInput
 #[derive(Clone, Default)]
 pub struct CoseSigningInputView<'a> {
@@ -12516,7 +7760,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSigningInputView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_signing_input::Input::Message(
                         ref mut existing,
                     ),
@@ -12524,7 +7768,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSigningInputView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.input = Some(
+                    view.input = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_signing_input::Input::Message(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseOpaqueBytesView as ::buffa::MessageView>::decode_view_ctx(
@@ -12543,7 +7787,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSigningInputView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_signing_input::Input::EcdsaPrehash(
                         ref mut existing,
                     ),
@@ -12551,7 +7795,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSigningInputView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.input = Some(
+                    view.input = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_signing_input::Input::EcdsaPrehash(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseEcdsaPrehashView as ::buffa::MessageView>::decode_view_ctx(
@@ -12676,128 +7920,6 @@ impl<'a> ::buffa::MessageName for CoseSigningInputView<'a> {
 ::buffa::impl_default_view_instance!(CoseSigningInputView);
 ::buffa::impl_view_reborrow!(CoseSigningInputView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSigningInputView);
-/** Self-contained, `'static` owned view of a `CoseSigningInput` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSigningInputView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSigningInputView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSigningInputOwnedView(::buffa::OwnedView<CoseSigningInputView<'static>>);
-impl CoseSigningInputOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSigningInputOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSigningInputOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSigningInput,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSigningInputOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseSigningInputView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSigningInputView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSigningInput {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Oneof `input`.
-    #[must_use]
-    pub fn input(
-        &self,
-    ) -> ::core::option::Option<&super::super::__buffa::view::oneof::cose_signing_input::Input<'_>>
-    {
-        self.0.reborrow().input.as_ref()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSigningInputView<'static>>>
-    for CoseSigningInputOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSigningInputView<'static>>) -> Self {
-        CoseSigningInputOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSigningInputOwnedView>
-    for ::buffa::OwnedView<CoseSigningInputView<'static>>
-{
-    fn from(wrapper: CoseSigningInputOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSigningInputView<'static>>>
-    for CoseSigningInputOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSigningInputView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSigningInput {
-    type View<'a> = CoseSigningInputView<'a>;
-    type ViewHandle = CoseSigningInputOwnedView;
-}
-impl ::serde::Serialize for CoseSigningInputOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseProviderDescriptionView<'a> {
     pub description: ::core::option::Option<
@@ -12869,7 +7991,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderDescriptionView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_description::Description::VerificationKey(
                         ref mut existing,
                     ),
@@ -12881,7 +8003,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderDescriptionView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.description = Some(
+                    view.description = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_description::Description::VerificationKey(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseWorkingKeyView as ::buffa::MessageView>::decode_view_ctx(
@@ -12900,7 +8022,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderDescriptionView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_description::Description::Signer(
                         ref mut existing,
                     ),
@@ -12912,7 +8034,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderDescriptionView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.description = Some(
+                    view.description = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_description::Description::Signer(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseProviderSignerDescriptionView as ::buffa::MessageView>::decode_view_ctx(
@@ -12926,7 +8048,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderDescriptionView<'a> {
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
-                view.description = Some(
+                view.description = ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_description::Description::MacAlgorithm(
                         ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?),
                     ),
@@ -13085,131 +8207,6 @@ impl<'a> ::buffa::MessageName for CoseProviderDescriptionView<'a> {
 ::buffa::impl_default_view_instance!(CoseProviderDescriptionView);
 ::buffa::impl_view_reborrow!(CoseProviderDescriptionView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseProviderDescriptionView);
-/** Self-contained, `'static` owned view of a `CoseProviderDescription` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseProviderDescriptionView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseProviderDescriptionView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseProviderDescriptionOwnedView(
-    ::buffa::OwnedView<CoseProviderDescriptionView<'static>>,
-);
-impl CoseProviderDescriptionOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderDescriptionOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderDescriptionOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseProviderDescription,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderDescriptionOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseProviderDescriptionView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseProviderDescriptionView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseProviderDescription {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Oneof `description`.
-    #[must_use]
-    pub fn description(
-        &self,
-    ) -> ::core::option::Option<
-        &super::super::__buffa::view::oneof::cose_provider_description::Description<'_>,
-    > {
-        self.0.reborrow().description.as_ref()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseProviderDescriptionView<'static>>>
-    for CoseProviderDescriptionOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseProviderDescriptionView<'static>>) -> Self {
-        CoseProviderDescriptionOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseProviderDescriptionOwnedView>
-    for ::buffa::OwnedView<CoseProviderDescriptionView<'static>>
-{
-    fn from(wrapper: CoseProviderDescriptionOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseProviderDescriptionView<'static>>>
-    for CoseProviderDescriptionOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseProviderDescriptionView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseProviderDescription {
-    type View<'a> = CoseProviderDescriptionView<'a>;
-    type ViewHandle = CoseProviderDescriptionOwnedView;
-}
-impl ::serde::Serialize for CoseProviderDescriptionOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseProviderSignerDescriptionView<'a> {
     /// Field 1: `key`
@@ -13302,7 +8299,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderSignerDescriptionView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.key.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -13337,7 +8334,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderSignerDescriptionView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.verifier.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -13489,158 +8486,6 @@ impl<'a> ::buffa::MessageName for CoseProviderSignerDescriptionView<'a> {
 ::buffa::impl_default_view_instance!(CoseProviderSignerDescriptionView);
 ::buffa::impl_view_reborrow!(CoseProviderSignerDescriptionView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseProviderSignerDescriptionView);
-/** Self-contained, `'static` owned view of a `CoseProviderSignerDescription` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseProviderSignerDescriptionView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseProviderSignerDescriptionView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseProviderSignerDescriptionOwnedView(
-    ::buffa::OwnedView<CoseProviderSignerDescriptionView<'static>>,
-);
-impl CoseProviderSignerDescriptionOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderSignerDescriptionOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderSignerDescriptionOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseProviderSignerDescription,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderSignerDescriptionOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseProviderSignerDescriptionView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseProviderSignerDescriptionView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseProviderSignerDescription {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `key`
-    #[must_use]
-    pub fn key(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseWorkingKeyView<'_>> {
-        &self.0.reborrow().key
-    }
-    /// Field 2: `signing_mode`
-    #[must_use]
-    pub fn signing_mode(&self) -> ::buffa::EnumValue<super::super::CoseSigningMode> {
-        self.0.reborrow().signing_mode
-    }
-    /// Field 3: `prehash`
-    #[must_use]
-    pub fn prehash(&self) -> ::buffa::EnumValue<super::super::CoseHashAlgorithm> {
-        self.0.reborrow().prehash
-    }
-    /// Modern Sign1 providers use ECDSA_DER for NIST ECDSA, COSE_ECDSA for
-    /// secp256k1 (64-byte r || s), EDDSA for Ed25519, and COSE_NATIVE for ML-DSA.
-    ///
-    /// Field 4: `signature_encoding`
-    #[must_use]
-    pub fn signature_encoding(&self) -> ::buffa::EnumValue<super::super::CoseSignatureEncoding> {
-        self.0.reborrow().signature_encoding
-    }
-    /// Optional independently authorized verification capability. If absent, the
-    /// built-in crypto verifier must implement the exact tuple; there is no fallback.
-    ///
-    /// Field 5: `verifier`
-    #[must_use]
-    pub fn verifier(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseProviderCapabilityView<'_>>
-    {
-        &self.0.reborrow().verifier
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseProviderSignerDescriptionView<'static>>>
-    for CoseProviderSignerDescriptionOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseProviderSignerDescriptionView<'static>>) -> Self {
-        CoseProviderSignerDescriptionOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseProviderSignerDescriptionOwnedView>
-    for ::buffa::OwnedView<CoseProviderSignerDescriptionView<'static>>
-{
-    fn from(wrapper: CoseProviderSignerDescriptionOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseProviderSignerDescriptionView<'static>>>
-    for CoseProviderSignerDescriptionOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseProviderSignerDescriptionView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseProviderSignerDescription {
-    type View<'a> = CoseProviderSignerDescriptionView<'a>;
-    type ViewHandle = CoseProviderSignerDescriptionOwnedView;
-}
-impl ::serde::Serialize for CoseProviderSignerDescriptionOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseProviderVerifyRequestView<'a> {
     /// SENSITIVE: complete finalized authentication structure.
@@ -13733,7 +8578,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderVerifyRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.key.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -13839,145 +8684,6 @@ impl<'a> ::buffa::MessageName for CoseProviderVerifyRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseProviderVerifyRequestView);
 ::buffa::impl_view_reborrow!(CoseProviderVerifyRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseProviderVerifyRequestView);
-/** Self-contained, `'static` owned view of a `CoseProviderVerifyRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseProviderVerifyRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseProviderVerifyRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseProviderVerifyRequestOwnedView(
-    ::buffa::OwnedView<CoseProviderVerifyRequestView<'static>>,
-);
-impl CoseProviderVerifyRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderVerifyRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderVerifyRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseProviderVerifyRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderVerifyRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseProviderVerifyRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseProviderVerifyRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseProviderVerifyRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: complete finalized authentication structure.
-    ///
-    /// Field 1: `message`
-    #[must_use]
-    pub fn message(&self) -> &'_ [u8] {
-        self.0.reborrow().message
-    }
-    /// SENSITIVE: strict COSE representation, not DER.
-    ///
-    /// Field 2: `signature`
-    #[must_use]
-    pub fn signature(&self) -> &'_ [u8] {
-        self.0.reborrow().signature
-    }
-    /// Exact selected working key/context bound by the description or certificate callback.
-    ///
-    /// Field 3: `key`
-    #[must_use]
-    pub fn key(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseWorkingKeyView<'_>> {
-        &self.0.reborrow().key
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseProviderVerifyRequestView<'static>>>
-    for CoseProviderVerifyRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseProviderVerifyRequestView<'static>>) -> Self {
-        CoseProviderVerifyRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseProviderVerifyRequestOwnedView>
-    for ::buffa::OwnedView<CoseProviderVerifyRequestView<'static>>
-{
-    fn from(wrapper: CoseProviderVerifyRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseProviderVerifyRequestView<'static>>>
-    for CoseProviderVerifyRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseProviderVerifyRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseProviderVerifyRequest {
-    type View<'a> = CoseProviderVerifyRequestView<'a>;
-    type ViewHandle = CoseProviderVerifyRequestOwnedView;
-}
-impl ::serde::Serialize for CoseProviderVerifyRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseProviderResolveKeyRequestView<'a> {
     /// Exact authorized registration, never a collapsed primitive selector. Resolve
@@ -14134,137 +8840,6 @@ impl<'a> ::buffa::MessageName for CoseProviderResolveKeyRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseProviderResolveKeyRequestView);
 ::buffa::impl_view_reborrow!(CoseProviderResolveKeyRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseProviderResolveKeyRequestView);
-/** Self-contained, `'static` owned view of a `CoseProviderResolveKeyRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseProviderResolveKeyRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseProviderResolveKeyRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseProviderResolveKeyRequestOwnedView(
-    ::buffa::OwnedView<CoseProviderResolveKeyRequestView<'static>>,
-);
-impl CoseProviderResolveKeyRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderResolveKeyRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderResolveKeyRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseProviderResolveKeyRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderResolveKeyRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseProviderResolveKeyRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseProviderResolveKeyRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseProviderResolveKeyRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Exact authorized registration, never a collapsed primitive selector. Resolve
-    /// (algorithm, kid) together; ES256 and ESP256 remain separate key namespaces.
-    ///
-    /// Field 1: `algorithm`
-    #[must_use]
-    pub fn algorithm(&self) -> ::buffa::EnumValue<super::super::CoseSignatureAlgorithm> {
-        self.0.reborrow().algorithm
-    }
-    /// SENSITIVE: exact authenticated kid.
-    ///
-    /// Field 2: `kid`
-    #[must_use]
-    pub fn kid(&self) -> &'_ [u8] {
-        self.0.reborrow().kid
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseProviderResolveKeyRequestView<'static>>>
-    for CoseProviderResolveKeyRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseProviderResolveKeyRequestView<'static>>) -> Self {
-        CoseProviderResolveKeyRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseProviderResolveKeyRequestOwnedView>
-    for ::buffa::OwnedView<CoseProviderResolveKeyRequestView<'static>>
-{
-    fn from(wrapper: CoseProviderResolveKeyRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseProviderResolveKeyRequestView<'static>>>
-    for CoseProviderResolveKeyRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseProviderResolveKeyRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseProviderResolveKeyRequest {
-    type View<'a> = CoseProviderResolveKeyRequestView<'a>;
-    type ViewHandle = CoseProviderResolveKeyRequestOwnedView;
-}
-impl ::serde::Serialize for CoseProviderResolveKeyRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: containers/read_headers.rs#CertificateHeaders
 /// Rust borrowed view: containers/read_headers.rs#CertificateHeaders
 #[derive(Clone, Default)]
@@ -14355,7 +8930,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCertificateRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.chain.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -14494,151 +9069,6 @@ impl<'a> ::buffa::MessageName for CoseProviderCertificateRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseProviderCertificateRequestView);
 ::buffa::impl_view_reborrow!(CoseProviderCertificateRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseProviderCertificateRequestView);
-/** Self-contained, `'static` owned view of a `CoseProviderCertificateRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseProviderCertificateRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseProviderCertificateRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseProviderCertificateRequestOwnedView(
-    ::buffa::OwnedView<CoseProviderCertificateRequestView<'static>>,
-);
-impl CoseProviderCertificateRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCertificateRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCertificateRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseProviderCertificateRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCertificateRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseProviderCertificateRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseProviderCertificateRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseProviderCertificateRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Exact protected registration. The returned working-key suite must use
-    /// this registration and the curve required by the selected operation.
-    ///
-    /// Field 1: `algorithm`
-    #[must_use]
-    pub fn algorithm(&self) -> ::buffa::EnumValue<super::super::CoseSignatureAlgorithm> {
-        self.0.reborrow().algorithm
-    }
-    /// Field 2: `chain`
-    #[must_use]
-    pub fn chain(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseX5ChainView<'_>> {
-        &self.0.reborrow().chain
-    }
-    /// Actual received header bucket; never UNSPECIFIED when a chain is present.
-    ///
-    /// Field 3: `placement`
-    #[must_use]
-    pub fn placement(&self) -> ::buffa::EnumValue<super::super::CoseX5ChainHeaderPlacement> {
-        self.0.reborrow().placement
-    }
-    /// SENSITIVE: protected SHA-256 thumbprint, absent if empty.
-    ///
-    /// Field 4: `sha256_thumbprint`
-    #[must_use]
-    pub fn sha256_thumbprint(&self) -> &'_ [u8] {
-        self.0.reborrow().sha256_thumbprint
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseProviderCertificateRequestView<'static>>>
-    for CoseProviderCertificateRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseProviderCertificateRequestView<'static>>) -> Self {
-        CoseProviderCertificateRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseProviderCertificateRequestOwnedView>
-    for ::buffa::OwnedView<CoseProviderCertificateRequestView<'static>>
-{
-    fn from(wrapper: CoseProviderCertificateRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseProviderCertificateRequestView<'static>>>
-    for CoseProviderCertificateRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseProviderCertificateRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseProviderCertificateRequest {
-    type View<'a> = CoseProviderCertificateRequestView<'a>;
-    type ViewHandle = CoseProviderCertificateRequestOwnedView;
-}
-impl ::serde::Serialize for CoseProviderCertificateRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseProviderCertificateResultView<'a> {
     /// Field 1: `key`
@@ -14713,7 +9143,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCertificateResultView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.key.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -14822,139 +9252,6 @@ impl<'a> ::buffa::MessageName for CoseProviderCertificateResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseProviderCertificateResultView);
 ::buffa::impl_view_reborrow!(CoseProviderCertificateResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseProviderCertificateResultView);
-/** Self-contained, `'static` owned view of a `CoseProviderCertificateResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseProviderCertificateResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseProviderCertificateResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseProviderCertificateResultOwnedView(
-    ::buffa::OwnedView<CoseProviderCertificateResultView<'static>>,
-);
-impl CoseProviderCertificateResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCertificateResultOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCertificateResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseProviderCertificateResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCertificateResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseProviderCertificateResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseProviderCertificateResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseProviderCertificateResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `key`
-    #[must_use]
-    pub fn key(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseWorkingKeyView<'_>> {
-        &self.0.reborrow().key
-    }
-    /// SENSITIVE: exact selected certificate DER, independent of key equivalence.
-    /// When the request contains a chain, this must equal chain\[0\] byte for byte.
-    /// A different selection fails with CONTAINER_CERTIFICATE_MISMATCH before
-    /// signature verification or authenticated metadata release.
-    ///
-    /// Field 2: `end_entity_der`
-    #[must_use]
-    pub fn end_entity_der(&self) -> &'_ [u8] {
-        self.0.reborrow().end_entity_der
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseProviderCertificateResultView<'static>>>
-    for CoseProviderCertificateResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseProviderCertificateResultView<'static>>) -> Self {
-        CoseProviderCertificateResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseProviderCertificateResultOwnedView>
-    for ::buffa::OwnedView<CoseProviderCertificateResultView<'static>>
-{
-    fn from(wrapper: CoseProviderCertificateResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseProviderCertificateResultView<'static>>>
-    for CoseProviderCertificateResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseProviderCertificateResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseProviderCertificateResult {
-    type View<'a> = CoseProviderCertificateResultView<'a>;
-    type ViewHandle = CoseProviderCertificateResultOwnedView;
-}
-impl ::serde::Serialize for CoseProviderCertificateResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseProviderPointRequestView<'a> {
     /// Field 1: `curve`
@@ -15050,7 +9347,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderPointRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.signature_suite.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -15175,146 +9472,6 @@ impl<'a> ::buffa::MessageName for CoseProviderPointRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseProviderPointRequestView);
 ::buffa::impl_view_reborrow!(CoseProviderPointRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseProviderPointRequestView);
-/** Self-contained, `'static` owned view of a `CoseProviderPointRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseProviderPointRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseProviderPointRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseProviderPointRequestOwnedView(
-    ::buffa::OwnedView<CoseProviderPointRequestView<'static>>,
-);
-impl CoseProviderPointRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderPointRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderPointRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseProviderPointRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderPointRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseProviderPointRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseProviderPointRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseProviderPointRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `curve`
-    #[must_use]
-    pub fn curve(&self) -> ::buffa::EnumValue<super::super::CoseNamedCurve> {
-        self.0.reborrow().curve
-    }
-    /// Field 2: `purpose`
-    #[must_use]
-    pub fn purpose(&self) -> ::buffa::EnumValue<super::super::CosePeerKeyPurpose> {
-        self.0.reborrow().purpose
-    }
-    /// SENSITIVE: public-only mathematical encoding, never private material.
-    ///
-    /// Field 3: `public_key`
-    #[must_use]
-    pub fn public_key(&self) -> &'_ [u8] {
-        self.0.reborrow().public_key
-    }
-    /// Field 4: `signature_suite`
-    #[must_use]
-    pub fn signature_suite(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'_>> {
-        &self.0.reborrow().signature_suite
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseProviderPointRequestView<'static>>>
-    for CoseProviderPointRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseProviderPointRequestView<'static>>) -> Self {
-        CoseProviderPointRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseProviderPointRequestOwnedView>
-    for ::buffa::OwnedView<CoseProviderPointRequestView<'static>>
-{
-    fn from(wrapper: CoseProviderPointRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseProviderPointRequestView<'static>>>
-    for CoseProviderPointRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseProviderPointRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseProviderPointRequest {
-    type View<'a> = CoseProviderPointRequestView<'a>;
-    type ViewHandle = CoseProviderPointRequestOwnedView;
-}
-impl ::serde::Serialize for CoseProviderPointRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseProviderMacRequestView<'a> {
     /// Field 1: `algorithm`
@@ -15484,139 +9641,6 @@ impl<'a> ::buffa::MessageName for CoseProviderMacRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseProviderMacRequestView);
 ::buffa::impl_view_reborrow!(CoseProviderMacRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseProviderMacRequestView);
-/** Self-contained, `'static` owned view of a `CoseProviderMacRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseProviderMacRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseProviderMacRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseProviderMacRequestOwnedView(::buffa::OwnedView<CoseProviderMacRequestView<'static>>);
-impl CoseProviderMacRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderMacRequestOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderMacRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseProviderMacRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderMacRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseProviderMacRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseProviderMacRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseProviderMacRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `algorithm`
-    #[must_use]
-    pub fn algorithm(&self) -> ::buffa::EnumValue<super::super::CoseMacAlgorithm> {
-        self.0.reborrow().algorithm
-    }
-    /// SENSITIVE: complete MAC_structure built from exact received headers.
-    ///
-    /// Field 2: `message`
-    #[must_use]
-    pub fn message(&self) -> &'_ [u8] {
-        self.0.reborrow().message
-    }
-    /// SENSITIVE: exact registered tag width.
-    ///
-    /// Field 3: `tag`
-    #[must_use]
-    pub fn tag(&self) -> &'_ [u8] {
-        self.0.reborrow().tag
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseProviderMacRequestView<'static>>>
-    for CoseProviderMacRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseProviderMacRequestView<'static>>) -> Self {
-        CoseProviderMacRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseProviderMacRequestOwnedView>
-    for ::buffa::OwnedView<CoseProviderMacRequestView<'static>>
-{
-    fn from(wrapper: CoseProviderMacRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseProviderMacRequestView<'static>>>
-    for CoseProviderMacRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseProviderMacRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseProviderMacRequest {
-    type View<'a> = CoseProviderMacRequestView<'a>;
-    type ViewHandle = CoseProviderMacRequestOwnedView;
-}
-impl ::serde::Serialize for CoseProviderMacRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Complete callback vocabulary. An implementation in another language needs
 /// only these generated requests/results and fixed CoseErrorReason values.
 /// Rust port: mac0/key.rs#CoseMacVerifier
@@ -15749,7 +9773,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.capability.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -15769,7 +9793,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_request::Call::Describe(
                         ref mut existing,
                     ),
@@ -15777,7 +9801,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallRequestView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.call = Some(
+                    view.call = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_request::Call::Describe(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseValidationResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -15796,7 +9820,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_request::Call::Sign(
                         ref mut existing,
                     ),
@@ -15804,7 +9828,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallRequestView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.call = Some(
+                    view.call = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_request::Call::Sign(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSigningInputView as ::buffa::MessageView>::decode_view_ctx(
@@ -15823,7 +9847,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_request::Call::Verify(
                         ref mut existing,
                     ),
@@ -15831,7 +9855,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallRequestView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.call = Some(
+                    view.call = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_request::Call::Verify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseProviderVerifyRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -15850,7 +9874,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_request::Call::ResolveKey(
                         ref mut existing,
                     ),
@@ -15862,7 +9886,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.call = Some(
+                    view.call = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_request::Call::ResolveKey(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseProviderResolveKeyRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -15881,7 +9905,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_request::Call::ResolveCertificate(
                         ref mut existing,
                     ),
@@ -15893,7 +9917,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.call = Some(
+                    view.call = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_request::Call::ResolveCertificate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseProviderCertificateRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -15912,7 +9936,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_request::Call::ValidatePeer(
                         ref mut existing,
                     ),
@@ -15924,7 +9948,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.call = Some(
+                    view.call = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_request::Call::ValidatePeer(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseProviderPointRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -15943,7 +9967,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_request::Call::NormalizeAgreement(
                         ref mut existing,
                     ),
@@ -15955,7 +9979,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.call = Some(
+                    view.call = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_request::Call::NormalizeAgreement(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseProviderPointRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -15974,7 +9998,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_request::Call::VerifyMac(
                         ref mut existing,
                     ),
@@ -15982,7 +10006,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallRequestView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.call = Some(
+                    view.call = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_request::Call::VerifyMac(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseProviderMacRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -16322,139 +10346,6 @@ impl<'a> ::buffa::MessageName for CoseProviderCallRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseProviderCallRequestView);
 ::buffa::impl_view_reborrow!(CoseProviderCallRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseProviderCallRequestView);
-/** Self-contained, `'static` owned view of a `CoseProviderCallRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseProviderCallRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseProviderCallRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseProviderCallRequestOwnedView(
-    ::buffa::OwnedView<CoseProviderCallRequestView<'static>>,
-);
-impl CoseProviderCallRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCallRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCallRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseProviderCallRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCallRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseProviderCallRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseProviderCallRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseProviderCallRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `capability`
-    #[must_use]
-    pub fn capability(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseProviderCapabilityView<'_>>
-    {
-        &self.0.reborrow().capability
-    }
-    /// Oneof `call`.
-    #[must_use]
-    pub fn call(
-        &self,
-    ) -> ::core::option::Option<
-        &super::super::__buffa::view::oneof::cose_provider_call_request::Call<'_>,
-    > {
-        self.0.reborrow().call.as_ref()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseProviderCallRequestView<'static>>>
-    for CoseProviderCallRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseProviderCallRequestView<'static>>) -> Self {
-        CoseProviderCallRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseProviderCallRequestOwnedView>
-    for ::buffa::OwnedView<CoseProviderCallRequestView<'static>>
-{
-    fn from(wrapper: CoseProviderCallRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseProviderCallRequestView<'static>>>
-    for CoseProviderCallRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseProviderCallRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseProviderCallRequest {
-    type View<'a> = CoseProviderCallRequestView<'a>;
-    type ViewHandle = CoseProviderCallRequestOwnedView;
-}
-impl ::serde::Serialize for CoseProviderCallRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseProviderCallResultView<'a> {
     pub result: ::core::option::Option<
@@ -16533,7 +10424,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_result::Result::Describe(
                         ref mut existing,
                     ),
@@ -16541,7 +10432,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResultView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_result::Result::Describe(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseProviderDescriptionView as ::buffa::MessageView>::decode_view_ctx(
@@ -16560,7 +10451,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_result::Result::Sign(
                         ref mut existing,
                     ),
@@ -16568,7 +10459,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResultView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_result::Result::Sign(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseOpaqueBytesView as ::buffa::MessageView>::decode_view_ctx(
@@ -16587,7 +10478,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_result::Result::Verify(
                         ref mut existing,
                     ),
@@ -16595,7 +10486,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResultView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_result::Result::Verify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseValidationResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -16614,7 +10505,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_result::Result::ResolveKey(
                         ref mut existing,
                     ),
@@ -16626,7 +10517,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_result::Result::ResolveKey(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseOpaqueBytesView as ::buffa::MessageView>::decode_view_ctx(
@@ -16645,7 +10536,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_result::Result::ResolveCertificate(
                         ref mut existing,
                     ),
@@ -16657,7 +10548,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_result::Result::ResolveCertificate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseProviderCertificateResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -16676,7 +10567,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_result::Result::ValidatePeer(
                         ref mut existing,
                     ),
@@ -16688,7 +10579,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_result::Result::ValidatePeer(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseValidationResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -16707,7 +10598,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_result::Result::NormalizeAgreement(
                         ref mut existing,
                     ),
@@ -16719,7 +10610,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_result::Result::NormalizeAgreement(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseOpaqueBytesView as ::buffa::MessageView>::decode_view_ctx(
@@ -16738,7 +10629,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_result::Result::VerifyMac(
                         ref mut existing,
                     ),
@@ -16750,7 +10641,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_result::Result::VerifyMac(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseValidationResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -17072,129 +10963,6 @@ impl<'a> ::buffa::MessageName for CoseProviderCallResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseProviderCallResultView);
 ::buffa::impl_view_reborrow!(CoseProviderCallResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseProviderCallResultView);
-/** Self-contained, `'static` owned view of a `CoseProviderCallResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseProviderCallResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseProviderCallResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseProviderCallResultOwnedView(::buffa::OwnedView<CoseProviderCallResultView<'static>>);
-impl CoseProviderCallResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCallResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCallResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseProviderCallResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCallResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseProviderCallResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseProviderCallResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseProviderCallResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Oneof `result`.
-    #[must_use]
-    pub fn result(
-        &self,
-    ) -> ::core::option::Option<
-        &super::super::__buffa::view::oneof::cose_provider_call_result::Result<'_>,
-    > {
-        self.0.reborrow().result.as_ref()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseProviderCallResultView<'static>>>
-    for CoseProviderCallResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseProviderCallResultView<'static>>) -> Self {
-        CoseProviderCallResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseProviderCallResultOwnedView>
-    for ::buffa::OwnedView<CoseProviderCallResultView<'static>>
-{
-    fn from(wrapper: CoseProviderCallResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseProviderCallResultView<'static>>>
-    for CoseProviderCallResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseProviderCallResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseProviderCallResult {
-    type View<'a> = CoseProviderCallResultView<'a>;
-    type ViewHandle = CoseProviderCallResultOwnedView;
-}
-impl ::serde::Serialize for CoseProviderCallResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseProviderCallResponseView<'a> {
     pub outcome: ::core::option::Option<
@@ -17264,7 +11032,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResponseView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_response::Outcome::Result(
                         ref mut existing,
                     ),
@@ -17276,7 +11044,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResponseView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.outcome = Some(
+                    view.outcome = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_response::Outcome::Result(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseProviderCallResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -17295,7 +11063,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResponseView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_provider_call_response::Outcome::Error(
                         ref mut existing,
                     ),
@@ -17303,7 +11071,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseProviderCallResponseView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.outcome = Some(
+                    view.outcome = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_provider_call_response::Outcome::Error(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseErrorView as ::buffa::MessageView>::decode_view_ctx(
@@ -17451,131 +11219,6 @@ impl<'a> ::buffa::MessageName for CoseProviderCallResponseView<'a> {
 ::buffa::impl_default_view_instance!(CoseProviderCallResponseView);
 ::buffa::impl_view_reborrow!(CoseProviderCallResponseView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseProviderCallResponseView);
-/** Self-contained, `'static` owned view of a `CoseProviderCallResponse` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseProviderCallResponseView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseProviderCallResponseView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseProviderCallResponseOwnedView(
-    ::buffa::OwnedView<CoseProviderCallResponseView<'static>>,
-);
-impl CoseProviderCallResponseOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCallResponseOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCallResponseOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseProviderCallResponse,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseProviderCallResponseOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseProviderCallResponseView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseProviderCallResponseView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseProviderCallResponse {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Oneof `outcome`.
-    #[must_use]
-    pub fn outcome(
-        &self,
-    ) -> ::core::option::Option<
-        &super::super::__buffa::view::oneof::cose_provider_call_response::Outcome<'_>,
-    > {
-        self.0.reborrow().outcome.as_ref()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseProviderCallResponseView<'static>>>
-    for CoseProviderCallResponseOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseProviderCallResponseView<'static>>) -> Self {
-        CoseProviderCallResponseOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseProviderCallResponseOwnedView>
-    for ::buffa::OwnedView<CoseProviderCallResponseView<'static>>
-{
-    fn from(wrapper: CoseProviderCallResponseOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseProviderCallResponseView<'static>>>
-    for CoseProviderCallResponseOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseProviderCallResponseView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseProviderCallResponse {
-    type View<'a> = CoseProviderCallResponseView<'a>;
-    type ViewHandle = CoseProviderCallResponseOwnedView;
-}
-impl ::serde::Serialize for CoseProviderCallResponseOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// One exact-registration allowlist. The unrestricted state is explicit;
 /// otherwise an empty list rejects all. Native crypto-selector convenience
 /// builders translate immediately into this same registration namespace.
@@ -17693,7 +11336,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseVerificationPolicyView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.expected_type.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -17714,7 +11357,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseVerificationPolicyView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.limits.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -17894,164 +11537,6 @@ impl<'a> ::buffa::MessageName for CoseVerificationPolicyView<'a> {
 ::buffa::impl_default_view_instance!(CoseVerificationPolicyView);
 ::buffa::impl_view_reborrow!(CoseVerificationPolicyView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseVerificationPolicyView);
-/** Self-contained, `'static` owned view of a `CoseVerificationPolicy` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseVerificationPolicyView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseVerificationPolicyView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseVerificationPolicyOwnedView(::buffa::OwnedView<CoseVerificationPolicyView<'static>>);
-impl CoseVerificationPolicyOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseVerificationPolicyOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseVerificationPolicyOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseVerificationPolicy,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseVerificationPolicyOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseVerificationPolicyView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseVerificationPolicyView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseVerificationPolicy {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `allowed_algorithms`
-    #[must_use]
-    pub fn allowed_algorithms(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        ::buffa::EnumValue<super::super::CoseSignatureAlgorithm>,
-    > {
-        &self.0.reborrow().allowed_algorithms
-    }
-    /// Field 2: `allow_any_algorithm`
-    #[must_use]
-    pub fn allow_any_algorithm(&self) -> bool {
-        self.0.reborrow().allow_any_algorithm
-    }
-    /// Field 3: `require_kid`
-    #[must_use]
-    pub fn require_kid(&self) -> bool {
-        self.0.reborrow().require_kid
-    }
-    /// Field 4: `require_tagged_sign1`
-    #[must_use]
-    pub fn require_tagged_sign1(&self) -> bool {
-        self.0.reborrow().require_tagged_sign1
-    }
-    /// Field 5: `allow_unprotected_x5chain`
-    #[must_use]
-    pub fn allow_unprotected_x5chain(&self) -> bool {
-        self.0.reborrow().allow_unprotected_x5chain
-    }
-    /// Field 6: `expected_type`
-    #[must_use]
-    pub fn expected_type(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseTypeView<'_>> {
-        &self.0.reborrow().expected_type
-    }
-    /// Field 7: `limits`
-    #[must_use]
-    pub fn limits(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseByteLimitsView<'_>> {
-        &self.0.reborrow().limits
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseVerificationPolicyView<'static>>>
-    for CoseVerificationPolicyOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseVerificationPolicyView<'static>>) -> Self {
-        CoseVerificationPolicyOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseVerificationPolicyOwnedView>
-    for ::buffa::OwnedView<CoseVerificationPolicyView<'static>>
-{
-    fn from(wrapper: CoseVerificationPolicyOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseVerificationPolicyView<'static>>>
-    for CoseVerificationPolicyOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseVerificationPolicyView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseVerificationPolicy {
-    type View<'a> = CoseVerificationPolicyView<'a>;
-    type ViewHandle = CoseVerificationPolicyOwnedView;
-}
-impl ::serde::Serialize for CoseVerificationPolicyOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseNamedConstantView<'a> {
     /// Field 1: `constant`
@@ -18199,130 +11684,6 @@ impl<'a> ::buffa::MessageName for CoseNamedConstantView<'a> {
 ::buffa::impl_default_view_instance!(CoseNamedConstantView);
 ::buffa::impl_view_reborrow!(CoseNamedConstantView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseNamedConstantView);
-/** Self-contained, `'static` owned view of a `CoseNamedConstant` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseNamedConstantView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseNamedConstantView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseNamedConstantOwnedView(::buffa::OwnedView<CoseNamedConstantView<'static>>);
-impl CoseNamedConstantOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseNamedConstantOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseNamedConstantOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseNamedConstant,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseNamedConstantOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseNamedConstantView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseNamedConstantView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseNamedConstant {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `constant`
-    #[must_use]
-    pub fn constant(&self) -> ::buffa::EnumValue<super::super::CoseImplementationConstant> {
-        self.0.reborrow().constant
-    }
-    /// Field 2: `value`
-    #[must_use]
-    pub fn value(&self) -> i64 {
-        self.0.reborrow().value
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseNamedConstantView<'static>>>
-    for CoseNamedConstantOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseNamedConstantView<'static>>) -> Self {
-        CoseNamedConstantOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseNamedConstantOwnedView>
-    for ::buffa::OwnedView<CoseNamedConstantView<'static>>
-{
-    fn from(wrapper: CoseNamedConstantOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseNamedConstantView<'static>>>
-    for CoseNamedConstantOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseNamedConstantView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseNamedConstant {
-    type View<'a> = CoseNamedConstantView<'a>;
-    type ViewHandle = CoseNamedConstantOwnedView;
-}
-impl ::serde::Serialize for CoseNamedConstantOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseContractInfoResultView<'a> {
     /// Field 1: `constants`
@@ -18479,128 +11840,6 @@ impl<'a> ::buffa::MessageName for CoseContractInfoResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseContractInfoResultView);
 ::buffa::impl_view_reborrow!(CoseContractInfoResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseContractInfoResultView);
-/** Self-contained, `'static` owned view of a `CoseContractInfoResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseContractInfoResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseContractInfoResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseContractInfoResultOwnedView(::buffa::OwnedView<CoseContractInfoResultView<'static>>);
-impl CoseContractInfoResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseContractInfoResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseContractInfoResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseContractInfoResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseContractInfoResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseContractInfoResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseContractInfoResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseContractInfoResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `constants`
-    #[must_use]
-    pub fn constants(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<'_, super::super::__buffa::view::CoseNamedConstantView<'_>>
-    {
-        &self.0.reborrow().constants
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseContractInfoResultView<'static>>>
-    for CoseContractInfoResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseContractInfoResultView<'static>>) -> Self {
-        CoseContractInfoResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseContractInfoResultOwnedView>
-    for ::buffa::OwnedView<CoseContractInfoResultView<'static>>
-{
-    fn from(wrapper: CoseContractInfoResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseContractInfoResultView<'static>>>
-    for CoseContractInfoResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseContractInfoResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseContractInfoResult {
-    type View<'a> = CoseContractInfoResultView<'a>;
-    type ViewHandle = CoseContractInfoResultOwnedView;
-}
-impl ::serde::Serialize for CoseContractInfoResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseOperationRequest is the single executable protobuf entrypoint for
 /// FFI and generated-SDK adapters. Native Rust SDKs
 /// should keep using typed methods; adapters can use this generated oneof to
@@ -18774,7 +12013,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1Create(
                         ref mut existing,
                     ),
@@ -18786,7 +12025,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1Create(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1CreateRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -18805,7 +12044,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1CreateDetached(
                         ref mut existing,
                     ),
@@ -18817,7 +12056,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1CreateDetached(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1CreateDetachedRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -18836,7 +12075,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1Verify(
                         ref mut existing,
                     ),
@@ -18848,7 +12087,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1Verify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1VerifyRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -18867,7 +12106,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1VerifyDetached(
                         ref mut existing,
                     ),
@@ -18879,7 +12118,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1VerifyDetached(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1VerifyDetachedRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -18898,7 +12137,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::IsoSign1Verify(
                         ref mut existing,
                     ),
@@ -18910,7 +12149,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::IsoSign1Verify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseIsoSign1VerifyRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -18929,7 +12168,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::ContainerVerify(
                         ref mut existing,
                     ),
@@ -18941,7 +12180,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::ContainerVerify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseContainerVerifyRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -18960,7 +12199,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::ContainerSign(
                         ref mut existing,
                     ),
@@ -18972,7 +12211,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::ContainerSign(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseContainerSignRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -18991,7 +12230,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::SignatureToCose(
                         ref mut existing,
                     ),
@@ -19003,7 +12242,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::SignatureToCose(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSignatureConvertRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19022,7 +12261,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::SignatureToDer(
                         ref mut existing,
                     ),
@@ -19034,7 +12273,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::SignatureToDer(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSignatureConvertRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19053,7 +12292,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::SignatureValidate(
                         ref mut existing,
                     ),
@@ -19065,7 +12304,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::SignatureValidate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSignatureConvertRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19084,7 +12323,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::SignatureSuiteInfo(
                         ref mut existing,
                     ),
@@ -19096,7 +12335,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::SignatureSuiteInfo(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSuiteInfoRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19115,7 +12354,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1CreateProfile(
                         ref mut existing,
                     ),
@@ -19127,7 +12366,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1CreateProfile(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1CreateProfileRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19146,7 +12385,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1CreateDetachedProfile(
                         ref mut existing,
                     ),
@@ -19158,7 +12397,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1CreateDetachedProfile(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1CreateProfileRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19177,7 +12416,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1VerifyProfile(
                         ref mut existing,
                     ),
@@ -19189,7 +12428,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1VerifyProfile(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1VerifyProfileRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19208,7 +12447,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1VerifyX5chain(
                         ref mut existing,
                     ),
@@ -19220,7 +12459,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1VerifyX5chain(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1VerifyProfileRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19239,7 +12478,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1SignatureStructure(
                         ref mut existing,
                     ),
@@ -19251,7 +12490,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::Sign1SignatureStructure(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1SignatureStructureRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19270,7 +12509,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::RsaSign1Verify(
                         ref mut existing,
                     ),
@@ -19282,7 +12521,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::RsaSign1Verify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseRsaSign1VerifyRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19301,7 +12540,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::SignCreate(
                         ref mut existing,
                     ),
@@ -19313,7 +12552,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::SignCreate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSignCreateRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19332,7 +12571,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::SignVerify(
                         ref mut existing,
                     ),
@@ -19344,7 +12583,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::SignVerify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSignVerifyRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19363,7 +12602,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureCreate(
                         ref mut existing,
                     ),
@@ -19375,7 +12614,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureCreate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseCounterSignatureCreateRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19394,7 +12633,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureVerify(
                         ref mut existing,
                     ),
@@ -19406,7 +12645,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureVerify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseCounterSignatureVerifyRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19425,7 +12664,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignature0Create(
                         ref mut existing,
                     ),
@@ -19437,7 +12676,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignature0Create(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseCounterSignature0CreateRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19456,7 +12695,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignature0Verify(
                         ref mut existing,
                     ),
@@ -19468,7 +12707,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignature0Verify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseCounterSignature0VerifyRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19487,7 +12726,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureAttach(
                         ref mut existing,
                     ),
@@ -19499,7 +12738,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::CounterSignatureAttach(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseCounterSignatureAttachRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19518,7 +12757,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyFromPublicBytes(
                         ref mut existing,
                     ),
@@ -19530,7 +12769,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyFromPublicBytes(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeyFromPublicBytesRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19549,7 +12788,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyFromPrivateBytes(
                         ref mut existing,
                     ),
@@ -19561,7 +12800,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyFromPrivateBytes(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeyFromPrivateBytesRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19580,7 +12819,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyParse(
                         ref mut existing,
                     ),
@@ -19588,7 +12827,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyParse(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeyBytesRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19607,7 +12846,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyToPublicBytes(
                         ref mut existing,
                     ),
@@ -19619,7 +12858,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyToPublicBytes(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeyBytesRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19638,7 +12877,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyToPrivateBytes(
                         ref mut existing,
                     ),
@@ -19650,7 +12889,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyToPrivateBytes(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeyBytesRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19669,7 +12908,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyDerivePublicKid(
                         ref mut existing,
                     ),
@@ -19681,7 +12920,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyDerivePublicKid(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeyBytesRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19700,7 +12939,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyToMultikey(
                         ref mut existing,
                     ),
@@ -19712,7 +12951,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyToMultikey(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeyBytesRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19731,7 +12970,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::MultikeyToCoseKey(
                         ref mut existing,
                     ),
@@ -19743,7 +12982,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::MultikeyToCoseKey(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMultikeyToCoseKeyRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19762,7 +13001,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::AgreementKeyCreate(
                         ref mut existing,
                     ),
@@ -19774,7 +13013,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::AgreementKeyCreate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseAgreementKeyCreateRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19793,7 +13032,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::AgreementKeyParse(
                         ref mut existing,
                     ),
@@ -19805,7 +13044,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::AgreementKeyParse(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseAgreementKeyParseRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19824,7 +13063,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::PeerKeyInspect(
                         ref mut existing,
                     ),
@@ -19836,7 +13075,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::PeerKeyInspect(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CosePeerKeyRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19855,7 +13094,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::PeerKeyValidate(
                         ref mut existing,
                     ),
@@ -19867,7 +13106,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::PeerKeyValidate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CosePeerKeyRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19886,7 +13125,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::VerificationKeyImport(
                         ref mut existing,
                     ),
@@ -19898,7 +13137,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::VerificationKeyImport(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseVerificationKeyImportRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19917,7 +13156,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyToPublicVec(
                         ref mut existing,
                     ),
@@ -19929,7 +13168,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::KeyToPublicVec(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeyBytesRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19948,7 +13187,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::KeySetParse(
                         ref mut existing,
                     ),
@@ -19960,7 +13199,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::KeySetParse(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeySetParseRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -19979,7 +13218,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::KeySetCreate(
                         ref mut existing,
                     ),
@@ -19991,7 +13230,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::KeySetCreate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeySetCreateRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -20010,7 +13249,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::MlKemEncryptDirect(
                         ref mut existing,
                     ),
@@ -20022,7 +13261,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::MlKemEncryptDirect(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMlKemEncryptRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -20041,7 +13280,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::MlKemEncryptKeyWrap(
                         ref mut existing,
                     ),
@@ -20053,7 +13292,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::MlKemEncryptKeyWrap(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMlKemEncryptRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -20072,7 +13311,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::MlKemDecrypt(
                         ref mut existing,
                     ),
@@ -20084,7 +13323,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::MlKemDecrypt(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMlKemDecryptRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -20103,7 +13342,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::Encrypt0Create(
                         ref mut existing,
                     ),
@@ -20115,7 +13354,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::Encrypt0Create(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseEncrypt0CreateRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -20134,7 +13373,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::Encrypt0Decrypt(
                         ref mut existing,
                     ),
@@ -20146,7 +13385,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::Encrypt0Decrypt(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseEncrypt0DecryptRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -20165,7 +13404,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::Mac0VerifyDetached(
                         ref mut existing,
                     ),
@@ -20177,7 +13416,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::Mac0VerifyDetached(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMac0VerifyRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -20196,7 +13435,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::MacCreate(
                         ref mut existing,
                     ),
@@ -20208,7 +13447,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::MacCreate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMacCreateRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -20227,7 +13466,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::MacVerify(
                         ref mut existing,
                     ),
@@ -20239,7 +13478,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::MacVerify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMacVerifyRequestView as ::buffa::MessageView>::decode_view_ctx(
@@ -20258,7 +13497,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::PreferredCborValidate(
                         ref mut existing,
                     ),
@@ -20270,7 +13509,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::PreferredCborValidate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseOpaqueBytesView as ::buffa::MessageView>::decode_view_ctx(
@@ -20289,7 +13528,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_request::Operation::ContractInfo(
                         ref mut existing,
                     ),
@@ -20301,7 +13540,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationRequestView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.operation = Some(
+                    view.operation = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_request::Operation::ContractInfo(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseValidationResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -21841,129 +15080,6 @@ impl<'a> ::buffa::MessageName for CoseOperationRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseOperationRequestView);
 ::buffa::impl_view_reborrow!(CoseOperationRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseOperationRequestView);
-/** Self-contained, `'static` owned view of a `CoseOperationRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseOperationRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseOperationRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseOperationRequestOwnedView(::buffa::OwnedView<CoseOperationRequestView<'static>>);
-impl CoseOperationRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseOperationRequestOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseOperationRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseOperationRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseOperationRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseOperationRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseOperationRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseOperationRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Oneof `operation`.
-    #[must_use]
-    pub fn operation(
-        &self,
-    ) -> ::core::option::Option<
-        &super::super::__buffa::view::oneof::cose_operation_request::Operation<'_>,
-    > {
-        self.0.reborrow().operation.as_ref()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseOperationRequestView<'static>>>
-    for CoseOperationRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseOperationRequestView<'static>>) -> Self {
-        CoseOperationRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseOperationRequestOwnedView>
-    for ::buffa::OwnedView<CoseOperationRequestView<'static>>
-{
-    fn from(wrapper: CoseOperationRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseOperationRequestView<'static>>>
-    for CoseOperationRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseOperationRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseOperationRequest {
-    type View<'a> = CoseOperationRequestView<'a>;
-    type ViewHandle = CoseOperationRequestOwnedView;
-}
-impl ::serde::Serialize for CoseOperationRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseOperationResponseV2 is the executable response contract. Its generated
 /// oneof distinguishes success from failure without an out-of-band status or an
 /// opaque operation-specific payload.
@@ -22036,7 +15152,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResponseV2View<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_response_v2::Outcome::Result(
                         ref mut existing,
                     ),
@@ -22044,7 +15160,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResponseV2View<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.outcome = Some(
+                    view.outcome = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_response_v2::Outcome::Result(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseOperationResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -22063,7 +15179,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResponseV2View<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_response_v2::Outcome::Error(
                         ref mut existing,
                     ),
@@ -22071,7 +15187,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResponseV2View<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.outcome = Some(
+                    view.outcome = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_response_v2::Outcome::Error(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseErrorView as ::buffa::MessageView>::decode_view_ctx(
@@ -22205,131 +15321,6 @@ impl<'a> ::buffa::MessageName for CoseOperationResponseV2View<'a> {
 ::buffa::impl_default_view_instance!(CoseOperationResponseV2View);
 ::buffa::impl_view_reborrow!(CoseOperationResponseV2View);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseOperationResponseV2View);
-/** Self-contained, `'static` owned view of a `CoseOperationResponseV2` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseOperationResponseV2View`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseOperationResponseV2View`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseOperationResponseV2OwnedView(
-    ::buffa::OwnedView<CoseOperationResponseV2View<'static>>,
-);
-impl CoseOperationResponseV2OwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseOperationResponseV2OwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseOperationResponseV2OwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseOperationResponseV2,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseOperationResponseV2OwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseOperationResponseV2View`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseOperationResponseV2View<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseOperationResponseV2 {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Oneof `outcome`.
-    #[must_use]
-    pub fn outcome(
-        &self,
-    ) -> ::core::option::Option<
-        &super::super::__buffa::view::oneof::cose_operation_response_v2::Outcome<'_>,
-    > {
-        self.0.reborrow().outcome.as_ref()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseOperationResponseV2View<'static>>>
-    for CoseOperationResponseV2OwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseOperationResponseV2View<'static>>) -> Self {
-        CoseOperationResponseV2OwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseOperationResponseV2OwnedView>
-    for ::buffa::OwnedView<CoseOperationResponseV2View<'static>>
-{
-    fn from(wrapper: CoseOperationResponseV2OwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseOperationResponseV2View<'static>>>
-    for CoseOperationResponseV2OwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseOperationResponseV2View<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseOperationResponseV2 {
-    type View<'a> = CoseOperationResponseV2View<'a>;
-    type ViewHandle = CoseOperationResponseV2OwnedView;
-}
-impl ::serde::Serialize for CoseOperationResponseV2OwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseOperationResult identifies the exact operation that produced a
 /// successful response. Field numbers mirror CoseOperationRequest so generated
 /// clients can audit request/result pairing without a separate registry.
@@ -22466,7 +15457,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1Create(
                         ref mut existing,
                     ),
@@ -22474,7 +15465,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1Create(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1CreateResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -22493,7 +15484,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1CreateDetached(
                         ref mut existing,
                     ),
@@ -22505,7 +15496,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1CreateDetached(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1CreateResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -22524,7 +15515,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1Verify(
                         ref mut existing,
                     ),
@@ -22532,7 +15523,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1Verify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1VerifyResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -22551,7 +15542,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1VerifyDetached(
                         ref mut existing,
                     ),
@@ -22563,7 +15554,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1VerifyDetached(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1VerifyResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -22582,7 +15573,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::IsoSign1Verify(
                         ref mut existing,
                     ),
@@ -22594,7 +15585,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::IsoSign1Verify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseIsoSign1VerifyResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -22613,7 +15604,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::ContainerVerify(
                         ref mut existing,
                     ),
@@ -22625,7 +15616,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::ContainerVerify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseContainerVerifyResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -22644,7 +15635,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::ContainerSign(
                         ref mut existing,
                     ),
@@ -22656,7 +15647,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::ContainerSign(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseOpaqueBytesView as ::buffa::MessageView>::decode_view_ctx(
@@ -22675,7 +15666,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::SignatureToCose(
                         ref mut existing,
                     ),
@@ -22687,7 +15678,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::SignatureToCose(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseOpaqueBytesView as ::buffa::MessageView>::decode_view_ctx(
@@ -22706,7 +15697,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::SignatureToDer(
                         ref mut existing,
                     ),
@@ -22718,7 +15709,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::SignatureToDer(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseOpaqueBytesView as ::buffa::MessageView>::decode_view_ctx(
@@ -22737,7 +15728,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::SignatureValidate(
                         ref mut existing,
                     ),
@@ -22749,7 +15740,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::SignatureValidate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseValidationResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -22768,7 +15759,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::SignatureSuiteInfo(
                         ref mut existing,
                     ),
@@ -22780,7 +15771,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::SignatureSuiteInfo(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSuiteInfoResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -22799,7 +15790,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1CreateProfile(
                         ref mut existing,
                     ),
@@ -22811,7 +15802,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1CreateProfile(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1CreateResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -22830,7 +15821,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1CreateDetachedProfile(
                         ref mut existing,
                     ),
@@ -22842,7 +15833,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1CreateDetachedProfile(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1CreateResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -22861,7 +15852,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1VerifyProfile(
                         ref mut existing,
                     ),
@@ -22873,7 +15864,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1VerifyProfile(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1VerifyResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -22892,7 +15883,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1VerifyX5chain(
                         ref mut existing,
                     ),
@@ -22904,7 +15895,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1VerifyX5chain(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1X5ChainResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -22923,7 +15914,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1SignatureStructure(
                         ref mut existing,
                     ),
@@ -22935,7 +15926,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::Sign1SignatureStructure(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSign1SignatureStructureResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -22954,7 +15945,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::RsaSign1Verify(
                         ref mut existing,
                     ),
@@ -22966,7 +15957,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::RsaSign1Verify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseRsaSign1VerifyResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -22985,7 +15976,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::SignCreate(
                         ref mut existing,
                     ),
@@ -22993,7 +15984,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::SignCreate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMessageCreateResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23012,7 +16003,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::SignVerify(
                         ref mut existing,
                     ),
@@ -23020,7 +16011,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::SignVerify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseSignVerifyResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23039,7 +16030,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureCreate(
                         ref mut existing,
                     ),
@@ -23051,7 +16042,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureCreate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMessageCreateResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23070,7 +16061,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureVerify(
                         ref mut existing,
                     ),
@@ -23082,7 +16073,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureVerify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseCounterSignatureVerifyResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23101,7 +16092,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignature0Create(
                         ref mut existing,
                     ),
@@ -23113,7 +16104,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignature0Create(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMessageCreateResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23132,7 +16123,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignature0Verify(
                         ref mut existing,
                     ),
@@ -23144,7 +16135,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignature0Verify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseCounterSignatureVerifyResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23163,7 +16154,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureAttach(
                         ref mut existing,
                     ),
@@ -23175,7 +16166,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::CounterSignatureAttach(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMessageCreateResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23194,7 +16185,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::KeyFromPublicBytes(
                         ref mut existing,
                     ),
@@ -23206,7 +16197,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::KeyFromPublicBytes(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeyBytesResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23225,7 +16216,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::KeyFromPrivateBytes(
                         ref mut existing,
                     ),
@@ -23237,7 +16228,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::KeyFromPrivateBytes(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeyBytesResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23256,7 +16247,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::KeyParse(
                         ref mut existing,
                     ),
@@ -23264,7 +16255,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::KeyParse(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeyBytesResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23283,7 +16274,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::KeyToPublicBytes(
                         ref mut existing,
                     ),
@@ -23295,7 +16286,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::KeyToPublicBytes(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeyBytesResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23314,7 +16305,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::KeyToPrivateBytes(
                         ref mut existing,
                     ),
@@ -23326,7 +16317,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::KeyToPrivateBytes(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeyBytesResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23345,7 +16336,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::KeyDerivePublicKid(
                         ref mut existing,
                     ),
@@ -23357,7 +16348,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::KeyDerivePublicKid(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeyBytesResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23376,7 +16367,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::KeyToMultikey(
                         ref mut existing,
                     ),
@@ -23388,7 +16379,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::KeyToMultikey(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMultikeyResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23407,7 +16398,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::MultikeyToCoseKey(
                         ref mut existing,
                     ),
@@ -23419,7 +16410,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::MultikeyToCoseKey(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeyBytesResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23438,7 +16429,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::AgreementKeyCreate(
                         ref mut existing,
                     ),
@@ -23450,7 +16441,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::AgreementKeyCreate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseAgreementKeyResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23469,7 +16460,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::AgreementKeyParse(
                         ref mut existing,
                     ),
@@ -23481,7 +16472,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::AgreementKeyParse(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseAgreementKeyResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23500,7 +16491,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::PeerKeyInspect(
                         ref mut existing,
                     ),
@@ -23512,7 +16503,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::PeerKeyInspect(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CosePeerKeyResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23531,7 +16522,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::PeerKeyValidate(
                         ref mut existing,
                     ),
@@ -23543,7 +16534,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::PeerKeyValidate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CosePeerKeyResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23562,7 +16553,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::VerificationKeyImport(
                         ref mut existing,
                     ),
@@ -23574,7 +16565,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::VerificationKeyImport(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseWorkingKeyView as ::buffa::MessageView>::decode_view_ctx(
@@ -23593,7 +16584,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::KeyToPublicVec(
                         ref mut existing,
                     ),
@@ -23605,7 +16596,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::KeyToPublicVec(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeyBytesResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23624,7 +16615,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::KeySetParse(
                         ref mut existing,
                     ),
@@ -23632,7 +16623,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::KeySetParse(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeySetParseResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23651,7 +16642,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::KeySetCreate(
                         ref mut existing,
                     ),
@@ -23659,7 +16650,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::KeySetCreate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeySetCreateResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23678,7 +16669,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::MlKemEncryptDirect(
                         ref mut existing,
                     ),
@@ -23690,7 +16681,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::MlKemEncryptDirect(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMlKemEncryptResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23709,7 +16700,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::MlKemEncryptKeyWrap(
                         ref mut existing,
                     ),
@@ -23721,7 +16712,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::MlKemEncryptKeyWrap(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMlKemEncryptResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23740,7 +16731,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::MlKemDecrypt(
                         ref mut existing,
                     ),
@@ -23748,7 +16739,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::MlKemDecrypt(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMlKemDecryptResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23767,7 +16758,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::Encrypt0Create(
                         ref mut existing,
                     ),
@@ -23779,7 +16770,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::Encrypt0Create(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseEncrypt0CreateResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23798,7 +16789,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::Encrypt0Decrypt(
                         ref mut existing,
                     ),
@@ -23810,7 +16801,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::Encrypt0Decrypt(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseEncrypt0DecryptResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23829,7 +16820,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::Mac0VerifyDetached(
                         ref mut existing,
                     ),
@@ -23841,7 +16832,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::Mac0VerifyDetached(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMac0VerifyResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23860,7 +16851,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::MacCreate(
                         ref mut existing,
                     ),
@@ -23868,7 +16859,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::MacCreate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMessageCreateResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23887,7 +16878,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::MacVerify(
                         ref mut existing,
                     ),
@@ -23895,7 +16886,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::MacVerify(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseMacVerifyResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23914,7 +16905,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::PreferredCborValidate(
                         ref mut existing,
                     ),
@@ -23926,7 +16917,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::PreferredCborValidate(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseValidationResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -23945,7 +16936,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_operation_result::Result::ContractInfo(
                         ref mut existing,
                     ),
@@ -23953,7 +16944,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseOperationResultView<'a> {
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.result = Some(
+                    view.result = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_operation_result::Result::ContractInfo(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseContractInfoResultView as ::buffa::MessageView>::decode_view_ctx(
@@ -25493,129 +18484,6 @@ impl<'a> ::buffa::MessageName for CoseOperationResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseOperationResultView);
 ::buffa::impl_view_reborrow!(CoseOperationResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseOperationResultView);
-/** Self-contained, `'static` owned view of a `CoseOperationResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseOperationResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseOperationResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseOperationResultOwnedView(::buffa::OwnedView<CoseOperationResultView<'static>>);
-impl CoseOperationResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseOperationResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseOperationResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseOperationResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseOperationResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseOperationResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseOperationResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseOperationResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Oneof `result`.
-    #[must_use]
-    pub fn result(
-        &self,
-    ) -> ::core::option::Option<
-        &super::super::__buffa::view::oneof::cose_operation_result::Result<'_>,
-    > {
-        self.0.reborrow().result.as_ref()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseOperationResultView<'static>>>
-    for CoseOperationResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseOperationResultView<'static>>) -> Self {
-        CoseOperationResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseOperationResultOwnedView>
-    for ::buffa::OwnedView<CoseOperationResultView<'static>>
-{
-    fn from(wrapper: CoseOperationResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseOperationResultView<'static>>>
-    for CoseOperationResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseOperationResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseOperationResult {
-    type View<'a> = CoseOperationResultView<'a>;
-    type ViewHandle = CoseOperationResultOwnedView;
-}
-impl ::serde::Serialize for CoseOperationResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseMlKemEncryptRequest creates one-recipient COSE_Encrypt using the
 /// ReallyMe pre-IANA ML-KEM profile.
 /// Rust view: encrypt/types.rs#CoseMlKemEncryptRequest
@@ -25754,7 +18622,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseMlKemEncryptRequestView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.supp_priv_info = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.supp_priv_info =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
@@ -25824,7 +18693,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseMlKemEncryptRequestView<'a> {
         if !self.external_aad.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.external_aad) as u64;
         }
-        if let Some(ref v) = self.supp_priv_info {
+        if let ::core::option::Option::Some(ref v) = self.supp_priv_info {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -25857,7 +18726,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseMlKemEncryptRequestView<'a> {
         if !self.external_aad.is_empty() {
             ::buffa::types::put_shared_bytes_field(6u32, &self.external_aad, buf);
         }
-        if let Some(ref v) = self.supp_priv_info {
+        if let ::core::option::Option::Some(ref v) = self.supp_priv_info {
             ::buffa::types::put_shared_bytes_field(7u32, v, buf);
         }
     }
@@ -25881,179 +18750,6 @@ impl<'a> ::buffa::MessageName for CoseMlKemEncryptRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseMlKemEncryptRequestView);
 ::buffa::impl_view_reborrow!(CoseMlKemEncryptRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseMlKemEncryptRequestView);
-/** Self-contained, `'static` owned view of a `CoseMlKemEncryptRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseMlKemEncryptRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseMlKemEncryptRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseMlKemEncryptRequestOwnedView(
-    ::buffa::OwnedView<CoseMlKemEncryptRequestView<'static>>,
-);
-impl CoseMlKemEncryptRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMlKemEncryptRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMlKemEncryptRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseMlKemEncryptRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMlKemEncryptRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseMlKemEncryptRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseMlKemEncryptRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseMlKemEncryptRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// ML-KEM-512, ML-KEM-768, or ML-KEM-1024.
-    ///
-    /// Field 1: `kem_algorithm`
-    #[must_use]
-    pub fn kem_algorithm(&self) -> ::buffa::EnumValue<super::super::CoseKemAlgorithm> {
-        self.0.reborrow().kem_algorithm
-    }
-    /// Protected content-encryption algorithm.
-    ///
-    /// Field 2: `content_algorithm`
-    #[must_use]
-    pub fn content_algorithm(
-        &self,
-    ) -> ::buffa::EnumValue<super::super::CoseContentEncryptionAlgorithm> {
-        self.0.reborrow().content_algorithm
-    }
-    /// Recipient FIPS 203 ML-KEM encapsulation public key.
-    /// SENSITIVE: identifying bytes; generated owners wipe and redact them.
-    ///
-    /// Field 3: `recipient_public_key`
-    #[must_use]
-    pub fn recipient_public_key(&self) -> &'_ [u8] {
-        self.0.reborrow().recipient_public_key
-    }
-    /// SHA-256 thumbprint of the canonical public-only, algorithm-bound COSE_Key.
-    /// The encrypt operation rejects any value that does not identify
-    /// recipient_public_key exactly.
-    /// SENSITIVE: identifying bytes; generated owners wipe and redact them.
-    ///
-    /// Field 4: `recipient_kid`
-    #[must_use]
-    pub fn recipient_kid(&self) -> &'_ [u8] {
-        self.0.reborrow().recipient_kid
-    }
-    /// SENSITIVE: plaintext encrypted into the COSE_Encrypt ciphertext.
-    ///
-    /// Field 5: `plaintext`
-    #[must_use]
-    pub fn plaintext(&self) -> &'_ [u8] {
-        self.0.reborrow().plaintext
-    }
-    /// SENSITIVE: external AAD authenticated but not carried in COSE.
-    ///
-    /// Field 6: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// SENSITIVE: optional private KDF context; present empty differs from absent.
-    /// Maximum 65483 bytes: crypto's 65536-byte KMAC context budget minus the
-    /// 53-byte worst-case profile overhead. Checked before any KEM operation.
-    ///
-    /// Field 7: `supp_priv_info`
-    #[must_use]
-    pub fn supp_priv_info(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().supp_priv_info
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseMlKemEncryptRequestView<'static>>>
-    for CoseMlKemEncryptRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseMlKemEncryptRequestView<'static>>) -> Self {
-        CoseMlKemEncryptRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseMlKemEncryptRequestOwnedView>
-    for ::buffa::OwnedView<CoseMlKemEncryptRequestView<'static>>
-{
-    fn from(wrapper: CoseMlKemEncryptRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseMlKemEncryptRequestView<'static>>>
-    for CoseMlKemEncryptRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseMlKemEncryptRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseMlKemEncryptRequest {
-    type View<'a> = CoseMlKemEncryptRequestView<'a>;
-    type ViewHandle = CoseMlKemEncryptRequestOwnedView;
-}
-impl ::serde::Serialize for CoseMlKemEncryptRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseMlKemEncryptResultView<'a> {
     /// SENSITIVE: tagged COSE_Encrypt containing encrypted application content.
@@ -26182,127 +18878,6 @@ impl<'a> ::buffa::MessageName for CoseMlKemEncryptResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseMlKemEncryptResultView);
 ::buffa::impl_view_reborrow!(CoseMlKemEncryptResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseMlKemEncryptResultView);
-/** Self-contained, `'static` owned view of a `CoseMlKemEncryptResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseMlKemEncryptResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseMlKemEncryptResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseMlKemEncryptResultOwnedView(::buffa::OwnedView<CoseMlKemEncryptResultView<'static>>);
-impl CoseMlKemEncryptResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMlKemEncryptResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMlKemEncryptResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseMlKemEncryptResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMlKemEncryptResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseMlKemEncryptResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseMlKemEncryptResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseMlKemEncryptResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: tagged COSE_Encrypt containing encrypted application content.
-    ///
-    /// Field 1: `cose_encrypt`
-    #[must_use]
-    pub fn cose_encrypt(&self) -> &'_ [u8] {
-        self.0.reborrow().cose_encrypt
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseMlKemEncryptResultView<'static>>>
-    for CoseMlKemEncryptResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseMlKemEncryptResultView<'static>>) -> Self {
-        CoseMlKemEncryptResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseMlKemEncryptResultOwnedView>
-    for ::buffa::OwnedView<CoseMlKemEncryptResultView<'static>>
-{
-    fn from(wrapper: CoseMlKemEncryptResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseMlKemEncryptResultView<'static>>>
-    for CoseMlKemEncryptResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseMlKemEncryptResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseMlKemEncryptResult {
-    type View<'a> = CoseMlKemEncryptResultView<'a>;
-    type ViewHandle = CoseMlKemEncryptResultOwnedView;
-}
-impl ::serde::Serialize for CoseMlKemEncryptResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseMlKemDecryptRequest authenticates and decrypts the ReallyMe pre-IANA
 /// ML-KEM COSE profile.
 /// Rust view: encrypt/types.rs#CoseMlKemDecryptRequest
@@ -26419,7 +18994,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseMlKemDecryptRequestView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.supp_priv_info = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.supp_priv_info =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
@@ -26476,7 +19052,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseMlKemDecryptRequestView<'a> {
         if !self.external_aad.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.external_aad) as u64;
         }
-        if let Some(ref v) = self.supp_priv_info {
+        if let ::core::option::Option::Some(ref v) = self.supp_priv_info {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -26497,7 +19073,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseMlKemDecryptRequestView<'a> {
         if !self.external_aad.is_empty() {
             ::buffa::types::put_shared_bytes_field(4u32, &self.external_aad, buf);
         }
-        if let Some(ref v) = self.supp_priv_info {
+        if let ::core::option::Option::Some(ref v) = self.supp_priv_info {
             ::buffa::types::put_shared_bytes_field(5u32, v, buf);
         }
     }
@@ -26521,161 +19097,6 @@ impl<'a> ::buffa::MessageName for CoseMlKemDecryptRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseMlKemDecryptRequestView);
 ::buffa::impl_view_reborrow!(CoseMlKemDecryptRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseMlKemDecryptRequestView);
-/** Self-contained, `'static` owned view of a `CoseMlKemDecryptRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseMlKemDecryptRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseMlKemDecryptRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseMlKemDecryptRequestOwnedView(
-    ::buffa::OwnedView<CoseMlKemDecryptRequestView<'static>>,
-);
-impl CoseMlKemDecryptRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMlKemDecryptRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMlKemDecryptRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseMlKemDecryptRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMlKemDecryptRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseMlKemDecryptRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseMlKemDecryptRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseMlKemDecryptRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: tagged or untagged COSE_Encrypt bytes.
-    ///
-    /// Field 1: `cose_encrypt`
-    #[must_use]
-    pub fn cose_encrypt(&self) -> &'_ [u8] {
-        self.0.reborrow().cose_encrypt
-    }
-    /// SENSITIVE: 64-octet FIPS 203 private seed d || z.
-    ///
-    /// Field 2: `recipient_private_key`
-    #[must_use]
-    pub fn recipient_private_key(&self) -> &'_ [u8] {
-        self.0.reborrow().recipient_private_key
-    }
-    /// Expected SHA-256 canonical public COSE_Key thumbprint. Decryption derives
-    /// the public key from recipient_private_key and rejects a protected kid
-    /// bound to any other key before decapsulation.
-    /// SENSITIVE: identifying bytes; generated owners wipe and redact them.
-    ///
-    /// Field 3: `expected_recipient_kid`
-    #[must_use]
-    pub fn expected_recipient_kid(&self) -> &'_ [u8] {
-        self.0.reborrow().expected_recipient_kid
-    }
-    /// SENSITIVE: external AAD authenticated but not carried in COSE.
-    ///
-    /// Field 4: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// SENSITIVE: optional private KDF context; present empty differs from absent.
-    /// Same 65483-byte ceiling as encryption, enforced before decoding or KEM work.
-    ///
-    /// Field 5: `supp_priv_info`
-    #[must_use]
-    pub fn supp_priv_info(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().supp_priv_info
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseMlKemDecryptRequestView<'static>>>
-    for CoseMlKemDecryptRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseMlKemDecryptRequestView<'static>>) -> Self {
-        CoseMlKemDecryptRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseMlKemDecryptRequestOwnedView>
-    for ::buffa::OwnedView<CoseMlKemDecryptRequestView<'static>>
-{
-    fn from(wrapper: CoseMlKemDecryptRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseMlKemDecryptRequestView<'static>>>
-    for CoseMlKemDecryptRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseMlKemDecryptRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseMlKemDecryptRequest {
-    type View<'a> = CoseMlKemDecryptRequestView<'a>;
-    type ViewHandle = CoseMlKemDecryptRequestOwnedView;
-}
-impl ::serde::Serialize for CoseMlKemDecryptRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: encrypt/types.rs#DecryptedCoseEncrypt
 #[derive(Clone, Default)]
 pub struct CoseMlKemDecryptResultView<'a> {
@@ -26912,157 +19333,6 @@ impl<'a> ::buffa::MessageName for CoseMlKemDecryptResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseMlKemDecryptResultView);
 ::buffa::impl_view_reborrow!(CoseMlKemDecryptResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseMlKemDecryptResultView);
-/** Self-contained, `'static` owned view of a `CoseMlKemDecryptResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseMlKemDecryptResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseMlKemDecryptResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseMlKemDecryptResultOwnedView(::buffa::OwnedView<CoseMlKemDecryptResultView<'static>>);
-impl CoseMlKemDecryptResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMlKemDecryptResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMlKemDecryptResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseMlKemDecryptResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMlKemDecryptResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseMlKemDecryptResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseMlKemDecryptResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseMlKemDecryptResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: authenticated plaintext.
-    ///
-    /// Field 1: `plaintext`
-    #[must_use]
-    pub fn plaintext(&self) -> &'_ [u8] {
-        self.0.reborrow().plaintext
-    }
-    /// Field 2: `content_algorithm`
-    #[must_use]
-    pub fn content_algorithm(
-        &self,
-    ) -> ::buffa::EnumValue<super::super::CoseContentEncryptionAlgorithm> {
-        self.0.reborrow().content_algorithm
-    }
-    /// Field 3: `kem_algorithm`
-    #[must_use]
-    pub fn kem_algorithm(&self) -> ::buffa::EnumValue<super::super::CoseKemAlgorithm> {
-        self.0.reborrow().kem_algorithm
-    }
-    /// Field 4: `mode`
-    #[must_use]
-    pub fn mode(&self) -> ::buffa::EnumValue<super::super::CoseMlKemMode> {
-        self.0.reborrow().mode
-    }
-    /// Authenticated canonical public COSE_Key thumbprint from the recipient.
-    /// SENSITIVE: identifying bytes; generated owners wipe and redact them.
-    ///
-    /// Field 5: `recipient_kid`
-    #[must_use]
-    pub fn recipient_kid(&self) -> &'_ [u8] {
-        self.0.reborrow().recipient_kid
-    }
-    /// Field 6: `profile`
-    #[must_use]
-    pub fn profile(&self) -> ::buffa::EnumValue<super::super::CoseMlKemProfile> {
-        self.0.reborrow().profile
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseMlKemDecryptResultView<'static>>>
-    for CoseMlKemDecryptResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseMlKemDecryptResultView<'static>>) -> Self {
-        CoseMlKemDecryptResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseMlKemDecryptResultOwnedView>
-    for ::buffa::OwnedView<CoseMlKemDecryptResultView<'static>>
-{
-    fn from(wrapper: CoseMlKemDecryptResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseMlKemDecryptResultView<'static>>>
-    for CoseMlKemDecryptResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseMlKemDecryptResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseMlKemDecryptResult {
-    type View<'a> = CoseMlKemDecryptResultView<'a>;
-    type ViewHandle = CoseMlKemDecryptResultOwnedView;
-}
-impl ::serde::Serialize for CoseMlKemDecryptResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseX5Chain carries the RFC 9360 certificate path in leaf-first order.
 #[derive(Clone, Default)]
 pub struct CoseX5ChainView<'a> {
@@ -27199,117 +19469,6 @@ impl<'a> ::buffa::MessageName for CoseX5ChainView<'a> {
 ::buffa::impl_default_view_instance!(CoseX5ChainView);
 ::buffa::impl_view_reborrow!(CoseX5ChainView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseX5ChainView);
-/** Self-contained, `'static` owned view of a `CoseX5Chain` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseX5ChainView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseX5ChainView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseX5ChainOwnedView(::buffa::OwnedView<CoseX5ChainView<'static>>);
-impl CoseX5ChainOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseX5ChainOwnedView(::buffa::OwnedView::decode(bytes)?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseX5ChainOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseX5Chain,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseX5ChainOwnedView(::buffa::OwnedView::from_owned(msg)?))
-    }
-    /// Borrow the full [`CoseX5ChainView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseX5ChainView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseX5Chain {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// PUBLIC: certificate discovery data; generated owners still wipe and redact it.
-    ///
-    /// Field 1: `certificates_der`
-    #[must_use]
-    pub fn certificates_der(&self) -> &::buffa::sensitive::RepeatedView<'_, &'_ [u8]> {
-        &self.0.reborrow().certificates_der
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseX5ChainView<'static>>> for CoseX5ChainOwnedView {
-    fn from(inner: ::buffa::OwnedView<CoseX5ChainView<'static>>) -> Self {
-        CoseX5ChainOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseX5ChainOwnedView> for ::buffa::OwnedView<CoseX5ChainView<'static>> {
-    fn from(wrapper: CoseX5ChainOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseX5ChainView<'static>>> for CoseX5ChainOwnedView {
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseX5ChainView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseX5Chain {
-    type View<'a> = CoseX5ChainView<'a>;
-    type ViewHandle = CoseX5ChainOwnedView;
-}
-impl ::serde::Serialize for CoseX5ChainOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Rust view: sign1/encode_options.rs#CoseSign1EncodeOptions
 /// Rust equality: CoseSign1Options
 #[derive(Clone, Default)]
@@ -27427,7 +19586,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1OptionsView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.x5chain.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -27453,7 +19612,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1OptionsView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.protected_type.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -27474,7 +19633,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1OptionsView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.limits.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -27628,172 +19787,6 @@ impl<'a> ::buffa::MessageName for CoseSign1OptionsView<'a> {
 ::buffa::impl_default_view_instance!(CoseSign1OptionsView);
 ::buffa::impl_view_reborrow!(CoseSign1OptionsView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSign1OptionsView);
-/** Self-contained, `'static` owned view of a `CoseSign1Options` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSign1OptionsView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSign1OptionsView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSign1OptionsOwnedView(::buffa::OwnedView<CoseSign1OptionsView<'static>>);
-impl CoseSign1OptionsOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1OptionsOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1OptionsOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSign1Options,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1OptionsOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseSign1OptionsView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSign1OptionsView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSign1Options {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Emit the registered COSE_Sign1 root tag (18). False emits the untagged
-    /// COSE_Sign1 structure used by most byte-level SDK APIs.
-    ///
-    /// Field 1: `tag`
-    #[must_use]
-    pub fn tag(&self) -> bool {
-        self.0.reborrow().tag
-    }
-    /// Optional maximum encoded COSE_Sign1 size. Zero selects the 65,536-byte
-    /// default. Explicit budgets through 1,048,576 bytes are supported; larger
-    /// budgets fail with COMMON_RESOURCE_LIMIT_EXCEEDED.
-    ///
-    /// Field 2: `max_cose_sign1_bytes`
-    #[must_use]
-    pub fn max_cose_sign1_bytes(&self) -> u64 {
-        self.0.reborrow().max_cose_sign1_bytes
-    }
-    /// Optional RFC 9360 x5chain carried in protected or unprotected label 33.
-    ///
-    /// Field 3: `x5chain`
-    #[must_use]
-    pub fn x5chain(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseX5ChainView<'_>> {
-        &self.0.reborrow().x5chain
-    }
-    /// Header bucket for x5chain. UNSPECIFIED preserves the original wire
-    /// contract and selects PROTECTED when x5chain is present.
-    ///
-    /// Field 4: `x5chain_header_placement`
-    #[must_use]
-    pub fn x5chain_header_placement(
-        &self,
-    ) -> ::buffa::EnumValue<super::super::CoseX5ChainHeaderPlacement> {
-        self.0.reborrow().x5chain_header_placement
-    }
-    /// Field 5: `protected_type`
-    #[must_use]
-    pub fn protected_type(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseTypeView<'_>> {
-        &self.0.reborrow().protected_type
-    }
-    /// Canonical ceiling, including a present zero. Overrides the legacy scalar.
-    ///
-    /// Field 6: `limits`
-    #[must_use]
-    pub fn limits(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseByteLimitsView<'_>> {
-        &self.0.reborrow().limits
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSign1OptionsView<'static>>>
-    for CoseSign1OptionsOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSign1OptionsView<'static>>) -> Self {
-        CoseSign1OptionsOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSign1OptionsOwnedView>
-    for ::buffa::OwnedView<CoseSign1OptionsView<'static>>
-{
-    fn from(wrapper: CoseSign1OptionsOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSign1OptionsView<'static>>>
-    for CoseSign1OptionsOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSign1OptionsView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSign1Options {
-    type View<'a> = CoseSign1OptionsView<'a>;
-    type ViewHandle = CoseSign1OptionsOwnedView;
-}
-impl ::serde::Serialize for CoseSign1OptionsOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseSign1CreateRequest signs an attached payload.
 #[derive(Clone, Default)]
 pub struct CoseSign1CreateRequestView<'a> {
@@ -27909,7 +19902,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1CreateRequestView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.kid = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.kid = ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             6u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -27919,7 +19912,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1CreateRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.options.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -27997,7 +19990,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseSign1CreateRequestView<'a> {
         if !self.private_key.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.private_key) as u64;
         }
-        if let Some(ref v) = self.kid {
+        if let ::core::option::Option::Some(ref v) = self.kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         if let ::core::option::Option::Some(__v) = self.options.as_option() {
@@ -28028,7 +20021,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseSign1CreateRequestView<'a> {
         if !self.private_key.is_empty() {
             ::buffa::types::put_shared_bytes_field(3u32, &self.private_key, buf);
         }
-        if let Some(ref v) = self.kid {
+        if let ::core::option::Option::Some(ref v) = self.kid {
             ::buffa::types::put_shared_bytes_field(4u32, v, buf);
         }
         if let ::core::option::Option::Some(__v) = self.options.as_option() {
@@ -28059,169 +20052,6 @@ impl<'a> ::buffa::MessageName for CoseSign1CreateRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseSign1CreateRequestView);
 ::buffa::impl_view_reborrow!(CoseSign1CreateRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSign1CreateRequestView);
-/** Self-contained, `'static` owned view of a `CoseSign1CreateRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSign1CreateRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSign1CreateRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSign1CreateRequestOwnedView(::buffa::OwnedView<CoseSign1CreateRequestView<'static>>);
-impl CoseSign1CreateRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1CreateRequestOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1CreateRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSign1CreateRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1CreateRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseSign1CreateRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSign1CreateRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSign1CreateRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Algorithm used for the protected header and signing backend.
-    ///
-    /// Field 1: `algorithm`
-    #[must_use]
-    pub fn algorithm(&self) -> ::buffa::EnumValue<super::super::CoseSignatureAlgorithm> {
-        self.0.reborrow().algorithm
-    }
-    /// SENSITIVE: payload bytes to embed in the COSE_Sign1 message. Payloads can
-    /// carry credential claims or PII and must not be logged.
-    ///
-    /// Field 2: `payload`
-    #[must_use]
-    pub fn payload(&self) -> &'_ [u8] {
-        self.0.reborrow().payload
-    }
-    /// SENSITIVE: raw private key bytes for the selected algorithm. Callers must
-    /// keep this in a sensitive-buffer owner outside this transient protobuf
-    /// container.
-    ///
-    /// Field 3: `private_key`
-    #[must_use]
-    pub fn private_key(&self) -> &'_ [u8] {
-        self.0.reborrow().private_key
-    }
-    /// Optional protected-header kid. A present empty identifier is invalid.
-    /// SENSITIVE: identifying bytes; generated owners wipe and redact them.
-    ///
-    /// Field 4: `kid`
-    #[must_use]
-    pub fn kid(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().kid
-    }
-    /// Optional encoding controls. If omitted, the Rust SDK defaults apply.
-    ///
-    /// Field 6: `options`
-    #[must_use]
-    pub fn options(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSign1OptionsView<'_>> {
-        &self.0.reborrow().options
-    }
-    /// SENSITIVE: application-supplied external AAD authenticated by the
-    /// signature but not embedded in COSE_Sign1.
-    ///
-    /// Field 7: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSign1CreateRequestView<'static>>>
-    for CoseSign1CreateRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSign1CreateRequestView<'static>>) -> Self {
-        CoseSign1CreateRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSign1CreateRequestOwnedView>
-    for ::buffa::OwnedView<CoseSign1CreateRequestView<'static>>
-{
-    fn from(wrapper: CoseSign1CreateRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSign1CreateRequestView<'static>>>
-    for CoseSign1CreateRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSign1CreateRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSign1CreateRequest {
-    type View<'a> = CoseSign1CreateRequestView<'a>;
-    type ViewHandle = CoseSign1CreateRequestOwnedView;
-}
-impl ::serde::Serialize for CoseSign1CreateRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseSign1CreateDetachedRequest signs a detached payload. The payload is
 /// authenticated but not embedded in the resulting COSE_Sign1 message.
 #[derive(Clone, Default)]
@@ -28338,7 +20168,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1CreateDetachedRequestView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.kid = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.kid = ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             6u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -28348,7 +20178,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1CreateDetachedRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.options.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -28428,7 +20258,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseSign1CreateDetachedRequestView<'a> {
         if !self.private_key.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.private_key) as u64;
         }
-        if let Some(ref v) = self.kid {
+        if let ::core::option::Option::Some(ref v) = self.kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         if let ::core::option::Option::Some(__v) = self.options.as_option() {
@@ -28459,7 +20289,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseSign1CreateDetachedRequestView<'a> {
         if !self.private_key.is_empty() {
             ::buffa::types::put_shared_bytes_field(3u32, &self.private_key, buf);
         }
-        if let Some(ref v) = self.kid {
+        if let ::core::option::Option::Some(ref v) = self.kid {
             ::buffa::types::put_shared_bytes_field(4u32, v, buf);
         }
         if let ::core::option::Option::Some(__v) = self.options.as_option() {
@@ -28491,171 +20321,6 @@ impl<'a> ::buffa::MessageName for CoseSign1CreateDetachedRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseSign1CreateDetachedRequestView);
 ::buffa::impl_view_reborrow!(CoseSign1CreateDetachedRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSign1CreateDetachedRequestView);
-/** Self-contained, `'static` owned view of a `CoseSign1CreateDetachedRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSign1CreateDetachedRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSign1CreateDetachedRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSign1CreateDetachedRequestOwnedView(
-    ::buffa::OwnedView<CoseSign1CreateDetachedRequestView<'static>>,
-);
-impl CoseSign1CreateDetachedRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1CreateDetachedRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1CreateDetachedRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSign1CreateDetachedRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1CreateDetachedRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseSign1CreateDetachedRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSign1CreateDetachedRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSign1CreateDetachedRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Algorithm used for the protected header and signing backend.
-    ///
-    /// Field 1: `algorithm`
-    #[must_use]
-    pub fn algorithm(&self) -> ::buffa::EnumValue<super::super::CoseSignatureAlgorithm> {
-        self.0.reborrow().algorithm
-    }
-    /// SENSITIVE: detached payload bytes authenticated by the signature. Payloads
-    /// can carry credential claims or PII and must not be logged.
-    ///
-    /// Field 2: `payload`
-    #[must_use]
-    pub fn payload(&self) -> &'_ [u8] {
-        self.0.reborrow().payload
-    }
-    /// SENSITIVE: raw private key bytes for the selected algorithm. Callers must
-    /// keep this in a sensitive-buffer owner outside this transient protobuf
-    /// container.
-    ///
-    /// Field 3: `private_key`
-    #[must_use]
-    pub fn private_key(&self) -> &'_ [u8] {
-        self.0.reborrow().private_key
-    }
-    /// Optional protected-header kid. A present empty identifier is invalid.
-    /// SENSITIVE: identifying bytes; generated owners wipe and redact them.
-    ///
-    /// Field 4: `kid`
-    #[must_use]
-    pub fn kid(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().kid
-    }
-    /// Optional encoding controls. If omitted, the Rust SDK defaults apply.
-    ///
-    /// Field 6: `options`
-    #[must_use]
-    pub fn options(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSign1OptionsView<'_>> {
-        &self.0.reborrow().options
-    }
-    /// SENSITIVE: application-supplied external AAD authenticated by the
-    /// signature but not embedded in COSE_Sign1.
-    ///
-    /// Field 7: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSign1CreateDetachedRequestView<'static>>>
-    for CoseSign1CreateDetachedRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSign1CreateDetachedRequestView<'static>>) -> Self {
-        CoseSign1CreateDetachedRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSign1CreateDetachedRequestOwnedView>
-    for ::buffa::OwnedView<CoseSign1CreateDetachedRequestView<'static>>
-{
-    fn from(wrapper: CoseSign1CreateDetachedRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSign1CreateDetachedRequestView<'static>>>
-    for CoseSign1CreateDetachedRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSign1CreateDetachedRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSign1CreateDetachedRequest {
-    type View<'a> = CoseSign1CreateDetachedRequestView<'a>;
-    type ViewHandle = CoseSign1CreateDetachedRequestOwnedView;
-}
-impl ::serde::Serialize for CoseSign1CreateDetachedRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseSign1CreateResult contains the encoded COSE_Sign1 bytes produced by a
 /// signing operation.
 #[derive(Clone, Default)]
@@ -28787,128 +20452,6 @@ impl<'a> ::buffa::MessageName for CoseSign1CreateResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseSign1CreateResultView);
 ::buffa::impl_view_reborrow!(CoseSign1CreateResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSign1CreateResultView);
-/** Self-contained, `'static` owned view of a `CoseSign1CreateResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSign1CreateResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSign1CreateResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSign1CreateResultOwnedView(::buffa::OwnedView<CoseSign1CreateResultView<'static>>);
-impl CoseSign1CreateResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1CreateResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1CreateResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSign1CreateResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1CreateResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseSign1CreateResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSign1CreateResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSign1CreateResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: encoded COSE_Sign1 bytes, tagged or untagged according to
-    /// request options. Attached COSE_Sign1 messages contain payload bytes.
-    ///
-    /// Field 1: `cose_sign1`
-    #[must_use]
-    pub fn cose_sign1(&self) -> &'_ [u8] {
-        self.0.reborrow().cose_sign1
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSign1CreateResultView<'static>>>
-    for CoseSign1CreateResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSign1CreateResultView<'static>>) -> Self {
-        CoseSign1CreateResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSign1CreateResultOwnedView>
-    for ::buffa::OwnedView<CoseSign1CreateResultView<'static>>
-{
-    fn from(wrapper: CoseSign1CreateResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSign1CreateResultView<'static>>>
-    for CoseSign1CreateResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSign1CreateResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSign1CreateResult {
-    type View<'a> = CoseSign1CreateResultView<'a>;
-    type ViewHandle = CoseSign1CreateResultOwnedView;
-}
-impl ::serde::Serialize for CoseSign1CreateResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Constructs RFC 9052 section 4.4 Sig_structure with the fixed Signature1
 /// context. Inputs are opaque byte strings; protected headers are never decoded
 /// or rewritten. The native byte adapter uses only the caller's output budget,
@@ -29108,152 +20651,6 @@ impl<'a> ::buffa::MessageName for CoseSign1SignatureStructureRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseSign1SignatureStructureRequestView);
 ::buffa::impl_view_reborrow!(CoseSign1SignatureStructureRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSign1SignatureStructureRequestView);
-/** Self-contained, `'static` owned view of a `CoseSign1SignatureStructureRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSign1SignatureStructureRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSign1SignatureStructureRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSign1SignatureStructureRequestOwnedView(
-    ::buffa::OwnedView<CoseSign1SignatureStructureRequestView<'static>>,
-);
-impl CoseSign1SignatureStructureRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1SignatureStructureRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1SignatureStructureRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSign1SignatureStructureRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1SignatureStructureRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseSign1SignatureStructureRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSign1SignatureStructureRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSign1SignatureStructureRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: received protected-header bstr content, preserved exactly.
-    ///
-    /// Field 1: `protected`
-    #[must_use]
-    pub fn protected(&self) -> &'_ [u8] {
-        self.0.reborrow().protected
-    }
-    /// SENSITIVE: externally supplied authenticated bytes; empty is permitted.
-    ///
-    /// Field 2: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// SENSITIVE: exact attached or detached payload bytes.
-    ///
-    /// Field 3: `payload`
-    #[must_use]
-    pub fn payload(&self) -> &'_ [u8] {
-        self.0.reborrow().payload
-    }
-    /// Complete encoded output ceiling, including the array, context and bstr
-    /// headers. Zero is a real zero budget. Length and allocation failures return
-    /// COMMON_RESOURCE_LIMIT_EXCEEDED before exposing any output.
-    ///
-    /// Field 4: `max_output_bytes`
-    #[must_use]
-    pub fn max_output_bytes(&self) -> u64 {
-        self.0.reborrow().max_output_bytes
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSign1SignatureStructureRequestView<'static>>>
-    for CoseSign1SignatureStructureRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSign1SignatureStructureRequestView<'static>>) -> Self {
-        CoseSign1SignatureStructureRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSign1SignatureStructureRequestOwnedView>
-    for ::buffa::OwnedView<CoseSign1SignatureStructureRequestView<'static>>
-{
-    fn from(wrapper: CoseSign1SignatureStructureRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSign1SignatureStructureRequestView<'static>>>
-    for CoseSign1SignatureStructureRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSign1SignatureStructureRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSign1SignatureStructureRequest {
-    type View<'a> = CoseSign1SignatureStructureRequestView<'a>;
-    type ViewHandle = CoseSign1SignatureStructureRequestOwnedView;
-}
-impl ::serde::Serialize for CoseSign1SignatureStructureRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseSign1SignatureStructureResultView<'a> {
     /// SENSITIVE: complete Signature1 authentication input, including the payload.
@@ -29387,129 +20784,6 @@ impl<'a> ::buffa::MessageName for CoseSign1SignatureStructureResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseSign1SignatureStructureResultView);
 ::buffa::impl_view_reborrow!(CoseSign1SignatureStructureResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSign1SignatureStructureResultView);
-/** Self-contained, `'static` owned view of a `CoseSign1SignatureStructureResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSign1SignatureStructureResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSign1SignatureStructureResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSign1SignatureStructureResultOwnedView(
-    ::buffa::OwnedView<CoseSign1SignatureStructureResultView<'static>>,
-);
-impl CoseSign1SignatureStructureResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1SignatureStructureResultOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1SignatureStructureResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSign1SignatureStructureResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1SignatureStructureResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseSign1SignatureStructureResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSign1SignatureStructureResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSign1SignatureStructureResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: complete Signature1 authentication input, including the payload.
-    ///
-    /// Field 1: `signature_structure`
-    #[must_use]
-    pub fn signature_structure(&self) -> &'_ [u8] {
-        self.0.reborrow().signature_structure
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSign1SignatureStructureResultView<'static>>>
-    for CoseSign1SignatureStructureResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSign1SignatureStructureResultView<'static>>) -> Self {
-        CoseSign1SignatureStructureResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSign1SignatureStructureResultOwnedView>
-    for ::buffa::OwnedView<CoseSign1SignatureStructureResultView<'static>>
-{
-    fn from(wrapper: CoseSign1SignatureStructureResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSign1SignatureStructureResultView<'static>>>
-    for CoseSign1SignatureStructureResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSign1SignatureStructureResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSign1SignatureStructureResult {
-    type View<'a> = CoseSign1SignatureStructureResultView<'a>;
-    type ViewHandle = CoseSign1SignatureStructureResultOwnedView;
-}
-impl ::serde::Serialize for CoseSign1SignatureStructureResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseType is the protected RFC 9596 typ header. Exactly one value must be
 /// present when used as an expected verification type.
 #[derive(Clone, Default)]
@@ -29569,7 +20843,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseTypeView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.value = Some(
+                view.value = ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_type::Value::MediaType(
                         ::buffa::types::borrow_str(&mut cur)?,
                     ),
@@ -29577,7 +20851,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseTypeView<'a> {
             }
             2u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
-                view.value = Some(
+                view.value = ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_type::Value::ContentFormat(
                         ::buffa::types::decode_uint64(&mut cur)?,
                     ),
@@ -29673,117 +20947,6 @@ impl<'a> ::buffa::MessageName for CoseTypeView<'a> {
 ::buffa::impl_default_view_instance!(CoseTypeView);
 ::buffa::impl_view_reborrow!(CoseTypeView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseTypeView);
-/** Self-contained, `'static` owned view of a `CoseType` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseTypeView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseTypeView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseTypeOwnedView(::buffa::OwnedView<CoseTypeView<'static>>);
-impl CoseTypeOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseTypeOwnedView(::buffa::OwnedView::decode(bytes)?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseTypeOwnedView(::buffa::OwnedView::decode_with_options(
-            bytes, opts,
-        )?))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseType,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseTypeOwnedView(::buffa::OwnedView::from_owned(msg)?))
-    }
-    /// Borrow the full [`CoseTypeView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseTypeView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseType {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Oneof `value`.
-    #[must_use]
-    pub fn value(
-        &self,
-    ) -> ::core::option::Option<&super::super::__buffa::view::oneof::cose_type::Value<'_>> {
-        self.0.reborrow().value.as_ref()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseTypeView<'static>>> for CoseTypeOwnedView {
-    fn from(inner: ::buffa::OwnedView<CoseTypeView<'static>>) -> Self {
-        CoseTypeOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseTypeOwnedView> for ::buffa::OwnedView<CoseTypeView<'static>> {
-    fn from(wrapper: CoseTypeOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseTypeView<'static>>> for CoseTypeOwnedView {
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseTypeView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseType {
-    type View<'a> = CoseTypeView<'a>;
-    type ViewHandle = CoseTypeOwnedView;
-}
-impl ::serde::Serialize for CoseTypeOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseSign1VerifyRequest verifies a COSE_Sign1 with an attached payload. The
 /// public_key field is the protobuf-boundary equivalent of the Rust SDK key
 /// resolver output for the protected-header kid.
@@ -29977,7 +21140,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1VerifyRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.expected_type.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -30186,220 +21349,6 @@ impl<'a> ::buffa::MessageName for CoseSign1VerifyRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseSign1VerifyRequestView);
 ::buffa::impl_view_reborrow!(CoseSign1VerifyRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSign1VerifyRequestView);
-/** Self-contained, `'static` owned view of a `CoseSign1VerifyRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSign1VerifyRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSign1VerifyRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSign1VerifyRequestOwnedView(::buffa::OwnedView<CoseSign1VerifyRequestView<'static>>);
-impl CoseSign1VerifyRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1VerifyRequestOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1VerifyRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSign1VerifyRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1VerifyRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseSign1VerifyRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSign1VerifyRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSign1VerifyRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: encoded COSE_Sign1 bytes to verify. Tagged and untagged inputs
-    /// are accepted; attached messages contain payload bytes.
-    ///
-    /// Field 1: `cose_sign1`
-    #[must_use]
-    pub fn cose_sign1(&self) -> &'_ [u8] {
-        self.0.reborrow().cose_sign1
-    }
-    /// Raw public key bytes selected by the caller for the protected-header kid.
-    /// SENSITIVE: identifying bytes; generated owners wipe and redact them.
-    ///
-    /// Field 2: `public_key`
-    #[must_use]
-    pub fn public_key(&self) -> &'_ [u8] {
-        self.0.reborrow().public_key
-    }
-    /// Optional encoded budget with the same 65,536-byte default and 1,048,576-byte
-    /// absolute ceiling as CoseSign1Options. Zero selects the default; unsupported
-    /// budgets fail with COMMON_RESOURCE_LIMIT_EXCEEDED.
-    ///
-    /// Field 3: `max_cose_sign1_bytes`
-    #[must_use]
-    pub fn max_cose_sign1_bytes(&self) -> u64 {
-        self.0.reborrow().max_cose_sign1_bytes
-    }
-    /// Maximum external AAD size for attached verification. A value of 0 uses
-    /// the crate default; the field also bounds detached payloads in detached
-    /// verification requests.
-    ///
-    /// Field 4: `max_detached_payload_bytes`
-    #[must_use]
-    pub fn max_detached_payload_bytes(&self) -> u64 {
-        self.0.reborrow().max_detached_payload_bytes
-    }
-    /// Require a non-empty protected-header kid before verification.
-    ///
-    /// Field 5: `require_kid`
-    #[must_use]
-    pub fn require_kid(&self) -> bool {
-        self.0.reborrow().require_kid
-    }
-    /// Optional algorithm allow-list. Empty means any COSE algorithm supported by
-    /// this crate and operation.
-    ///
-    /// Field 6: `allowed_algorithms`
-    #[must_use]
-    pub fn allowed_algorithms(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        ::buffa::EnumValue<super::super::CoseSignatureAlgorithm>,
-    > {
-        &self.0.reborrow().allowed_algorithms
-    }
-    /// SENSITIVE: external AAD supplied by the application for verification.
-    ///
-    /// Field 7: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// Optional trusted key-selection identifier. When non-empty, the
-    /// protected-header kid must match this value before public_key can be
-    /// returned by the adapter's resolver. Empty preserves resolver-style use
-    /// where public_key was already selected outside this request.
-    /// Selection of this value belongs to the caller's trust-store boundary.
-    /// SENSITIVE: identifying bytes; generated owners wipe and redact them.
-    ///
-    /// Field 8: `expected_kid`
-    #[must_use]
-    pub fn expected_kid(&self) -> &'_ [u8] {
-        self.0.reborrow().expected_kid
-    }
-    /// Require the registered COSE_Sign1 root tag (18).
-    ///
-    /// Field 9: `require_tagged_sign1`
-    #[must_use]
-    pub fn require_tagged_sign1(&self) -> bool {
-        self.0.reborrow().require_tagged_sign1
-    }
-    /// When set, require this exact authenticated protected typ value.
-    ///
-    /// Field 10: `expected_type`
-    #[must_use]
-    pub fn expected_type(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseTypeView<'_>> {
-        &self.0.reborrow().expected_type
-    }
-    /// Required exact registration authorized for a direct public_key. UNSPECIFIED
-    /// is rejected with COMMON_INVALID_PARAMETER; it never opts out of key binding.
-    /// In callback-aware profile operations only, an exact-registration resolver
-    /// or certificate callback can supply the binding instead. There this field
-    /// is an optional additional exact-registration filter.
-    ///
-    /// Field 11: `public_key_algorithm`
-    #[must_use]
-    pub fn public_key_algorithm(&self) -> ::buffa::EnumValue<super::super::CoseSignatureAlgorithm> {
-        self.0.reborrow().public_key_algorithm
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSign1VerifyRequestView<'static>>>
-    for CoseSign1VerifyRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSign1VerifyRequestView<'static>>) -> Self {
-        CoseSign1VerifyRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSign1VerifyRequestOwnedView>
-    for ::buffa::OwnedView<CoseSign1VerifyRequestView<'static>>
-{
-    fn from(wrapper: CoseSign1VerifyRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSign1VerifyRequestView<'static>>>
-    for CoseSign1VerifyRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSign1VerifyRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSign1VerifyRequest {
-    type View<'a> = CoseSign1VerifyRequestView<'a>;
-    type ViewHandle = CoseSign1VerifyRequestOwnedView;
-}
-impl ::serde::Serialize for CoseSign1VerifyRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseSign1VerifyDetachedRequest verifies a COSE_Sign1 whose payload is carried
 /// out of band.
 #[derive(Clone, Default)]
@@ -30604,7 +21553,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1VerifyDetachedRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.expected_type.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -30823,229 +21772,6 @@ impl<'a> ::buffa::MessageName for CoseSign1VerifyDetachedRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseSign1VerifyDetachedRequestView);
 ::buffa::impl_view_reborrow!(CoseSign1VerifyDetachedRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSign1VerifyDetachedRequestView);
-/** Self-contained, `'static` owned view of a `CoseSign1VerifyDetachedRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSign1VerifyDetachedRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSign1VerifyDetachedRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSign1VerifyDetachedRequestOwnedView(
-    ::buffa::OwnedView<CoseSign1VerifyDetachedRequestView<'static>>,
-);
-impl CoseSign1VerifyDetachedRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1VerifyDetachedRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1VerifyDetachedRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSign1VerifyDetachedRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1VerifyDetachedRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseSign1VerifyDetachedRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSign1VerifyDetachedRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSign1VerifyDetachedRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: encoded COSE_Sign1 bytes to verify. Tagged and untagged inputs
-    /// are accepted.
-    ///
-    /// Field 1: `cose_sign1`
-    #[must_use]
-    pub fn cose_sign1(&self) -> &'_ [u8] {
-        self.0.reborrow().cose_sign1
-    }
-    /// SENSITIVE: detached payload bytes that must match the signature. Payloads
-    /// can carry credential claims or PII and must not be logged.
-    ///
-    /// Field 2: `payload`
-    #[must_use]
-    pub fn payload(&self) -> &'_ [u8] {
-        self.0.reborrow().payload
-    }
-    /// Raw public key bytes selected by the caller for the protected-header kid.
-    /// SENSITIVE: identifying bytes; generated owners wipe and redact them.
-    ///
-    /// Field 3: `public_key`
-    #[must_use]
-    pub fn public_key(&self) -> &'_ [u8] {
-        self.0.reborrow().public_key
-    }
-    /// Optional encoded budget with the same 65,536-byte default and 1,048,576-byte
-    /// absolute ceiling as CoseSign1Options. Zero selects the default; unsupported
-    /// budgets fail with COMMON_RESOURCE_LIMIT_EXCEEDED.
-    ///
-    /// Field 4: `max_cose_sign1_bytes`
-    #[must_use]
-    pub fn max_cose_sign1_bytes(&self) -> u64 {
-        self.0.reborrow().max_cose_sign1_bytes
-    }
-    /// Optional maximum accepted detached payload size. A value of 0 uses the
-    /// crate default.
-    ///
-    /// Field 5: `max_detached_payload_bytes`
-    #[must_use]
-    pub fn max_detached_payload_bytes(&self) -> u64 {
-        self.0.reborrow().max_detached_payload_bytes
-    }
-    /// Require a non-empty protected-header kid before verification.
-    ///
-    /// Field 6: `require_kid`
-    #[must_use]
-    pub fn require_kid(&self) -> bool {
-        self.0.reborrow().require_kid
-    }
-    /// Optional algorithm allow-list. Empty means any COSE algorithm supported by
-    /// this crate and operation.
-    ///
-    /// Field 7: `allowed_algorithms`
-    #[must_use]
-    pub fn allowed_algorithms(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        ::buffa::EnumValue<super::super::CoseSignatureAlgorithm>,
-    > {
-        &self.0.reborrow().allowed_algorithms
-    }
-    /// SENSITIVE: external AAD supplied by the application for verification.
-    ///
-    /// Field 8: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// Optional trusted key-selection identifier. When non-empty, the
-    /// protected-header kid must match this value before public_key can be
-    /// returned by the adapter's resolver. Empty preserves resolver-style use
-    /// where public_key was already selected outside this request.
-    /// Selection of this value belongs to the caller's trust-store boundary.
-    /// SENSITIVE: identifying bytes; generated owners wipe and redact them.
-    ///
-    /// Field 9: `expected_kid`
-    #[must_use]
-    pub fn expected_kid(&self) -> &'_ [u8] {
-        self.0.reborrow().expected_kid
-    }
-    /// Require the registered COSE_Sign1 root tag (18).
-    ///
-    /// Field 10: `require_tagged_sign1`
-    #[must_use]
-    pub fn require_tagged_sign1(&self) -> bool {
-        self.0.reborrow().require_tagged_sign1
-    }
-    /// When set, require this exact authenticated protected typ value.
-    ///
-    /// Field 11: `expected_type`
-    #[must_use]
-    pub fn expected_type(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseTypeView<'_>> {
-        &self.0.reborrow().expected_type
-    }
-    /// Required exact registration authorized for a direct public_key. UNSPECIFIED
-    /// is rejected with COMMON_INVALID_PARAMETER; it never opts out of key binding.
-    /// In callback-aware profile operations only, an exact-registration resolver
-    /// or certificate callback can supply the binding instead. There this field
-    /// is an optional additional exact-registration filter.
-    ///
-    /// Field 12: `public_key_algorithm`
-    #[must_use]
-    pub fn public_key_algorithm(&self) -> ::buffa::EnumValue<super::super::CoseSignatureAlgorithm> {
-        self.0.reborrow().public_key_algorithm
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSign1VerifyDetachedRequestView<'static>>>
-    for CoseSign1VerifyDetachedRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSign1VerifyDetachedRequestView<'static>>) -> Self {
-        CoseSign1VerifyDetachedRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSign1VerifyDetachedRequestOwnedView>
-    for ::buffa::OwnedView<CoseSign1VerifyDetachedRequestView<'static>>
-{
-    fn from(wrapper: CoseSign1VerifyDetachedRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSign1VerifyDetachedRequestView<'static>>>
-    for CoseSign1VerifyDetachedRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSign1VerifyDetachedRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSign1VerifyDetachedRequest {
-    type View<'a> = CoseSign1VerifyDetachedRequestView<'a>;
-    type ViewHandle = CoseSign1VerifyDetachedRequestOwnedView;
-}
-impl ::serde::Serialize for CoseSign1VerifyDetachedRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseSign1VerifyResult contains the verified attached payload and protected
 /// header metadata. Detached verification returns an empty payload field.
 /// Rust view: sign1/verify.rs#VerifiedCoseSign1
@@ -31170,7 +21896,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSign1VerifyResultView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.protected_type.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -31302,163 +22028,6 @@ impl<'a> ::buffa::MessageName for CoseSign1VerifyResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseSign1VerifyResultView);
 ::buffa::impl_view_reborrow!(CoseSign1VerifyResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSign1VerifyResultView);
-/** Self-contained, `'static` owned view of a `CoseSign1VerifyResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSign1VerifyResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSign1VerifyResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSign1VerifyResultOwnedView(::buffa::OwnedView<CoseSign1VerifyResultView<'static>>);
-impl CoseSign1VerifyResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1VerifyResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1VerifyResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSign1VerifyResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSign1VerifyResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseSign1VerifyResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSign1VerifyResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSign1VerifyResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: verified attached payload bytes, or empty for detached
-    /// verification. Payloads can carry credential claims or PII and must not be
-    /// logged.
-    ///
-    /// Field 1: `payload`
-    #[must_use]
-    pub fn payload(&self) -> &'_ [u8] {
-        self.0.reborrow().payload
-    }
-    /// Compatibility primitive selector. Existing numeric values remain stable;
-    /// new consumers should use exact_signature_algorithm.
-    ///
-    /// Field 2: `algorithm`
-    #[must_use]
-    pub fn algorithm(&self) -> ::buffa::EnumValue<super::super::CoseSignatureAlgorithm> {
-        self.0.reborrow().algorithm
-    }
-    /// Verified protected-header kid bytes.
-    /// SENSITIVE: identifying bytes; generated owners wipe and redact them.
-    ///
-    /// Field 3: `kid`
-    #[must_use]
-    pub fn kid(&self) -> &'_ [u8] {
-        self.0.reborrow().kid
-    }
-    /// Exact signature registration authenticated by the protected header.
-    ///
-    /// Field 4: `exact_signature_algorithm`
-    #[must_use]
-    pub fn exact_signature_algorithm(
-        &self,
-    ) -> ::buffa::EnumValue<super::super::CoseSignatureAlgorithm> {
-        self.0.reborrow().exact_signature_algorithm
-    }
-    /// Authenticated protected typ, if one was present.
-    ///
-    /// Field 6: `protected_type`
-    #[must_use]
-    pub fn protected_type(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseTypeView<'_>> {
-        &self.0.reborrow().protected_type
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSign1VerifyResultView<'static>>>
-    for CoseSign1VerifyResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSign1VerifyResultView<'static>>) -> Self {
-        CoseSign1VerifyResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSign1VerifyResultOwnedView>
-    for ::buffa::OwnedView<CoseSign1VerifyResultView<'static>>
-{
-    fn from(wrapper: CoseSign1VerifyResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSign1VerifyResultView<'static>>>
-    for CoseSign1VerifyResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSign1VerifyResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSign1VerifyResult {
-    type View<'a> = CoseSign1VerifyResultView<'a>;
-    type ViewHandle = CoseSign1VerifyResultOwnedView;
-}
-impl ::serde::Serialize for CoseSign1VerifyResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseKeySetPolicyView<'a> {
     /// Field 1: `projection`
@@ -31638,135 +22207,6 @@ impl<'a> ::buffa::MessageName for CoseKeySetPolicyView<'a> {
 ::buffa::impl_default_view_instance!(CoseKeySetPolicyView);
 ::buffa::impl_view_reborrow!(CoseKeySetPolicyView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseKeySetPolicyView);
-/** Self-contained, `'static` owned view of a `CoseKeySetPolicy` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseKeySetPolicyView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseKeySetPolicyView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseKeySetPolicyOwnedView(::buffa::OwnedView<CoseKeySetPolicyView<'static>>);
-impl CoseKeySetPolicyOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetPolicyOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetPolicyOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseKeySetPolicy,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetPolicyOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseKeySetPolicyView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseKeySetPolicyView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseKeySetPolicy {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `projection`
-    #[must_use]
-    pub fn projection(&self) -> ::buffa::EnumValue<super::super::CoseKeySetProjection> {
-        self.0.reborrow().projection
-    }
-    /// Required nonempty unique allowlist, at most five recognized key classes.
-    ///
-    /// Field 2: `allowed_key_types`
-    #[must_use]
-    pub fn allowed_key_types(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<'_, ::buffa::EnumValue<super::super::CoseKeySetKeyType>>
-    {
-        &self.0.reborrow().allowed_key_types
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseKeySetPolicyView<'static>>>
-    for CoseKeySetPolicyOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseKeySetPolicyView<'static>>) -> Self {
-        CoseKeySetPolicyOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseKeySetPolicyOwnedView>
-    for ::buffa::OwnedView<CoseKeySetPolicyView<'static>>
-{
-    fn from(wrapper: CoseKeySetPolicyOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseKeySetPolicyView<'static>>>
-    for CoseKeySetPolicyOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseKeySetPolicyView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseKeySetPolicy {
-    type View<'a> = CoseKeySetPolicyView<'a>;
-    type ViewHandle = CoseKeySetPolicyOwnedView;
-}
-impl ::serde::Serialize for CoseKeySetPolicyOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseKeySetParseRequestView<'a> {
     /// SENSITIVE: complete received untagged KeySet, at most 1 MiB and 64 keys.
@@ -31845,7 +22285,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseKeySetParseRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.policy.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -31944,134 +22384,6 @@ impl<'a> ::buffa::MessageName for CoseKeySetParseRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseKeySetParseRequestView);
 ::buffa::impl_view_reborrow!(CoseKeySetParseRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseKeySetParseRequestView);
-/** Self-contained, `'static` owned view of a `CoseKeySetParseRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseKeySetParseRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseKeySetParseRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseKeySetParseRequestOwnedView(::buffa::OwnedView<CoseKeySetParseRequestView<'static>>);
-impl CoseKeySetParseRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetParseRequestOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetParseRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseKeySetParseRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetParseRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseKeySetParseRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseKeySetParseRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseKeySetParseRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: complete received untagged KeySet, at most 1 MiB and 64 keys.
-    ///
-    /// Field 1: `encoded`
-    #[must_use]
-    pub fn encoded(&self) -> &'_ [u8] {
-        self.0.reborrow().encoded
-    }
-    /// Field 2: `policy`
-    #[must_use]
-    pub fn policy(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseKeySetPolicyView<'_>> {
-        &self.0.reborrow().policy
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseKeySetParseRequestView<'static>>>
-    for CoseKeySetParseRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseKeySetParseRequestView<'static>>) -> Self {
-        CoseKeySetParseRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseKeySetParseRequestOwnedView>
-    for ::buffa::OwnedView<CoseKeySetParseRequestView<'static>>
-{
-    fn from(wrapper: CoseKeySetParseRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseKeySetParseRequestView<'static>>>
-    for CoseKeySetParseRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseKeySetParseRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseKeySetParseRequest {
-    type View<'a> = CoseKeySetParseRequestView<'a>;
-    type ViewHandle = CoseKeySetParseRequestOwnedView;
-}
-impl ::serde::Serialize for CoseKeySetParseRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseKeySetMemberView<'a> {
     /// Field 1: `key_type`
@@ -32221,132 +22533,6 @@ impl<'a> ::buffa::MessageName for CoseKeySetMemberView<'a> {
 ::buffa::impl_default_view_instance!(CoseKeySetMemberView);
 ::buffa::impl_view_reborrow!(CoseKeySetMemberView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseKeySetMemberView);
-/** Self-contained, `'static` owned view of a `CoseKeySetMember` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseKeySetMemberView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseKeySetMemberView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseKeySetMemberOwnedView(::buffa::OwnedView<CoseKeySetMemberView<'static>>);
-impl CoseKeySetMemberOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetMemberOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetMemberOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseKeySetMember,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetMemberOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseKeySetMemberView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseKeySetMemberView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseKeySetMember {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `key_type`
-    #[must_use]
-    pub fn key_type(&self) -> ::buffa::EnumValue<super::super::CoseKeySetKeyType> {
-        self.0.reborrow().key_type
-    }
-    /// SENSITIVE: exact received key for storage, or explicit public projection.
-    ///
-    /// Field 2: `encoded`
-    #[must_use]
-    pub fn encoded(&self) -> &'_ [u8] {
-        self.0.reborrow().encoded
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseKeySetMemberView<'static>>>
-    for CoseKeySetMemberOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseKeySetMemberView<'static>>) -> Self {
-        CoseKeySetMemberOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseKeySetMemberOwnedView>
-    for ::buffa::OwnedView<CoseKeySetMemberView<'static>>
-{
-    fn from(wrapper: CoseKeySetMemberOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseKeySetMemberView<'static>>>
-    for CoseKeySetMemberOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseKeySetMemberView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseKeySetMember {
-    type View<'a> = CoseKeySetMemberView<'a>;
-    type ViewHandle = CoseKeySetMemberOwnedView;
-}
-impl ::serde::Serialize for CoseKeySetMemberOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseKeySetEntryView<'a> {
     /// Field 1: `source_index`
@@ -32422,13 +22608,15 @@ impl<'a> ::buffa::MessageView<'a> for CoseKeySetEntryView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(super::super::__buffa::view::oneof::cose_key_set_entry::Outcome::Key(
-                    ref mut existing,
-                )) = view.outcome
+                if let ::core::option::Option::Some(
+                    super::super::__buffa::view::oneof::cose_key_set_entry::Outcome::Key(
+                        ref mut existing,
+                    ),
+                ) = view.outcome
                 {
                     ::buffa::MessageView::merge_into_view(&mut **existing, sub, __sub_ctx)?;
                 } else {
-                    view.outcome = Some(
+                    view.outcome = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_key_set_entry::Outcome::Key(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseKeySetMemberView as ::buffa::MessageView>::decode_view_ctx(
@@ -32442,7 +22630,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseKeySetEntryView<'a> {
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
-                view.outcome = Some(
+                view.outcome = ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_key_set_entry::Outcome::Rejected(
                         ::buffa::EnumValue::from(::buffa::types::decode_int32(&mut cur)?),
                     ),
@@ -32557,131 +22745,6 @@ impl<'a> ::buffa::MessageName for CoseKeySetEntryView<'a> {
 ::buffa::impl_default_view_instance!(CoseKeySetEntryView);
 ::buffa::impl_view_reborrow!(CoseKeySetEntryView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseKeySetEntryView);
-/** Self-contained, `'static` owned view of a `CoseKeySetEntry` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseKeySetEntryView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseKeySetEntryView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseKeySetEntryOwnedView(::buffa::OwnedView<CoseKeySetEntryView<'static>>);
-impl CoseKeySetEntryOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetEntryOwnedView(::buffa::OwnedView::decode(bytes)?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetEntryOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseKeySetEntry,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetEntryOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseKeySetEntryView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseKeySetEntryView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseKeySetEntry {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `source_index`
-    #[must_use]
-    pub fn source_index(&self) -> u32 {
-        self.0.reborrow().source_index
-    }
-    /// Oneof `outcome`.
-    #[must_use]
-    pub fn outcome(
-        &self,
-    ) -> ::core::option::Option<&super::super::__buffa::view::oneof::cose_key_set_entry::Outcome<'_>>
-    {
-        self.0.reborrow().outcome.as_ref()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseKeySetEntryView<'static>>>
-    for CoseKeySetEntryOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseKeySetEntryView<'static>>) -> Self {
-        CoseKeySetEntryOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseKeySetEntryOwnedView>
-    for ::buffa::OwnedView<CoseKeySetEntryView<'static>>
-{
-    fn from(wrapper: CoseKeySetEntryOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseKeySetEntryView<'static>>>
-    for CoseKeySetEntryOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseKeySetEntryView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseKeySetEntry {
-    type View<'a> = CoseKeySetEntryView<'a>;
-    type ViewHandle = CoseKeySetEntryOwnedView;
-}
-impl ::serde::Serialize for CoseKeySetEntryOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseKeySetParseResultView<'a> {
     /// Field 1: `entries`
@@ -32836,128 +22899,6 @@ impl<'a> ::buffa::MessageName for CoseKeySetParseResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseKeySetParseResultView);
 ::buffa::impl_view_reborrow!(CoseKeySetParseResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseKeySetParseResultView);
-/** Self-contained, `'static` owned view of a `CoseKeySetParseResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseKeySetParseResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseKeySetParseResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseKeySetParseResultOwnedView(::buffa::OwnedView<CoseKeySetParseResultView<'static>>);
-impl CoseKeySetParseResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetParseResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetParseResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseKeySetParseResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetParseResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseKeySetParseResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseKeySetParseResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseKeySetParseResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `entries`
-    #[must_use]
-    pub fn entries(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<'_, super::super::__buffa::view::CoseKeySetEntryView<'_>>
-    {
-        &self.0.reborrow().entries
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseKeySetParseResultView<'static>>>
-    for CoseKeySetParseResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseKeySetParseResultView<'static>>) -> Self {
-        CoseKeySetParseResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseKeySetParseResultOwnedView>
-    for ::buffa::OwnedView<CoseKeySetParseResultView<'static>>
-{
-    fn from(wrapper: CoseKeySetParseResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseKeySetParseResultView<'static>>>
-    for CoseKeySetParseResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseKeySetParseResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseKeySetParseResult {
-    type View<'a> = CoseKeySetParseResultView<'a>;
-    type ViewHandle = CoseKeySetParseResultOwnedView;
-}
-impl ::serde::Serialize for CoseKeySetParseResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseKeySetCreateRequestView<'a> {
     /// SENSITIVE: individual complete encoded COSE_Key maps, one to 64 members.
@@ -33030,7 +22971,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseKeySetCreateRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.policy.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -33142,136 +23083,6 @@ impl<'a> ::buffa::MessageName for CoseKeySetCreateRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseKeySetCreateRequestView);
 ::buffa::impl_view_reborrow!(CoseKeySetCreateRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseKeySetCreateRequestView);
-/** Self-contained, `'static` owned view of a `CoseKeySetCreateRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseKeySetCreateRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseKeySetCreateRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseKeySetCreateRequestOwnedView(
-    ::buffa::OwnedView<CoseKeySetCreateRequestView<'static>>,
-);
-impl CoseKeySetCreateRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetCreateRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetCreateRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseKeySetCreateRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetCreateRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseKeySetCreateRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseKeySetCreateRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseKeySetCreateRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: individual complete encoded COSE_Key maps, one to 64 members.
-    ///
-    /// Field 1: `keys`
-    #[must_use]
-    pub fn keys(&self) -> &::buffa::sensitive::RepeatedView<'_, &'_ [u8]> {
-        &self.0.reborrow().keys
-    }
-    /// Field 2: `policy`
-    #[must_use]
-    pub fn policy(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseKeySetPolicyView<'_>> {
-        &self.0.reborrow().policy
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseKeySetCreateRequestView<'static>>>
-    for CoseKeySetCreateRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseKeySetCreateRequestView<'static>>) -> Self {
-        CoseKeySetCreateRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseKeySetCreateRequestOwnedView>
-    for ::buffa::OwnedView<CoseKeySetCreateRequestView<'static>>
-{
-    fn from(wrapper: CoseKeySetCreateRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseKeySetCreateRequestView<'static>>>
-    for CoseKeySetCreateRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseKeySetCreateRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseKeySetCreateRequest {
-    type View<'a> = CoseKeySetCreateRequestView<'a>;
-    type ViewHandle = CoseKeySetCreateRequestOwnedView;
-}
-impl ::serde::Serialize for CoseKeySetCreateRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseKeySetCreateResultView<'a> {
     /// SENSITIVE: encoded KeySet. Storage mode can contain private parameters.
@@ -33416,132 +23227,6 @@ impl<'a> ::buffa::MessageName for CoseKeySetCreateResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseKeySetCreateResultView);
 ::buffa::impl_view_reborrow!(CoseKeySetCreateResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseKeySetCreateResultView);
-/** Self-contained, `'static` owned view of a `CoseKeySetCreateResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseKeySetCreateResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseKeySetCreateResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseKeySetCreateResultOwnedView(::buffa::OwnedView<CoseKeySetCreateResultView<'static>>);
-impl CoseKeySetCreateResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetCreateResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetCreateResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseKeySetCreateResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeySetCreateResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseKeySetCreateResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseKeySetCreateResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseKeySetCreateResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: encoded KeySet. Storage mode can contain private parameters.
-    ///
-    /// Field 1: `encoded`
-    #[must_use]
-    pub fn encoded(&self) -> &'_ [u8] {
-        self.0.reborrow().encoded
-    }
-    /// Field 2: `key_count`
-    #[must_use]
-    pub fn key_count(&self) -> u32 {
-        self.0.reborrow().key_count
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseKeySetCreateResultView<'static>>>
-    for CoseKeySetCreateResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseKeySetCreateResultView<'static>>) -> Self {
-        CoseKeySetCreateResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseKeySetCreateResultOwnedView>
-    for ::buffa::OwnedView<CoseKeySetCreateResultView<'static>>
-{
-    fn from(wrapper: CoseKeySetCreateResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseKeySetCreateResultView<'static>>>
-    for CoseKeySetCreateResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseKeySetCreateResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseKeySetCreateResult {
-    type View<'a> = CoseKeySetCreateResultView<'a>;
-    type ViewHandle = CoseKeySetCreateResultOwnedView;
-}
-impl ::serde::Serialize for CoseKeySetCreateResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseKeyFromPublicBytesRequest builds a public COSE_Key from raw public key
 /// bytes and an explicit algorithm binding.
 /// Exact protected-map contents (empty bytes means no parameters) and encoded
@@ -33693,134 +23378,6 @@ impl<'a> ::buffa::MessageName for CoseMessageHeadersView<'a> {
 ::buffa::impl_default_view_instance!(CoseMessageHeadersView);
 ::buffa::impl_view_reborrow!(CoseMessageHeadersView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseMessageHeadersView);
-/** Self-contained, `'static` owned view of a `CoseMessageHeaders` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseMessageHeadersView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseMessageHeadersView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseMessageHeadersOwnedView(::buffa::OwnedView<CoseMessageHeadersView<'static>>);
-impl CoseMessageHeadersOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMessageHeadersOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMessageHeadersOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseMessageHeaders,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMessageHeadersOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseMessageHeadersView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseMessageHeadersView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseMessageHeaders {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: protected ownership and redacted diagnostics.
-    ///
-    /// Field 1: `protected`
-    #[must_use]
-    pub fn protected(&self) -> &'_ [u8] {
-        self.0.reborrow().protected
-    }
-    /// SENSITIVE: protected ownership and redacted diagnostics.
-    ///
-    /// Field 2: `unprotected`
-    #[must_use]
-    pub fn unprotected(&self) -> &'_ [u8] {
-        self.0.reborrow().unprotected
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseMessageHeadersView<'static>>>
-    for CoseMessageHeadersOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseMessageHeadersView<'static>>) -> Self {
-        CoseMessageHeadersOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseMessageHeadersOwnedView>
-    for ::buffa::OwnedView<CoseMessageHeadersView<'static>>
-{
-    fn from(wrapper: CoseMessageHeadersOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseMessageHeadersView<'static>>>
-    for CoseMessageHeadersOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseMessageHeadersView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseMessageHeaders {
-    type View<'a> = CoseMessageHeadersView<'a>;
-    type ViewHandle = CoseMessageHeadersOwnedView;
-}
-impl ::serde::Serialize for CoseMessageHeadersOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Entire encoded message is bounded to 1 MiB. Sensitive generated ownership
 /// applies equally to attached payloads, ciphertext and signature material.
 #[derive(Clone, Default)]
@@ -33951,129 +23508,6 @@ impl<'a> ::buffa::MessageName for CoseMessageCreateResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseMessageCreateResultView);
 ::buffa::impl_view_reborrow!(CoseMessageCreateResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseMessageCreateResultView);
-/** Self-contained, `'static` owned view of a `CoseMessageCreateResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseMessageCreateResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseMessageCreateResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseMessageCreateResultOwnedView(
-    ::buffa::OwnedView<CoseMessageCreateResultView<'static>>,
-);
-impl CoseMessageCreateResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMessageCreateResultOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMessageCreateResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseMessageCreateResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMessageCreateResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseMessageCreateResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseMessageCreateResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseMessageCreateResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: protected ownership and redacted diagnostics.
-    ///
-    /// Field 1: `encoded`
-    #[must_use]
-    pub fn encoded(&self) -> &'_ [u8] {
-        self.0.reborrow().encoded
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseMessageCreateResultView<'static>>>
-    for CoseMessageCreateResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseMessageCreateResultView<'static>>) -> Self {
-        CoseMessageCreateResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseMessageCreateResultOwnedView>
-    for ::buffa::OwnedView<CoseMessageCreateResultView<'static>>
-{
-    fn from(wrapper: CoseMessageCreateResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseMessageCreateResultView<'static>>>
-    for CoseMessageCreateResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseMessageCreateResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseMessageCreateResult {
-    type View<'a> = CoseMessageCreateResultView<'a>;
-    type ViewHandle = CoseMessageCreateResultOwnedView;
-}
-impl ::serde::Serialize for CoseMessageCreateResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Cryptographic fields must already be finalized. Counter verification does
 /// not verify the target's primary cryptography or its trust/identity policy.
 /// For a nested signature/recipient, pass that exact encoded substructure.
@@ -34165,7 +23599,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureTargetView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.detached_content = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.detached_content =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
@@ -34224,7 +23659,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseCounterSignatureTargetView<'a> {
                 size += 1u64 + ::buffa::types::int32_encoded_len(val) as u64;
             }
         }
-        if let Some(ref v) = self.detached_content {
+        if let ::core::option::Option::Some(ref v) = self.detached_content {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -34248,7 +23683,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseCounterSignatureTargetView<'a> {
                 ::buffa::types::put_int32_field(3u32, val, buf);
             }
         }
-        if let Some(ref v) = self.detached_content {
+        if let ::core::option::Option::Some(ref v) = self.detached_content {
             ::buffa::types::put_shared_bytes_field(4u32, v, buf);
         }
     }
@@ -34273,147 +23708,6 @@ impl<'a> ::buffa::MessageName for CoseCounterSignatureTargetView<'a> {
 ::buffa::impl_default_view_instance!(CoseCounterSignatureTargetView);
 ::buffa::impl_view_reborrow!(CoseCounterSignatureTargetView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignatureTargetView);
-/** Self-contained, `'static` owned view of a `CoseCounterSignatureTarget` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignatureTargetView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignatureTargetView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseCounterSignatureTargetOwnedView(
-    ::buffa::OwnedView<CoseCounterSignatureTargetView<'static>>,
-);
-impl CoseCounterSignatureTargetOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureTargetOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureTargetOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseCounterSignatureTarget,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureTargetOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseCounterSignatureTargetView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseCounterSignatureTargetView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseCounterSignatureTarget {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: bounded complete target, including exact protected bytes.
-    ///
-    /// Field 1: `encoded`
-    #[must_use]
-    pub fn encoded(&self) -> &'_ [u8] {
-        self.0.reborrow().encoded
-    }
-    /// Field 2: `kind`
-    #[must_use]
-    pub fn kind(&self) -> ::buffa::EnumValue<super::super::CoseCounterSignatureTargetKind> {
-        self.0.reborrow().kind
-    }
-    /// Field 3: `envelope`
-    #[must_use]
-    pub fn envelope(&self) -> ::buffa::EnumValue<super::super::CoseEnvelopePolicy> {
-        self.0.reborrow().envelope
-    }
-    /// SENSITIVE: presence requires a nil payload/ciphertext slot; absence bstr.
-    /// SIGNATURE/COUNTERSIGNATURE/RECIPIENT always require an attached bstr.
-    ///
-    /// Field 4: `detached_content`
-    #[must_use]
-    pub fn detached_content(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().detached_content
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignatureTargetView<'static>>>
-    for CoseCounterSignatureTargetOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseCounterSignatureTargetView<'static>>) -> Self {
-        CoseCounterSignatureTargetOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseCounterSignatureTargetOwnedView>
-    for ::buffa::OwnedView<CoseCounterSignatureTargetView<'static>>
-{
-    fn from(wrapper: CoseCounterSignatureTargetOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignatureTargetView<'static>>>
-    for CoseCounterSignatureTargetOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignatureTargetView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseCounterSignatureTarget {
-    type View<'a> = CoseCounterSignatureTargetView<'a>;
-    type ViewHandle = CoseCounterSignatureTargetOwnedView;
-}
-impl ::serde::Serialize for CoseCounterSignatureTargetOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// RFC 9338 full V2 counter, optionally tagged 19. The implementation extracts
 /// other_fields from the target and selects CounterSignature or CounterSignatureV2.
 #[derive(Clone, Default)]
@@ -34506,7 +23800,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureCreateRequestView<'a> 
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.target.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -34527,7 +23821,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureCreateRequestView<'a> 
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.signer.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -34700,159 +23994,6 @@ impl<'a> ::buffa::MessageName for CoseCounterSignatureCreateRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseCounterSignatureCreateRequestView);
 ::buffa::impl_view_reborrow!(CoseCounterSignatureCreateRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignatureCreateRequestView);
-/** Self-contained, `'static` owned view of a `CoseCounterSignatureCreateRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignatureCreateRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignatureCreateRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseCounterSignatureCreateRequestOwnedView(
-    ::buffa::OwnedView<CoseCounterSignatureCreateRequestView<'static>>,
-);
-impl CoseCounterSignatureCreateRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureCreateRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureCreateRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseCounterSignatureCreateRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureCreateRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseCounterSignatureCreateRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseCounterSignatureCreateRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseCounterSignatureCreateRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `target`
-    #[must_use]
-    pub fn target(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseCounterSignatureTargetView<'_>>
-    {
-        &self.0.reborrow().target
-    }
-    /// Field 2: `signer`
-    #[must_use]
-    pub fn signer(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignSignerView<'_>> {
-        &self.0.reborrow().signer
-    }
-    /// Field 3: `allowed_suites`
-    #[must_use]
-    pub fn allowed_suites(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        super::super::__buffa::view::CoseSignatureSuiteView<'_>,
-    > {
-        &self.0.reborrow().allowed_suites
-    }
-    /// SENSITIVE: explicit counter AAD, distinct from primary AAD.
-    ///
-    /// Field 4: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// Field 5: `tagged`
-    #[must_use]
-    pub fn tagged(&self) -> bool {
-        self.0.reborrow().tagged
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignatureCreateRequestView<'static>>>
-    for CoseCounterSignatureCreateRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseCounterSignatureCreateRequestView<'static>>) -> Self {
-        CoseCounterSignatureCreateRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseCounterSignatureCreateRequestOwnedView>
-    for ::buffa::OwnedView<CoseCounterSignatureCreateRequestView<'static>>
-{
-    fn from(wrapper: CoseCounterSignatureCreateRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignatureCreateRequestView<'static>>>
-    for CoseCounterSignatureCreateRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignatureCreateRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseCounterSignatureCreateRequest {
-    type View<'a> = CoseCounterSignatureCreateRequestView<'a>;
-    type ViewHandle = CoseCounterSignatureCreateRequestOwnedView;
-}
-impl ::serde::Serialize for CoseCounterSignatureCreateRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseCounterSignatureEncodedView<'a> {
     /// SENSITIVE: standalone full counter structure, optionally tagged 19.
@@ -35006,134 +24147,6 @@ impl<'a> ::buffa::MessageName for CoseCounterSignatureEncodedView<'a> {
 ::buffa::impl_default_view_instance!(CoseCounterSignatureEncodedView);
 ::buffa::impl_view_reborrow!(CoseCounterSignatureEncodedView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignatureEncodedView);
-/** Self-contained, `'static` owned view of a `CoseCounterSignatureEncoded` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignatureEncodedView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignatureEncodedView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseCounterSignatureEncodedOwnedView(
-    ::buffa::OwnedView<CoseCounterSignatureEncodedView<'static>>,
-);
-impl CoseCounterSignatureEncodedOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureEncodedOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureEncodedOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseCounterSignatureEncoded,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureEncodedOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseCounterSignatureEncodedView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseCounterSignatureEncodedView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseCounterSignatureEncoded {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: standalone full counter structure, optionally tagged 19.
-    ///
-    /// Field 1: `encoded`
-    #[must_use]
-    pub fn encoded(&self) -> &'_ [u8] {
-        self.0.reborrow().encoded
-    }
-    /// Field 2: `envelope`
-    #[must_use]
-    pub fn envelope(&self) -> ::buffa::EnumValue<super::super::CoseEnvelopePolicy> {
-        self.0.reborrow().envelope
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignatureEncodedView<'static>>>
-    for CoseCounterSignatureEncodedOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseCounterSignatureEncodedView<'static>>) -> Self {
-        CoseCounterSignatureEncodedOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseCounterSignatureEncodedOwnedView>
-    for ::buffa::OwnedView<CoseCounterSignatureEncodedView<'static>>
-{
-    fn from(wrapper: CoseCounterSignatureEncodedOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignatureEncodedView<'static>>>
-    for CoseCounterSignatureEncodedOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignatureEncodedView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseCounterSignatureEncoded {
-    type View<'a> = CoseCounterSignatureEncodedView<'a>;
-    type ViewHandle = CoseCounterSignatureEncodedOwnedView;
-}
-impl ::serde::Serialize for CoseCounterSignatureEncodedOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseCounterSignatureVerifyRequestView<'a> {
     /// Field 1: `target`
@@ -35230,7 +24243,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureVerifyRequestView<'a> 
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.target.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -35251,7 +24264,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureVerifyRequestView<'a> 
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.key.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -35296,7 +24309,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureVerifyRequestView<'a> 
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_counter_signature_verify_request::Signature::Standalone(
                         ref mut existing,
                     ),
@@ -35308,7 +24321,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureVerifyRequestView<'a> 
                         __sub_ctx,
                     )?;
                 } else {
-                    view.signature = Some(
+                    view.signature = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_counter_signature_verify_request::Signature::Standalone(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseCounterSignatureEncodedView as ::buffa::MessageView>::decode_view_ctx(
@@ -35322,7 +24335,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureVerifyRequestView<'a> 
             }
             6u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
-                view.signature = Some(
+                view.signature = ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_counter_signature_verify_request::Signature::HeaderIndex(
                         ::buffa::types::decode_uint32(&mut cur)?,
                     ),
@@ -35515,165 +24528,6 @@ impl<'a> ::buffa::MessageName for CoseCounterSignatureVerifyRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseCounterSignatureVerifyRequestView);
 ::buffa::impl_view_reborrow!(CoseCounterSignatureVerifyRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignatureVerifyRequestView);
-/** Self-contained, `'static` owned view of a `CoseCounterSignatureVerifyRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignatureVerifyRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignatureVerifyRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseCounterSignatureVerifyRequestOwnedView(
-    ::buffa::OwnedView<CoseCounterSignatureVerifyRequestView<'static>>,
-);
-impl CoseCounterSignatureVerifyRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureVerifyRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureVerifyRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseCounterSignatureVerifyRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureVerifyRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseCounterSignatureVerifyRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseCounterSignatureVerifyRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseCounterSignatureVerifyRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `target`
-    #[must_use]
-    pub fn target(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseCounterSignatureTargetView<'_>>
-    {
-        &self.0.reborrow().target
-    }
-    /// signature_index matches header_index, or is zero for standalone counters.
-    ///
-    /// Field 2: `key`
-    #[must_use]
-    pub fn key(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignKeyBindingView<'_>> {
-        &self.0.reborrow().key
-    }
-    /// Field 3: `allowed_suites`
-    #[must_use]
-    pub fn allowed_suites(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        super::super::__buffa::view::CoseSignatureSuiteView<'_>,
-    > {
-        &self.0.reborrow().allowed_suites
-    }
-    /// SENSITIVE: explicit counter AAD.
-    ///
-    /// Field 4: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// Oneof `signature`.
-    #[must_use]
-    pub fn signature(
-        &self,
-    ) -> ::core::option::Option<
-        &super::super::__buffa::view::oneof::cose_counter_signature_verify_request::Signature<'_>,
-    > {
-        self.0.reborrow().signature.as_ref()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignatureVerifyRequestView<'static>>>
-    for CoseCounterSignatureVerifyRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseCounterSignatureVerifyRequestView<'static>>) -> Self {
-        CoseCounterSignatureVerifyRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseCounterSignatureVerifyRequestOwnedView>
-    for ::buffa::OwnedView<CoseCounterSignatureVerifyRequestView<'static>>
-{
-    fn from(wrapper: CoseCounterSignatureVerifyRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignatureVerifyRequestView<'static>>>
-    for CoseCounterSignatureVerifyRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignatureVerifyRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseCounterSignatureVerifyRequest {
-    type View<'a> = CoseCounterSignatureVerifyRequestView<'a>;
-    type ViewHandle = CoseCounterSignatureVerifyRequestOwnedView;
-}
-impl ::serde::Serialize for CoseCounterSignatureVerifyRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// RFC 9338 abbreviated V2 counter. Algorithm, curve and key come only from
 /// caller context; no headers are silently borrowed from the primary operation.
 #[derive(Clone, Default)]
@@ -35767,7 +24621,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignature0CreateRequestView<'a>
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.target.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -35788,7 +24642,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignature0CreateRequestView<'a>
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.suite.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -35968,161 +24822,6 @@ impl<'a> ::buffa::MessageName for CoseCounterSignature0CreateRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseCounterSignature0CreateRequestView);
 ::buffa::impl_view_reborrow!(CoseCounterSignature0CreateRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignature0CreateRequestView);
-/** Self-contained, `'static` owned view of a `CoseCounterSignature0CreateRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignature0CreateRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignature0CreateRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseCounterSignature0CreateRequestOwnedView(
-    ::buffa::OwnedView<CoseCounterSignature0CreateRequestView<'static>>,
-);
-impl CoseCounterSignature0CreateRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignature0CreateRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignature0CreateRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseCounterSignature0CreateRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignature0CreateRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseCounterSignature0CreateRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseCounterSignature0CreateRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseCounterSignature0CreateRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `target`
-    #[must_use]
-    pub fn target(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseCounterSignatureTargetView<'_>>
-    {
-        &self.0.reborrow().target
-    }
-    /// Field 2: `suite`
-    #[must_use]
-    pub fn suite(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'_>> {
-        &self.0.reborrow().suite
-    }
-    /// SENSITIVE: protected primitive input, never returned.
-    ///
-    /// Field 3: `private_key`
-    #[must_use]
-    pub fn private_key(&self) -> &'_ [u8] {
-        self.0.reborrow().private_key
-    }
-    /// Field 4: `allowed_suites`
-    #[must_use]
-    pub fn allowed_suites(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        super::super::__buffa::view::CoseSignatureSuiteView<'_>,
-    > {
-        &self.0.reborrow().allowed_suites
-    }
-    /// SENSITIVE: explicit counter AAD.
-    ///
-    /// Field 5: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignature0CreateRequestView<'static>>>
-    for CoseCounterSignature0CreateRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseCounterSignature0CreateRequestView<'static>>) -> Self {
-        CoseCounterSignature0CreateRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseCounterSignature0CreateRequestOwnedView>
-    for ::buffa::OwnedView<CoseCounterSignature0CreateRequestView<'static>>
-{
-    fn from(wrapper: CoseCounterSignature0CreateRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignature0CreateRequestView<'static>>>
-    for CoseCounterSignature0CreateRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignature0CreateRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseCounterSignature0CreateRequest {
-    type View<'a> = CoseCounterSignature0CreateRequestView<'a>;
-    type ViewHandle = CoseCounterSignature0CreateRequestOwnedView;
-}
-impl ::serde::Serialize for CoseCounterSignature0CreateRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Presence selects the single unprotected abbreviated-counter header 12.
 #[derive(Clone, Default)]
 pub struct CoseCounterSignatureHeaderSelectionView<'a> {
@@ -36241,122 +24940,6 @@ impl<'a> ::buffa::MessageName for CoseCounterSignatureHeaderSelectionView<'a> {
 ::buffa::impl_default_view_instance!(CoseCounterSignatureHeaderSelectionView);
 ::buffa::impl_view_reborrow!(CoseCounterSignatureHeaderSelectionView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignatureHeaderSelectionView);
-/** Self-contained, `'static` owned view of a `CoseCounterSignatureHeaderSelection` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignatureHeaderSelectionView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignatureHeaderSelectionView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseCounterSignatureHeaderSelectionOwnedView(
-    ::buffa::OwnedView<CoseCounterSignatureHeaderSelectionView<'static>>,
-);
-impl CoseCounterSignatureHeaderSelectionOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureHeaderSelectionOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureHeaderSelectionOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseCounterSignatureHeaderSelection,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureHeaderSelectionOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseCounterSignatureHeaderSelectionView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseCounterSignatureHeaderSelectionView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseCounterSignatureHeaderSelection {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignatureHeaderSelectionView<'static>>>
-    for CoseCounterSignatureHeaderSelectionOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseCounterSignatureHeaderSelectionView<'static>>) -> Self {
-        CoseCounterSignatureHeaderSelectionOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseCounterSignatureHeaderSelectionOwnedView>
-    for ::buffa::OwnedView<CoseCounterSignatureHeaderSelectionView<'static>>
-{
-    fn from(wrapper: CoseCounterSignatureHeaderSelectionOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignatureHeaderSelectionView<'static>>>
-    for CoseCounterSignatureHeaderSelectionOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignatureHeaderSelectionView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseCounterSignatureHeaderSelection {
-    type View<'a> = CoseCounterSignatureHeaderSelectionView<'a>;
-    type ViewHandle = CoseCounterSignatureHeaderSelectionOwnedView;
-}
-impl ::serde::Serialize for CoseCounterSignatureHeaderSelectionOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseCounterSignature0VerifyRequestView<'a> {
     /// Field 1: `target`
@@ -36453,7 +25036,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignature0VerifyRequestView<'a>
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.target.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -36474,7 +25057,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignature0VerifyRequestView<'a>
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.key.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -36517,7 +25100,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignature0VerifyRequestView<'a>
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.signature = Some(
+                view.signature = ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_counter_signature0verify_request::Signature::Standalone(
                         ::buffa::types::borrow_bytes(&mut cur)?,
                     ),
@@ -36530,7 +25113,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignature0VerifyRequestView<'a>
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_counter_signature0verify_request::Signature::Header(
                         ref mut existing,
                     ),
@@ -36542,7 +25125,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignature0VerifyRequestView<'a>
                         __sub_ctx,
                     )?;
                 } else {
-                    view.signature = Some(
+                    view.signature = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_counter_signature0verify_request::Signature::Header(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseCounterSignatureHeaderSelectionView as ::buffa::MessageView>::decode_view_ctx(
@@ -36745,165 +25328,6 @@ impl<'a> ::buffa::MessageName for CoseCounterSignature0VerifyRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseCounterSignature0VerifyRequestView);
 ::buffa::impl_view_reborrow!(CoseCounterSignature0VerifyRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignature0VerifyRequestView);
-/** Self-contained, `'static` owned view of a `CoseCounterSignature0VerifyRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignature0VerifyRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignature0VerifyRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseCounterSignature0VerifyRequestOwnedView(
-    ::buffa::OwnedView<CoseCounterSignature0VerifyRequestView<'static>>,
-);
-impl CoseCounterSignature0VerifyRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignature0VerifyRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignature0VerifyRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseCounterSignature0VerifyRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignature0VerifyRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseCounterSignature0VerifyRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseCounterSignature0VerifyRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseCounterSignature0VerifyRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `target`
-    #[must_use]
-    pub fn target(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseCounterSignatureTargetView<'_>>
-    {
-        &self.0.reborrow().target
-    }
-    /// Abbreviated counters have a single slot: signature_index must be zero.
-    ///
-    /// Field 2: `key`
-    #[must_use]
-    pub fn key(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignKeyBindingView<'_>> {
-        &self.0.reborrow().key
-    }
-    /// Field 3: `allowed_suites`
-    #[must_use]
-    pub fn allowed_suites(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        super::super::__buffa::view::CoseSignatureSuiteView<'_>,
-    > {
-        &self.0.reborrow().allowed_suites
-    }
-    /// SENSITIVE: explicit counter AAD.
-    ///
-    /// Field 4: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// Oneof `signature`.
-    #[must_use]
-    pub fn signature(
-        &self,
-    ) -> ::core::option::Option<
-        &super::super::__buffa::view::oneof::cose_counter_signature0verify_request::Signature<'_>,
-    > {
-        self.0.reborrow().signature.as_ref()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignature0VerifyRequestView<'static>>>
-    for CoseCounterSignature0VerifyRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseCounterSignature0VerifyRequestView<'static>>) -> Self {
-        CoseCounterSignature0VerifyRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseCounterSignature0VerifyRequestOwnedView>
-    for ::buffa::OwnedView<CoseCounterSignature0VerifyRequestView<'static>>
-{
-    fn from(wrapper: CoseCounterSignature0VerifyRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignature0VerifyRequestView<'static>>>
-    for CoseCounterSignature0VerifyRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignature0VerifyRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseCounterSignature0VerifyRequest {
-    type View<'a> = CoseCounterSignature0VerifyRequestView<'a>;
-    type ViewHandle = CoseCounterSignature0VerifyRequestOwnedView;
-}
-impl ::serde::Serialize for CoseCounterSignature0VerifyRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseCounterSignatureVerifyResultView<'a> {
     /// Field 1: `suite`
@@ -36985,7 +25409,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureVerifyResultView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.suite.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -37010,7 +25434,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureVerifyResultView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.protected_kid = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.protected_kid =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -37077,7 +25502,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseCounterSignatureVerifyResultView<'a> {
         if !self.protected.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected) as u64;
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         if !self.target_protected.is_empty() {
@@ -37096,7 +25521,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseCounterSignatureVerifyResultView<'a> {
         if !self.protected.is_empty() {
             ::buffa::types::put_shared_bytes_field(2u32, &self.protected, buf);
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             ::buffa::types::put_shared_bytes_field(3u32, v, buf);
         }
         if !self.target_protected.is_empty() {
@@ -37124,150 +25549,6 @@ impl<'a> ::buffa::MessageName for CoseCounterSignatureVerifyResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseCounterSignatureVerifyResultView);
 ::buffa::impl_view_reborrow!(CoseCounterSignatureVerifyResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignatureVerifyResultView);
-/** Self-contained, `'static` owned view of a `CoseCounterSignatureVerifyResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignatureVerifyResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignatureVerifyResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseCounterSignatureVerifyResultOwnedView(
-    ::buffa::OwnedView<CoseCounterSignatureVerifyResultView<'static>>,
-);
-impl CoseCounterSignatureVerifyResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureVerifyResultOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureVerifyResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseCounterSignatureVerifyResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureVerifyResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseCounterSignatureVerifyResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseCounterSignatureVerifyResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseCounterSignatureVerifyResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `suite`
-    #[must_use]
-    pub fn suite(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'_>> {
-        &self.0.reborrow().suite
-    }
-    /// SENSITIVE: exact counter protected bytes; empty for abbreviated counters.
-    ///
-    /// Field 2: `protected`
-    #[must_use]
-    pub fn protected(&self) -> &'_ [u8] {
-        self.0.reborrow().protected
-    }
-    /// SENSITIVE: protected counter identity only, never unprotected discovery data.
-    ///
-    /// Field 3: `protected_kid`
-    #[must_use]
-    pub fn protected_kid(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().protected_kid
-    }
-    /// SENSITIVE: exact authenticated target protected bytes.
-    ///
-    /// Field 4: `target_protected`
-    #[must_use]
-    pub fn target_protected(&self) -> &'_ [u8] {
-        self.0.reborrow().target_protected
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignatureVerifyResultView<'static>>>
-    for CoseCounterSignatureVerifyResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseCounterSignatureVerifyResultView<'static>>) -> Self {
-        CoseCounterSignatureVerifyResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseCounterSignatureVerifyResultOwnedView>
-    for ::buffa::OwnedView<CoseCounterSignatureVerifyResultView<'static>>
-{
-    fn from(wrapper: CoseCounterSignatureVerifyResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignatureVerifyResultView<'static>>>
-    for CoseCounterSignatureVerifyResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignatureVerifyResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseCounterSignatureVerifyResult {
-    type View<'a> = CoseCounterSignatureVerifyResultView<'a>;
-    type ViewHandle = CoseCounterSignatureVerifyResultOwnedView;
-}
-impl ::serde::Serialize for CoseCounterSignatureVerifyResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Format-only attachment into unprotected header 11 or 12. Primary fields are
 /// retained byte for byte. This operation does not assert any authentication.
 /// Full counters append to a bounded collection; an existing abbreviated counter
@@ -37345,7 +25626,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureAttachRequestView<'a> 
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.target.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -37363,7 +25644,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureAttachRequestView<'a> 
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.signature = Some(
+                view.signature = ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_counter_signature_attach_request::Signature::Full(
                         ::buffa::types::borrow_bytes(&mut cur)?,
                     ),
@@ -37374,7 +25655,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseCounterSignatureAttachRequestView<'a> 
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.signature = Some(
+                view.signature = ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_counter_signature_attach_request::Signature::Abbreviated(
                         ::buffa::types::borrow_bytes(&mut cur)?,
                     ),
@@ -37510,139 +25791,6 @@ impl<'a> ::buffa::MessageName for CoseCounterSignatureAttachRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseCounterSignatureAttachRequestView);
 ::buffa::impl_view_reborrow!(CoseCounterSignatureAttachRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseCounterSignatureAttachRequestView);
-/** Self-contained, `'static` owned view of a `CoseCounterSignatureAttachRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseCounterSignatureAttachRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseCounterSignatureAttachRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseCounterSignatureAttachRequestOwnedView(
-    ::buffa::OwnedView<CoseCounterSignatureAttachRequestView<'static>>,
-);
-impl CoseCounterSignatureAttachRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureAttachRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureAttachRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseCounterSignatureAttachRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseCounterSignatureAttachRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseCounterSignatureAttachRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseCounterSignatureAttachRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseCounterSignatureAttachRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `target`
-    #[must_use]
-    pub fn target(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseCounterSignatureTargetView<'_>>
-    {
-        &self.0.reborrow().target
-    }
-    /// Oneof `signature`.
-    #[must_use]
-    pub fn signature(
-        &self,
-    ) -> ::core::option::Option<
-        &super::super::__buffa::view::oneof::cose_counter_signature_attach_request::Signature<'_>,
-    > {
-        self.0.reborrow().signature.as_ref()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseCounterSignatureAttachRequestView<'static>>>
-    for CoseCounterSignatureAttachRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseCounterSignatureAttachRequestView<'static>>) -> Self {
-        CoseCounterSignatureAttachRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseCounterSignatureAttachRequestOwnedView>
-    for ::buffa::OwnedView<CoseCounterSignatureAttachRequestView<'static>>
-{
-    fn from(wrapper: CoseCounterSignatureAttachRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseCounterSignatureAttachRequestView<'static>>>
-    for CoseCounterSignatureAttachRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseCounterSignatureAttachRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseCounterSignatureAttachRequest {
-    type View<'a> = CoseCounterSignatureAttachRequestView<'a>;
-    type ViewHandle = CoseCounterSignatureAttachRequestOwnedView;
-}
-impl ::serde::Serialize for CoseCounterSignatureAttachRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseRecipientCreateGroupView<'a> {
     /// Field 1: `recipients`
@@ -37799,132 +25947,6 @@ impl<'a> ::buffa::MessageName for CoseRecipientCreateGroupView<'a> {
 ::buffa::impl_default_view_instance!(CoseRecipientCreateGroupView);
 ::buffa::impl_view_reborrow!(CoseRecipientCreateGroupView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseRecipientCreateGroupView);
-/** Self-contained, `'static` owned view of a `CoseRecipientCreateGroup` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseRecipientCreateGroupView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseRecipientCreateGroupView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseRecipientCreateGroupOwnedView(
-    ::buffa::OwnedView<CoseRecipientCreateGroupView<'static>>,
-);
-impl CoseRecipientCreateGroupOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseRecipientCreateGroupOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseRecipientCreateGroupOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseRecipientCreateGroup,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseRecipientCreateGroupOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseRecipientCreateGroupView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseRecipientCreateGroupView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseRecipientCreateGroup {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `recipients`
-    #[must_use]
-    pub fn recipients(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        super::super::__buffa::view::CoseRecipientCreateView<'_>,
-    > {
-        &self.0.reborrow().recipients
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseRecipientCreateGroupView<'static>>>
-    for CoseRecipientCreateGroupOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseRecipientCreateGroupView<'static>>) -> Self {
-        CoseRecipientCreateGroupOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseRecipientCreateGroupOwnedView>
-    for ::buffa::OwnedView<CoseRecipientCreateGroupView<'static>>
-{
-    fn from(wrapper: CoseRecipientCreateGroupOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseRecipientCreateGroupView<'static>>>
-    for CoseRecipientCreateGroupOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseRecipientCreateGroupView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseRecipientCreateGroup {
-    type View<'a> = CoseRecipientCreateGroupView<'a>;
-    type ViewHandle = CoseRecipientCreateGroupOwnedView;
-}
-impl ::serde::Serialize for CoseRecipientCreateGroupOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Recipient algorithms are carried in the supplied unprotected map. Direct
 /// and AES-KW require empty protected bytes. A key source is either a leaf
 /// shared key or nested recipient distribution, never both. Direct is a leaf.
@@ -38001,7 +26023,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseRecipientCreateView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.headers.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -38019,7 +26041,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseRecipientCreateView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.key_source = Some(
+                view.key_source = ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_recipient_create::KeySource::Key(
                         ::buffa::types::borrow_bytes(&mut cur)?,
                     ),
@@ -38032,7 +26054,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseRecipientCreateView<'a> {
                 )?;
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
-                if let Some(
+                if let ::core::option::Option::Some(
                     super::super::__buffa::view::oneof::cose_recipient_create::KeySource::Recipients(
                         ref mut existing,
                     ),
@@ -38044,7 +26066,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseRecipientCreateView<'a> {
                         __sub_ctx,
                     )?;
                 } else {
-                    view.key_source = Some(
+                    view.key_source = ::core::option::Option::Some(
                         super::super::__buffa::view::oneof::cose_recipient_create::KeySource::Recipients(
                             ::buffa::alloc::boxed::Box::new(
                                 <super::super::__buffa::view::CoseRecipientCreateGroupView as ::buffa::MessageView>::decode_view_ctx(
@@ -38198,136 +26220,6 @@ impl<'a> ::buffa::MessageName for CoseRecipientCreateView<'a> {
 ::buffa::impl_default_view_instance!(CoseRecipientCreateView);
 ::buffa::impl_view_reborrow!(CoseRecipientCreateView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseRecipientCreateView);
-/** Self-contained, `'static` owned view of a `CoseRecipientCreate` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseRecipientCreateView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseRecipientCreateView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseRecipientCreateOwnedView(::buffa::OwnedView<CoseRecipientCreateView<'static>>);
-impl CoseRecipientCreateOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseRecipientCreateOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseRecipientCreateOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseRecipientCreate,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseRecipientCreateOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseRecipientCreateView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseRecipientCreateView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseRecipientCreate {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `headers`
-    #[must_use]
-    pub fn headers(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseMessageHeadersView<'_>> {
-        &self.0.reborrow().headers
-    }
-    /// Oneof `key_source`.
-    #[must_use]
-    pub fn key_source(
-        &self,
-    ) -> ::core::option::Option<
-        &super::super::__buffa::view::oneof::cose_recipient_create::KeySource<'_>,
-    > {
-        self.0.reborrow().key_source.as_ref()
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseRecipientCreateView<'static>>>
-    for CoseRecipientCreateOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseRecipientCreateView<'static>>) -> Self {
-        CoseRecipientCreateOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseRecipientCreateOwnedView>
-    for ::buffa::OwnedView<CoseRecipientCreateView<'static>>
-{
-    fn from(wrapper: CoseRecipientCreateOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseRecipientCreateView<'static>>>
-    for CoseRecipientCreateOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseRecipientCreateView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseRecipientCreate {
-    type View<'a> = CoseRecipientCreateView<'a>;
-    type ViewHandle = CoseRecipientCreateOwnedView;
-}
-impl ::serde::Serialize for CoseRecipientCreateOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// RFC 9052 sections 6.1/6.3. One to 32 recipients in the entire tree, at most
 /// four layers. Wrapped MAC keys and intermediate wrapped KEKs are generated
 /// securely; direct keys come from the sole direct recipient at that layer.
@@ -38442,7 +26334,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseMacCreateRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.headers.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -38729,184 +26621,6 @@ impl<'a> ::buffa::MessageName for CoseMacCreateRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseMacCreateRequestView);
 ::buffa::impl_view_reborrow!(CoseMacCreateRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseMacCreateRequestView);
-/** Self-contained, `'static` owned view of a `CoseMacCreateRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseMacCreateRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseMacCreateRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseMacCreateRequestOwnedView(::buffa::OwnedView<CoseMacCreateRequestView<'static>>);
-impl CoseMacCreateRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMacCreateRequestOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMacCreateRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseMacCreateRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMacCreateRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseMacCreateRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseMacCreateRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseMacCreateRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `headers`
-    #[must_use]
-    pub fn headers(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseMessageHeadersView<'_>> {
-        &self.0.reborrow().headers
-    }
-    /// SENSITIVE: attached or detached content.
-    ///
-    /// Field 2: `payload`
-    #[must_use]
-    pub fn payload(&self) -> &'_ [u8] {
-        self.0.reborrow().payload
-    }
-    /// SENSITIVE: explicit external AAD, at most 64 KiB.
-    ///
-    /// Field 3: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// Field 4: `algorithm`
-    #[must_use]
-    pub fn algorithm(&self) -> ::buffa::EnumValue<super::super::CoseMacAlgorithm> {
-        self.0.reborrow().algorithm
-    }
-    /// Field 5: `allowed_algorithms`
-    #[must_use]
-    pub fn allowed_algorithms(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<'_, ::buffa::EnumValue<super::super::CoseMacAlgorithm>>
-    {
-        &self.0.reborrow().allowed_algorithms
-    }
-    /// Field 6: `content_mode`
-    #[must_use]
-    pub fn content_mode(&self) -> ::buffa::EnumValue<super::super::CoseContentMode> {
-        self.0.reborrow().content_mode
-    }
-    /// Field 7: `tagged`
-    #[must_use]
-    pub fn tagged(&self) -> bool {
-        self.0.reborrow().tagged
-    }
-    /// Field 8: `recipients`
-    #[must_use]
-    pub fn recipients(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        super::super::__buffa::view::CoseRecipientCreateView<'_>,
-    > {
-        &self.0.reborrow().recipients
-    }
-    /// Field 9: `allowed_recipient_algorithms`
-    #[must_use]
-    pub fn allowed_recipient_algorithms(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        ::buffa::EnumValue<super::super::CoseRecipientAlgorithm>,
-    > {
-        &self.0.reborrow().allowed_recipient_algorithms
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseMacCreateRequestView<'static>>>
-    for CoseMacCreateRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseMacCreateRequestView<'static>>) -> Self {
-        CoseMacCreateRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseMacCreateRequestOwnedView>
-    for ::buffa::OwnedView<CoseMacCreateRequestView<'static>>
-{
-    fn from(wrapper: CoseMacCreateRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseMacCreateRequestView<'static>>>
-    for CoseMacCreateRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseMacCreateRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseMacCreateRequest {
-    type View<'a> = CoseMacCreateRequestView<'a>;
-    type ViewHandle = CoseMacCreateRequestOwnedView;
-}
-impl ::serde::Serialize for CoseMacCreateRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// The caller selects a single recipient path, starting at the outer array.
 /// Unsupported unselected recipient algorithms do not block this path. No
 /// discovery, identity inference or trust policy is performed by COSE.
@@ -39018,7 +26732,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseMacVerifyRequestView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.detached_payload = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.detached_payload =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -39157,7 +26872,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseMacVerifyRequestView<'a> {
         if !self.encoded.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.encoded) as u64;
         }
-        if let Some(ref v) = self.detached_payload {
+        if let ::core::option::Option::Some(ref v) = self.detached_payload {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         if !self.external_aad.is_empty() {
@@ -39211,7 +26926,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseMacVerifyRequestView<'a> {
         if !self.encoded.is_empty() {
             ::buffa::types::put_shared_bytes_field(1u32, &self.encoded, buf);
         }
-        if let Some(ref v) = self.detached_payload {
+        if let ::core::option::Option::Some(ref v) = self.detached_payload {
             ::buffa::types::put_shared_bytes_field(2u32, v, buf);
         }
         if !self.external_aad.is_empty() {
@@ -39286,181 +27001,6 @@ impl<'a> ::buffa::MessageName for CoseMacVerifyRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseMacVerifyRequestView);
 ::buffa::impl_view_reborrow!(CoseMacVerifyRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseMacVerifyRequestView);
-/** Self-contained, `'static` owned view of a `CoseMacVerifyRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseMacVerifyRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseMacVerifyRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseMacVerifyRequestOwnedView(::buffa::OwnedView<CoseMacVerifyRequestView<'static>>);
-impl CoseMacVerifyRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMacVerifyRequestOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMacVerifyRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseMacVerifyRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMacVerifyRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseMacVerifyRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseMacVerifyRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseMacVerifyRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: exact message, at most 1 MiB.
-    ///
-    /// Field 1: `encoded`
-    #[must_use]
-    pub fn encoded(&self) -> &'_ [u8] {
-        self.0.reborrow().encoded
-    }
-    /// SENSITIVE: presence requires a nil payload slot.
-    ///
-    /// Field 2: `detached_payload`
-    #[must_use]
-    pub fn detached_payload(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().detached_payload
-    }
-    /// SENSITIVE: explicit external AAD.
-    ///
-    /// Field 3: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// Field 4: `algorithm`
-    #[must_use]
-    pub fn algorithm(&self) -> ::buffa::EnumValue<super::super::CoseMacAlgorithm> {
-        self.0.reborrow().algorithm
-    }
-    /// Field 5: `allowed_algorithms`
-    #[must_use]
-    pub fn allowed_algorithms(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<'_, ::buffa::EnumValue<super::super::CoseMacAlgorithm>>
-    {
-        &self.0.reborrow().allowed_algorithms
-    }
-    /// Field 6: `recipient_path`
-    #[must_use]
-    pub fn recipient_path(&self) -> &::buffa::sensitive::RepeatedView<'_, u32> {
-        &self.0.reborrow().recipient_path
-    }
-    /// SENSITIVE: leaf key bound by caller policy to this path.
-    ///
-    /// Field 7: `recipient_key`
-    #[must_use]
-    pub fn recipient_key(&self) -> &'_ [u8] {
-        self.0.reborrow().recipient_key
-    }
-    /// Field 8: `allowed_recipient_algorithms`
-    #[must_use]
-    pub fn allowed_recipient_algorithms(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        ::buffa::EnumValue<super::super::CoseRecipientAlgorithm>,
-    > {
-        &self.0.reborrow().allowed_recipient_algorithms
-    }
-    /// Field 9: `envelope`
-    #[must_use]
-    pub fn envelope(&self) -> ::buffa::EnumValue<super::super::CoseEnvelopePolicy> {
-        self.0.reborrow().envelope
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseMacVerifyRequestView<'static>>>
-    for CoseMacVerifyRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseMacVerifyRequestView<'static>>) -> Self {
-        CoseMacVerifyRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseMacVerifyRequestOwnedView>
-    for ::buffa::OwnedView<CoseMacVerifyRequestView<'static>>
-{
-    fn from(wrapper: CoseMacVerifyRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseMacVerifyRequestView<'static>>>
-    for CoseMacVerifyRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseMacVerifyRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseMacVerifyRequest {
-    type View<'a> = CoseMacVerifyRequestView<'a>;
-    type ViewHandle = CoseMacVerifyRequestOwnedView;
-}
-impl ::serde::Serialize for CoseMacVerifyRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseMacVerifyResultView<'a> {
     /// Field 1: `algorithm`
@@ -39545,14 +27085,16 @@ impl<'a> ::buffa::MessageView<'a> for CoseMacVerifyResultView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.protected_kid = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.protected_kid =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.attached_payload = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.attached_payload =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
@@ -39605,10 +27147,10 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseMacVerifyResultView<'a> {
         if !self.protected.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected) as u64;
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
-        if let Some(ref v) = self.attached_payload {
+        if let ::core::option::Option::Some(ref v) = self.attached_payload {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -39626,10 +27168,10 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseMacVerifyResultView<'a> {
         if !self.protected.is_empty() {
             ::buffa::types::put_shared_bytes_field(2u32, &self.protected, buf);
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             ::buffa::types::put_shared_bytes_field(3u32, v, buf);
         }
-        if let Some(ref v) = self.attached_payload {
+        if let ::core::option::Option::Some(ref v) = self.attached_payload {
             ::buffa::types::put_shared_bytes_field(4u32, v, buf);
         }
     }
@@ -39653,146 +27195,6 @@ impl<'a> ::buffa::MessageName for CoseMacVerifyResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseMacVerifyResultView);
 ::buffa::impl_view_reborrow!(CoseMacVerifyResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseMacVerifyResultView);
-/** Self-contained, `'static` owned view of a `CoseMacVerifyResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseMacVerifyResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseMacVerifyResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseMacVerifyResultOwnedView(::buffa::OwnedView<CoseMacVerifyResultView<'static>>);
-impl CoseMacVerifyResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMacVerifyResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMacVerifyResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseMacVerifyResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMacVerifyResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseMacVerifyResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseMacVerifyResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseMacVerifyResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `algorithm`
-    #[must_use]
-    pub fn algorithm(&self) -> ::buffa::EnumValue<super::super::CoseMacAlgorithm> {
-        self.0.reborrow().algorithm
-    }
-    /// SENSITIVE: exact authenticated protected headers.
-    ///
-    /// Field 2: `protected`
-    #[must_use]
-    pub fn protected(&self) -> &'_ [u8] {
-        self.0.reborrow().protected
-    }
-    /// SENSITIVE: authenticated identity only when protected.
-    ///
-    /// Field 3: `protected_kid`
-    #[must_use]
-    pub fn protected_kid(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().protected_kid
-    }
-    /// SENSITIVE: present exactly for attached content.
-    ///
-    /// Field 4: `attached_payload`
-    #[must_use]
-    pub fn attached_payload(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().attached_payload
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseMacVerifyResultView<'static>>>
-    for CoseMacVerifyResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseMacVerifyResultView<'static>>) -> Self {
-        CoseMacVerifyResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseMacVerifyResultOwnedView>
-    for ::buffa::OwnedView<CoseMacVerifyResultView<'static>>
-{
-    fn from(wrapper: CoseMacVerifyResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseMacVerifyResultView<'static>>>
-    for CoseMacVerifyResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseMacVerifyResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseMacVerifyResult {
-    type View<'a> = CoseMacVerifyResultView<'a>;
-    type ViewHandle = CoseMacVerifyResultOwnedView;
-}
-impl ::serde::Serialize for CoseMacVerifyResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// RFC 9052 sections 5.2/5.3. Keys are exact-width AES-GCM keys, not a KDF
 /// seed. Supply IV or Partial IV in headers; callers ensure nonce uniqueness.
 /// Partial IV requires an explicit 12-byte Base IV; both IV forms together fail.
@@ -39901,7 +27303,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseEncrypt0CreateRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.headers.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -39945,7 +27347,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseEncrypt0CreateRequestView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.base_iv = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.base_iv =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             8u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -40059,7 +27462,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseEncrypt0CreateRequestView<'a> {
                 .sum::<u64>();
             size += 1u64 + ::buffa::encoding::varint_len(payload) as u64 + payload;
         }
-        if let Some(ref v) = self.base_iv {
+        if let ::core::option::Option::Some(ref v) = self.base_iv {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         {
@@ -40107,7 +27510,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseEncrypt0CreateRequestView<'a> {
                 ::buffa::types::encode_int32(v.to_i32(), buf);
             }
         }
-        if let Some(ref v) = self.base_iv {
+        if let ::core::option::Option::Some(ref v) = self.base_iv {
             ::buffa::types::put_shared_bytes_field(7u32, v, buf);
         }
         {
@@ -40140,184 +27543,6 @@ impl<'a> ::buffa::MessageName for CoseEncrypt0CreateRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseEncrypt0CreateRequestView);
 ::buffa::impl_view_reborrow!(CoseEncrypt0CreateRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseEncrypt0CreateRequestView);
-/** Self-contained, `'static` owned view of a `CoseEncrypt0CreateRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseEncrypt0CreateRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseEncrypt0CreateRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseEncrypt0CreateRequestOwnedView(
-    ::buffa::OwnedView<CoseEncrypt0CreateRequestView<'static>>,
-);
-impl CoseEncrypt0CreateRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseEncrypt0CreateRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseEncrypt0CreateRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseEncrypt0CreateRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseEncrypt0CreateRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseEncrypt0CreateRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseEncrypt0CreateRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseEncrypt0CreateRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `headers`
-    #[must_use]
-    pub fn headers(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseMessageHeadersView<'_>> {
-        &self.0.reborrow().headers
-    }
-    /// SENSITIVE: plaintext.
-    ///
-    /// Field 2: `plaintext`
-    #[must_use]
-    pub fn plaintext(&self) -> &'_ [u8] {
-        self.0.reborrow().plaintext
-    }
-    /// SENSITIVE: explicit AAD, including empty bytes, at most 64 KiB.
-    ///
-    /// Field 3: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// Field 4: `key_algorithm`
-    #[must_use]
-    pub fn key_algorithm(
-        &self,
-    ) -> ::buffa::EnumValue<super::super::CoseContentEncryptionAlgorithm> {
-        self.0.reborrow().key_algorithm
-    }
-    /// SENSITIVE: consumed by a protected primitive owner, never returned.
-    ///
-    /// Field 5: `key`
-    #[must_use]
-    pub fn key(&self) -> &'_ [u8] {
-        self.0.reborrow().key
-    }
-    /// Field 6: `allowed_algorithms`
-    #[must_use]
-    pub fn allowed_algorithms(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        ::buffa::EnumValue<super::super::CoseContentEncryptionAlgorithm>,
-    > {
-        &self.0.reborrow().allowed_algorithms
-    }
-    /// SENSITIVE: Base IV used only with Partial IV, RFC 9052 section 3.1.
-    ///
-    /// Field 7: `base_iv`
-    #[must_use]
-    pub fn base_iv(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().base_iv
-    }
-    /// Field 8: `content_mode`
-    #[must_use]
-    pub fn content_mode(&self) -> ::buffa::EnumValue<super::super::CoseContentMode> {
-        self.0.reborrow().content_mode
-    }
-    /// Field 9: `tagged`
-    #[must_use]
-    pub fn tagged(&self) -> bool {
-        self.0.reborrow().tagged
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseEncrypt0CreateRequestView<'static>>>
-    for CoseEncrypt0CreateRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseEncrypt0CreateRequestView<'static>>) -> Self {
-        CoseEncrypt0CreateRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseEncrypt0CreateRequestOwnedView>
-    for ::buffa::OwnedView<CoseEncrypt0CreateRequestView<'static>>
-{
-    fn from(wrapper: CoseEncrypt0CreateRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseEncrypt0CreateRequestView<'static>>>
-    for CoseEncrypt0CreateRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseEncrypt0CreateRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseEncrypt0CreateRequest {
-    type View<'a> = CoseEncrypt0CreateRequestView<'a>;
-    type ViewHandle = CoseEncrypt0CreateRequestOwnedView;
-}
-impl ::serde::Serialize for CoseEncrypt0CreateRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseEncrypt0CreateResultView<'a> {
     /// SENSITIVE: exact envelope, nil ciphertext only in detached mode.
@@ -40388,7 +27613,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseEncrypt0CreateResultView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.detached_ciphertext = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.detached_ciphertext =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
@@ -40431,7 +27657,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseEncrypt0CreateResultView<'a> {
         if !self.encoded.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.encoded) as u64;
         }
-        if let Some(ref v) = self.detached_ciphertext {
+        if let ::core::option::Option::Some(ref v) = self.detached_ciphertext {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -40443,7 +27669,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseEncrypt0CreateResultView<'a> {
         if !self.encoded.is_empty() {
             ::buffa::types::put_shared_bytes_field(1u32, &self.encoded, buf);
         }
-        if let Some(ref v) = self.detached_ciphertext {
+        if let ::core::option::Option::Some(ref v) = self.detached_ciphertext {
             ::buffa::types::put_shared_bytes_field(2u32, v, buf);
         }
     }
@@ -40467,136 +27693,6 @@ impl<'a> ::buffa::MessageName for CoseEncrypt0CreateResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseEncrypt0CreateResultView);
 ::buffa::impl_view_reborrow!(CoseEncrypt0CreateResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseEncrypt0CreateResultView);
-/** Self-contained, `'static` owned view of a `CoseEncrypt0CreateResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseEncrypt0CreateResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseEncrypt0CreateResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseEncrypt0CreateResultOwnedView(
-    ::buffa::OwnedView<CoseEncrypt0CreateResultView<'static>>,
-);
-impl CoseEncrypt0CreateResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseEncrypt0CreateResultOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseEncrypt0CreateResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseEncrypt0CreateResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseEncrypt0CreateResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseEncrypt0CreateResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseEncrypt0CreateResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseEncrypt0CreateResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: exact envelope, nil ciphertext only in detached mode.
-    ///
-    /// Field 1: `encoded`
-    #[must_use]
-    pub fn encoded(&self) -> &'_ [u8] {
-        self.0.reborrow().encoded
-    }
-    /// SENSITIVE: present exactly for detached mode, includes the AEAD tag.
-    ///
-    /// Field 2: `detached_ciphertext`
-    #[must_use]
-    pub fn detached_ciphertext(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().detached_ciphertext
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseEncrypt0CreateResultView<'static>>>
-    for CoseEncrypt0CreateResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseEncrypt0CreateResultView<'static>>) -> Self {
-        CoseEncrypt0CreateResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseEncrypt0CreateResultOwnedView>
-    for ::buffa::OwnedView<CoseEncrypt0CreateResultView<'static>>
-{
-    fn from(wrapper: CoseEncrypt0CreateResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseEncrypt0CreateResultView<'static>>>
-    for CoseEncrypt0CreateResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseEncrypt0CreateResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseEncrypt0CreateResult {
-    type View<'a> = CoseEncrypt0CreateResultView<'a>;
-    type ViewHandle = CoseEncrypt0CreateResultOwnedView;
-}
-impl ::serde::Serialize for CoseEncrypt0CreateResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseEncrypt0DecryptRequestView<'a> {
     /// SENSITIVE: exact envelope, at most 1 MiB.
@@ -40698,7 +27794,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseEncrypt0DecryptRequestView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.detached_ciphertext = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.detached_ciphertext =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -40724,7 +27821,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseEncrypt0DecryptRequestView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.base_iv = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.base_iv =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             8u32 => {
                 ::buffa::encoding::check_wire_type(tag, ::buffa::encoding::WireType::Varint)?;
@@ -40803,7 +27901,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseEncrypt0DecryptRequestView<'a> {
         if !self.encoded.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.encoded) as u64;
         }
-        if let Some(ref v) = self.detached_ciphertext {
+        if let ::core::option::Option::Some(ref v) = self.detached_ciphertext {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         if !self.external_aad.is_empty() {
@@ -40826,7 +27924,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseEncrypt0DecryptRequestView<'a> {
                 .sum::<u64>();
             size += 1u64 + ::buffa::encoding::varint_len(payload) as u64 + payload;
         }
-        if let Some(ref v) = self.base_iv {
+        if let ::core::option::Option::Some(ref v) = self.base_iv {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         {
@@ -40844,7 +27942,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseEncrypt0DecryptRequestView<'a> {
         if !self.encoded.is_empty() {
             ::buffa::types::put_shared_bytes_field(1u32, &self.encoded, buf);
         }
-        if let Some(ref v) = self.detached_ciphertext {
+        if let ::core::option::Option::Some(ref v) = self.detached_ciphertext {
             ::buffa::types::put_shared_bytes_field(2u32, v, buf);
         }
         if !self.external_aad.is_empty() {
@@ -40870,7 +27968,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseEncrypt0DecryptRequestView<'a> {
                 ::buffa::types::encode_int32(v.to_i32(), buf);
             }
         }
-        if let Some(ref v) = self.base_iv {
+        if let ::core::option::Option::Some(ref v) = self.base_iv {
             ::buffa::types::put_shared_bytes_field(7u32, v, buf);
         }
         {
@@ -40901,179 +27999,6 @@ impl<'a> ::buffa::MessageName for CoseEncrypt0DecryptRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseEncrypt0DecryptRequestView);
 ::buffa::impl_view_reborrow!(CoseEncrypt0DecryptRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseEncrypt0DecryptRequestView);
-/** Self-contained, `'static` owned view of a `CoseEncrypt0DecryptRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseEncrypt0DecryptRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseEncrypt0DecryptRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseEncrypt0DecryptRequestOwnedView(
-    ::buffa::OwnedView<CoseEncrypt0DecryptRequestView<'static>>,
-);
-impl CoseEncrypt0DecryptRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseEncrypt0DecryptRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseEncrypt0DecryptRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseEncrypt0DecryptRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseEncrypt0DecryptRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseEncrypt0DecryptRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseEncrypt0DecryptRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseEncrypt0DecryptRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: exact envelope, at most 1 MiB.
-    ///
-    /// Field 1: `encoded`
-    #[must_use]
-    pub fn encoded(&self) -> &'_ [u8] {
-        self.0.reborrow().encoded
-    }
-    /// SENSITIVE: presence requires a nil ciphertext slot.
-    ///
-    /// Field 2: `detached_ciphertext`
-    #[must_use]
-    pub fn detached_ciphertext(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().detached_ciphertext
-    }
-    /// SENSITIVE: explicit AAD.
-    ///
-    /// Field 3: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// Field 4: `key_algorithm`
-    #[must_use]
-    pub fn key_algorithm(
-        &self,
-    ) -> ::buffa::EnumValue<super::super::CoseContentEncryptionAlgorithm> {
-        self.0.reborrow().key_algorithm
-    }
-    /// SENSITIVE: protected primitive input, never returned.
-    ///
-    /// Field 5: `key`
-    #[must_use]
-    pub fn key(&self) -> &'_ [u8] {
-        self.0.reborrow().key
-    }
-    /// Field 6: `allowed_algorithms`
-    #[must_use]
-    pub fn allowed_algorithms(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        ::buffa::EnumValue<super::super::CoseContentEncryptionAlgorithm>,
-    > {
-        &self.0.reborrow().allowed_algorithms
-    }
-    /// SENSITIVE: explicit base for Partial IV.
-    ///
-    /// Field 7: `base_iv`
-    #[must_use]
-    pub fn base_iv(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().base_iv
-    }
-    /// Field 8: `envelope`
-    #[must_use]
-    pub fn envelope(&self) -> ::buffa::EnumValue<super::super::CoseEnvelopePolicy> {
-        self.0.reborrow().envelope
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseEncrypt0DecryptRequestView<'static>>>
-    for CoseEncrypt0DecryptRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseEncrypt0DecryptRequestView<'static>>) -> Self {
-        CoseEncrypt0DecryptRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseEncrypt0DecryptRequestOwnedView>
-    for ::buffa::OwnedView<CoseEncrypt0DecryptRequestView<'static>>
-{
-    fn from(wrapper: CoseEncrypt0DecryptRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseEncrypt0DecryptRequestView<'static>>>
-    for CoseEncrypt0DecryptRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseEncrypt0DecryptRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseEncrypt0DecryptRequest {
-    type View<'a> = CoseEncrypt0DecryptRequestView<'a>;
-    type ViewHandle = CoseEncrypt0DecryptRequestOwnedView;
-}
-impl ::serde::Serialize for CoseEncrypt0DecryptRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseEncrypt0DecryptResultView<'a> {
     /// SENSITIVE: released only after AEAD verification succeeds.
@@ -41165,7 +28090,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseEncrypt0DecryptResultView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.protected_kid = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.protected_kid =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
@@ -41219,7 +28145,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseEncrypt0DecryptResultView<'a> {
         if !self.protected.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected) as u64;
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -41240,7 +28166,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseEncrypt0DecryptResultView<'a> {
         if !self.protected.is_empty() {
             ::buffa::types::put_shared_bytes_field(3u32, &self.protected, buf);
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             ::buffa::types::put_shared_bytes_field(4u32, v, buf);
         }
     }
@@ -41264,148 +28190,6 @@ impl<'a> ::buffa::MessageName for CoseEncrypt0DecryptResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseEncrypt0DecryptResultView);
 ::buffa::impl_view_reborrow!(CoseEncrypt0DecryptResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseEncrypt0DecryptResultView);
-/** Self-contained, `'static` owned view of a `CoseEncrypt0DecryptResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseEncrypt0DecryptResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseEncrypt0DecryptResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseEncrypt0DecryptResultOwnedView(
-    ::buffa::OwnedView<CoseEncrypt0DecryptResultView<'static>>,
-);
-impl CoseEncrypt0DecryptResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseEncrypt0DecryptResultOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseEncrypt0DecryptResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseEncrypt0DecryptResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseEncrypt0DecryptResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseEncrypt0DecryptResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseEncrypt0DecryptResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseEncrypt0DecryptResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: released only after AEAD verification succeeds.
-    ///
-    /// Field 1: `plaintext`
-    #[must_use]
-    pub fn plaintext(&self) -> &'_ [u8] {
-        self.0.reborrow().plaintext
-    }
-    /// Field 2: `algorithm`
-    #[must_use]
-    pub fn algorithm(&self) -> ::buffa::EnumValue<super::super::CoseContentEncryptionAlgorithm> {
-        self.0.reborrow().algorithm
-    }
-    /// SENSITIVE: exact authenticated protected-header bytes.
-    ///
-    /// Field 3: `protected`
-    #[must_use]
-    pub fn protected(&self) -> &'_ [u8] {
-        self.0.reborrow().protected
-    }
-    /// SENSITIVE: protected identity only; never unprotected discovery data.
-    ///
-    /// Field 4: `protected_kid`
-    #[must_use]
-    pub fn protected_kid(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().protected_kid
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseEncrypt0DecryptResultView<'static>>>
-    for CoseEncrypt0DecryptResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseEncrypt0DecryptResultView<'static>>) -> Self {
-        CoseEncrypt0DecryptResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseEncrypt0DecryptResultOwnedView>
-    for ::buffa::OwnedView<CoseEncrypt0DecryptResultView<'static>>
-{
-    fn from(wrapper: CoseEncrypt0DecryptResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseEncrypt0DecryptResultView<'static>>>
-    for CoseEncrypt0DecryptResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseEncrypt0DecryptResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseEncrypt0DecryptResult {
-    type View<'a> = CoseEncrypt0DecryptResultView<'a>;
-    type ViewHandle = CoseEncrypt0DecryptResultOwnedView;
-}
-impl ::serde::Serialize for CoseEncrypt0DecryptResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseSignSignerView<'a> {
     /// Field 1: `headers`
@@ -41483,7 +28267,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSignSignerView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.headers.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -41504,7 +28288,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSignSignerView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.suite.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -41627,140 +28411,6 @@ impl<'a> ::buffa::MessageName for CoseSignSignerView<'a> {
 ::buffa::impl_default_view_instance!(CoseSignSignerView);
 ::buffa::impl_view_reborrow!(CoseSignSignerView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSignSignerView);
-/** Self-contained, `'static` owned view of a `CoseSignSigner` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSignSignerView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSignSignerView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSignSignerOwnedView(::buffa::OwnedView<CoseSignSignerView<'static>>);
-impl CoseSignSignerOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignSignerOwnedView(::buffa::OwnedView::decode(bytes)?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignSignerOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSignSigner,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignSignerOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseSignSignerView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSignSignerView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSignSigner {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `headers`
-    #[must_use]
-    pub fn headers(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseMessageHeadersView<'_>> {
-        &self.0.reborrow().headers
-    }
-    /// Field 2: `suite`
-    #[must_use]
-    pub fn suite(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'_>> {
-        &self.0.reborrow().suite
-    }
-    /// Native primitive encoding; no COSE_Key usage restrictions are discarded.
-    /// SENSITIVE: protected ownership and redacted diagnostics.
-    ///
-    /// Field 3: `private_key`
-    #[must_use]
-    pub fn private_key(&self) -> &'_ [u8] {
-        self.0.reborrow().private_key
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSignSignerView<'static>>>
-    for CoseSignSignerOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSignSignerView<'static>>) -> Self {
-        CoseSignSignerOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSignSignerOwnedView>
-    for ::buffa::OwnedView<CoseSignSignerView<'static>>
-{
-    fn from(wrapper: CoseSignSignerOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSignSignerView<'static>>>
-    for CoseSignSignerOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSignSignerView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSignSigner {
-    type View<'a> = CoseSignSignerView<'a>;
-    type ViewHandle = CoseSignSignerOwnedView;
-}
-impl ::serde::Serialize for CoseSignSignerOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// RFC 9052 sections 4.1/4.4. One through 32 signers. The context is Signature,
 /// never Signature1. Payload and AAD are explicit; AAD is at most 64 KiB.
 #[derive(Clone, Default)]
@@ -41861,7 +28511,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSignCreateRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.headers.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -42078,169 +28728,6 @@ impl<'a> ::buffa::MessageName for CoseSignCreateRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseSignCreateRequestView);
 ::buffa::impl_view_reborrow!(CoseSignCreateRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSignCreateRequestView);
-/** Self-contained, `'static` owned view of a `CoseSignCreateRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSignCreateRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSignCreateRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSignCreateRequestOwnedView(::buffa::OwnedView<CoseSignCreateRequestView<'static>>);
-impl CoseSignCreateRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignCreateRequestOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignCreateRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSignCreateRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignCreateRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseSignCreateRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSignCreateRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSignCreateRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `headers`
-    #[must_use]
-    pub fn headers(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseMessageHeadersView<'_>> {
-        &self.0.reborrow().headers
-    }
-    /// SENSITIVE: protected ownership and redacted diagnostics.
-    ///
-    /// Field 2: `payload`
-    #[must_use]
-    pub fn payload(&self) -> &'_ [u8] {
-        self.0.reborrow().payload
-    }
-    /// SENSITIVE: protected ownership and redacted diagnostics.
-    ///
-    /// Field 3: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// Field 4: `content_mode`
-    #[must_use]
-    pub fn content_mode(&self) -> ::buffa::EnumValue<super::super::CoseContentMode> {
-        self.0.reborrow().content_mode
-    }
-    /// Field 5: `tagged`
-    #[must_use]
-    pub fn tagged(&self) -> bool {
-        self.0.reborrow().tagged
-    }
-    /// Field 6: `signers`
-    #[must_use]
-    pub fn signers(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<'_, super::super::__buffa::view::CoseSignSignerView<'_>>
-    {
-        &self.0.reborrow().signers
-    }
-    /// Field 7: `allowed_suites`
-    #[must_use]
-    pub fn allowed_suites(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        super::super::__buffa::view::CoseSignatureSuiteView<'_>,
-    > {
-        &self.0.reborrow().allowed_suites
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSignCreateRequestView<'static>>>
-    for CoseSignCreateRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSignCreateRequestView<'static>>) -> Self {
-        CoseSignCreateRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSignCreateRequestOwnedView>
-    for ::buffa::OwnedView<CoseSignCreateRequestView<'static>>
-{
-    fn from(wrapper: CoseSignCreateRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSignCreateRequestView<'static>>>
-    for CoseSignCreateRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSignCreateRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSignCreateRequest {
-    type View<'a> = CoseSignCreateRequestView<'a>;
-    type ViewHandle = CoseSignCreateRequestOwnedView;
-}
-impl ::serde::Serialize for CoseSignCreateRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseSignKeyBindingView<'a> {
     /// Field 1: `signature_index`
@@ -42323,7 +28810,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseSignKeyBindingView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.suite.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -42435,142 +28922,6 @@ impl<'a> ::buffa::MessageName for CoseSignKeyBindingView<'a> {
 ::buffa::impl_default_view_instance!(CoseSignKeyBindingView);
 ::buffa::impl_view_reborrow!(CoseSignKeyBindingView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSignKeyBindingView);
-/** Self-contained, `'static` owned view of a `CoseSignKeyBinding` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSignKeyBindingView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSignKeyBindingView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSignKeyBindingOwnedView(::buffa::OwnedView<CoseSignKeyBindingView<'static>>);
-impl CoseSignKeyBindingOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignKeyBindingOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignKeyBindingOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSignKeyBinding,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignKeyBindingOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseSignKeyBindingView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSignKeyBindingView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSignKeyBinding {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `signature_index`
-    #[must_use]
-    pub fn signature_index(&self) -> u32 {
-        self.0.reborrow().signature_index
-    }
-    /// Field 2: `suite`
-    #[must_use]
-    pub fn suite(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'_>> {
-        &self.0.reborrow().suite
-    }
-    /// RSA: exact rsaEncryption SubjectPublicKeyInfo DER; curve is UNSPECIFIED.
-    /// RSA verification requires 2048..8192 modulus bits. Other suites use their
-    /// established native public-key encodings. No automatic encoding detection.
-    /// SENSITIVE: protected ownership and redacted diagnostics.
-    ///
-    /// Field 3: `public_key`
-    #[must_use]
-    pub fn public_key(&self) -> &'_ [u8] {
-        self.0.reborrow().public_key
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSignKeyBindingView<'static>>>
-    for CoseSignKeyBindingOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSignKeyBindingView<'static>>) -> Self {
-        CoseSignKeyBindingOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSignKeyBindingOwnedView>
-    for ::buffa::OwnedView<CoseSignKeyBindingView<'static>>
-{
-    fn from(wrapper: CoseSignKeyBindingOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSignKeyBindingView<'static>>>
-    for CoseSignKeyBindingOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSignKeyBindingView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSignKeyBinding {
-    type View<'a> = CoseSignKeyBindingView<'a>;
-    type ViewHandle = CoseSignKeyBindingOwnedView;
-}
-impl ::serde::Serialize for CoseSignKeyBindingOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Explicit RSA-only Sign1 profile; modern and ISO Sign1 defaults do not change.
 /// Exact registration, nonempty unique allowed_suites, key index zero and curve
 /// UNSPECIFIED are required. RSA keys use the SPKI encoding in CoseSignKeyBinding.
@@ -42687,7 +29038,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseRsaSign1VerifyRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.key.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -42705,7 +29056,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseRsaSign1VerifyRequestView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.detached_payload = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.detached_payload =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             6u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -42719,7 +29071,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseRsaSign1VerifyRequestView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.expected_kid = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.expected_kid =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -42817,13 +29170,13 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseRsaSign1VerifyRequestView<'a> {
             size +=
                 1u64 + ::buffa::encoding::varint_len(inner_size as u64) as u64 + inner_size as u64;
         }
-        if let Some(ref v) = self.detached_payload {
+        if let ::core::option::Option::Some(ref v) = self.detached_payload {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         if !self.external_aad.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.external_aad) as u64;
         }
-        if let Some(ref v) = self.expected_kid {
+        if let ::core::option::Option::Some(ref v) = self.expected_kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -42849,13 +29202,13 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseRsaSign1VerifyRequestView<'a> {
             ::buffa::types::put_len_delimited_header(4u32, u64::from(__cache.consume_next()), buf);
             v.write_to(__cache, buf);
         }
-        if let Some(ref v) = self.detached_payload {
+        if let ::core::option::Option::Some(ref v) = self.detached_payload {
             ::buffa::types::put_shared_bytes_field(5u32, v, buf);
         }
         if !self.external_aad.is_empty() {
             ::buffa::types::put_shared_bytes_field(6u32, &self.external_aad, buf);
         }
-        if let Some(ref v) = self.expected_kid {
+        if let ::core::option::Option::Some(ref v) = self.expected_kid {
             ::buffa::types::put_shared_bytes_field(7u32, v, buf);
         }
     }
@@ -42879,172 +29232,6 @@ impl<'a> ::buffa::MessageName for CoseRsaSign1VerifyRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseRsaSign1VerifyRequestView);
 ::buffa::impl_view_reborrow!(CoseRsaSign1VerifyRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseRsaSign1VerifyRequestView);
-/** Self-contained, `'static` owned view of a `CoseRsaSign1VerifyRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseRsaSign1VerifyRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseRsaSign1VerifyRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseRsaSign1VerifyRequestOwnedView(
-    ::buffa::OwnedView<CoseRsaSign1VerifyRequestView<'static>>,
-);
-impl CoseRsaSign1VerifyRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseRsaSign1VerifyRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseRsaSign1VerifyRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseRsaSign1VerifyRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseRsaSign1VerifyRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseRsaSign1VerifyRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseRsaSign1VerifyRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseRsaSign1VerifyRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: exact received Sign1, optionally tagged 18.
-    ///
-    /// Field 1: `encoded`
-    #[must_use]
-    pub fn encoded(&self) -> &'_ [u8] {
-        self.0.reborrow().encoded
-    }
-    /// Field 2: `envelope`
-    #[must_use]
-    pub fn envelope(&self) -> ::buffa::EnumValue<super::super::CoseEnvelopePolicy> {
-        self.0.reborrow().envelope
-    }
-    /// Field 3: `key`
-    #[must_use]
-    pub fn key(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignKeyBindingView<'_>> {
-        &self.0.reborrow().key
-    }
-    /// Field 4: `allowed_suites`
-    #[must_use]
-    pub fn allowed_suites(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        super::super::__buffa::view::CoseSignatureSuiteView<'_>,
-    > {
-        &self.0.reborrow().allowed_suites
-    }
-    /// SENSITIVE: exact externally supplied content; explicit empty is meaningful.
-    ///
-    /// Field 5: `detached_payload`
-    #[must_use]
-    pub fn detached_payload(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().detached_payload
-    }
-    /// SENSITIVE: explicit external AAD, including empty.
-    ///
-    /// Field 6: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// SENSITIVE: optional trusted identity, checked against the protected kid.
-    ///
-    /// Field 7: `expected_kid`
-    #[must_use]
-    pub fn expected_kid(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().expected_kid
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseRsaSign1VerifyRequestView<'static>>>
-    for CoseRsaSign1VerifyRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseRsaSign1VerifyRequestView<'static>>) -> Self {
-        CoseRsaSign1VerifyRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseRsaSign1VerifyRequestOwnedView>
-    for ::buffa::OwnedView<CoseRsaSign1VerifyRequestView<'static>>
-{
-    fn from(wrapper: CoseRsaSign1VerifyRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseRsaSign1VerifyRequestView<'static>>>
-    for CoseRsaSign1VerifyRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseRsaSign1VerifyRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseRsaSign1VerifyRequest {
-    type View<'a> = CoseRsaSign1VerifyRequestView<'a>;
-    type ViewHandle = CoseRsaSign1VerifyRequestOwnedView;
-}
-impl ::serde::Serialize for CoseRsaSign1VerifyRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseRsaSign1VerifyResultView<'a> {
     /// Field 1: `suite`
@@ -43126,7 +29313,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseRsaSign1VerifyResultView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.suite.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -43151,14 +29338,16 @@ impl<'a> ::buffa::MessageView<'a> for CoseRsaSign1VerifyResultView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.protected_kid = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.protected_kid =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             4u32 => {
                 ::buffa::encoding::check_wire_type(
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.attached_payload = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.attached_payload =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
@@ -43218,10 +29407,10 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseRsaSign1VerifyResultView<'a> {
         if !self.protected.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected) as u64;
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
-        if let Some(ref v) = self.attached_payload {
+        if let ::core::option::Option::Some(ref v) = self.attached_payload {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -43237,10 +29426,10 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseRsaSign1VerifyResultView<'a> {
         if !self.protected.is_empty() {
             ::buffa::types::put_shared_bytes_field(2u32, &self.protected, buf);
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             ::buffa::types::put_shared_bytes_field(3u32, v, buf);
         }
-        if let Some(ref v) = self.attached_payload {
+        if let ::core::option::Option::Some(ref v) = self.attached_payload {
             ::buffa::types::put_shared_bytes_field(4u32, v, buf);
         }
     }
@@ -43264,150 +29453,6 @@ impl<'a> ::buffa::MessageName for CoseRsaSign1VerifyResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseRsaSign1VerifyResultView);
 ::buffa::impl_view_reborrow!(CoseRsaSign1VerifyResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseRsaSign1VerifyResultView);
-/** Self-contained, `'static` owned view of a `CoseRsaSign1VerifyResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseRsaSign1VerifyResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseRsaSign1VerifyResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseRsaSign1VerifyResultOwnedView(
-    ::buffa::OwnedView<CoseRsaSign1VerifyResultView<'static>>,
-);
-impl CoseRsaSign1VerifyResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseRsaSign1VerifyResultOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseRsaSign1VerifyResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseRsaSign1VerifyResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseRsaSign1VerifyResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseRsaSign1VerifyResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseRsaSign1VerifyResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseRsaSign1VerifyResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `suite`
-    #[must_use]
-    pub fn suite(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'_>> {
-        &self.0.reborrow().suite
-    }
-    /// SENSITIVE: exact authenticated protected bytes.
-    ///
-    /// Field 2: `protected`
-    #[must_use]
-    pub fn protected(&self) -> &'_ [u8] {
-        self.0.reborrow().protected
-    }
-    /// SENSITIVE: authenticated identity only.
-    ///
-    /// Field 3: `protected_kid`
-    #[must_use]
-    pub fn protected_kid(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().protected_kid
-    }
-    /// SENSITIVE: present only for attached content, released after verification.
-    ///
-    /// Field 4: `attached_payload`
-    #[must_use]
-    pub fn attached_payload(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().attached_payload
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseRsaSign1VerifyResultView<'static>>>
-    for CoseRsaSign1VerifyResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseRsaSign1VerifyResultView<'static>>) -> Self {
-        CoseRsaSign1VerifyResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseRsaSign1VerifyResultOwnedView>
-    for ::buffa::OwnedView<CoseRsaSign1VerifyResultView<'static>>
-{
-    fn from(wrapper: CoseRsaSign1VerifyResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseRsaSign1VerifyResultView<'static>>>
-    for CoseRsaSign1VerifyResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseRsaSign1VerifyResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseRsaSign1VerifyResult {
-    type View<'a> = CoseRsaSign1VerifyResultView<'a>;
-    type ViewHandle = CoseRsaSign1VerifyResultOwnedView;
-}
-impl ::serde::Serialize for CoseRsaSign1VerifyResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// Verify every signature with exactly one caller-authorized indexed key each.
 /// No threshold, trust discovery, certificate policy or key selection is inferred.
 /// A present detached_payload requires a nil slot; absence requires attached bstr.
@@ -43511,7 +29556,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseSignVerifyRequestView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.detached_payload = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.detached_payload =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -43613,7 +29659,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseSignVerifyRequestView<'a> {
         if !self.encoded.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.encoded) as u64;
         }
-        if let Some(ref v) = self.detached_payload {
+        if let ::core::option::Option::Some(ref v) = self.detached_payload {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         if !self.external_aad.is_empty() {
@@ -43648,7 +29694,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseSignVerifyRequestView<'a> {
         if !self.encoded.is_empty() {
             ::buffa::types::put_shared_bytes_field(1u32, &self.encoded, buf);
         }
-        if let Some(ref v) = self.detached_payload {
+        if let ::core::option::Option::Some(ref v) = self.detached_payload {
             ::buffa::types::put_shared_bytes_field(2u32, v, buf);
         }
         if !self.external_aad.is_empty() {
@@ -43689,166 +29735,6 @@ impl<'a> ::buffa::MessageName for CoseSignVerifyRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseSignVerifyRequestView);
 ::buffa::impl_view_reborrow!(CoseSignVerifyRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSignVerifyRequestView);
-/** Self-contained, `'static` owned view of a `CoseSignVerifyRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSignVerifyRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSignVerifyRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSignVerifyRequestOwnedView(::buffa::OwnedView<CoseSignVerifyRequestView<'static>>);
-impl CoseSignVerifyRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignVerifyRequestOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignVerifyRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSignVerifyRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignVerifyRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseSignVerifyRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSignVerifyRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSignVerifyRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: protected ownership and redacted diagnostics.
-    ///
-    /// Field 1: `encoded`
-    #[must_use]
-    pub fn encoded(&self) -> &'_ [u8] {
-        self.0.reborrow().encoded
-    }
-    /// SENSITIVE: protected ownership and redacted diagnostics.
-    ///
-    /// Field 2: `detached_payload`
-    #[must_use]
-    pub fn detached_payload(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().detached_payload
-    }
-    /// SENSITIVE: protected ownership and redacted diagnostics.
-    ///
-    /// Field 3: `external_aad`
-    #[must_use]
-    pub fn external_aad(&self) -> &'_ [u8] {
-        self.0.reborrow().external_aad
-    }
-    /// Field 4: `envelope`
-    #[must_use]
-    pub fn envelope(&self) -> ::buffa::EnumValue<super::super::CoseEnvelopePolicy> {
-        self.0.reborrow().envelope
-    }
-    /// Field 5: `keys`
-    #[must_use]
-    pub fn keys(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        super::super::__buffa::view::CoseSignKeyBindingView<'_>,
-    > {
-        &self.0.reborrow().keys
-    }
-    /// Field 6: `allowed_suites`
-    #[must_use]
-    pub fn allowed_suites(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        super::super::__buffa::view::CoseSignatureSuiteView<'_>,
-    > {
-        &self.0.reborrow().allowed_suites
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSignVerifyRequestView<'static>>>
-    for CoseSignVerifyRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSignVerifyRequestView<'static>>) -> Self {
-        CoseSignVerifyRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSignVerifyRequestOwnedView>
-    for ::buffa::OwnedView<CoseSignVerifyRequestView<'static>>
-{
-    fn from(wrapper: CoseSignVerifyRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSignVerifyRequestView<'static>>>
-    for CoseSignVerifyRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSignVerifyRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSignVerifyRequest {
-    type View<'a> = CoseSignVerifyRequestView<'a>;
-    type ViewHandle = CoseSignVerifyRequestOwnedView;
-}
-impl ::serde::Serialize for CoseSignVerifyRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseVerifiedSignatureView<'a> {
     /// Field 1: `signature_index`
@@ -43933,7 +29819,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseVerifiedSignatureView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.suite.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -43958,7 +29844,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseVerifiedSignatureView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.protected_kid = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.protected_kid =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
@@ -44019,7 +29906,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseVerifiedSignatureView<'a> {
         if !self.protected.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.protected) as u64;
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -44038,7 +29925,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseVerifiedSignatureView<'a> {
         if !self.protected.is_empty() {
             ::buffa::types::put_shared_bytes_field(3u32, &self.protected, buf);
         }
-        if let Some(ref v) = self.protected_kid {
+        if let ::core::option::Option::Some(ref v) = self.protected_kid {
             ::buffa::types::put_shared_bytes_field(4u32, v, buf);
         }
     }
@@ -44062,146 +29949,6 @@ impl<'a> ::buffa::MessageName for CoseVerifiedSignatureView<'a> {
 ::buffa::impl_default_view_instance!(CoseVerifiedSignatureView);
 ::buffa::impl_view_reborrow!(CoseVerifiedSignatureView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseVerifiedSignatureView);
-/** Self-contained, `'static` owned view of a `CoseVerifiedSignature` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseVerifiedSignatureView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseVerifiedSignatureView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseVerifiedSignatureOwnedView(::buffa::OwnedView<CoseVerifiedSignatureView<'static>>);
-impl CoseVerifiedSignatureOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseVerifiedSignatureOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseVerifiedSignatureOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseVerifiedSignature,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseVerifiedSignatureOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseVerifiedSignatureView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseVerifiedSignatureView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseVerifiedSignature {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Field 1: `signature_index`
-    #[must_use]
-    pub fn signature_index(&self) -> u32 {
-        self.0.reborrow().signature_index
-    }
-    /// Field 2: `suite`
-    #[must_use]
-    pub fn suite(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseSignatureSuiteView<'_>> {
-        &self.0.reborrow().suite
-    }
-    /// SENSITIVE: protected ownership and redacted diagnostics.
-    ///
-    /// Field 3: `protected`
-    #[must_use]
-    pub fn protected(&self) -> &'_ [u8] {
-        self.0.reborrow().protected
-    }
-    /// SENSITIVE: protected ownership and redacted diagnostics.
-    ///
-    /// Field 4: `protected_kid`
-    #[must_use]
-    pub fn protected_kid(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().protected_kid
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseVerifiedSignatureView<'static>>>
-    for CoseVerifiedSignatureOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseVerifiedSignatureView<'static>>) -> Self {
-        CoseVerifiedSignatureOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseVerifiedSignatureOwnedView>
-    for ::buffa::OwnedView<CoseVerifiedSignatureView<'static>>
-{
-    fn from(wrapper: CoseVerifiedSignatureOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseVerifiedSignatureView<'static>>>
-    for CoseVerifiedSignatureOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseVerifiedSignatureView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseVerifiedSignature {
-    type View<'a> = CoseVerifiedSignatureView<'a>;
-    type ViewHandle = CoseVerifiedSignatureOwnedView;
-}
-impl ::serde::Serialize for CoseVerifiedSignatureOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseSignVerifyResultView<'a> {
     /// SENSITIVE: protected ownership and redacted diagnostics.
@@ -44286,7 +30033,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseSignVerifyResultView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.attached_payload = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.attached_payload =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             3u32 => {
                 ::buffa::encoding::check_wire_type(
@@ -44352,7 +30100,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseSignVerifyResultView<'a> {
         if !self.body_protected.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.body_protected) as u64;
         }
-        if let Some(ref v) = self.attached_payload {
+        if let ::core::option::Option::Some(ref v) = self.attached_payload {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         for v in &self.signatures {
@@ -44371,7 +30119,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseSignVerifyResultView<'a> {
         if !self.body_protected.is_empty() {
             ::buffa::types::put_shared_bytes_field(1u32, &self.body_protected, buf);
         }
-        if let Some(ref v) = self.attached_payload {
+        if let ::core::option::Option::Some(ref v) = self.attached_payload {
             ::buffa::types::put_shared_bytes_field(2u32, v, buf);
         }
         for v in &self.signatures {
@@ -44399,145 +30147,6 @@ impl<'a> ::buffa::MessageName for CoseSignVerifyResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseSignVerifyResultView);
 ::buffa::impl_view_reborrow!(CoseSignVerifyResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseSignVerifyResultView);
-/** Self-contained, `'static` owned view of a `CoseSignVerifyResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseSignVerifyResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseSignVerifyResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseSignVerifyResultOwnedView(::buffa::OwnedView<CoseSignVerifyResultView<'static>>);
-impl CoseSignVerifyResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignVerifyResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignVerifyResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseSignVerifyResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseSignVerifyResultOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseSignVerifyResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseSignVerifyResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseSignVerifyResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: protected ownership and redacted diagnostics.
-    ///
-    /// Field 1: `body_protected`
-    #[must_use]
-    pub fn body_protected(&self) -> &'_ [u8] {
-        self.0.reborrow().body_protected
-    }
-    /// Present only for attached content. Detached content remains caller-owned.
-    /// SENSITIVE: protected ownership and redacted diagnostics.
-    ///
-    /// Field 2: `attached_payload`
-    #[must_use]
-    pub fn attached_payload(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().attached_payload
-    }
-    /// Field 3: `signatures`
-    #[must_use]
-    pub fn signatures(
-        &self,
-    ) -> &::buffa::sensitive::RepeatedView<
-        '_,
-        super::super::__buffa::view::CoseVerifiedSignatureView<'_>,
-    > {
-        &self.0.reborrow().signatures
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseSignVerifyResultView<'static>>>
-    for CoseSignVerifyResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseSignVerifyResultView<'static>>) -> Self {
-        CoseSignVerifyResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseSignVerifyResultOwnedView>
-    for ::buffa::OwnedView<CoseSignVerifyResultView<'static>>
-{
-    fn from(wrapper: CoseSignVerifyResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseSignVerifyResultView<'static>>>
-    for CoseSignVerifyResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseSignVerifyResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseSignVerifyResult {
-    type View<'a> = CoseSignVerifyResultView<'a>;
-    type ViewHandle = CoseSignVerifyResultOwnedView;
-}
-impl ::serde::Serialize for CoseSignVerifyResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 #[derive(Clone, Default)]
 pub struct CoseKeyFromPublicBytesRequestView<'a> {
     /// Algorithm that determines the COSE_Key kty/crv/alg profile.
@@ -44621,7 +30230,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseKeyFromPublicBytesRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.algorithm.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -44748,148 +30357,6 @@ impl<'a> ::buffa::MessageName for CoseKeyFromPublicBytesRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseKeyFromPublicBytesRequestView);
 ::buffa::impl_view_reborrow!(CoseKeyFromPublicBytesRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseKeyFromPublicBytesRequestView);
-/** Self-contained, `'static` owned view of a `CoseKeyFromPublicBytesRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseKeyFromPublicBytesRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseKeyFromPublicBytesRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseKeyFromPublicBytesRequestOwnedView(
-    ::buffa::OwnedView<CoseKeyFromPublicBytesRequestView<'static>>,
-);
-impl CoseKeyFromPublicBytesRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeyFromPublicBytesRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeyFromPublicBytesRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseKeyFromPublicBytesRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeyFromPublicBytesRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseKeyFromPublicBytesRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseKeyFromPublicBytesRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseKeyFromPublicBytesRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Algorithm that determines the COSE_Key kty/crv/alg profile.
-    ///
-    /// Field 1: `algorithm`
-    #[must_use]
-    pub fn algorithm(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseAlgorithmIdentifierView<'_>>
-    {
-        &self.0.reborrow().algorithm
-    }
-    /// Raw public key bytes for the selected algorithm.
-    /// SENSITIVE: identifying bytes; generated owners wipe and redact them.
-    ///
-    /// Field 2: `public_key`
-    #[must_use]
-    pub fn public_key(&self) -> &'_ [u8] {
-        self.0.reborrow().public_key
-    }
-    /// EC2 point encoding. Unspecified preserves the compact default. This field
-    /// must remain unspecified for non-EC2 algorithms.
-    ///
-    /// Field 3: `ec2_point_encoding`
-    #[must_use]
-    pub fn ec2_point_encoding(&self) -> ::buffa::EnumValue<super::super::CoseEc2PointEncoding> {
-        self.0.reborrow().ec2_point_encoding
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseKeyFromPublicBytesRequestView<'static>>>
-    for CoseKeyFromPublicBytesRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseKeyFromPublicBytesRequestView<'static>>) -> Self {
-        CoseKeyFromPublicBytesRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseKeyFromPublicBytesRequestOwnedView>
-    for ::buffa::OwnedView<CoseKeyFromPublicBytesRequestView<'static>>
-{
-    fn from(wrapper: CoseKeyFromPublicBytesRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseKeyFromPublicBytesRequestView<'static>>>
-    for CoseKeyFromPublicBytesRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseKeyFromPublicBytesRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseKeyFromPublicBytesRequest {
-    type View<'a> = CoseKeyFromPublicBytesRequestView<'a>;
-    type ViewHandle = CoseKeyFromPublicBytesRequestOwnedView;
-}
-impl ::serde::Serialize for CoseKeyFromPublicBytesRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseKeyFromPrivateBytesRequest builds a private COSE_Key from raw private key
 /// bytes and matching public key bytes.
 #[derive(Clone, Default)]
@@ -44975,7 +30442,7 @@ impl<'a> ::buffa::MessageView<'a> for CoseKeyFromPrivateBytesRequestView<'a> {
                 let __sub_ctx = ctx.descend()?;
                 let sub = ::buffa::types::borrow_bytes(&mut cur)?;
                 match view.algorithm.as_mut() {
-                    Some(existing) => {
+                    ::core::option::Option::Some(existing) => {
                         ::buffa::MessageView::merge_into_view(existing, sub, __sub_ctx)?
                     }
                     None => {
@@ -45000,7 +30467,8 @@ impl<'a> ::buffa::MessageView<'a> for CoseKeyFromPrivateBytesRequestView<'a> {
                     tag,
                     ::buffa::encoding::WireType::LengthDelimited,
                 )?;
-                view.public_key = Some(::buffa::types::borrow_bytes(&mut cur)?);
+                view.public_key =
+                    ::core::option::Option::Some(::buffa::types::borrow_bytes(&mut cur)?);
             }
             _ => {
                 ::buffa::encoding::skip_unknown_field(tag, &mut cur, ctx)?;
@@ -45059,7 +30527,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseKeyFromPrivateBytesRequestView<'a> {
         if !self.private_key.is_empty() {
             size += 1u64 + ::buffa::types::bytes_encoded_len(&self.private_key) as u64;
         }
-        if let Some(ref v) = self.public_key {
+        if let ::core::option::Option::Some(ref v) = self.public_key {
             size += 1u64 + ::buffa::types::bytes_encoded_len(v) as u64;
         }
         ::buffa::saturate_size(size)
@@ -45075,7 +30543,7 @@ impl<'a> ::buffa::ViewEncode<'a> for CoseKeyFromPrivateBytesRequestView<'a> {
         if !self.private_key.is_empty() {
             ::buffa::types::put_shared_bytes_field(2u32, &self.private_key, buf);
         }
-        if let Some(ref v) = self.public_key {
+        if let ::core::option::Option::Some(ref v) = self.public_key {
             ::buffa::types::put_shared_bytes_field(3u32, v, buf);
         }
     }
@@ -45100,149 +30568,6 @@ impl<'a> ::buffa::MessageName for CoseKeyFromPrivateBytesRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseKeyFromPrivateBytesRequestView);
 ::buffa::impl_view_reborrow!(CoseKeyFromPrivateBytesRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseKeyFromPrivateBytesRequestView);
-/** Self-contained, `'static` owned view of a `CoseKeyFromPrivateBytesRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseKeyFromPrivateBytesRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseKeyFromPrivateBytesRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseKeyFromPrivateBytesRequestOwnedView(
-    ::buffa::OwnedView<CoseKeyFromPrivateBytesRequestView<'static>>,
-);
-impl CoseKeyFromPrivateBytesRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeyFromPrivateBytesRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeyFromPrivateBytesRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseKeyFromPrivateBytesRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeyFromPrivateBytesRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseKeyFromPrivateBytesRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseKeyFromPrivateBytesRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseKeyFromPrivateBytesRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Algorithm that determines the COSE_Key kty/crv/alg profile.
-    ///
-    /// Field 1: `algorithm`
-    #[must_use]
-    pub fn algorithm(
-        &self,
-    ) -> &::buffa::MessageFieldView<super::super::__buffa::view::CoseAlgorithmIdentifierView<'_>>
-    {
-        &self.0.reborrow().algorithm
-    }
-    /// SENSITIVE: raw private key bytes. Callers must keep this in a
-    /// sensitive-buffer owner outside this transient protobuf container.
-    ///
-    /// Field 2: `private_key`
-    #[must_use]
-    pub fn private_key(&self) -> &'_ [u8] {
-        self.0.reborrow().private_key
-    }
-    /// Optional matching raw public key bytes;
-    /// supported private-key constructions reject requests that omit it.
-    /// SENSITIVE: identifying bytes; generated owners wipe and redact them.
-    ///
-    /// Field 3: `public_key`
-    #[must_use]
-    pub fn public_key(&self) -> ::core::option::Option<&'_ [u8]> {
-        self.0.reborrow().public_key
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseKeyFromPrivateBytesRequestView<'static>>>
-    for CoseKeyFromPrivateBytesRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseKeyFromPrivateBytesRequestView<'static>>) -> Self {
-        CoseKeyFromPrivateBytesRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseKeyFromPrivateBytesRequestOwnedView>
-    for ::buffa::OwnedView<CoseKeyFromPrivateBytesRequestView<'static>>
-{
-    fn from(wrapper: CoseKeyFromPrivateBytesRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseKeyFromPrivateBytesRequestView<'static>>>
-    for CoseKeyFromPrivateBytesRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseKeyFromPrivateBytesRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseKeyFromPrivateBytesRequest {
-    type View<'a> = CoseKeyFromPrivateBytesRequestView<'a>;
-    type ViewHandle = CoseKeyFromPrivateBytesRequestOwnedView;
-}
-impl ::serde::Serialize for CoseKeyFromPrivateBytesRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseKeyBytesRequest carries encoded COSE_Key bytes for parse, extraction,
 /// deterministic kid derivation, and Multikey conversion operations.
 /// A private signature key with explicit key_ops must include sign (1), otherwise
@@ -45378,129 +30703,6 @@ impl<'a> ::buffa::MessageName for CoseKeyBytesRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseKeyBytesRequestView);
 ::buffa::impl_view_reborrow!(CoseKeyBytesRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseKeyBytesRequestView);
-/** Self-contained, `'static` owned view of a `CoseKeyBytesRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseKeyBytesRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseKeyBytesRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseKeyBytesRequestOwnedView(::buffa::OwnedView<CoseKeyBytesRequestView<'static>>);
-impl CoseKeyBytesRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeyBytesRequestOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeyBytesRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseKeyBytesRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeyBytesRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseKeyBytesRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseKeyBytesRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseKeyBytesRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: encoded COSE_Key bytes. This may contain private key material
-    /// for private extraction; wipe transient protobuf containers as soon as
-    /// practical.
-    ///
-    /// Field 1: `cose_key`
-    #[must_use]
-    pub fn cose_key(&self) -> &'_ [u8] {
-        self.0.reborrow().cose_key
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseKeyBytesRequestView<'static>>>
-    for CoseKeyBytesRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseKeyBytesRequestView<'static>>) -> Self {
-        CoseKeyBytesRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseKeyBytesRequestOwnedView>
-    for ::buffa::OwnedView<CoseKeyBytesRequestView<'static>>
-{
-    fn from(wrapper: CoseKeyBytesRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseKeyBytesRequestView<'static>>>
-    for CoseKeyBytesRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseKeyBytesRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseKeyBytesRequest {
-    type View<'a> = CoseKeyBytesRequestView<'a>;
-    type ViewHandle = CoseKeyBytesRequestOwnedView;
-}
-impl ::serde::Serialize for CoseKeyBytesRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseKeyBytesResult carries encoded COSE_Key bytes or raw key/kid bytes,
 /// depending on the operation-specific result envelope.
 /// Rust view: key/owned.rs#CoseKey
@@ -45660,138 +30862,6 @@ impl<'a> ::buffa::MessageName for CoseKeyBytesResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseKeyBytesResultView);
 ::buffa::impl_view_reborrow!(CoseKeyBytesResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseKeyBytesResultView);
-/** Self-contained, `'static` owned view of a `CoseKeyBytesResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseKeyBytesResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseKeyBytesResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseKeyBytesResultOwnedView(::buffa::OwnedView<CoseKeyBytesResultView<'static>>);
-impl CoseKeyBytesResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeyBytesResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeyBytesResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseKeyBytesResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseKeyBytesResultOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseKeyBytesResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseKeyBytesResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseKeyBytesResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// SENSITIVE: operation-specific bytes. For private-key extraction this
-    /// contains private key material and must be moved into a sensitive-buffer
-    /// owner by receivers.
-    ///
-    /// Field 1: `key_bytes`
-    #[must_use]
-    pub fn key_bytes(&self) -> &'_ [u8] {
-        self.0.reborrow().key_bytes
-    }
-    /// Exact signature registration validated from or encoded into the COSE_Key.
-    /// Absent for supported non-signature keys and for signature keys whose
-    /// optional COSE_Key alg parameter was omitted.
-    ///
-    /// Field 2: `signature_algorithm`
-    #[must_use]
-    pub fn signature_algorithm(&self) -> ::buffa::EnumValue<super::super::CoseSignatureAlgorithm> {
-        self.0.reborrow().signature_algorithm
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseKeyBytesResultView<'static>>>
-    for CoseKeyBytesResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseKeyBytesResultView<'static>>) -> Self {
-        CoseKeyBytesResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseKeyBytesResultOwnedView>
-    for ::buffa::OwnedView<CoseKeyBytesResultView<'static>>
-{
-    fn from(wrapper: CoseKeyBytesResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseKeyBytesResultView<'static>>>
-    for CoseKeyBytesResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseKeyBytesResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseKeyBytesResult {
-    type View<'a> = CoseKeyBytesResultView<'a>;
-    type ViewHandle = CoseKeyBytesResultOwnedView;
-}
-impl ::serde::Serialize for CoseKeyBytesResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseMultikeyToCoseKeyRequest converts a Multikey string into a public
 /// COSE_Key.
 #[derive(Clone, Default)]
@@ -45926,130 +30996,6 @@ impl<'a> ::buffa::MessageName for CoseMultikeyToCoseKeyRequestView<'a> {
 ::buffa::impl_default_view_instance!(CoseMultikeyToCoseKeyRequestView);
 ::buffa::impl_view_reborrow!(CoseMultikeyToCoseKeyRequestView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseMultikeyToCoseKeyRequestView);
-/** Self-contained, `'static` owned view of a `CoseMultikeyToCoseKeyRequest` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseMultikeyToCoseKeyRequestView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseMultikeyToCoseKeyRequestView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseMultikeyToCoseKeyRequestOwnedView(
-    ::buffa::OwnedView<CoseMultikeyToCoseKeyRequestView<'static>>,
-);
-impl CoseMultikeyToCoseKeyRequestOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMultikeyToCoseKeyRequestOwnedView(
-            ::buffa::OwnedView::decode(bytes)?,
-        ))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMultikeyToCoseKeyRequestOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseMultikeyToCoseKeyRequest,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMultikeyToCoseKeyRequestOwnedView(
-            ::buffa::OwnedView::from_owned(msg)?,
-        ))
-    }
-    /// Borrow the full [`CoseMultikeyToCoseKeyRequestView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseMultikeyToCoseKeyRequestView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseMultikeyToCoseKeyRequest {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Multikey string to parse.
-    /// SENSITIVE: identifying bytes; generated owners wipe and redact them.
-    ///
-    /// Field 1: `multikey`
-    #[must_use]
-    pub fn multikey(&self) -> &'_ str {
-        self.0.reborrow().multikey
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseMultikeyToCoseKeyRequestView<'static>>>
-    for CoseMultikeyToCoseKeyRequestOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseMultikeyToCoseKeyRequestView<'static>>) -> Self {
-        CoseMultikeyToCoseKeyRequestOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseMultikeyToCoseKeyRequestOwnedView>
-    for ::buffa::OwnedView<CoseMultikeyToCoseKeyRequestView<'static>>
-{
-    fn from(wrapper: CoseMultikeyToCoseKeyRequestOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseMultikeyToCoseKeyRequestView<'static>>>
-    for CoseMultikeyToCoseKeyRequestOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseMultikeyToCoseKeyRequestView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseMultikeyToCoseKeyRequest {
-    type View<'a> = CoseMultikeyToCoseKeyRequestView<'a>;
-    type ViewHandle = CoseMultikeyToCoseKeyRequestOwnedView;
-}
-impl ::serde::Serialize for CoseMultikeyToCoseKeyRequestOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}
 /// CoseMultikeyResult contains a Multikey string produced from a public COSE_Key.
 #[derive(Clone, Default)]
 pub struct CoseMultikeyResultView<'a> {
@@ -46179,125 +31125,3 @@ impl<'a> ::buffa::MessageName for CoseMultikeyResultView<'a> {
 ::buffa::impl_default_view_instance!(CoseMultikeyResultView);
 ::buffa::impl_view_reborrow!(CoseMultikeyResultView);
 ::buffa::unsafe_impl_view_lifetime_parametric!(CoseMultikeyResultView);
-/** Self-contained, `'static` owned view of a `CoseMultikeyResult` message.
-
-Wraps [`::buffa::OwnedView`]`<`[`CoseMultikeyResultView`]`<'static>>`: the decoded view and the [`::buffa::bytes::Bytes`] buffer it borrows from travel together, so the handle is `'static` and `Send + Sync` — suitable for async handlers, spawned tasks, and anywhere a `'static` bound is required.
-
-Field accessors return borrows tied to `&self`. Use [`Self::view`] to get the full [`CoseMultikeyResultView`] when you need struct patterns, iteration helpers, or to pass the view to lifetime-parameterised code.*/
-#[derive(Clone, Debug)]
-pub struct CoseMultikeyResultOwnedView(::buffa::OwnedView<CoseMultikeyResultView<'static>>);
-impl CoseMultikeyResultOwnedView {
-    /// Decode an owned view from a [`::buffa::bytes::Bytes`] buffer.
-    ///
-    /// The view borrows directly from the buffer's data; the buffer is
-    /// retained inside the returned handle.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer contains invalid
-    /// protobuf data.
-    pub fn decode(
-        bytes: ::buffa::bytes::Bytes,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMultikeyResultOwnedView(::buffa::OwnedView::decode(
-            bytes,
-        )?))
-    }
-    /// Decode with custom [`::buffa::DecodeOptions`] (recursion limit,
-    /// max message size).
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError`] if the buffer is invalid or
-    /// exceeds the configured limits.
-    pub fn decode_with_options(
-        bytes: ::buffa::bytes::Bytes,
-        opts: &::buffa::DecodeOptions,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMultikeyResultOwnedView(
-            ::buffa::OwnedView::decode_with_options(bytes, opts)?,
-        ))
-    }
-    /// Build from an owned message via an encode → decode round-trip.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`::buffa::DecodeError::MessageTooLarge`] if the
-    /// message's encoded size exceeds the 2 GiB protobuf limit, or
-    /// another [`::buffa::DecodeError`] if the re-encoded bytes are
-    /// somehow invalid (should not happen for well-formed messages).
-    pub fn from_owned(
-        msg: &super::super::CoseMultikeyResult,
-    ) -> ::core::result::Result<Self, ::buffa::DecodeError> {
-        ::core::result::Result::Ok(CoseMultikeyResultOwnedView(::buffa::OwnedView::from_owned(
-            msg,
-        )?))
-    }
-    /// Borrow the full [`CoseMultikeyResultView`] with its lifetime tied to `&self`.
-    #[must_use]
-    pub fn view(&self) -> &CoseMultikeyResultView<'_> {
-        self.0.reborrow()
-    }
-    /// Convert to the owned message type.
-    ///
-    /// Infallible: this type's constructors wire-decode their
-    /// buffer, and a view produced by wire decoding always
-    /// converts. Delegates to [`::buffa::OwnedView::to_owned_message`],
-    /// whose contract also governs handles converted from a raw
-    /// [`::buffa::OwnedView`].
-    #[must_use]
-    pub fn to_owned_message(&self) -> super::super::CoseMultikeyResult {
-        self.0.to_owned_message()
-    }
-    /// The underlying bytes buffer.
-    #[must_use]
-    pub fn bytes(&self) -> &::buffa::bytes::Bytes {
-        self.0.bytes()
-    }
-    /// Consume the handle, returning the underlying bytes buffer.
-    #[must_use]
-    pub fn into_bytes(self) -> ::buffa::bytes::Bytes {
-        self.0.into_bytes()
-    }
-    /// Multikey string.
-    /// SENSITIVE: identifying bytes; generated owners wipe and redact them.
-    ///
-    /// Field 1: `multikey`
-    #[must_use]
-    pub fn multikey(&self) -> &'_ str {
-        self.0.reborrow().multikey
-    }
-}
-impl ::core::convert::From<::buffa::OwnedView<CoseMultikeyResultView<'static>>>
-    for CoseMultikeyResultOwnedView
-{
-    fn from(inner: ::buffa::OwnedView<CoseMultikeyResultView<'static>>) -> Self {
-        CoseMultikeyResultOwnedView(inner)
-    }
-}
-impl ::core::convert::From<CoseMultikeyResultOwnedView>
-    for ::buffa::OwnedView<CoseMultikeyResultView<'static>>
-{
-    fn from(wrapper: CoseMultikeyResultOwnedView) -> Self {
-        wrapper.0
-    }
-}
-impl ::core::convert::AsRef<::buffa::OwnedView<CoseMultikeyResultView<'static>>>
-    for CoseMultikeyResultOwnedView
-{
-    fn as_ref(&self) -> &::buffa::OwnedView<CoseMultikeyResultView<'static>> {
-        &self.0
-    }
-}
-impl ::buffa::HasMessageView for super::super::CoseMultikeyResult {
-    type View<'a> = CoseMultikeyResultView<'a>;
-    type ViewHandle = CoseMultikeyResultOwnedView;
-}
-impl ::serde::Serialize for CoseMultikeyResultOwnedView {
-    fn serialize<__S: ::serde::Serializer>(
-        &self,
-        __s: __S,
-    ) -> ::core::result::Result<__S::Ok, __S::Error> {
-        ::serde::Serialize::serialize(&self.0, __s)
-    }
-}

@@ -14,12 +14,10 @@ permissions:
   contents: read
 
 env:
-  CARGO_AUDIT_VERSION: 0.23.0
   CARGO_CHECK_EXTERNAL_TYPES_VERSION: 0.5.0
-  CARGO_NEXTEST_VERSION: 0.9.152
   EXTERNAL_TYPES_NIGHTLY: nightly-2026-09-15
   WASM_BINDGEN_CLI_VERSION: 0.2.130
-  WASM_PACK_VERSION: 0.15.0
+  WASM_PACK_VERSION: 0.15.1
 
 jobs:
   rust:
@@ -45,20 +43,22 @@ jobs:
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
 
       - name: Install nextest
-        uses: taiki-e/install-action@ab49d3c64680143e184118bed66a46419fc15519 # v2.90.5
+        uses: taiki-e/install-action@25f51f6b1bf4e18876107cece836f4f77ac17c8c # v2.90.7
         with:
-          tool: cargo-nextest@${{ env.CARGO_NEXTEST_VERSION }}
+          tool: cargo-nextest@0.9.152
+          fallback: none
 
       - name: Install cargo-deny
-        uses: taiki-e/install-action@ab49d3c64680143e184118bed66a46419fc15519 # v2.90.5
+        uses: taiki-e/install-action@25f51f6b1bf4e18876107cece836f4f77ac17c8c # v2.90.7
         with:
-          tool: cargo-deny@0.20.2
+          tool: cargo-deny@0.22.0
           fallback: none
 
       - name: Install cargo-audit
-        uses: taiki-e/install-action@ab49d3c64680143e184118bed66a46419fc15519 # v2.90.5
+        uses: taiki-e/install-action@25f51f6b1bf4e18876107cece836f4f77ac17c8c # v2.90.7
         with:
-          tool: cargo-audit@${{ env.CARGO_AUDIT_VERSION }}
+          tool: cargo-audit@0.23.0
+          fallback: none
 
       - name: Install external-type checker
         run: bash scripts/install_external_type_checker.sh .local-tools
@@ -156,14 +156,16 @@ jobs:
           node-version: '26'
 
       - name: Install wasm-pack
-        uses: taiki-e/install-action@ab49d3c64680143e184118bed66a46419fc15519 # v2.90.5
+        uses: taiki-e/install-action@25f51f6b1bf4e18876107cece836f4f77ac17c8c # v2.90.7
         with:
           tool: wasm-pack@${{ env.WASM_PACK_VERSION }}
+          fallback: none
 
       - name: Install wasm-bindgen CLI
-        uses: taiki-e/install-action@ab49d3c64680143e184118bed66a46419fc15519 # v2.90.5
+        uses: taiki-e/install-action@25f51f6b1bf4e18876107cece836f4f77ac17c8c # v2.90.7
         with:
           tool: wasm-bindgen-cli@${{ env.WASM_BINDGEN_CLI_VERSION }}
+          fallback: none
 
       - name: Test COSE_Sign1 in the wasm runtime
         run: wasm-pack test --node crates/cose --no-default-features --features wasm --test test_wasm_sign1

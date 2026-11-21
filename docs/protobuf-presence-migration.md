@@ -1,11 +1,10 @@
 # Protobuf presence in 0.3.0
 
-Version 0.3.0 replaces manual presence flags with protobuf presence. Regenerate
-consumers against the 0.3.0 schema and update producers and consumers together.
-The package remains `reallyme.cose.v1`; this is a deliberate pre-1.0 contract
-change, not a change to authenticated COSE encodings or algorithm registrations.
+Regenerate consumers against the 0.3.0 schema and update producers and consumers
+together. The package remains `reallyme.cose.v1`. This change affects protobuf
+presence, not authenticated COSE encodings or algorithm registrations.
 
-| Message | Value field and number | Reserved flag number and name |
+| Message | Value field | Retired flag number/name |
 | --- | --- | --- |
 | `CoseSign1CreateRequest` | `optional bytes kid = 4` | 5, `has_kid` |
 | `CoseSign1CreateDetachedRequest` | `optional bytes kid = 4` | 5, `has_kid` |
@@ -19,49 +18,21 @@ change, not a change to authenticated COSE encodings or algorithm registrations.
 | `CoseSign1VerifyResult` | `exact_signature_algorithm = 4`; zero means absent | 5, `has_exact_signature_algorithm` |
 | `CoseKeyBytesResult` | `signature_algorithm = 2`; zero means absent | 3, `has_signature_algorithm` |
 
-ReallyMe Buffa 0.1.3 generates `Option<SecretBytes>` for optional bytes. `None` omits the
-field; `Some(SecretBytes::default())` writes its tag and a zero length. Borrowed generated
-views expose `Option<&[u8]>`. Adapters borrow that presence directly, and all
-owning buffers retain redacted Debug and wipe-on-drop behavior. Clear, generated
-builder replacement, repeated binary fields and failed JSON decoding also wipe
-sensitive buffers. Owned base64 strings transferred by a JSON deserializer
-also wipe on success and failure. Native generator configuration derives these shapes from the schema and
-routes every field through the guarded representation and JSON policy.
+Retired numbers and names are reserved. Executable adapters reject the old flags
+in both binary protobuf and ProtoJSON.
 
-ProtoJSON omits an absent value and encodes a present empty value as `""`.
-A JSON `null` is absent, following ProtoJSON semantics. Producers supply only
-`"kid"`, `"publicKey"` or `"suppPrivInfo"`, without a second flag. The COSE
-operation still decides whether the supplied value is valid: signing rejects
-a present empty kid, while an empty private KDF context is valid and distinct
-from no private KDF context. A verified empty attached payload remains present;
-detached receipts omit that field. A present certificate SHA-256 must have
-exactly 32 bytes. Unknown enum values remain typed failures.
+Rust optional bytes are `Option<SecretBytes>`; borrowed views use
+`Option<&[u8]>`. `None` omits the field. A present empty value writes its tag
+and a zero length. ProtoJSON omits absent values, represents present-empty as
+`""`, and treats `null` as absent. Supply only the value, without a `has_*` flag.
 
-The byte-field numbers and length-delimited wire types are retained. Nonempty
-values keep their encodings. Presence of an empty value changes its encoding:
-old implicit fields omitted it, while new optional fields encode it. A legacy
-flag cannot recover an empty value once that value was omitted. Executable
-boundaries reject retired binary or JSON flags as unknown fields. Buffa's
-default binary decoder can discard unknown fields, so strict decoding must
-check the original bounded bytes before forwarding a request for execution.
+Signing rejects a present empty `kid`. Empty `SuppPrivInfo` is valid and differs
+from absence. A verified empty attached payload is present; a detached receipt
+omits it. A present certificate SHA-256 must contain exactly 32 bytes.
 
-`buf lint` passes. Against published 0.2.11's schema, the unmodified Buf `FILE`
-check reports 12 intentional compatibility changes: seven retired flags and
-five implicit-to-explicit presence changes. The other four byte fields and
-four flags belong to the unreleased ISO/container contract. All 11 retired
-flag numbers and names are reserved. No Buf rule or file exclusion has been
-added to hide these changes; consumers must take the 0.3.0 migration explicitly.
-
-`crates/proto/tests/presence_tests.rs` pins all nine optional byte encodings,
-JSON absent/null/empty/nonempty behavior, generated views, replacement, clear,
-malformed fields and late decoding failures. Native and WASM operation tests
-exercise real signing, private-KDF-context authentication in both ML-KEM modes,
-and empty attached versus detached ISO receipts. Existing independent COSE
-fixtures and known answers remain unchanged.
-
-`crates/proto/tests/json_owner_tests.rs` observes live synthetic allocations
-immediately before release. It checks owned base64 strings, optional-buffer
-clear/drop, builder replacement, growing binary replacement and malformed
-partial merges. These guarantees cover message-owned buffers and strings
-delivered to the sensitive-field visitor. Callers manage the lifetime and erasure
-of source JSON, DOM storage and serialized copies.
+Nonempty byte values keep their field numbers and wire encodings. Empty values
+are deliberately incompatible with the old implicit-presence fields: an old
+sender's omitted empty value cannot be recovered from its retired flag. Do not
+mix schema versions across producers and consumers. If decoding outside COSE's
+executable adapters, reject unknown fields on the original bounded bytes;
+default protobuf decoding can discard them.

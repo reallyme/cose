@@ -5,10 +5,11 @@
 
 #![cfg(all(feature = "generated", not(target_arch = "wasm32")))]
 
-use buffa::Message;
+use buffa::{sensitive::GuardedOwnedView, DecodeOptions, Message};
 use reallyme_cose_proto::generated::proto::reallyme::cose::v1::{
     cose_operation_request::Operation, CoseKeyFromPrivateBytesRequest,
     CoseMultikeyToCoseKeyRequest, CoseOperationRequest, CoseSign1CreateRequest,
+    CoseSign1CreateRequestView,
 };
 use reallyme_cose_proto::{SecretBytes, SecretString};
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -106,8 +107,8 @@ fn watch_next(length: usize) {
 
 #[test]
 fn guarded_fields_and_collections_wipe_spare_capacity_replacements_and_clones(
-) -> Result<(), buffa::DecodeError> {
-    use buffa::{bytes::Buf, DecodeOptions};
+) -> Result<(), buffa::sensitive::GuardedViewError> {
+    use buffa::bytes::Buf;
     // A unique field size identifies the first payload allocation. If a
     // fragmented decoder stages into ordinary Bytes before the guarded owner,
     // that first allocation is released unwiped and this observer fails.
@@ -125,6 +126,23 @@ fn guarded_fields_and_collections_wipe_spare_capacity_replacements_and_clones(
     assert_eq!(OBSERVATION.load(Ordering::SeqCst), NOT_OBSERVED);
     drop(decoded);
     assert_cleared();
+
+    // Borrowed fields cannot erase their source. The guarded view therefore
+    // needs its own wire allocation, which must wipe on both construction paths.
+    let options = DecodeOptions::new().reject_unknown_fields();
+    for copy_wire in [false, true] {
+        let owner = if copy_wire {
+            GuardedOwnedView::<CoseSign1CreateRequestView<'static>>::decode(&encoded, &options)?
+        } else {
+            GuardedOwnedView::<CoseSign1CreateRequestView<'static>>::from_owned(&input, &options)?
+        };
+        assert_eq!(owner.bytes(), encoded.as_slice());
+        assert_ne!(owner.bytes().as_ptr(), encoded.as_ptr());
+        assert_eq!(owner.view().private_key, input.private_key.as_slice());
+        arm(owner.bytes().as_ptr().addr(), owner.bytes().len());
+        drop(owner);
+        assert_cleared();
+    }
 
     const INVALID_TEXT_BYTES: usize = 8_179;
     let input =

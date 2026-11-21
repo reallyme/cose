@@ -14,7 +14,6 @@ use reallyme_cose::{
 
 use crate::support::{gen_ed25519, gen_p256, test_kid};
 
-const PLATFORM_COSE_SIGN1_LIMIT: usize = 512 * 1024;
 const PAYLOAD_LARGER_THAN_DEFAULT_SIGN1_LIMIT: usize = 70_000;
 
 #[test]
@@ -110,18 +109,21 @@ fn cose_verify1_with_policy_rejects_disallowed_algorithm_before_key_resolution()
 fn attached_sign1_limits_cannot_exceed_the_schema_maximum() {
     let key = gen_ed25519();
     let payload = deterministic_payload(PAYLOAD_LARGER_THAN_DEFAULT_SIGN1_LIMIT);
+    let unsupported_limit = reallyme_cose::limits::MAX_COSE_SIGN1_ENCODED_BYTES
+        .checked_add(1)
+        .unwrap();
     let rejected = cose_sign1_with_options(
         key.alg,
         &payload,
         &key.private,
         Some(test_kid()),
-        CoseSign1EncodeOptions::tagged().with_max_cose_sign1_bytes(PLATFORM_COSE_SIGN1_LIMIT),
+        CoseSign1EncodeOptions::tagged().with_max_cose_sign1_bytes(unsupported_limit),
     );
     assert_eq!(rejected.err(), Some(CoseError::ResourceLimitExceeded));
     let policy = CosePolicy::new()
         .with_require_kid(true)
         .allow_algorithm(Algorithm::Ed25519)
-        .with_max_cose_sign1_bytes(PLATFORM_COSE_SIGN1_LIMIT);
+        .with_max_cose_sign1_bytes(unsupported_limit);
 
     // Encode an oversized input independently so verification must reject it
     // before key resolution, even when the caller requests a larger ceiling.

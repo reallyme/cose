@@ -40,7 +40,7 @@ impl
         value: ::buffa::EnumValue<
             reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseNamedCurve,
         >,
-    ) -> ::core::result::Result<Self, Self::Error> {
+    ) -> ::core::result::Result<Self, crate::CoseError> {
         if value.is_unknown() {
             return ::core::result::Result::Err(::core::convert::Into::into(
                 crate::error::CoseErrorReason::CommonInvalidParameter,
@@ -106,7 +106,7 @@ impl CoseCurve {
 impl CoseCurve {
     ///Exact external protocol identity, distinct from the protobuf number.
     #[must_use]
-    pub const fn identifier(self) -> i64 {
+    pub const fn identifier(self) -> ::core::primitive::i64 {
         match self {
             Self::P256 => 1i64,
             Self::P384 => 2i64,
@@ -126,7 +126,9 @@ impl CoseCurve {
     ///
     ///# Errors
     ///Returns the configured fixed domain error for an unsupported identity.
-    pub fn from_identifier(value: i64) -> ::core::result::Result<Self, crate::CoseError> {
+    pub fn from_identifier(
+        value: ::core::primitive::i64,
+    ) -> ::core::result::Result<Self, crate::CoseError> {
         match value {
             1i64 => ::core::result::Result::Ok(Self::P256),
             2i64 => ::core::result::Result::Ok(Self::P384),

@@ -4,11 +4,10 @@
 use crate::api::contract::{
     __buffa::oneof::cose_operation_request::Operation, CoseByteLimits,
     CoseKeyFromPrivateBytesRequest, CoseMultikeyToCoseKeyRequest, CoseOperationRequest,
-    CoseOperationRequestOwnedView, CoseOperationRequestView, CoseSign1CreateRequest,
-    CoseSign1CreateRequestOwnedView, CoseSign1CreateRequestView,
+    CoseOperationRequestView, CoseSign1CreateRequest, CoseSign1CreateRequestView,
 };
 use crate::CoseError;
-use buffa::{bytes::Buf, DecodeOptions, Message, MessageView};
+use buffa::{bytes::Buf, sensitive::GuardedOwnedView, DecodeOptions, Message, MessageView};
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 #[test]
@@ -138,22 +137,28 @@ fn whole_view_json_is_denied_for_empty_secret_and_containing_views() -> Result<(
             .reject_unknown_fields()
             .decode_view::<CoseSign1CreateRequestView>(&encoded)
             .map_err(|_| CoseError::Cbor)?;
-        let owned =
-            CoseSign1CreateRequestOwnedView::from_owned(&input).map_err(|_| CoseError::Cbor)?;
+        let owned = GuardedOwnedView::<CoseSign1CreateRequestView<'static>>::from_owned(
+            &input,
+            &DecodeOptions::new().reject_unknown_fields(),
+        )
+        .map_err(|_| CoseError::Cbor)?;
         assert!(serde_json::to_string(&view).is_err());
-        assert!(serde_json::to_string(&owned).is_err());
+        assert!(serde_json::to_string(owned.view()).is_err());
         assert!(serde_json::to_string(&input).is_ok());
         assert_eq!(view.to_owned_message().map_err(|_| CoseError::Cbor)?, input);
     }
     let containing = CoseOperationRequest::default();
-    let owned =
-        CoseOperationRequestOwnedView::from_owned(&containing).map_err(|_| CoseError::Cbor)?;
+    let owned = GuardedOwnedView::<CoseOperationRequestView<'static>>::from_owned(
+        &containing,
+        &DecodeOptions::new().reject_unknown_fields(),
+    )
+    .map_err(|_| CoseError::Cbor)?;
     let encoded = zeroize::Zeroizing::new(containing.encode_to_vec());
     let eager = DecodeOptions::new()
         .reject_unknown_fields()
         .decode_view::<CoseOperationRequestView>(&encoded)
         .map_err(|_| CoseError::Cbor)?;
-    assert!(serde_json::to_string(&owned).is_err());
+    assert!(serde_json::to_string(owned.view()).is_err());
     assert!(serde_json::to_string(&eager).is_err());
 
     let containing = CoseOperationRequest {
@@ -167,9 +172,14 @@ fn whole_view_json_is_denied_for_empty_secret_and_containing_views() -> Result<(
         .decode_view::<CoseOperationRequestView>(&encoded)
         .map_err(|_| CoseError::Cbor)?;
     let owned =
-        CoseOperationRequestOwnedView::from_owned(&containing).map_err(|_| CoseError::Cbor)?;
+        GuardedOwnedView::<CoseOperationRequestView<'static>>::from_owned(&containing, &decode)
+            .map_err(|_| CoseError::Cbor)?;
     let eager_operation = eager.operation.as_ref().ok_or(CoseError::InvalidFormat)?;
-    let owned_operation = owned.operation().ok_or(CoseError::InvalidFormat)?;
+    let owned_operation = owned
+        .view()
+        .operation
+        .as_ref()
+        .ok_or(CoseError::InvalidFormat)?;
     for debug in [
         format!("{eager:?}"),
         format!("{owned:?}"),
@@ -181,6 +191,6 @@ fn whole_view_json_is_denied_for_empty_secret_and_containing_views() -> Result<(
         assert!(!debug.contains("Sign1Create"));
     }
     assert!(serde_json::to_string(&eager).is_err());
-    assert!(serde_json::to_string(&owned).is_err());
+    assert!(serde_json::to_string(owned.view()).is_err());
     Ok(())
 }

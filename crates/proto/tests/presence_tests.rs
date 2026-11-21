@@ -6,11 +6,11 @@
 #![cfg(feature = "generated")]
 #![allow(clippy::panic)]
 
-use buffa::Message;
+use buffa::{sensitive::GuardedOwnedView, DecodeOptions, Message};
 use reallyme_cose_proto::generated::proto::reallyme::cose::v1::{
     CoseContainerVerifyResult, CoseIsoSign1VerifyResult, CoseKeyFromPrivateBytesRequest,
     CoseMac0VerifyResult, CoseMlKemDecryptRequest, CoseMlKemEncryptRequest,
-    CoseSign1CreateDetachedRequest, CoseSign1CreateRequest, CoseSign1CreateRequestOwnedView,
+    CoseSign1CreateDetachedRequest, CoseSign1CreateRequest, CoseSign1CreateRequestView,
 };
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -111,11 +111,15 @@ fn every_optional_byte_field_keeps_absent_empty_and_nonempty_distinct(
 }
 
 #[test]
-fn generated_optional_view_builder_and_merge_preserve_presence() -> Result<(), buffa::DecodeError> {
+fn generated_optional_view_builder_and_merge_preserve_presence(
+) -> Result<(), buffa::sensitive::GuardedViewError> {
     let absent = CoseSign1CreateRequest::default();
     let present = absent.with_kid(Vec::new());
-    let view = CoseSign1CreateRequestOwnedView::from_owned(&present)?;
-    assert_eq!(view.kid(), Some(&[][..]));
+    let view = GuardedOwnedView::<CoseSign1CreateRequestView<'static>>::from_owned(
+        &present,
+        &DecodeOptions::new().reject_unknown_fields(),
+    )?;
+    assert_eq!(view.view().kid, Some(&[][..]));
     let replaced = present.with_kid(vec![0xfb, 0xfc]);
     assert_eq!(replaced.kid.as_deref(), Some(&[0xfb, 0xfc][..]));
     // The last singular occurrence can intentionally replace data with empty.

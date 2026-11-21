@@ -21,7 +21,7 @@ impl ::core::convert::TryFrom<
         value: ::buffa::EnumValue<
             reallyme_cose_proto::generated::proto::reallyme::cose::v1::CoseContentEncryptionAlgorithm,
         >,
-    ) -> ::core::result::Result<Self, Self::Error> {
+    ) -> ::core::result::Result<Self, crate::CoseError> {
         if value.is_unknown() {
             return ::core::result::Result::Err(
                 ::core::convert::Into::into(

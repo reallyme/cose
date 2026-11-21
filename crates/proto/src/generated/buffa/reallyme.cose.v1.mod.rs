@@ -142,454 +142,222 @@ pub mod __buffa {
         reg.register_json_any(super::__COSE_MULTIKEY_TO_COSE_KEY_REQUEST_JSON_ANY);
         reg.register_json_any(super::__COSE_MULTIKEY_RESULT_JSON_ANY);
     }
-    impl ::buffa::json_helpers::ProtoElemJson for crate::SecretBytes {
-        fn serialize_proto_json<__S: ::serde::Serializer>(
-            v: &Self,
-            s: __S,
-        ) -> ::core::result::Result<__S::Ok, __S::Error> {
-            <Self as ::buffa::json_helpers::ProtoBytesJson>::serialize_json(
-                ::core::convert::AsRef::<[u8]>::as_ref(v),
-                s,
-            )
-        }
-        fn deserialize_proto_json<'de, __D: ::serde::Deserializer<'de>>(
-            d: __D,
-        ) -> ::core::result::Result<Self, __D::Error> {
-            <Self as ::buffa::json_helpers::ProtoBytesJson>::deserialize_json(d)
-        }
-    }
 }
 #[doc(inline)]
 pub use self::__buffa::register_types;
 #[doc(inline)]
-pub use self::__buffa::view::CoseAgreementKeyCreateRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseAgreementKeyCreateRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseAgreementKeyParseRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseAgreementKeyParseRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseAgreementKeyPolicyOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseAgreementKeyPolicyView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseAgreementKeyResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseAgreementKeyResultView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseAlgorithmIdentifierOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseAlgorithmIdentifierView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseBackendErrorOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseBackendErrorView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseByteLimitsOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseByteLimitsView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseContainerPolicyOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseContainerPolicyView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseContainerSignRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseContainerSignRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseContainerVerifyRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseContainerVerifyRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseContainerVerifyResultOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseContainerVerifyResultView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseContractInfoResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseContractInfoResultView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseCounterSignature0CreateRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseCounterSignature0CreateRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseCounterSignature0VerifyRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseCounterSignature0VerifyRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseCounterSignatureAttachRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseCounterSignatureAttachRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseCounterSignatureCreateRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseCounterSignatureCreateRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseCounterSignatureEncodedOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseCounterSignatureEncodedView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseCounterSignatureHeaderSelectionOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseCounterSignatureHeaderSelectionView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseCounterSignatureTargetOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseCounterSignatureTargetView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseCounterSignatureVerifyRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseCounterSignatureVerifyRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseCounterSignatureVerifyResultOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseCounterSignatureVerifyResultView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseEcdsaPrehashOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseEcdsaPrehashView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseEncrypt0CreateRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseEncrypt0CreateRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseEncrypt0CreateResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseEncrypt0CreateResultView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseEncrypt0DecryptRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseEncrypt0DecryptRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseEncrypt0DecryptResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseEncrypt0DecryptResultView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseErrorOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseErrorView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseIsoSign1VerifyRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseIsoSign1VerifyRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseIsoSign1VerifyResultOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseIsoSign1VerifyResultView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseKeyBytesRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseKeyBytesRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseKeyBytesResultOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseKeyBytesResultView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseKeyFromPrivateBytesRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseKeyFromPrivateBytesRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseKeyFromPublicBytesRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseKeyFromPublicBytesRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseKeySetCreateRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseKeySetCreateRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseKeySetCreateResultOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseKeySetCreateResultView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseKeySetEntryOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseKeySetEntryView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseKeySetMemberOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseKeySetMemberView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseKeySetParseRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseKeySetParseRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseKeySetParseResultOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseKeySetParseResultView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseKeySetPolicyOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseKeySetPolicyView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseMac0VerifyRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseMac0VerifyRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseMac0VerifyResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseMac0VerifyResultView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseMacCreateRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseMacCreateRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseMacVerifyRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseMacVerifyRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseMacVerifyResultOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseMacVerifyResultView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseMessageCreateResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseMessageCreateResultView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseMessageHeadersOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseMessageHeadersView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseMlKemDecryptRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseMlKemDecryptRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseMlKemDecryptResultOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseMlKemDecryptResultView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseMlKemEncryptRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseMlKemEncryptRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseMlKemEncryptResultOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseMlKemEncryptResultView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseMultikeyResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseMultikeyResultView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseMultikeyToCoseKeyRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseMultikeyToCoseKeyRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseNamedConstantOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseNamedConstantView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseOpaqueBytesOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseOpaqueBytesView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseOperationRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseOperationRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseOperationResponseV2OwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseOperationResponseV2View;
-#[doc(inline)]
-pub use self::__buffa::view::CoseOperationResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseOperationResultView;
 #[doc(inline)]
-pub use self::__buffa::view::CosePeerKeyRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CosePeerKeyRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CosePeerKeyResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CosePeerKeyResultView;
 #[doc(inline)]
-pub use self::__buffa::view::CosePrimitiveErrorOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CosePrimitiveErrorView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseProviderCallRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseProviderCallRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseProviderCallResponseOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseProviderCallResponseView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseProviderCallResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseProviderCallResultView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseProviderCapabilityOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseProviderCapabilityView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseProviderCertificateRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseProviderCertificateRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseProviderCertificateResultOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseProviderCertificateResultView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseProviderDescriptionOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseProviderDescriptionView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseProviderErrorOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseProviderErrorView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseProviderMacRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseProviderMacRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseProviderPointRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseProviderPointRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseProviderRegistryOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseProviderRegistryView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseProviderResolveKeyRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseProviderResolveKeyRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseProviderSignerDescriptionOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseProviderSignerDescriptionView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseProviderVerifyRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseProviderVerifyRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseRecipientCreateGroupOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseRecipientCreateGroupView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseRecipientCreateOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseRecipientCreateView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseRsaSign1VerifyRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseRsaSign1VerifyRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseRsaSign1VerifyResultOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseRsaSign1VerifyResultView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseSign1CreateDetachedRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSign1CreateDetachedRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseSign1CreateProfileRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseSign1CreateProfileRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseSign1CreateRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSign1CreateRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseSign1CreateResultOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseSign1CreateResultView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseSign1OptionsOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSign1OptionsView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseSign1SignatureStructureRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseSign1SignatureStructureRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseSign1SignatureStructureResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSign1SignatureStructureResultView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseSign1VerifyDetachedRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseSign1VerifyDetachedRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseSign1VerifyProfileRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSign1VerifyProfileRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseSign1VerifyRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseSign1VerifyRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseSign1VerifyResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSign1VerifyResultView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseSign1X5ChainResultOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseSign1X5ChainResultView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseSignCreateRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSignCreateRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseSignKeyBindingOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseSignKeyBindingView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseSignSignerOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSignSignerView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseSignVerifyRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseSignVerifyRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseSignVerifyResultOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSignVerifyResultView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseSignatureConvertRequestOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseSignatureConvertRequestView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseSignatureSuiteOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSignatureSuiteView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseSigningInputOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseSigningInputView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseSuiteInfoRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseSuiteInfoRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseSuiteInfoResultOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseSuiteInfoResultView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseTypeOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseTypeView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseValidationResultOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseValidationResultView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseVerificationKeyImportRequestOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseVerificationKeyImportRequestView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseVerificationPolicyOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseVerificationPolicyView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseVerifiedSignatureOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseVerifiedSignatureView;
 #[doc(inline)]
-pub use self::__buffa::view::CoseWorkingKeyOwnedView;
-#[doc(inline)]
 pub use self::__buffa::view::CoseWorkingKeyView;
-#[doc(inline)]
-pub use self::__buffa::view::CoseX5ChainOwnedView;
 #[doc(inline)]
 pub use self::__buffa::view::CoseX5ChainView;
