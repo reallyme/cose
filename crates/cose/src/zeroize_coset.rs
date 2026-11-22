@@ -67,7 +67,7 @@ impl SensitiveCborValue {
     #[cfg(feature = "cose-crypto")]
     pub(crate) fn decode_cose_encrypt(bytes: &[u8]) -> Result<Self, CoseError> {
         validate_cose_encrypt_bytes(bytes)?;
-        Self::decode_validated(bytes)
+        Self::decode_with_limits(bytes, crate::cbor_boundary::encrypt_limits(bytes.len())?)
     }
 
     #[cfg(feature = "cose-crypto")]
@@ -77,9 +77,16 @@ impl SensitiveCborValue {
     }
 
     fn decode_validated(bytes: &[u8]) -> Result<Self, CoseError> {
+        Self::decode_with_limits(bytes, crate::cbor_boundary::limits()?)
+    }
+
+    fn decode_with_limits(
+        bytes: &[u8],
+        limits: reallyme_codec::cbor::general::Limits,
+    ) -> Result<Self, CoseError> {
         let frame = reallyme_codec::cbor::general::frame_exact(
             bytes,
-            crate::cbor_boundary::limits()?,
+            limits,
             reallyme_codec::cbor::general::LengthPolicy::DefiniteOnly,
         )
         .map_err(crate::cbor_boundary::error)?;

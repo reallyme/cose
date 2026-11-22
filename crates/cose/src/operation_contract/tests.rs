@@ -7,6 +7,8 @@ mod boundary;
 mod cbor_preflight;
 #[path = "contract_container_tests.rs"]
 mod container;
+#[path = "contract_encrypt_budget_tests.rs"]
+mod encrypt_budget;
 #[path = "contract_guarded_tests.rs"]
 mod guarded;
 #[path = "contract_key_tests.rs"]

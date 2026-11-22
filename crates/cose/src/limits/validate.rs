@@ -93,7 +93,12 @@ fn parse_cbor_item(
                 general::MapOrdering::Received
             },
         );
-    let (item, _) = general::validate_prefix(input, profile, cbor_boundary::limits()?)
+    let limits = match role {
+        #[cfg(feature = "cose-crypto")]
+        CborItemRole::CoseEncryptTop => cbor_boundary::encrypt_limits(input.len())?,
+        _ => cbor_boundary::limits()?,
+    };
+    let (item, _) = general::validate_prefix(input, profile, limits)
         .map_err(|error| cbor_boundary::primitive_error(error, input))?;
     validate_role(item.frame(), depth, role)?;
     offset

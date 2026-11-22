@@ -36,6 +36,24 @@ pub(crate) fn limits() -> Result<Limits, CoseError> {
         .map_err(error)
 }
 
+#[cfg(feature = "cose-crypto")]
+pub(crate) fn encrypt_limits(input_bytes: usize) -> Result<Limits, CoseError> {
+    if input_bytes > crate::limits::MAX_COSE_ENCRYPT_BYTES {
+        return Err(CoseError::ResourceLimitExceeded);
+    }
+    let limits = limits()?;
+    // Ciphertext includes the authentication tag; the enclosing COSE object
+    // also carries recipient material. Neither fits a plaintext-only budget
+    // at the supported maximum. Only this profile may widen codec's byte
+    // budgets, and the existing depth, node, entry and work limits still apply.
+    limits
+        .with_input_bytes(input_bytes.max(limits.input_bytes()))
+        .and_then(|limits| {
+            limits.with_byte_string_bytes(input_bytes.max(limits.byte_string_bytes()))
+        })
+        .map_err(error)
+}
+
 pub(crate) fn preferred(legacy_widths: bool) -> Result<Profile, CoseError> {
     if legacy_widths {
         // ISO 2021 retains received tag/float widths. Minimum arguments for

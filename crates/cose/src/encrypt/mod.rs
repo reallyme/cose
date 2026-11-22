@@ -11,6 +11,9 @@ mod kdf;
 mod profile;
 pub(crate) mod types;
 
+#[cfg(test)]
+mod resource_tests;
+
 pub use crate::algorithm::{
     REALLYME_COSE_ALG_ML_KEM_1024, REALLYME_COSE_ALG_ML_KEM_1024_A256KW,
     REALLYME_COSE_ALG_ML_KEM_512, REALLYME_COSE_ALG_ML_KEM_512_A128KW,

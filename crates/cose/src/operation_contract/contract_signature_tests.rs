@@ -184,3 +184,55 @@ fn exact_suite_inspection_and_signature_representations_match_every_named_curve(
     }
     Ok(())
 }
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
+fn brainpool_p320_reader_conversion_preserves_der_and_fixed_width_bytes() -> Result<(), CoseError> {
+    use crate::containers::{cose_signature_to_der, signature_to_cose, SignatureEncoding};
+    use crate::iso18013::Iso18013SignatureCurve;
+    use zeroize::Zeroizing;
+
+    // Canonical DER SEQUENCE { INTEGER 1, INTEGER 2 }. This tests encoding,
+    // not cryptographic verification or availability of a P320 provider.
+    const DER: &[u8] = b"\x30\x06\x02\x01\x01\x02\x01\x02";
+    const COORDINATE_BYTES: usize = 40;
+    let width = COORDINATE_BYTES
+        .checked_mul(2)
+        .ok_or(CoseError::ResourceLimitExceeded)?;
+    let mut expected = Zeroizing::new(vec![0; width]);
+    let r = COORDINATE_BYTES
+        .checked_sub(1)
+        .ok_or(CoseError::ResourceLimitExceeded)?;
+    let s = width
+        .checked_sub(1)
+        .ok_or(CoseError::ResourceLimitExceeded)?;
+    expected[r] = 1;
+    expected[s] = 2;
+    let curve = Iso18013SignatureCurve::BrainpoolP320r1;
+    let raw = signature_to_cose(curve, SignatureEncoding::EcdsaDer, DER)?;
+    assert_eq!(raw, expected);
+    assert_eq!(cose_signature_to_der(curve, &raw)?.as_slice(), DER);
+
+    let curve = i32::try_from(curve.identifier()).map_err(|_| CoseError::InvalidFormat)?;
+    let input = CoseSignatureConvertRequest {
+        curve: curve.into(),
+        encoding: CoseSignatureEncoding::EcdsaDer.into(),
+        signature: DER.to_vec().into(),
+    };
+    let output = success(codec_parity(Operation::SignatureToCose(Box::new(input)))?);
+    let Branch::SignatureToCose(output) = &output else {
+        return Err(CoseError::InvalidFormat);
+    };
+    assert_eq!(output.encoded.as_slice(), expected.as_slice());
+    let input = CoseSignatureConvertRequest {
+        curve: curve.into(),
+        encoding: CoseSignatureEncoding::CoseEcdsa.into(),
+        signature: raw.to_vec().into(),
+    };
+    let output = success(codec_parity(Operation::SignatureToDer(Box::new(input)))?);
+    let Branch::SignatureToDer(output) = &output else {
+        return Err(CoseError::InvalidFormat);
+    };
+    assert_eq!(output.encoded.as_slice(), DER);
+    Ok(())
+}
