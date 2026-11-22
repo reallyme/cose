@@ -18,6 +18,21 @@ const schema=readFileSync(path,"utf8");
 function check(changes=new Map()) {assertCompleteTypeContract({readText:(path)=>changes.get(path)??readFileSync(path,"utf8"),loadTrackedFiles:()=>[...new Set([...files,...changes.keys()])],fail:(message)=>assert.fail(message)});}
 
 test("all public native types and provider methods are schema-reachable",()=>check());
+test("Buffa policy checks run without generator executables",()=>{
+  const checker=new URL("./check_buffa_contract.mjs",import.meta.url).href;
+  const source=`
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import {assertGuardedBuffaContract} from ${JSON.stringify(checker)};
+assertGuardedBuffaContract({
+  root:process.cwd(),readText:(path)=>readFileSync(path,"utf8"),
+  fail:(message)=>assert.fail(message),assertWorkflowRunStep:()=>{},
+},false);
+`;
+  assert.doesNotThrow(()=>execFileSync(process.execPath,["--input-type=module","--eval",source],{
+    encoding:"utf8",env:{...process.env,PATH:""},
+  }));
+});
 test("native DTO shapes derive from every canonical field, including real presence",()=>{
   const projections=nativeProjections(schema);
   assert.equal(projections.length,17);

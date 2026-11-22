@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 import {schemaMessageBodies,schemaScalarClassifications} from "./schema_contract.mjs";
-import {checkFreshness,checkGeneratorVersions} from "./generate_cose_contract.mjs";
+import {checkFreshness} from "./generate_cose_contract.mjs";
 import {maskRustNonCode} from "./release-readiness/operation-contract-routing.mjs";
 import {nativeAdapterBindings} from "./native_adapter_bindings.mjs";
 
@@ -79,6 +79,7 @@ test "$(protoc-gen-reallyme-buffa-packaging --version)" = "protoc-gen-reallyme-b
   if(installBufRun!==undefined) assertWorkflowRunStep(".github/workflows/protobuf-ci.yml","Install buf",installBufRun);
   assertWorkflowRunStep(".github/workflows/protobuf-ci.yml","Check release readiness generated freshness",
     "node .release-readiness/scripts/run-consumer-check.mjs --generated-freshness");
-  checkGeneratorVersions(root);
+  // Policy jobs inspect the checked-in contract without generator binaries.
+  // Freshness regenerates it with version checks in the protobuf CI lane.
   if(freshness) checkFreshness(root);
 }
