@@ -28,6 +28,10 @@ const COSE_SIGNATURE: [u8; 64] = {
 const DER_SIGNATURE: [u8; 8] = [0x30, 0x06, 0x02, 0x01, 0x01, 0x02, 0x01, 0x01];
 
 #[kani::proof]
+#[kani::stub(
+    zeroize::optimization_barrier,
+    crate::verify_zeroize_barrier_proof_tests::observe_barrier
+)]
 #[kani::unwind(12)]
 #[kani::stub(
     super::super::validate_cose_sign1_policy,
@@ -75,6 +79,10 @@ fn sign1_dispatch_resolves_exact_p256_registration() {
 }
 
 #[kani::proof]
+#[kani::stub(
+    zeroize::optimization_barrier,
+    crate::verify_zeroize_barrier_proof_tests::observe_barrier
+)]
 #[kani::unwind(12)]
 #[kani::stub(
     super::super::validate_cose_sign1_policy,

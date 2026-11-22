@@ -30,6 +30,10 @@ const PROTECTED_CHAIN_HEADER: [u8; 10] = [
 const UNPROTECTED_CHAIN_HEADER: [u8; 6] = [0xa2, 0x04, 0x41, KID, 0x01, 0x32];
 
 #[kani::proof]
+#[kani::stub(
+    zeroize::optimization_barrier,
+    crate::verify_zeroize_barrier_proof_tests::observe_barrier
+)]
 #[kani::unwind(8)]
 #[kani::stub(super::super::verify_cose_signature, resolve_ordered_fixture)]
 fn x5chain_tagged_resolver_preserves_decoded_certificate_order() {
@@ -112,6 +116,10 @@ fn resolve_ordered_fixture(
 }
 
 #[kani::proof]
+#[kani::stub(
+    zeroize::optimization_barrier,
+    crate::verify_zeroize_barrier_proof_tests::observe_barrier
+)]
 #[kani::unwind(12)]
 #[kani::stub(
     super::super::validate_cose_sign1_policy,

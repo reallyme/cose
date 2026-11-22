@@ -82,6 +82,8 @@ pub mod limits;
 /// Detached COSE_Mac0 authentication with explicitly bound HMAC keys.
 #[cfg(feature = "cose-crypto")]
 pub mod mac0;
+#[cfg(kani)]
+mod verify_zeroize_barrier_proof_tests;
 mod zeroize_coset;
 #[cfg(feature = "cose-crypto")]
 pub use mac0::{

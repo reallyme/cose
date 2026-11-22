@@ -35,6 +35,10 @@ std::thread_local! {
 }
 
 #[kani::proof]
+#[kani::stub(
+    zeroize::optimization_barrier,
+    crate::verify_zeroize_barrier_proof_tests::observe_barrier
+)]
 #[kani::unwind(36)]
 #[kani::stub(reallyme_crypto::operations::constant_time::equal, compare_ids)]
 #[kani::stub(super::derive_public_key_from_seed, derive_fixture_public_key)]
@@ -89,6 +93,10 @@ fn ml_kem_recipient_identity_requires_both_checks_before_decapsulation() {
 }
 
 #[kani::proof]
+#[kani::stub(
+    zeroize::optimization_barrier,
+    crate::verify_zeroize_barrier_proof_tests::observe_barrier
+)]
 #[kani::unwind(14)]
 #[kani::stub(super::encode_protected_header, encode_fixture_protected)]
 #[kani::stub(super::derive_key, derive_fixture_key)]
@@ -133,6 +141,10 @@ fn ml_kem_recipient_content_key_requires_the_selected_kdf_and_unwrap() {
 }
 
 #[kani::proof]
+#[kani::stub(
+    zeroize::optimization_barrier,
+    crate::verify_zeroize_barrier_proof_tests::observe_barrier
+)]
 #[kani::unwind(12)]
 fn ml_kem_plaintext_release_requires_key_establishment_and_aead_success() {
     let key_established: bool = kani::any();

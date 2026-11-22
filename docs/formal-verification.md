@@ -7,6 +7,12 @@ serialization stages are modeled; inspect each harness's assumptions and input
 bounds before relying on its result. These proofs do not establish primitive
 cryptographic correctness or constant-time execution.
 
+Affected harnesses model Zeroize's optimization barrier as an observation that
+does not change values because Kani cannot execute its inline assembly. Volatile
+erasure writes remain in the analysis, with a dedicated harness checking fixed
+and slice buffers. This model does not prove resistance to compiler elimination;
+production builds retain the real barrier.
+
 The [formal-verification workflow](../.github/workflows/formal-verification.yml)
 runs on manual dispatch. It pins Kani 0.68.0 and verifies the release-bundle
 digest. To run locally:

@@ -159,6 +159,10 @@ fn observe_aead_input(
 }
 
 #[kani::proof]
+#[kani::stub(
+    zeroize::optimization_barrier,
+    crate::verify_zeroize_barrier_proof_tests::observe_barrier
+)]
 #[kani::unwind(12)]
 #[kani::stub(crate::encode_cbor::encode_cbor_value, reject_reserialization)]
 fn ml_kem_body_authentication_preserves_the_received_protected_bstr() {

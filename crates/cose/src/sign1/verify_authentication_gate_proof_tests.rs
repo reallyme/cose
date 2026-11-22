@@ -32,6 +32,10 @@ const SIGNATURE_FIXTURE_CHUNK: usize = 8;
 const SIGNATURE: [u8; 64] = [SIGNATURE_FIXTURE_BYTE; 64];
 
 #[kani::proof]
+#[kani::stub(
+    zeroize::optimization_barrier,
+    crate::verify_zeroize_barrier_proof_tests::observe_barrier
+)]
 #[kani::unwind(12)]
 #[kani::stub(super::decode_cose_sign1, decode_fixture)]
 #[kani::stub(super::validate_cose_sign1_policy, validate_fixture_policy)]
@@ -85,6 +89,10 @@ fn attached_sign1_releases_payload_only_after_verification() {
 }
 
 #[kani::proof]
+#[kani::stub(
+    zeroize::optimization_barrier,
+    crate::verify_zeroize_barrier_proof_tests::observe_barrier
+)]
 #[kani::unwind(12)]
 #[kani::stub(super::decode_cose_sign1, decode_fixture)]
 #[kani::stub(super::validate_cose_sign1_policy, validate_fixture_policy)]

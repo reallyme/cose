@@ -10,7 +10,7 @@ use crate::{Algorithm, CoseError};
 fn registered_identifier_selects_exact_signature_algorithm() {
     use CoseSignatureAlgorithm::{
         Ed25519, EdDsa, Es256, Es256K, Es384, Es512, Esp256, Esp384, Esp512, MlDsa44, MlDsa65,
-        MlDsa87,
+        MlDsa87, Ps256, Ps384, Ps512, Rs256, Rs384, Rs512,
     };
 
     // Use the IANA wire IDs directly so a self-consistent renumbering of both
@@ -23,12 +23,18 @@ fn registered_identifier_selects_exact_signature_algorithm() {
         -19 => Some((Ed25519, Some(Algorithm::Ed25519))),
         -35 => Some((Es384, None)),
         -36 => Some((Es512, None)),
+        -37 => Some((Ps256, None)),
+        -38 => Some((Ps384, None)),
+        -39 => Some((Ps512, None)),
         -47 => Some((Es256K, Some(Algorithm::Secp256k1))),
         -48 => Some((MlDsa44, Some(Algorithm::MlDsa44))),
         -49 => Some((MlDsa65, Some(Algorithm::MlDsa65))),
         -50 => Some((MlDsa87, Some(Algorithm::MlDsa87))),
         -51 => Some((Esp384, Some(Algorithm::P384))),
         -52 => Some((Esp512, Some(Algorithm::P521))),
+        -257 => Some((Rs256, None)),
+        -258 => Some((Rs384, None)),
+        -259 => Some((Rs512, None)),
         _ => None,
     };
     let registration = CoseSignatureAlgorithm::from_identifier(identifier);
@@ -78,6 +84,14 @@ fn registered_identifier_selects_exact_signature_algorithm() {
     kani::cover!(
         identifier < -65_536 && modern.is_err(),
         "private-use signature ID is rejected"
+    );
+    kani::cover!(
+        identifier == -37 && registration == Ok(Ps256) && modern.is_err(),
+        "RSA-PSS registration remains distinct from primitive dispatch"
+    );
+    kani::cover!(
+        identifier == -257 && registration == Ok(Rs256) && modern.is_err(),
+        "RSA PKCS1 registration remains distinct from primitive dispatch"
     );
     kani::cover!(label.is_none(), "unassigned numeric ID is reached");
 }
