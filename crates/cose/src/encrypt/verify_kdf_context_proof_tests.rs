@@ -5,7 +5,7 @@ use core::cell::Cell;
 use core::mem::ManuallyDrop;
 
 use ciborium::Value;
-use reallyme_crypto::core::{CryptoError, KdfAlgorithm, KdfFailureKind, KdfProfile};
+use reallyme_crypto::core::CryptoError;
 use reallyme_crypto::kmac::{Kmac256Key, Kmac256Output};
 use zeroize::Zeroizing;
 
@@ -226,9 +226,5 @@ fn observe_kmac(
         "key-wrap KDF with private information reaches KMAC"
     );
     kani::assume(false);
-    Err(CryptoError::Kdf {
-        algorithm: KdfAlgorithm::Kmac256,
-        profile: KdfProfile::Sp800185Kmac256,
-        kind: KdfFailureKind::InvalidParams,
-    })
+    Err(CryptoError::PRIMITIVE_INVALID_PARAMETER)
 }

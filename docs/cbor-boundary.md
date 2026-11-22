@@ -16,13 +16,18 @@ Primitive Sign1, Mac0, encryption and generic-key profiles reject floating-point
 extensions and simple values other than Boolean or null. A float's raw bits
 cannot stand in for a null payload or an EC2 Boolean selector.
 
-Shared ceilings are 1 MiB encoded input, item depth 32, 1,024 entries per
+Shared defaults are 1 MiB encoded input, item depth 32, 1,024 entries per
 collection, 65,536 structural nodes and 16,777,216 validation work credits.
 Individual operations can impose smaller limits. Tags, containers and their
 contents count toward the node limit. Compound map keys are compared by CBOR
 basic-model equality, including unordered map entries; complex comparisons can
 exhaust the work budget before the other ceilings. Resource exhaustion returns
 a fixed limit reason.
+
+The private ML-KEM Encrypt profile accepts encoded envelopes up to 1,114,112
+bytes so a 1 MiB plaintext can include its authentication tag and recipient
+material. It raises only Codec's input and aggregate byte-string budgets for
+that envelope; the other limits and other profiles retain their existing bounds.
 
 The standalone `validate_preferred_cbor` operation checks encoding and complete
 consumption. It does not validate an ISO message schema or embedded CBOR.
