@@ -23,7 +23,7 @@ fn signature1_structure_requires_received_protected_bytes() {
 #[kani::proof]
 #[kani::stub(
     zeroize::optimization_barrier,
-    crate::verify_zeroize_barrier_proof_tests::observe_barrier
+    crate::zeroize_coset::barrier_verification::observe_barrier
 )]
 #[kani::unwind(24)]
 fn signature1_structure_preserves_original_bytes_and_field_order() {

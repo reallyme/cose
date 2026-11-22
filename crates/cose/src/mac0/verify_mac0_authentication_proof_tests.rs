@@ -144,7 +144,7 @@ fn mac0_policy_binds_each_registration_and_exact_tag_length() {
 #[kani::proof]
 #[kani::stub(
     zeroize::optimization_barrier,
-    crate::verify_zeroize_barrier_proof_tests::observe_barrier
+    crate::zeroize_coset::barrier_verification::observe_barrier
 )]
 #[kani::unwind(18)]
 #[kani::stub(super::decode, decode_fixture)]

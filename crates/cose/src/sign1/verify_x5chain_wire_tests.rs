@@ -326,7 +326,7 @@ mod proof {
     #[kani::proof]
     #[kani::stub(
         zeroize::optimization_barrier,
-        crate::verify_zeroize_barrier_proof_tests::observe_barrier
+        crate::zeroize_coset::barrier_verification::observe_barrier
     )]
     #[kani::unwind(28)]
     #[kani::stub(super::super::decode_cose_sign1_with_x5chain, reject_duplicate)]
@@ -354,7 +354,7 @@ mod proof {
     #[kani::proof]
     #[kani::stub(
         zeroize::optimization_barrier,
-        crate::verify_zeroize_barrier_proof_tests::observe_barrier
+        crate::zeroize_coset::barrier_verification::observe_barrier
     )]
     #[kani::unwind(5)]
     #[kani::stub(super::super::decode_cose_sign1_with_x5chain, reject_invalid_array)]

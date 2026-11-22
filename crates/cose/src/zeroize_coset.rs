@@ -26,6 +26,10 @@ use crate::limits::{
 };
 use crate::CoseError;
 
+#[cfg(kani)]
+#[path = "zeroize_coset/verify_barrier_proof_tests.rs"]
+pub(crate) mod barrier_verification;
+
 /// Decoded CBOR tree that recursively wipes owned byte and text values.
 ///
 /// Keeping the original decoded tree alive while semantic fields are copied

@@ -34,7 +34,7 @@ const SIGNATURE: [u8; 64] = [SIGNATURE_FIXTURE_BYTE; 64];
 #[kani::proof]
 #[kani::stub(
     zeroize::optimization_barrier,
-    crate::verify_zeroize_barrier_proof_tests::observe_barrier
+    crate::zeroize_coset::barrier_verification::observe_barrier
 )]
 #[kani::unwind(12)]
 #[kani::stub(super::decode_cose_sign1, decode_fixture)]
@@ -91,7 +91,7 @@ fn attached_sign1_releases_payload_only_after_verification() {
 #[kani::proof]
 #[kani::stub(
     zeroize::optimization_barrier,
-    crate::verify_zeroize_barrier_proof_tests::observe_barrier
+    crate::zeroize_coset::barrier_verification::observe_barrier
 )]
 #[kani::unwind(12)]
 #[kani::stub(super::decode_cose_sign1, decode_fixture)]
