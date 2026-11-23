@@ -174,4 +174,4 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --verify-tag \
             --title "$RELEASE_TAG" \
-            --notes $'- introduce ISO/IEC 18013-5 signature and signed-container contracts\n- migrate protobuf consumers from manual presence flags to optional fields\n- add bounded formal verification for COSE algorithm selection, authentication inputs, key identity, and ML-KEM recipient handling\n- require Rust 1.100 and update ReallyMe Crypto and Codec to 0.4.5 and Buffa to 0.1.3'
+            --notes $'- introduce ISO/IEC 18013-5 signature and signed-container contracts\n- migrate protobuf consumers from manual presence flags to optional fields\n- add bounded formal verification for COSE algorithm selection, authentication inputs, key identity, and ML-KEM recipient handling\n- require Rust 1.100 and update ReallyMe Crypto and Codec to 0.4.6 and Buffa to 0.1.3'

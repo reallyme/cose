@@ -132,7 +132,7 @@ This example generates its key pair with `reallyme-crypto`, so add that direct
 dependency alongside `reallyme-cose`:
 
 ```toml
-reallyme-crypto = { version = "0.4.5", default-features = false, features = ["native", "dispatch", "ed25519"] }
+reallyme-crypto = { version = "0.4.6", default-features = false, features = ["native", "dispatch", "ed25519"] }
 ```
 
 ```rust
@@ -832,7 +832,7 @@ The [formal verification guide](https://github.com/reallyme/cose/blob/main/docs/
 documents the Kani checks, their input bounds, and how to run them locally.
 
 Release readiness requires crates.io dependencies for the published ReallyMe
-foundational crates: `reallyme-crypto` `^0.4.5` and `reallyme-codec` `^0.4.5`.
+foundational crates: `reallyme-crypto` `^0.4.6` and `reallyme-codec` `^0.4.6`.
 Local `../crypto` or `../codec` path dependencies are not accepted for release.
 
 The package preflight verifies the requested release commit and crate version,
