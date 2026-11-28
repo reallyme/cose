@@ -16,3 +16,20 @@ updates:
       github-actions:
         patterns:
           - "*"
+  - package-ecosystem: cargo
+    directories:
+      - /
+      - /fuzz
+      - /tools/vector-audit
+      - /tools/vector-goldens
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:00"
+      timezone: Europe/Copenhagen
+    open-pull-requests-limit: 10
+    groups:
+      cargo-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "*"
